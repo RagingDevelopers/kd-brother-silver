@@ -72,28 +72,36 @@ class Dbh extends CI_Model
 		$this->db->order_by('id', "DESC");
 		return $this->db->get($table)->row_array();
 	}
-	
-	public function findOrFail($table,$array,$type="row"){
-	    $query = $this->db->get_where($table, $array);
-    	if ($query->num_rows() > 0) :
-    	    switch($type) {
-    	        case 'row':
-    	            return $query->row_array();
-                case 'result':
-                    return $query->result_array();
-    	    }
+
+	public function findOrFail($table, $array, $type = "result")
+	{
+		$query = $this->db->get_where($table, $array);
+		if ($query->num_rows() > 0):
+			switch ($type) {
+				case 'row':
+					return $query->row_array();
+				case 'result':
+					return $query->result_array();
+			}
 		endif;
 		return false;
 	}
-	
-	public function updateWhere($table,$where,$data){
-	   return $this->db->where($where)->update($table,$data);
+
+	public function updateWhere($table, $where, $data)
+	{
+		return $this->db->where($where)->update($table, $data);
 	}
-	
-	public function find($table,$id){
-       $query = $this->db->get_where($table, ['id' => $id ]);
-       $data = $query->num_rows() > 0 ? $query->result_array() : false;
-       return $data;
+
+	public function updateRow($table, $id, $data)
+	{
+		return $this->db->where('id', $id)->update($table, $data);
+	}
+
+	public function find($table, $id)
+	{
+		$query = $this->db->get_where($table, ['id' => $id]);
+		$data = $query->num_rows() > 0 ? $query->result_array() : false;
+		return $data;
 	}
 
 	public function getLastRowWhere($table, $where, $notWhere = [])

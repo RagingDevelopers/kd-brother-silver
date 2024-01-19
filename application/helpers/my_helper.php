@@ -2,7 +2,7 @@
 
 function ci()
 {
-    $CI =& get_instance();
+    $CI = &get_instance();
     return $CI;
 }
 function Formatedate($date)
@@ -48,8 +48,6 @@ function check_login()
     $CI = $CI = ci();
     if (!$CI->session->userdata('admin_login')) {
         flash_message('danger', 'Your Session hase been Expired!!', 'login');
-
-        // redirect(site_url('login'), 'refresh');
     }
 }
 
@@ -57,15 +55,14 @@ function flash_message($class, $message = null, $url = null)
 {
     $CI = ci();
     if (is_array($class)) {
-        $msg = ['class' => $class['class'], 'message' => $class['message']];
-        return $CI->session->set_flashdata('flash', $msg);
+        $FlashMessage = ['class' => $class['class'], 'message' => $class['message']];
+    } else {
+        $FlashMessage = ['class' => $class, 'message' => $message];
     }
-    $FlashMessage = ['class' => $class, 'message' => $message];
     $CI->session->set_flashdata('flash', $FlashMessage);
 
     if (!is_null($url))
         return redirect(base_url($url));
-
 }
 
 function uri($url)
@@ -76,5 +73,3 @@ function uri($url)
     }
     return "";
 }
-
-
