@@ -33,30 +33,30 @@
         <div class="container container-tight py-4">
             <div class="text-center mb-4">
             </div>
-                <?php
-                $this->load->view('flash_message');
-                ?>
+            <?php
+            $this->load->view('flash_message');
+            ?>
             <div class="card card-md">
                 <div class="card-body">
                     <h2 class="h2 text-center mb-4">Login to your account</h2>
                     <?php echo form_open('login'); ?>
-                    <div class="mb-3">
+                    <div class="mb-2">
                         <label class="form-label">Mobile No</label>
-                        <?php echo form_input(['class' => 'form-control ', 'placeholder' => 'enter mobile no', 'id' => 'mobile', 'name' => 'mobile', 'value' => set_value("mobile")]); ?>
+                        <?php echo form_input(['class' => 'form-control ', 'placeholder' => 'Enter mobile ', 'id' => 'mobile', 'name' => 'mobile', 'value' => set_value("mobile")]); ?>
                     </div>
                     <div>
-                        <?php echo form_error('mobile'); ?>
+                        <span class="text-danger fw-bold"> <?php echo form_error('mobile'); ?> </span>
                     </div>
                     <div class="mb-2">
                         <label class="form-label">
                             Password
                         </label>
                         <div class="input-group input-group-flat">
-                            <?php echo form_password(['class' => 'form-control', 'placeholder' => 'enter password', 'id' => 'password', 'name' => 'password', 'value' => set_value("password")]); ?>
+                            <?php echo form_password(['class' => 'form-control', 'placeholder' => 'Enter password', 'id' => 'password', 'name' => 'password', 'value' => set_value("password")]); ?>
                         </div>
                     </div>
                     <div>
-                        <?php echo form_error('password'); ?>
+                        <span class="text-danger fw-bold "> <?php echo form_error('password'); ?></span>
                     </div>
                     <div class="form-footer">
                         <button type="submit" class="btn btn-primary w-100">Sign in</button>
@@ -69,4 +69,5 @@
     <!-- Tabler Core -->
     <?php $this->load->view("layout/script"); ?>
 </body>
+
 </html>
