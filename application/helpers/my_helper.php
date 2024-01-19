@@ -1,4 +1,5 @@
 <?php
+
 function ci()
 {
     $CI =& get_instance();
@@ -66,4 +67,3 @@ function uri($url)
     }
     return "";
 }
-?>
