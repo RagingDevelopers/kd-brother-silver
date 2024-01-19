@@ -29,8 +29,8 @@
                     </div>
                 </div>
                 <div class="mt-2 ">
-                    <div class="table-responsive mt-5">
-                        <table id="example1" class="table card-table table-vcenter text-center text-nowrap datatable dataTable no-footer">
+                    <div class=" mt-5">
+                        <table id="example_table" class="table table-vcenter card-table">
                             <thead>
                                 <tr>
                                     <th>Serial No </th>
