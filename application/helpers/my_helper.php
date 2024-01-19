@@ -43,6 +43,15 @@ function access_level_admin()
         redirect(base_url('admin/login'));
     }
 }
+function check_login()
+{
+    $CI = $CI = ci();
+    if (!$CI->session->userdata('admin_login')) {
+        flash_message('danger', 'Your Session hase been Expired!!', 'login');
+
+        // redirect(site_url('login'), 'refresh');
+    }
+}
 
 function flash_message($class, $message = null, $url = null)
 {
@@ -67,3 +76,5 @@ function uri($url)
     }
     return "";
 }
+
+

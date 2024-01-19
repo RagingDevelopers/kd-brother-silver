@@ -7,20 +7,22 @@ class Login extends CI_Controller
     public function __construct()
     {
         parent::__construct();
-        if ($this->session->userdata('admin_login'))
-            return redirect('admin/Dashboard');
+        if ($this->session->userdata('admin_login')) {
+            return redirect('Dashboard');
+        }
     }
 
     public function index()
     {
 
-        $this->form_validation->set_rules('mobile', 'mobile', 'trim|required');
+        $this->form_validation->set_rules('mobile', 'Mobile', 'trim|required');
         $this->form_validation->set_rules('password', 'Password ', 'trim|required');
-        $login_user = [
-            'mobile' => $this->input->post("mobile"),
-            'password' => $this->input->post("password")
-        ];
+
         if ($this->form_validation->run() == true) {
+            $login_user = [
+                'mobile' => $this->security->xss_clean($this->input->post("mobile")),
+                'password' => sha1($this->security->xss_clean($this->input->post("password")))
+            ];
 
             if ($this->db->get_where('users', ['mobile' => $login_user['mobile']])->num_rows() == 1) {
 
@@ -33,22 +35,19 @@ class Login extends CI_Controller
                         'name' => $user['name'],
                         'login' => true
                     );
-                    $this->session->set_userdata('admin_login', $loged_user);
+                    // $this->session->set_userdata('admin_login', $loged_user);
                     $this->session->set_userdata('id', $loged_user['id']);
-                    $message = ['class' => 'success my-2', 'message' => 'login in successfully'];
-                    $this->session->set_flashdata('flash', $message);
-                    redirect(base_url('admin/Dashboard'));
+                     setSession('admin_login', $loged_user);
+
+                    flash_message('success', 'login in successfully', 'Dashboard');
                 } else {
-                    $message = ['class' => 'danger', 'message' => 'Enter valid Password'];
-                    $this->session->set_flashdata('flash', $message);
-                    redirect('login');
+                    flash_message('danger', 'Enter valid Password', 'login');
                 }
             } else {
-                $message = ['class' => 'danger', 'message' => 'Invalid Mobile Number'];
-                $this->session->set_flashdata('flash', $message);
-                redirect('login');
+                flash_message('danger', 'Invalid Mobile Number', 'login');
             }
         } else {
+
             $this->load->view('login');
         }
     }
