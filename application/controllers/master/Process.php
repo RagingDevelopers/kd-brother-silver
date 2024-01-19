@@ -76,8 +76,6 @@ class Process extends CI_Controller
         }
         if ($params == "update") {
             $this->form_validation->set_rules('name', 'name', 'required');
-            $this->form_validation->set_rules('mobile_no', 'mobile_no', 'required|min_length[10]|max_length[10]');
-            $this->form_validation->set_rules('city', 'city', 'required');
             if ($this->form_validation->run() == FALSE) {
 
                 $message = ['class' => 'danger', 'message' => validation_errors()];
