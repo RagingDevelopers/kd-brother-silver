@@ -55,11 +55,9 @@ class Dbh extends CI_Model
 		}
 	}
 
-	public function deleteAllWhere($table, $arr)
+	public function deleteAllWhere($table, array $arr)
 	{
-		foreach ($arr as $key => $v) {
-			$this->db->where($key, $v);
-		}
+		$this->db->where($arr);
 		$delete = $this->db->delete($table);
 		if (!$delete) {
 			return false;
@@ -69,8 +67,7 @@ class Dbh extends CI_Model
 
 	public function getLastRow($table)
 	{
-		$this->db->order_by('id', "DESC");
-		return $this->db->get($table)->row_array();
+		return $this->db->order_by('id', "DESC")->get($table)->row_array();
 	}
 
 	public function findOrFail($table, $array, $type = "result")
@@ -100,8 +97,7 @@ class Dbh extends CI_Model
 	public function find($table, $id)
 	{
 		$query = $this->db->get_where($table, ['id' => $id]);
-		$data = $query->num_rows() > 0 ? $query->row_array() : false;
-		return $data;
+		return $query->num_rows() > 0 ? $query->row_array() : false;
 	}
 
 	public function getLastRowWhere($table, $where, $notWhere = [])
@@ -123,4 +119,5 @@ class Dbh extends CI_Model
 		}
 		return false;
 	}
+
 }

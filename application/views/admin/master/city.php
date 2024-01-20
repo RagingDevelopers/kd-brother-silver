@@ -24,7 +24,7 @@
                     </div>
                 </div>
                 <div class="mt-2 ">
-                    <div class=" mt-5">
+                    <div class=" mt-5 markdown">
                         <table id="example_table" class="table table-vcenter card-table">
                             <thead>
                                 <tr>
@@ -45,11 +45,11 @@
                                             </td>
                                             <td>
                                                 <div>
-                                                    <a class="btn btn-action bg-success text-white me-2" href="<?= base_url('master/city/edit/') . $data['id'] ?>">
+                                                    <a class="btn btn-action bg-success  text-white me-2" href="<?= base_url('master/city/edit/') . $data['id'] ?>">
                                                         <i class="far fa-edit" aria-hidden="true"></i>
                                                     </a>
 
-                                                    <a class="btn btn-action bg-danger text-white me-2" onclick="return confirm('Are you sure want to Delete.?');" href="<?= base_url('master/city/delete/') . $data['id'] ?>">
+                                                    <a class="btn btn-action bg-danger  text-white me-2" onclick="return confirm('Are you sure want to Delete.?');" href="<?= base_url('master/city/delete/') . $data['id'] ?>">
                                                         <i class="fa-solid fa-trash"></i>
                                                     </a>
                                                 </div>
