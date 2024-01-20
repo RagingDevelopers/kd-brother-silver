@@ -9,24 +9,20 @@
                 <div class="col-md-12 mb-5 ">
                     <div class="row ms-1">
                         <form class="row"
-                            action="<?= (isset($update_data)) ? base_url('master/Process/index/update') : base_url('master/Process/index/add') ?>"
+                            action="<?= (isset($update)) ? base_url("master/process/index/update/{$update['id']}") : base_url('master/process/index/store') ?>"
                             method="post">
-                            <input type="hidden" name="id" value="<?php if (isset($update_data)) {
-                                echo $update_data['id'];
-                            } ?>">
+
                             <div class="row">
                                 <div class="col-sm-3">
                                     <label class="form-label" for="prd"> Name: </label>
                                     <input class="form-control" type="text" name="name" placeholder="Enter Process Name"
-                                        value="<?php if (isset($update_data)) {
-                                            echo $update_data['name'];
-                                        } ?>" id="name" required>
+                                        value="<?= $update['name'] ?? null ?>" id="name" required>
 
                                 </div>
                                 <div class="col-md-5 md-ms-4">
                                     <label class="form-label" for="prd"> &nbsp </label>
                                     <input class="btn btn-primary " type="submit"
-                                        value="<?= isset($update_data) ? "Update" : "Submit" ?> ">
+                                        value="<?= isset($update) ? "Update" : "Submit" ?>">
                                 </div>
                             </div>
                         </form>
@@ -40,7 +36,6 @@
                                     <th>Serial No </th>
                                     <th>Action</th>
                                     <th>Name</th>
-                                    <th>User</th>
                                     <th>Created At</th>
                                 </tr>
                             </thead>
@@ -56,12 +51,12 @@
                                             <td>
                                                 <div>
                                                     <a class="btn btn-action bg-success text-white me-2"
-                                                        href="<?= base_url('master/Process/index/edit/') . $data['id'] ?>">
+                                                        href="<?= base_url('master/process/edit/') . $data['id'] ?>">
                                                         <i class="far fa-edit" aria-hidden="true"></i>
                                                     </a>
-
-
-                                                    <a class="btn btn-action bg-danger text-white me-2" onclick="return confirm('Are you sure want to Delete.?');" href="<?= base_url('master/Process/index/delete/') . $data['id'] ?>">
+                                                    <a class="btn btn-action bg-danger text-white me-2"
+                                                        onclick="return confirm('Are you sure want to Delete.?');"
+                                                        href="<?= base_url('master/process/delete/') . $data['id'] ?>">
                                                         <i class="fa-solid fa-trash"></i>
                                                     </a>
                                                 </div>
@@ -69,9 +64,6 @@
 
                                             <td>
                                                 <?= $data['name']; ?>
-                                            </td>
-                                            <td>
-                                                <?= $data['uname']; ?>
                                             </td>
                                             <td>
                                                 <?= $data['created_at']; ?>

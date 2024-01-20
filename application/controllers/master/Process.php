@@ -4,88 +4,75 @@ defined('BASEPATH') or exit('No direct script access allowed');
 
 class Process extends CI_Controller
 {
+    public $form_validation, $dbh, $input, $db;
+
+    const View = "admin/master/process";
     public function __construct()
     {
         parent::__construct();
         check_login();
+        library("dbh");
     }
 
-    public function index($params = "", $params1 = "")
+    public function index($action = "", $id = null)
     {
-        $id = $params1;
-        if ($params == "") {
-            $data['page_title'] = "Process";
-            $data['page_name'] = "admin/master/process";
+        $page_data['page_title'] = 'Process';
+        switch ($action) {
+            case "":
+                // checkPrivilege(privilege["process_view"]);
+                $page_data['data'] = $this->dbh->getResultArray('process');
+                return view(self::View, $page_data);
 
-            $this->db->select('process.*,users.name as uname');
-            $this->db->from('process');
-            $this->db->join('users', 'users.id=process.user_id', 'left');
-            $data['data'] = $this->db->get()->result_array();
-            $this->load->view('common', $data);
-        }
-        if ($params == "add") {
-            $this->form_validation->set_rules('name', 'name', 'required');
-
-            if ($this->form_validation->run() == FALSE) {
-                flash_message('danger', validation_errors(), 'master/Process');
-            } else {
-                $post = $this->input->post();
-                $data = array();
-                $data['name'] = $post['name'];
-                $data['user_id'] = $this->session->userdata('id');
-                $add = $this->db->insert('process', $data);
-                if ($add == true) {
-                    flash_message('success', 'Process Added Successfully !!', 'master/Process');
-
-                } else {
-                    flash_message('danger', 'Process Not  Added ', 'master/Process');
+            case "edit":
+                // checkPrivilege(privilege["process_edit"]);
+                $this->validateId($id);
+                $process = $this->dbh->find('process', $id);
+                if (!$process) {
+                    flash()->withError("Process Not Found")->to('master/process');
                 }
+                $page_data['data'] = $this->dbh->getResultArray('process');
+                $page_data['update'] = $process;
 
-            }
-        }
-        if ($params == "edit") {
-            $query = $this->db->get_where('process', ['id' => $id]);
-            if ($query->num_rows() == 1) {
-                $page_data['page_title'] = "Edit Process ";
-                $page_data['page_name'] = "admin/master/process";
-                $page_data['update_data'] = $this->db->get_where('process', ['id' => $id])->row_array();
-                $this->db->select('process.*,users.name as uname');
-                $this->db->from('process');
-                $this->db->join('users', 'users.id=process.user_id', 'left');
-                $page_data['data'] = $this->db->get()->result_array();
+                // pre($page_data,true);
+                return view(self::View, $page_data);
 
-                $this->load->view('common', $page_data);
-            } else {
-                flash_message('danger', 'Process does not exist', 'master/Process');
-            }
-        }
-        if ($params == "delete") {
-            $query = $this->db->get_where('process', ['id' => $id]);
-            if ($query->num_rows() > 0) {
-                $this->db->where('id', $id)->delete('process');
-                flash_message('success', 'Process deleted successfully!', 'master/Process');
-            } else {
-                flash_message('danger', 'Process  not deleted!', 'master/Process');
-            }
-        }
-        if ($params == "update") {
-            $this->form_validation->set_rules('name', 'name', 'required');
-            if ($this->form_validation->run() == FALSE) {
-                flash_message('danger', validation_errors(), 'master/Process');
+            case "store":
+                // checkPrivilege(privilege["process_add"]);
+                $validation = $this->form_validation;
+                $validation->set_rules('name', 'Name', 'required');
+                if (!$validation->run()) {
+                    return flash()->withError(validation_errors())->back();
+                }
+                $data = xss_clean($this->input->post());
+                $this->db->insert('process', $data);
+                flash()->withSuccess("Process Added Successfully")->back();
+                break;
+            case "delete":
+                die("not permission to delete");
+                // checkPrivilege(privilege["process_delete"]);
+                $this->validateId($id);
+                $this->dbh->deleteRow('process', $id);
+                flash()->withSuccess("Process Deleted Successfully")->back();
 
-            }
-            $id = $this->input->post('id');
-            $post = $this->input->post();
-            $data = array();
-            $data['name'] = $post['name'];
-            $data['user_id'] = $this->session->userdata('id');
-            $query = $this->db->get_where('process', ['id' => $id]);
-            if ($query->num_rows() == 1) {
-                $this->db->where('id', $id)->update('process', $data);
-                flash_message('success', 'Process Updated Successfully !!', 'master/Process');
-            } else {
-                flash_message('danger', 'Process Does Not Updated  !!', 'master/Process');
-            }
+                break;
+            case "update":
+                // checkPrivilege(privilege["process_edit"]);
+                $validation = $this->form_validation;
+                $validation->set_rules('name', 'Name', 'required');
+                if ($validation->run() == false) {
+                    return flash()->withError(validation_errors())->back();
+                }
+                $data = xss_clean($this->input->post());
+                $this->dbh->updateRow('process', $id, $data);
+                flash()->withSuccess("Process Updated Successfully")->to("master/process");
+                break;
+            default:
+                flash()->withError("Invalid Arguments")->back();
         }
+    }
+
+    private function validateId($id)
+    {
+        (!is_numeric($id) || empty($id)) && flash()->withError("invalid id please enter valid Id")->to("master/process");
     }
 }

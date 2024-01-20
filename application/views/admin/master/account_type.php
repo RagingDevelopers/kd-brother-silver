@@ -9,34 +9,27 @@
                 <div class="col-md-12 mb-5 ">
                     <div class="row ms-1">
                         <form class="row"
-                            action="<?= (isset($update_data)) ? base_url('master/Account_type/index/update') : base_url('master/Account_type/index/add') ?>"
+                            action="<?= (isset($update)) ? base_url("master/account_type/index/update/{$update['id']}") : base_url('master/account_type/index/store') ?>"
                             method="post">
-                            <input type="hidden" name="id" value="<?php if (isset($update_data)) {
-                                echo $update_data['id'];
-                            } ?>">
                             <div class="row">
                                 <div class="col-sm-3">
                                     <label class="form-label" for="prd"> Name: </label>
                                     <input class="form-control" type="text" name="name"
-                                        placeholder="Enter Account  Name" value="<?php if (isset($update_data)) {
-                                            echo $update_data['name'];
-                                        } ?>" id="name" required>
-
+                                        placeholder="Enter Account  Name" value="<?= $update['name'] ?? null ?>"
+                                        id="name" required>
                                 </div>
                                 <div class="col-sm-3">
                                     <label class="form-label" for="prd"> Opening Amount: </label>
                                     <input class="form-control" type="number" name="opening_amount"
-                                        placeholder="Enter Opening Amount" value="<?php if (isset($update_data)) {
-                                            echo $update_data['opening_amount'];
-                                        } ?>" id="opening_amount" required>
-
+                                        placeholder="Enter Opening Amount"
+                                        value="<?= $update['opening_amount'] ?? null ?>" id="opening_amount" required>
                                 </div>
 
                                 <div class="row">
                                     <div class="col-md-5 md-ms-4">
                                         <label class="form-label" for="prd"> &nbsp </label>
                                         <input class="btn btn-primary " type="submit"
-                                            value="<?= isset($update_data) ? "Update" : "Submit" ?> ">
+                                            value="<?= isset($update) ? "Update" : "Submit" ?>">
                                     </div>
                                 </div>
                             </div>
@@ -52,7 +45,6 @@
                                     <th>Action</th>
                                     <th>Name</th>
                                     <th>Opening Amount</th>
-                                    <th>User</th>
                                     <th>Created At</th>
                                 </tr>
                             </thead>
@@ -68,12 +60,12 @@
                                             <td>
                                                 <div>
                                                     <a class="btn btn-action bg-success text-white me-2"
-                                                        href="<?= base_url('master/Account_type/index/edit/') . $data['id'] ?>">
+                                                        href="<?= base_url('master/account_type/edit/') . $data['id'] ?>">
                                                         <i class="far fa-edit" aria-hidden="true"></i>
                                                     </a>
                                                     <a class="btn btn-action bg-danger text-white me-2"
                                                         onclick="return confirm('Are you sure want to Delete.?');"
-                                                        href="<?= base_url('master/Account_type/index/delete/') . $data['id'] ?>">
+                                                        href="<?= base_url('master/account_type/delete/') . $data['id'] ?>">
                                                         <i class="fa-solid fa-trash"></i>
                                                     </a>
                                                 </div>
@@ -84,9 +76,6 @@
                                             </td>
                                             <td>
                                                 <?= $data['opening_amount']; ?>
-                                            </td>
-                                            <td>
-                                                <?= $data['uname']; ?>
                                             </td>
                                             <td>
                                                 <?= $data['created_at']; ?>

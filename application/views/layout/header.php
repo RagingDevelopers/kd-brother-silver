@@ -40,13 +40,43 @@
                                     </a>
                                     <a class="dropdown-item" href="<?= base_url("master/account_type") ?>">
                                         <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                            <i class="fa fa-spinner" aria-hidden="true"></i>
+                                            <i class="fa-solid fa-receipt" aria-hidden="true"></i>
                                         </span>
                                         Account type
                                     </a>
                                     <a class="dropdown-item" href="<?= base_url("master/user") ?>">
                                         <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                            <i class="fa fa-spinner" aria-hidden="true"></i>
+                                            <i class="fa-solid fa-user-plus" aria-hidden="true"></i>
+                                        </span>
+                                        User
+                                    </a>
+                                    <a class="dropdown-item" href="<?= base_url("master/city") ?>">
+                                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                            <i class="fa-solid fa-city" aria-hidden="true"></i>
+                                        </span>
+                                        City
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+
+                    <li class="nav-item dropdown ">
+                        <a class="nav-link dropdown-toggle" href="#navbar-third" data-bs-toggle="dropdown"
+                            data-bs-auto-close="outside" role="button" aria-expanded="false">
+                            <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                <i class="fa-solid fa-address-card"></i>
+                            </span>
+                            <span class="nav-link-title">
+                                Registration
+                            </span>
+                        </a>
+                        <div class="dropdown-menu" data-bs-popper="static">
+                            <div class="dropdown-menu-columns">
+                                <div class="dropdown-menu-column">
+                                    <a class="dropdown-item" href="<?= base_url("master/user") ?>">
+                                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                            <i class="fa-solid fa-user-plus" aria-hidden="true"></i>
                                         </span>
                                         User
                                     </a>
@@ -97,12 +127,12 @@
                         </svg>
                         Light Mode
                     </a>
-                    <a href="" class="dropdown-item" data-bs-toggle="tooltip" data-bs-placement="left"
+                    <a href="<?= base_url() ?>" class="dropdown-item" data-bs-toggle="tooltip" data-bs-placement="left"
                         data-bs-original-title="Change Password">
                         <i class="fs-2 ti ti-key dropdown-item-icon "></i>
                         Change Password
                     </a>
-                    <a href="https://pani.shreejiset.com/admin/logout" class="dropdown-item" data-bs-toggle="tooltip"
+                    <a href="<?= base_url('dashboard/logout') ?>" class="dropdown-item" data-bs-toggle="tooltip"
                         data-bs-placement="left" data-bs-original-title="Logout">
                         <svg xmlns="http://www.w3.org/2000/svg" class="icon dropdown-item-icon" width="24" height="24"
                             viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"

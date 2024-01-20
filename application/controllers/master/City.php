@@ -56,7 +56,7 @@ class City extends CI_Controller
 
                 break;
             case "update":
-                checkPrivilege(privilege["city_delete"]);
+                // checkPrivilege(privilege["city_edit"]);
                 $validation = $this->form_validation;
                 $validation->set_rules('name', 'Name', 'required');
                 if ($validation->run() == false) {

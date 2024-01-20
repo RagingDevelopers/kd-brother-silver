@@ -21,6 +21,7 @@
   <script src="<?= base_url("assets") ?>/dist/libs/jsvectormap/dist/maps/world-merc.js?1684106062" defer></script>
   <script src="<?= base_url("assets") ?>/dist/js/tabler.min.js?1684106062" defer></script>
   <script src="<?= base_url("assets") ?>/dist/js/demo.min.js?1684106062" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
   <script class="appendHere">
 
@@ -30,6 +31,11 @@
           const perPageJs = $('.javascript').html();
           $('.appendHere').append(perPageJs);
           $('.javascript').html("");
+
+          $(' .select2').select2({
+            placeholder: "-- Select --",
+            allowClear: true,
+        });
       });
   </script>
 
