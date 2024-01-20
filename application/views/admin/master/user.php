@@ -36,10 +36,10 @@
                                     <label class="form-label" for="prd"> Type: </label>
                                     <select class="form-select select2" id="select" name="type" >
                                 <option selected value="">Select User Type</option>
-                                <option value="Admin" <?php if (!empty($update) && $update['type'] == 'Admin') {
+                                <option value="ADMIN" <?php if (!empty($update) && $update['type'] == 'ADMIN') {
                                                                     echo 'selected';
                                                                 } ?>>Admin</option>                      
-                                <option value="Other" <?php if (!empty($update) && $update['type'] == 'Other') {
+                                <option value="OTHER" <?php if (!empty($update) && $update['type'] == 'OTHER') {
                                                             echo 'selected';
                                                         } ?>>Other</option>
                                     </select>
@@ -50,10 +50,10 @@
                                     <label class="form-label" for="prd"> Status: </label>
                                     <select class="form-select select2" id="status" name="status" >
                                 <option selected value="">Select Status Type</option>
-                                <option value="Active" <?php if (!empty($update) && $update['status'] == 'Active') {
+                                <option value="ACTIVE" <?php if (!empty($update) && $update['status'] == 'ACTIVE') {
                                                                     echo 'selected';
                                                                 } ?>>Active</option>                      
-                                <option value="In-active" <?php if (!empty($update) && $update['status'] == 'In-active') {
+                                <option value="INACTIVE" <?php if (!empty($update) && $update['status'] == 'INACTIVE') {
                                                             echo 'selected';
                                                         } ?>>In-active</option>
                                     </select>

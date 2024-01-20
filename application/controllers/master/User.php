@@ -70,7 +70,7 @@ class User extends CI_Controller
                 $validation = $this->form_validation;
                 $validation->set_rules('name', 'Name', 'required');
                 $validation->set_rules('mobile', 'mobile', 'required');
-                $validation->set_rules('password', 'password', 'required');
+                // $validation->set_rules('password', 'password', 'required');
                 $validation->set_rules('type', 'type', 'required');
                 $validation->set_rules('status', 'status', 'required');
                 $validation->set_rules('balance', 'balance', 'required');
