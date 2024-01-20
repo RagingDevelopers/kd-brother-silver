@@ -15,12 +15,12 @@ class FlashRedirect {
 
     public function withSuccess($message) {
         $this->message = $message;
-        $this->type = "alert success";
+        $this->type = "success";
         return $this;
     } 
     public function withError($message) {
         $this->message = $message;
-        $this->type = "alert danger";
+        $this->type = "danger";
         return $this;
     }
     
@@ -41,7 +41,7 @@ class FlashRedirect {
     }
     
     public function go() {
-        $this->CI->session->set_flashdata('flash_message', array('class'=>$this->type,"message"=>$this->message));
+        $this->CI->session->set_flashdata('flash', array('class'=>$this->type,"message"=>$this->message));
         if(!empty($this->url)){
             redirect($this->url, 'refresh');
         }

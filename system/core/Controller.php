@@ -52,6 +52,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
  */
 class CI_Controller {
 
+	
 	/**
 	 * Reference to the CI singleton
 	 *

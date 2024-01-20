@@ -24,8 +24,8 @@
     <link href="<?= base_url("assets") ?>/dist/css/demo.min.css?1684106062" rel="stylesheet" />
 
     <link rel="stylesheet" href="<?= base_url("assets/") ?>plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
-	<link rel="stylesheet" href="<?= base_url("assets/") ?>plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
-	<link rel="stylesheet" href="<?= base_url("assets/") ?>plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
+    <link rel="stylesheet" href="<?= base_url("assets/") ?>plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+    <link rel="stylesheet" href="<?= base_url("assets/") ?>plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons@latest/iconfont/tabler-icons.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -44,7 +44,16 @@
             width: 30px;
             height: 30px;
             padding: 8px;
-            border-radius: 50%;
+            border-radius: 60%;
+        }
+
+        .btn {
+
+            transition: transform 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
         }
 
         #example_table_length {
@@ -100,14 +109,14 @@
             outline: 0;
             box-shadow: 0 0 0 0.25rem rgb(32 107 196 / 25%);
         }
-
+/* 
         .form-control:focus {
             color: inherit;
             background-color: #fff;
             border-color: #90b5e2;
             outline: 0;
             box-shadow: 0 0 0 0.25rem rgb(32 107 196 / 25%);
-        }
+        } */
 
         .select2-container--default .select2-search--dropdown .select2-search__field {
             outline: 0;
@@ -147,11 +156,7 @@
         .container-xl {
             max-width: 100% !important;
         }
-
-        /* .btn:hover {
-            color: var(--tblr-btn-color-text);
-            border-color: rgba(var(--tblr-btn-color-text-rgb), .48);
-        } */
+      
     </style>
     <script src="https://kit.fontawesome.com/62ef9efeca.js" crossorigin="anonymous"></script>
 </head>

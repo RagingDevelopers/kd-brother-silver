@@ -1,7 +1,8 @@
 <?php
 
-function view($page_data)
+function view($view, $page_data)
 {
+    $page_data['page_name'] = $view;
     return ci()->load->view('common', $page_data);
 }
 
@@ -14,5 +15,3 @@ function setSession($type, $session_data)
 {
     return ci()->session->set_userdata($type, $session_data);
 }
-
-?>
