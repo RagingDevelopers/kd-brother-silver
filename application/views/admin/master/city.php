@@ -8,12 +8,11 @@
             <div class="card-body border-bottom py-3">
                 <div class="col-md-12 mb-5 ">
                     <div class="row ms-1">
-                        <form class="row" action="<?= (isset($update_data)) ?  base_url('master/city/update') : base_url('master/city/store') ?>" method="post">
-                            <input type="hidden" name="id" value="<?= $update['id'] ?? null ?>">
+                        <form class="row" action="<?= (isset($update)) ?  base_url("master/city/index/update/{$update['id']}") : base_url('master/city/index/store') ?>" method="post">
                             <div class="row">
                                 <div class="col-sm-3">
                                     <label class="form-label" for="prd"> Name: </label>
-                                    <input class="form-control" type="text" name="name" placeholder="Enter City Name" value="<?= $update['name'] ?? null ?>" id="name" required>
+                                    <input class="form-control" type="text" name="name" placeholder="Enter City Name" value="<?= $update['name'] ?? null ?>" id="name">
 
                                 </div>
                                 <div class="col-md-5 md-ms-4">
@@ -32,7 +31,6 @@
                                     <th>Serial No </th>
                                     <th>Action</th>
                                     <th>Name</th>
-                                    <th>User </th>
                                     <th>Created At</th>
                                 </tr>
                             </thead>
@@ -61,13 +59,7 @@
                                                 <?= $data['name']; ?>
                                             </td>
                                             <td>
-                                                <?= $data['uname']; ?>
-                                            </td>
-                                            <td>
                                                 <?= $data['created_at']; ?>
-                                            </td>
-                                            <td>
-                                                <?= $data['updated_at']; ?>
                                             </td>
                                         </tr>
                                 <?php }

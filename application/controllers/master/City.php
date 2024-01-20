@@ -11,66 +11,68 @@ class City extends CI_Controller
     {
         parent::__construct();
         check_login();
-        $this->load->library("dbh");
+        library("dbh");
     }
 
-    public function index($action, $id = null)
+    public function index($action = "", $id = null)
     {
-
         $page_data['page_title'] = 'City';
         switch ($action) {
             case "":
-                // checkPrivilege("city_view");
+                // checkPrivilege(privilege["city_view"]);
                 $page_data['data'] = $this->dbh->getResultArray('city');
                 return view(self::View, $page_data);
 
             case "edit":
-                // checkPrivilege("city_edit");
+                // checkPrivilege(privilege["city_edit"]);
+                $this->validateId($id);
                 $city = $this->dbh->find('city', $id);
                 if (!$city) {
-                    flash()->withError("City Not Found")->back()->go();
+                    flash()->withError("City Not Found")->to('master/city');
                 }
+                $page_data['data'] = $this->dbh->getResultArray('city');
+                $page_data['update'] = $city;
 
-                $page_data['data'] = $this->dbh->find('city', $id);
+                // pre($page_data,true);
                 return view(self::View, $page_data);
 
             case "store":
-                // checkPrivilege("city_add");
+                // checkPrivilege(privilege["city_add"]);
                 $validation = $this->form_validation;
                 $validation->set_rules('name', 'Name', 'required');
-                if ($validation->run() == false) {
-                    return flash()->withError(validation_errors())->back()->go();
+                if (!$validation->run()) {
+                    return flash()->withError(validation_errors())->back();
                 }
-                $data = $this->input->post();
+                $data = xss_clean($this->input->post());
                 $this->db->insert('city', $data);
-                flash()->withSuccess("City Added Successfully")->back()->go();
+                flash()->withSuccess("City Added Successfully")->back();
+                break;
+            case "delete":
+                die("not permission to delete");
+                // checkPrivilege(privilege["city_delete"]);
+                $this->validateId($id);
+                $this->dbh->deleteRow('city', $id);
+                flash()->withSuccess("City Deleted Successfully")->back();
 
                 break;
             case "update":
-                // checkPrivilege("city_edit");
+                checkPrivilege(privilege["city_delete"]);
                 $validation = $this->form_validation;
                 $validation->set_rules('name', 'Name', 'required');
                 if ($validation->run() == false) {
-                    return flash()->withError(validation_errors())->back()->go();
+                    return flash()->withError(validation_errors())->back();
                 }
-                $data = $this->input->post();
+                $data = xss_clean($this->input->post());
                 $this->dbh->updateRow('city', $id, $data);
-                flash()->withSuccess("City Updated Successfully")->back()->go();
+                flash()->withSuccess("City Updated Successfully")->to("master/city");
                 break;
+            default:
+                flash()->withError("Invalid Arguments")->back();
         }
     }
 
-    public function store()
+    private function validateId($id)
     {
-        // checkPrivilege("city_add"); 
-        $validation = $this->form_validation;
-
-        $validation->set_rules('name', 'Name', 'required');
-        if ($validation->run() == false) {
-            return flash()->withError(validation_errors())->back()->go();
-        }
-        $data = $this->input->post();
-        $this->dbh->insert('city', $data);
-        flash()->withSuccess("City Added Successfully")->back()->go();
+        (!is_numeric($id) || empty($id)) && flash()->withError("invalid id please enter valid Id")->to("master/city");
     }
 }

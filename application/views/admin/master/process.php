@@ -38,7 +38,6 @@
                                     <th>Name</th>
                                     <th>User id</th>
                                     <th>Created At</th>
-                                    <th>Updated At</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -58,7 +57,7 @@
 
 
                                                     <a class="btn btn-action bg-danger text-white me-2" onclick="return confirm('Are you sure want to Delete.?');" href="<?= base_url('master/Process/index/delete/') . $data['id'] ?>">
-                                                    <i class="fa-solid fa-trash"></i>
+                                                        <i class="fa-solid fa-trash"></i>
                                                     </a>
                                                 </div>
                                             </td>
@@ -71,9 +70,6 @@
                                             </td>
                                             <td>
                                                 <?= $data['created_at']; ?>
-                                            </td>
-                                            <td>
-                                                <?= $data['updated_at']; ?>
                                             </td>
                                         </tr>
                                 <?php }
