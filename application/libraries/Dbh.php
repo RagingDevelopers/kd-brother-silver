@@ -100,7 +100,7 @@ class Dbh extends CI_Model
 	public function find($table, $id)
 	{
 		$query = $this->db->get_where($table, ['id' => $id]);
-		$data = $query->num_rows() > 0 ? $query->result_array() : false;
+		$data = $query->num_rows() > 0 ? $query->row_array() : false;
 		return $data;
 	}
 

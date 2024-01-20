@@ -61,9 +61,7 @@
                                                     </a>
 
 
-                                                    <a class="btn btn-action bg-danger text-white me-2"
-                                                        onclick="return confirm('Are you sure want to Delete.?');"
-                                                        href="<?= base_url('master/Process/index/delete/') . $data['id'] ?>">
+                                                    <a class="btn btn-action bg-danger text-white me-2" onclick="return confirm('Are you sure want to Delete.?');" href="<?= base_url('master/Process/index/delete/') . $data['id'] ?>">
                                                         <i class="fa-solid fa-trash"></i>
                                                     </a>
                                                 </div>
