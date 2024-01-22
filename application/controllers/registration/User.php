@@ -28,7 +28,7 @@ class User extends CI_Controller
                 $this->validateId($id);
                 $users = $this->dbh->find('users', $id);
                 if (!$users) {
-                    flash()->withError("Users type Not Found")->to('master/user');
+                    flash()->withError("Users type Not Found")->to('registration/user');
                 }
                 $page_data['data'] = $this->dbh->getResultArray('users');
                 $page_data['update'] = $users;
@@ -85,7 +85,7 @@ class User extends CI_Controller
                 $data['password'] = $password;
 
                 $this->dbh->updateRow('users', $id, $data);
-                flash()->withSuccess("Users type Updated Successfully")->to("master/user");
+                flash()->withSuccess("Users type Updated Successfully")->to("registration/user");
                 break;
             default:
                 flash()->withError("Invalid Arguments")->back();
@@ -94,6 +94,6 @@ class User extends CI_Controller
 
     private function validateId($id)
     {
-        (!is_numeric($id) || empty($id)) && flash()->withError("invalid id please enter valid Id")->to("master/user");
+        (!is_numeric($id) || empty($id)) && flash()->withError("invalid id please enter valid Id")->to("registration/user");
     }
 }

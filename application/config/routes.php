@@ -56,5 +56,5 @@ $route['translate_uri_dashes'] = FALSE;
 $route['master/city/edit/(:any)'] = 'master/city/index/edit/$1';
 $route['master/process/edit/(:any)'] = 'master/process/index/edit/$1';
 $route['master/account_type/edit/(:any)'] = 'master/account_type/index/edit/$1';
-$route['master/user/edit/(:any)'] = 'master/user/index/edit/$1';
-$route['master/customer_details/edit/(:any)'] = 'master/customer_details/index/edit/$1';
+$route['registration/user/edit/(:any)'] = 'registration/user/index/edit/$1';
+$route['registration/customer/edit/(:any)'] = 'registration/customer/index/edit/$1';

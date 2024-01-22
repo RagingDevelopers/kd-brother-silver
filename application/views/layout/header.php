@@ -1,5 +1,7 @@
 <div class="mb-3 sticky-top">
     <script src="<?= base_url("assets") ?>/dist/js/demo.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+    integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
     <header class="navbar navbar-expand-md navbar-light d-print-none">
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-menu"
             aria-controls="navbar-menu" aria-expanded="false" aria-label="Toggle navigation">
@@ -68,17 +70,17 @@
                         <div class="dropdown-menu" data-bs-popper="static">
                             <div class="dropdown-menu-columns">
                                 <div class="dropdown-menu-column">
-                                    <a class="dropdown-item" href="<?= base_url("master/user") ?>">
+                                    <a class="dropdown-item" href="<?= base_url("registration/user") ?>">
                                         <span class="nav-link-icon d-md-none d-lg-inline-block">
                                             <i class="fa-solid fa-user-plus" aria-hidden="true"></i>
                                         </span>
                                         User
                                     </a>
-                                    <a class="dropdown-item" href="<?= base_url("master/customer_details") ?>">
+                                    <a class="dropdown-item" href="<?= base_url("registration/customer") ?>">
                                         <span class="nav-link-icon d-md-none d-lg-inline-block">
                                             <i class="fa-solid fa-address-card" aria-hidden="true"></i>
                                         </span>
-                                        Customer Details
+                                        Customer
                                     </a>
                                 </div>
                             </div>

@@ -9,7 +9,7 @@
                 <div class="col-md-12 mb-5 ">
                     <div class="row ms-1">
                         <form class="row"
-                            action="<?= (isset($update)) ? base_url("master/customer_details/index/update/{$update['id']}") : base_url('master/customer_details/index/store') ?>"
+                            action="<?= (isset($update)) ? base_url("registration/customer/index/update/{$update['id']}") : base_url('registration/customer/index/store') ?>"
                             method="post">
                             <div class="row">
                                 <div class="col-sm-3">
@@ -23,7 +23,6 @@
                                         placeholder="Enter Mobile Number"
                                         value="<?= $update['mobile'] ?? null ?>" id="mobile" required>
                                 </div>  
-                                <?php if(!isset($update)){  ?>
                                 <div class="col-sm-3">
                                     <label class="form-label" for="prd"> City: </label>
                                     <select class="form-select select2 " name="city_id" id="city_id">
@@ -38,7 +37,6 @@
                                             <?php } ?>
                                      </select>
                                 </div>
-                                <?php } ?>
 
                                 <div class="col-sm-3">
                                     <label class="form-label" for="prd"> Account Type: </label>
@@ -55,7 +53,7 @@
                                      </select>
                                 </div>
                             </div>
-                    <div class="row mt-3">
+                                 <div class="row mt-3">
                                 <div class="col-sm-3">
                                     <label class="form-label" for="prd"> Opening Amount: </label>
                                     <input class="form-control" type="number" name="opening_amount"

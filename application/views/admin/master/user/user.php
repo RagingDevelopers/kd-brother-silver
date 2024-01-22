@@ -9,8 +9,9 @@
                 <div class="col-md-12 mb-5 ">
                     <div class="row ms-1">
                         <form class="row"
-                            action="<?= (isset($update)) ? base_url("master/user/index/update/{$update['id']}") : base_url('master/user/index/store') ?>"
+                            action="<?= (isset($update)) ? base_url("registration/user/index/update/{$update['id']}") : base_url('registration/user/index/store') ?>"
                             method="post">
+                            <input type="hidden" name="permission" id="permission" class="permission" />
                             <div class="row">
                                 <div class="col-sm-3">
                                     <label class="form-label" for="prd"> Name: </label>
@@ -76,7 +77,7 @@
                                 <div class="row">
                                     <div class="col-md-5 md-ms-4">
                                         <label class="form-label" for="prd"> &nbsp </label>
-                                        <input class="btn btn-primary " type="submit"
+                                        <input class="btn btn-primary button" type="submit"
                                             value="<?= isset($update) ? "Update" : "Submit" ?>">
                                     </div>
                                 </div>
@@ -124,13 +125,13 @@
                                             </td>
                                             <td>
                                                 <div>
-                                                    <a class="btn btn-action bg-success text-white me-2"
-                                                        href="<?= base_url('master/user/edit/') . $data['id'] ?>">
+                                                    <a class="btn btn-action bg-success text-white me-2 edit"
+                                                        href="<?= base_url('registration/user/edit/') . $data['id'] ?>">
                                                         <i class="far fa-edit" aria-hidden="true"></i>
                                                     </a>
                                                     <a class="btn btn-action bg-danger text-white me-2"
                                                         onclick="return confirm('Are you sure want to Delete.?');"
-                                                        href="<?= base_url('master/user/delete/') . $data['id'] ?>">
+                                                        href="<?= base_url('registration/user/delete/') . $data['id'] ?>">
                                                         <i class="fa-solid fa-trash"></i>
                                                     </a>
                                                 </div>
@@ -180,8 +181,19 @@
                             </tbody>
                         </table>
                     </div>
-        </div>
+                 </div>
         
-                            </div>
+             </div>
 
 </div>
+<script>
+    $(document).ready(function () {
+        $(".button").click(function(){
+        var product_ids_str = $.map($('.form-check-input:checked'), function(n, i){
+            return n.value;
+            }).join(',');
+                $('.permission').val(product_ids_str);
+        });
+    
+});
+</script>
