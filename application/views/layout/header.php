@@ -44,12 +44,6 @@
                                         </span>
                                         Account type
                                     </a>
-                                    <a class="dropdown-item" href="<?= base_url("master/user") ?>">
-                                        <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                            <i class="fa-solid fa-user-plus" aria-hidden="true"></i>
-                                        </span>
-                                        User
-                                    </a>
                                     <a class="dropdown-item" href="<?= base_url("master/city") ?>">
                                         <span class="nav-link-icon d-md-none d-lg-inline-block">
                                             <i class="fa-solid fa-city" aria-hidden="true"></i>
@@ -79,6 +73,12 @@
                                             <i class="fa-solid fa-user-plus" aria-hidden="true"></i>
                                         </span>
                                         User
+                                    </a>
+                                    <a class="dropdown-item" href="<?= base_url("master/customer_details") ?>">
+                                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                            <i class="fa-solid fa-address-card" aria-hidden="true"></i>
+                                        </span>
+                                        Customer Details
                                     </a>
                                 </div>
                             </div>

@@ -21,6 +21,10 @@ const privilege = [
 	'user_edit' => 15,
 	'user_delete' => 16,
 
+	'customer_add' => 17,
+	'customer_view' => 18,
+	'customer_edit' => 19,
+	'customer_delete' => 20,
 ];
 
 function checkPrivilege($privilegeCode)

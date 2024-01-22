@@ -44,8 +44,8 @@
                                                         } ?>>Other</option>
                                     </select>
                                 </div>
-
-
+                            </div>
+                    <div class="row mt-3">
                                 <div class="col-sm-3">
                                     <label class="form-label" for="prd"> Status: </label>
                                     <select class="form-select select2" id="status" name="status" >
@@ -60,10 +60,17 @@
                                 </div>
 
                                 <div class="col-sm-3">
-                                    <label class="form-label" for="prd"> Balance: </label>
-                                    <input class="form-control" type="number" name="balance"
-                                        placeholder="Enter balance"
-                                        value="<?= $update['balance'] ?? null ?>" id="balance" required>
+                                    <label class="form-label" for="prd"> Opening Amount: </label>
+                                    <input class="form-control" type="number" name="opening_amount"
+                                        placeholder="Enter Opening Amount"
+                                        value="<?= $update['opening_amount'] ?? null ?>" id="opening_amount" required>
+                                </div>
+
+                                <div class="col-sm-3">
+                                    <label class="form-label" for="prd"> Opening Fine: </label>
+                                    <input class="form-control" type="number" name="opening_fine"
+                                        placeholder="Enter Opening Fine"
+                                        value="<?= $update['opening_fine'] ?? null ?>" id="opening_fine" required>
                                 </div>
 
                                 <div class="row">
@@ -77,8 +84,21 @@
                         </form>
                     </div>
                 </div>
-                <div class="mt-2 ">
-                    <div class=" mt-5">
+            </div>
+        </div>
+        <div class="card mt-3">
+        <div class="card-header">
+                <div class="card-status-top bg-orange"></div>
+                <h1 class="card-title"><b> Restricted Privilege </b></h1>
+        </div>
+        <?php $this->load->view('admin/master/user/restrictedPrivilege') ?>
+        </div>
+        <div class="card mt-3">
+    <div class="card-header">
+                <div class="card-status-top bg-green"></div>
+                <h1 class="card-title"><b> User Report </b></h1>
+            </div>
+                    <div class="mt-3">
                         <table id="example_table" class="table table-vcenter card-table">
                             <thead>
                                 <tr>
@@ -88,7 +108,8 @@
                                     <th>Mobile Number</th>
                                     <th>Type</th>
                                     <th>Status</th>
-                                    <th>Balance</th>
+                                    <th>Opening Amount</th>
+                                    <th>Opening Fine</th>
                                     <th>Created At</th>
                                 </tr>
                             </thead>
@@ -123,13 +144,32 @@
                                             </td>
 
                                             <td>
+                                            <?php  if($data['type']=="ADMIN") {?>
+                                                <div class="badge bg-blue">
                                                 <?= $data['type']; ?>
+                                                </div>
+                                                <?php }else{ ?>
+                                                <div class="badge bg-red">
+                                                <?= $data['type']; ?>
+                                                </div>
+                                                <?php } ?>
                                             </td>
                                             <td>
+                                                <?php  if($data['status']=="ACTIVE") {?>
+                                                <div class="badge bg-blue">
                                                 <?= $data['status']; ?>
+                                                </div>
+                                                <?php }else{ ?>
+                                                <div class="badge bg-red">
+                                                <?= $data['status']; ?>
+                                                </div>
+                                                <?php } ?>
                                             </td>
                                             <td>
-                                                <?= $data['balance']; ?>
+                                                <?= $data['opening_amount']; ?>
+                                            </td>
+                                            <td>
+                                                <?= $data['opening_fine']; ?>
                                             </td>
                                             <td>
                                                 <?= $data['created_at']; ?>
@@ -140,8 +180,8 @@
                             </tbody>
                         </table>
                     </div>
-                </div>
-            </div>
         </div>
-    </div>
+        
+                            </div>
+
 </div>

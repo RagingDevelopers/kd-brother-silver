@@ -59,6 +59,31 @@
                                 </label><br>
                             </div>
                         </div>
+                        <div class="col-md-2">
+                            <div>
+                                <label class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="privilege" class="select_privilege" value="<?= privilege['account_type_add']; ?>" <?php if (isset($singleuser) && in_array(privilege['account_type_add'], $exploded_privilege)) {
+                                                                                                                                                                        echo "checked";
+                                                                                                                                                                    } else {
+                                                                                                                                                                    } ?>>
+                                    <span class="form-check-label">Account Type Add</span>
+                                </label>
+                                <label class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="privilege" class="select_privilege" value="<?= privilege['account_type_view']; ?>" <?php if (isset($singleuser) && in_array(privilege['account_type_view'], $exploded_privilege)) {
+                                                                                                                                                                            echo "checked";
+                                                                                                                                                                        } else {
+                                                                                                                                                                        } ?>>
+                                    <span class="form-check-label">Account Type View</span>
+                                </label>
+                                <label class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="privilege" class="select_privilege" value="<?= privilege['account_type_edit']; ?>" <?php if (isset($singleuser) && in_array(privilege['account_type_edit'], $exploded_privilege)) {
+                                                                                                                                                                            echo "checked";
+                                                                                                                                                                        } else {
+                                                                                                                                                                        } ?>>
+                                    <span class="form-check-label">Account Type Edit</span>
+                                </label><br>
+                            </div>
+                        </div>
                     </div><br>
                 </div>
             </div>
