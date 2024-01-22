@@ -1,13 +1,6 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
 
-enum Suit
-{
-    case Hearts;
-    case Diamonds;
-    case Clubs;
-    case Spades;
-}
 
 class Login extends CI_Controller
 {
@@ -22,9 +15,6 @@ class Login extends CI_Controller
 
     public function index()
     {
-
-        // library('user_agent');
-        die(Suit::Hearts);
         $this->form_validation->set_rules('mobile', 'Mobile', 'trim|required');
         $this->form_validation->set_rules('password', 'Password ', 'trim|required');
 
