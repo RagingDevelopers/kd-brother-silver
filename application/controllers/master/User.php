@@ -6,7 +6,7 @@ class User extends CI_Controller
 {
     public $form_validation, $dbh, $input, $db;
 
-    const View = "admin/master/user";
+    const View = "admin/master/user/user";
     public function __construct()
     {
         parent::__construct();
@@ -19,12 +19,12 @@ class User extends CI_Controller
         $page_data['page_title'] = 'User';
         switch ($action) {
             case "":
-                // checkPrivilege(privilege["account_type_view"]);
+                // checkPrivilege(privilege["user_view"]);
                 $page_data['data'] = $this->dbh->getResultArray('users');
                 return view(self::View, $page_data);
 
             case "edit":
-                // checkPrivilege(privilege["account_type_edit"]);
+                // checkPrivilege(privilege["user_edit"]);
                 $this->validateId($id);
                 $users = $this->dbh->find('users', $id);
                 if (!$users) {
@@ -37,14 +37,15 @@ class User extends CI_Controller
                 return view(self::View, $page_data);
 
             case "store":
-                // checkPrivilege(privilege["account_type_add"]);
+                // checkPrivilege(privilege["user_add"]);
                 $validation = $this->form_validation;
-                $validation->set_rules('name', 'Name', 'required');
-                $validation->set_rules('mobile', 'mobile', 'required');
-                $validation->set_rules('password', 'password', 'required');
-                $validation->set_rules('type', 'type', 'required');
-                $validation->set_rules('status', 'status', 'required');
-                $validation->set_rules('balance', 'balance', 'required');
+                $validation->set_rules('name', 'Name', 'required')
+                    ->set_rules('mobile', 'mobile', 'required')
+                    ->set_rules('password', 'password', 'required')
+                    ->set_rules('type', 'type', 'required')
+                    ->set_rules('status', 'status', 'required')
+                    ->set_rules('opening_amount', 'opening_amount', 'required')
+                    ->set_rules('opening_fine', 'opening_fine', 'required');
 
                 if (!$validation->run()) {
                     return flash()->withError(validation_errors())->back();
@@ -60,20 +61,21 @@ class User extends CI_Controller
                 break;
             case "delete":
                 die("not permission to delete");
-                // checkPrivilege(privilege["account_type_delete"]);
+                // checkPrivilege(privilege["user_delete"]);
                 $this->validateId($id);
                 $this->dbh->deleteRow('users', $id);
                 flash()->withSuccess("Users type Deleted Successfully")->back();
                 break;
             case "update":
-                // checkPrivilege(privilege["city_edit"]);
+                // checkPrivilege(privilege["user_edit"]);
                 $validation = $this->form_validation;
                 $validation->set_rules('name', 'Name', 'required');
                 $validation->set_rules('mobile', 'mobile', 'required');
-                $validation->set_rules('password', 'password', 'required');
+                // $validation->set_rules('password', 'password', 'required');
                 $validation->set_rules('type', 'type', 'required');
                 $validation->set_rules('status', 'status', 'required');
-                $validation->set_rules('balance', 'balance', 'required');
+                $validation->set_rules('opening_amount', 'opening_amount', 'required');
+                $validation->set_rules('opening_fine', 'opening_fine', 'required');
 
                 if ($validation->run() == false) {
                     return flash()->withError(validation_errors())->back();
