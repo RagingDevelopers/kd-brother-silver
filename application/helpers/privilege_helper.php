@@ -1,33 +1,33 @@
 <?php
 
 const privilege = [
-	'process_add' => 1,
-	'process_view' => 2,
-	'process_edit' => 3,
-	'process_delete' => 4,
+	'process_add'         => 1,
+	'process_view'        => 2,
+	'process_edit'        => 3,
+	'process_delete'      => 4,
 
-	'city_add' => 5,
-	'city_view' => 6,
-	'city_edit' => 7,
-	'city_delete' => 8,
+	'city_add'            => 5,
+	'city_view'           => 6,
+	'city_edit'           => 7,
+	'city_delete'         => 8,
 
-	'account_type_add' => 9,
-	'account_type_view' => 10,
-	'account_type_edit' => 11,
+	'account_type_add'    => 9,
+	'account_type_view'   => 10,
+	'account_type_edit'   => 11,
 	'account_type_delete' => 12,
 
-	'user_add' => 13,
-	'user_view' => 14,
-	'user_edit' => 15,
-	'user_delete' => 16,
+	'user_add'            => 13,
+	'user_view'           => 14,
+	'user_edit'           => 15,
+	'user_delete'         => 16,
 
 ];
 
 function checkPrivilege($privilegeCode)
 {
 	$ci = ci();
-	if (in_array($privilegeCode, $ci->session->userdata('privilege'))) {
-		flash_message("danger", "Access Denied", "dashboard");
+	if (in_array($privilegeCode, $ci->session->userdata('permission'))) {
+		flash()->withError('"Access Denied"')->to("dashboard");
 		exit();
 	}
 }
@@ -36,7 +36,7 @@ function isRestricted($privilegeCode)
 {
 	$ci = ci();
 	$privileges = [];
-	$privileges = $ci->session->userdata('privilege');
+	$privileges = $ci->session->userdata('permission');
 	if (!empty($privileges)) {
 		return in_array($privilegeCode, $privileges);
 	} else {

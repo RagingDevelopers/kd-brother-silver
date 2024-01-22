@@ -10,7 +10,7 @@ class Auth
 
     public function __construct()
     {
-        $this->CI = &get_instance();
+        $this->CI = ci();
         $this->CI->load->library('session');
         $this->id = $this->CI->session->userdata('admin_id') ?? null;
         $this->db = $this->CI->db;
@@ -35,9 +35,9 @@ class Auth
 
     public function can($permission)
     {
-        $givenPermission = explode(',', $this->user()->permission_menu);
-        if (!in_array($permission, $givenPermission))
-            return ($permission == "dashboard") ? false : flash()->withError('You Dont have access this resource')->to("dashboard");
+        $givenPermission = session('permission');
+        if (!in_array(privilege[$permission], $givenPermission))
+            flash()->withError("You Don't have access this resource")->to("dashboard");
         else
             return true;
     }

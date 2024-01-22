@@ -27,27 +27,27 @@
 
   </script>
   <script>
-      $(document).ready(function() {
+      setTimeout(() => {
           const perPageJs = $('.javascript').html();
           $('.appendHere').append(perPageJs);
           $('.javascript').html("");
 
           $(' .select2').select2({
-            placeholder: "-- Select --",
-            allowClear: true,
-        });
-      });
+              placeholder: "-- Select --",
+              allowClear: true,
+          });
+      }, 100)
   </script>
 
   <script>
       $(function() {
-        $("#example_table").DataTable({
-					"responsive": false,
-					"lengthChange": true,
-					"autoWidth": false,
-					"buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
-				})
-				.buttons().container().appendTo('#example_table_wrapper .col-md-6:eq(0)');
+          $("#example_table").DataTable({
+                  "responsive": false,
+                  "lengthChange": true,
+                  "autoWidth": false,
+                  "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
+              })
+              .buttons().container().appendTo('#example_table_wrapper .col-md-6:eq(0)');
           $("#example_tablepataprint").DataTable({
                   "responsive": false,
                   "lengthChange": false,

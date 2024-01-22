@@ -6,7 +6,7 @@ function view($view, $page_data)
     return ci()->load->view('common', $page_data);
 }
 
-function ession($session)
+function session($session)
 {
     return ci()->session->userdata($session);
 }

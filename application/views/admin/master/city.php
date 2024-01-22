@@ -1,6 +1,7 @@
 <div class="row">
     <div class="col-sm-12">
-        <div class="card">
+        <div class="card  card-link card-link-pop">
+            <a href="<?= base_url('master/city/index/create') ?>" class="ribbon bg-primary">Add</a>
             <div class="card-header">
                 <div class="card-status-top bg-blue"></div>
                 <h1 class="card-title"><b> City </b></h1>
@@ -8,7 +9,7 @@
             <div class="card-body border-bottom py-3">
                 <div class="col-md-12 mb-5 ">
                     <div class="row ms-1">
-                        <form class="row" action="<?= (isset($update)) ?  base_url("master/city/index/update/{$update['id']}") : base_url('master/city/index/store') ?>" method="post">
+                        <form class="row" action="<?= (isset($update)) ? base_url("master/city/index/update/{$update['id']}") : base_url('master/city/index/store') ?>" method="post">
                             <div class="row">
                                 <div class="col-sm-3">
                                     <label class="form-label" for="prd"> Name: </label>
@@ -17,58 +18,74 @@
                                 </div>
                                 <div class="col-md-5 md-ms-4">
                                     <label class="form-label" for="prd"> &nbsp </label>
-                                    <input class="btn btn-primary " type="submit" value="<?= isset($update) ? "Update" : "Submit" ?> ">
+                                    <input class="btn btn-primary submit-btn " type="submit" value="<?= isset($update) ? "Update" : "Submit" ?> ">
                                 </div>
                             </div>
                         </form>
                     </div>
                 </div>
-                <div class="mt-2 ">
-                    <div class=" mt-5 markdown">
-                        <table id="example_table" class="table table-vcenter card-table">
-                            <thead>
-                                <tr>
-                                    <th>Serial No </th>
-                                    <th>Action</th>
-                                    <th>Name</th>
-                                    <th>Created At</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php $i = 1;
-                                if (count($data)) {
-                                    foreach ($data as $data) {
-                                ?>
+                <div class="col-md-12">
+                    <?php if (count($data)) { ?>
+                        <div class="mt-2 ">
+                            <div class=" mt-5 markdown">
+                                <table id="example_table" class="table table-vcenter card-table">
+                                    <thead>
                                         <tr>
-                                            <td>
-                                                <?= $i++ ?>
-                                            </td>
-                                            <td>
-                                                <div>
-                                                    <a class="btn btn-action bg-success  text-white me-2" href="<?= base_url('master/city/edit/') . $data['id'] ?>">
-                                                        <i class="far fa-edit" aria-hidden="true"></i>
-                                                    </a>
-
-                                                    <a class="btn btn-action bg-danger  text-white me-2" onclick="return confirm('Are you sure want to Delete.?');" href="<?= base_url('master/city/delete/') . $data['id'] ?>">
-                                                        <i class="fa-solid fa-trash"></i>
-                                                    </a>
-                                                </div>
-                                            </td>
-
-                                            <td>
-                                                <?= $data['name']; ?>
-                                            </td>
-                                            <td>
-                                                <?= $data['created_at']; ?>
-                                            </td>
+                                            <th>Serial No </th>
+                                            <th>Action</th>
+                                            <th>Name</th>
+                                            <th>Created At</th>
                                         </tr>
-                                <?php }
-                                } ?>
-                            </tbody>
-                        </table>
-                    </div>
+                                    </thead>
+                                    <tbody>
+                                        <?php $i = 1;
+
+                                        foreach ($data as $data) {
+                                        ?>
+                                            <tr>
+                                                <td>
+                                                    <?= $i++ ?>
+                                                </td>
+                                                <td>
+                                                    <div>
+                                                        <a class="btn  btn-success btn-icon rounded-circle text-white me-2" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Edit City" href="<?= base_url('master/city/edit/') . $data['id'] ?>">
+                                                            <i class="far fa-edit" aria-hidden="true"></i>
+                                                        </a>
+
+                                                        <a class="btn btn-danger btn-icon rounded-circle text-white me-2" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Delete City" onclick="return confirm('Are you sure want to Delete.?');" href="<?= base_url('master/city/delete/') . $data['id'] ?>">
+                                                            <i class="fa-solid fa-trash"></i>
+                                                        </a>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <?= $data['name']; ?>
+                                                </td>
+                                                <td>
+                                                    <?= $data['created_at']; ?>
+                                                </td>
+                                            </tr>
+                                        <?php }
+                                        ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    <?php } else {
+                        $this->load->view('utils/not-found');
+                    } ?>
                 </div>
             </div>
         </div>
     </div>
 </div>
+<script  class="javascript">
+
+
+    // $(document).ready(function() {
+        $('form').on("submit", function(e) {
+            e.preventDefault();
+            console.log("clicked")
+            $(this).find('.submit-btn').attr('disabled', true).wrapInner(`<div class="spinner-border"></div>`)
+        })
+    // });
+</script>

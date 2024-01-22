@@ -93,7 +93,11 @@
                 <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown"
                     aria-label="Open user menu">
                     <span class="avatar avatar-sm"
-                        style="background-image: url(<?= base_url("assets") ?>/man.png)"></span>
+                        style="background-image: url(<?= base_url("assets") ?>/man.png)">
+                        <span class="badge bg-success"></span>
+
+                    </span>
+
                     <div class="d-none d-xl-block ps-2">
                         <div>
                             <?= ucfirst($this->session->userdata('admin_login')['name'] ?? "") ?>
