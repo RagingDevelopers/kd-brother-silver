@@ -1,19 +1,19 @@
 <?php
 
 const privilege = [
-	'process_add'         => 1,
-	'process_view'        => 2,
-	'process_edit'        => 3,
-	'process_delete'      => 4,
+	'process_add' => 1,
+	'process_view' => 2,
+	'process_edit' => 3,
+	'process_delete' => 4,
 
-	'city_add'            => 5,
-	'city_view'           => 6,
-	'city_edit'           => 7,
-	'city_delete'         => 8,
+	'city_add' => 5,
+	'city_view' => 6,
+	'city_edit' => 7,
+	'city_delete' => 8,
 
-	'account_type_add'    => 9,
-	'account_type_view'   => 10,
-	'account_type_edit'   => 11,
+	'account_type_add' => 9,
+	'account_type_view' => 10,
+	'account_type_edit' => 11,
 	'account_type_delete' => 12,
 
 	'users_add' => 13,

@@ -51,6 +51,18 @@
                                         </span>
                                         City
                                     </a>
+                                    <a class="dropdown-item" href="<?= base_url("master/category") ?>">
+                                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                            <i class="fa-solid fa-list" aria-hidden="true"></i>
+                                        </span>
+                                        Category
+                                    </a>
+                                    <a class="dropdown-item" href="<?= base_url("master/item") ?>">
+                                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                            <i class="fa-solid fa-layer-group"  aria-hidden="true"></i>
+                                        </span>
+                                        Item
+                                    </a>
                                 </div>
                             </div>
                         </div>

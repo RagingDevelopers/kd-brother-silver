@@ -1,6 +1,7 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
 
+
 class Login extends CI_Controller
 {
 
@@ -14,7 +15,6 @@ class Login extends CI_Controller
 
     public function index()
     {
-
         $this->form_validation->set_rules('mobile', 'Mobile', 'trim|required');
         $this->form_validation->set_rules('password', 'Password ', 'trim|required');
 
@@ -23,7 +23,6 @@ class Login extends CI_Controller
                 'mobile' => $this->security->xss_clean($this->input->post("mobile")),
                 'password' => sha1($this->security->xss_clean($this->input->post("password")))
             ];
-
             if ($this->db->get_where('users', ['mobile' => $login_user['mobile']])->num_rows() == 1) {
 
                 if ($this->db->get_where('users', $login_user)->num_rows() == 1) {
@@ -37,17 +36,17 @@ class Login extends CI_Controller
                     );
                     // $this->session->set_userdata('admin_login', $loged_user);
                     $this->session->set_userdata('id', $loged_user['id']);
-                     setSession('admin_login', $loged_user);
-
-                    flash_message('success', 'login in successfully', 'Dashboard');
+                    setSession('admin_login', $loged_user);
+                    setSession("admin_id", $user["id"]);
+                    setSession('permission', explode(',', $user['permission']));
+                    flash()->withSuccess("You are logged in successfully : {$user['name']}")->to("dashboard");
                 } else {
-                    flash_message('danger', 'Enter valid Password', 'login');
+                    flash()->withError("Enter valid Password")->to("login");
                 }
             } else {
-                flash_message('danger', 'Invalid Mobile Number', 'login');
+                flash()->withError("Invalid Mobile Number")->to("login");
             }
         } else {
-
             $this->load->view('login');
         }
     }
