@@ -33,7 +33,7 @@ class Customer extends CI_Controller
             case "edit":
                 // checkPrivilege(privilege["customer_edit"]);
                 $this->validateId($id);
-                $customer = $this->joinhelper->fetchJoinedTableRow('customer', ['city', 'account_type'],$id);
+                $customer = $this->joinhelper->fetchJoinedTableRow('customer', ['city', 'account_type'], $id);
                 if (!$customer) {
                     flash()->withError("Customer type Not Found")->to('registration/customer');
                 }

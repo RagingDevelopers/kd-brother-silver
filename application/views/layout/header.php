@@ -10,7 +10,7 @@
         <div class="collapse navbar-collapse ms-3" id="navbar-menu">
             <div class="d-flex flex-column flex-md-row flex-fill align-items-stretch align-items-md-center">
                 <ul class="navbar-nav">
-                    <li class="nav-item">
+                    <li class="nav-item <?=IsActive("dashboard");?>">
                         <a class="nav-link" href="<?= base_url("dashboard") ?>">
                             <span class="nav-link-icon d-md-none d-lg-inline-block">
                                 <i class="ti ti-home fs-2"></i>
@@ -68,7 +68,7 @@
                         </div>
                     </li>
 
-                    <li class="nav-item dropdown ">
+                    <li class="nav-item dropdown <?=IsActive("registration");?>">
                         <a class="nav-link dropdown-toggle" href="#navbar-third" data-bs-toggle="dropdown"
                             data-bs-auto-close="outside" role="button" aria-expanded="false">
                             <span class="nav-link-icon d-md-none d-lg-inline-block">
