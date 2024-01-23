@@ -92,6 +92,86 @@
                                     </select>
                                 </div>
 
+                            <div class="card mt-5">
+                                <div class="card-header bg-light">
+
+                                </div>
+                            <div class="row">
+                                <table class="table table-borderless">
+                                 <thead class="thead-light">
+                                        <th scope="col">Item</th>
+                                        <th scope="col">Touch</th>
+                                        <th scope="col">Extra Touch</th>
+                                        <th scope="col">Wastage</th>
+                                        <th scope="col">Label</th>
+                                        <th scope="col">Rate</th>
+                                        <th scope="col">Subtotal</th>
+                                        <th scope="col"></th>
+                                    </thead>
+                                    <tbody class="paste">
+                                      <tr class="sectiontocopy">
+                                        <td>
+                                                <select class="form-select select2 " name="city_id" id="city_id">
+                                                <option>Select City</option>
+                                                    <?php
+                                                    $city = $this->db->get('city')->result();
+                                                    foreach ($city as $value) {
+                                                    ?>
+                                                        <option value="<?= $value->id; ?>" <?php if (isset($update) && $value->id == $update['city_id']) {
+                                                                                                echo 'selected';
+                                                                                            } ?>><?= $value->name; ?></option>
+                                                    <?php } ?>
+                                            </select>
+                                    </td>
+                                     <td>
+                                        <input class="form-control" type="text" name="name" placeholder="Enter User  Name"
+                                        value="<?= $update['name'] ?? null ?>" id="name" required>
+                                    </td>
+                                    <td>
+                                        <input class="form-control" type="text" name="name" placeholder="Enter User  Name"
+                                        value="<?= $update['name'] ?? null ?>" id="name" required>
+                                    </td>
+                                    <td>
+                                        <input class="form-control" type="text" name="name" placeholder="Enter User  Name"
+                                        value="<?= $update['name'] ?? null ?>" id="name" required>
+                                    </td>
+                                    <td>
+                                        <select class="form-select select2" id="opening_fine_type" name="opening_fine_type" >
+                                            <option selected value="">Select Opening Fine Type</option>
+                                            <option value="JAMA" <?php if (!empty($update) && $update['opening_fine_type'] == 'JAMA') {
+                                                                                echo 'selected';
+                                                                            } ?>>Jama</option>                      
+                                            <option value="BAKI" <?php if (!empty($update) && $update['opening_fine_type'] == 'BAKI') {
+                                                                        echo 'selected';
+                                                                    } ?>>Baki</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <input class="form-control" type="text" name="name" placeholder="Enter User  Name"
+                                        value="<?= $update['name'] ?? null ?>" id="name" required>
+                                </td>
+                                <td>
+                                    <input class="form-control" type="text" name="name" placeholder="Enter User  Name"
+                                        value="<?= $update['name'] ?? null ?>" id="name" required>
+                                </td>
+                                <td>
+                                     <button type="button" class="btn btn-danger del ">X</button>
+                                </td>
+                                        </tr>
+                                      </div>
+                                
+                                    </tbody>
+                                    <tfoot>
+                                    <tr>
+                                    <td>      
+                                        <button type="button" class="btn btn-primary" id="add">+</button>
+                                     </td>                                    
+                                </tr>   
+                                    </tfoot>
+                            </table>
+                            </div>
+                            </div>
+
                                 <div class="row">
                                     <div class="col-md-5 md-ms-4">
                                         <label class="form-label" for="prd"> &nbsp </label>
@@ -107,3 +187,21 @@
         </div>
     </div>
 </div>
+
+<script>
+    var main_row = '';
+    $(document).ready(function() {
+        main_row = $(".sectiontocopy").html();
+    });
+    $("#add").click(function() {
+        var newContent = $("</br>").html(main_row);
+        $(".paste").append(main_row);
+        $(".product_id").select2();
+    });
+    $(document).on('click', '.del', function() {
+        var product = $(".product_id").length;
+        if (product > 1) {
+            $(this).parent().parent().remove();
+        }
+    });
+    </script>
