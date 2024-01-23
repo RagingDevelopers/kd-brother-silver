@@ -8,7 +8,7 @@
         <div class="collapse navbar-collapse ms-3" id="navbar-menu">
             <div class="d-flex flex-column flex-md-row flex-fill align-items-stretch align-items-md-center">
                 <ul class="navbar-nav">
-                    <li class="nav-item active">
+                    <li class="nav-item">
                         <a class="nav-link" href="<?= base_url("dashboard") ?>">
                             <span class="nav-link-icon d-md-none d-lg-inline-block">
                                 <i class="ti ti-home fs-2"></i>
@@ -18,7 +18,7 @@
                             </span>
                         </a>
                     </li>
-                    <li class="nav-item dropdown ">
+                    <li class="nav-item dropdown <?=IsActive("master");?>">
                         <a class="nav-link dropdown-toggle" href="#navbar-third" data-bs-toggle="dropdown"
                             data-bs-auto-close="outside" role="button" aria-expanded="false">
                             <span class="nav-link-icon d-md-none d-lg-inline-block">
@@ -31,7 +31,6 @@
                         <div class="dropdown-menu" data-bs-popper="static">
                             <div class="dropdown-menu-columns">
                                 <div class="dropdown-menu-column">
-
                                     <a class="dropdown-item" href="<?= base_url("master/process") ?>">
                                         <span class="nav-link-icon d-md-none d-lg-inline-block">
                                             <i class="fa fa-spinner" aria-hidden="true"></i>
