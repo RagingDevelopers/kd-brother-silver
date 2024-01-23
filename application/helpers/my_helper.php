@@ -73,3 +73,14 @@ function uri($url)
     }
     return "";
 }
+
+function IsActive($url)
+{
+    $CI =& get_instance();
+    $segment = $CI->uri->segment(1);
+    if ($segment == $url) {
+        return "active";
+    }
+
+    return "";
+}
