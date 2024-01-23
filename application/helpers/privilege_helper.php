@@ -16,10 +16,10 @@ const privilege = [
 	'account_type_edit' => 11,
 	'account_type_delete' => 12,
 
-	'user_add' => 13,
-	'user_view' => 14,
-	'user_edit' => 15,
-	'user_delete' => 16,
+	'users_add' => 13,
+	'users_view' => 14,
+	'users_edit' => 15,
+	'users_delete' => 16,
 
 	'customer_add' => 17,
 	'customer_view' => 18,

@@ -136,14 +136,12 @@
                                                     </a>
                                                 </div>
                                             </td>
-
                                             <td>
                                                 <?= $data['name']; ?>
                                             </td>
                                             <td>
                                                 <?= $data['mobile']; ?>
                                             </td>
-
                                             <td>
                                             <?php  if($data['type']=="ADMIN") {?>
                                                 <div class="badge bg-blue">
@@ -182,18 +180,14 @@
                         </table>
                     </div>
                  </div>
-        
              </div>
-
-</div>
+         </div>
 <script>
     $(document).ready(function () {
         $(".button").click(function(){
-        var product_ids_str = $.map($('.form-check-input:checked'), function(n, i){
-            return n.value;
-            }).join(',');
+            var product_ids_str = $.map($('.form-check-input:checked'), function(n, i){
+                return n.value;
+                }).join(',');
                 $('.permission').val(product_ids_str);
-        });
-    
-});
-</script>
+            });
+ </script>
