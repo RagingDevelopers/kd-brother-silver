@@ -59,11 +59,11 @@
                                             </td>
                                             <td>
                                                 <div>
-                                                    <a class="btn btn-action bg-success text-white me-2"
+                                                    <a class="btn btn-action bg-success text-white me-2" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Edit"
                                                         href="<?= base_url('master/account_type/edit/') . $data['id'] ?>">
                                                         <i class="far fa-edit" aria-hidden="true"></i>
                                                     </a>
-                                                    <a class="btn btn-action bg-danger text-white me-2"
+                                                    <a class="btn btn-action bg-danger text-white me-2" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Delete "
                                                         onclick="return confirm('Are you sure want to Delete.?');"
                                                         href="<?= base_url('master/account_type/delete/') . $data['id'] ?>">
                                                         <i class="fa-solid fa-trash"></i>
