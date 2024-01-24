@@ -37,10 +37,11 @@ class Customer extends CI_Controller
                 if (!$customer) {
                     flash()->withError("Customer type Not Found")->to('registration/customer');
                 }
-                $page_data['data'] = $customer;
+                // $page_data['data'] = $this->joinhelper->fetchJoinedTable('customer', ['city', 'account_type']);
+                $page_data['items'] = $this->dbh->getWhereResultArray('customer_item', ['customer_id' => $id]);
                 $page_data['update'] = $customer;
 
-                // pre($page_data,true);
+                // pre($page_data, true);
                 return view(self::ADD, $page_data);
 
             case "store":
@@ -113,6 +114,7 @@ class Customer extends CI_Controller
                     ->set_rules('opening_amount_type', 'opening_amount_type', 'required')
                     ->set_rules('opening_fine', 'opening_fine', 'required')
                     ->set_rules('opening_fine_type', 'opening_fine_type', 'required');
+                    
 
                 if ($validation->run() == false) {
                     return flash()->withError(validation_errors())->back();

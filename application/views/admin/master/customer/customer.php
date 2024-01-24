@@ -109,12 +109,13 @@
                                                 <th scope="col"></th>
                                             </thead>  
                                           
-                                            <tbody  class="paste">
-
-
-
-                                            
+                                            <tbody  class="paste">     
+                                            <?php
+                                         if (!empty($items)) {
+                                                $j = 1;
+                                                 foreach($items as $row){ ?>                                             
                                                 <tr class="sectiontocopy">
+
                                                     <td>
                                                         <select class="form-select select2 item_id" name="item_id[]" id="item_id">
                                                             <option>Select Item</option>
@@ -122,7 +123,7 @@
                                                                 $item = $this->db->get('item')->result();
                                                                 foreach ($item as $value) {
                                                                 ?>
-                                                                    <option value="<?= $value->id; ?>" <?php if (isset($update) && $value->id == $update['item_id']) {
+                                                                    <option value="<?= $value->id; ?>" <?php if (isset($row) && $value->id == $row['item_id']) {
                                                                                                             echo 'selected';
                                                                                                         } ?>><?= $value->name; ?></option>
                                                                 <?php } ?>
@@ -130,45 +131,94 @@
                                                     </td>
                                                     <td>
                                                         <input class="form-control touch" type="number" name="touch[]" placeholder="Enter touch Amount"
-                                                        value="<?= $update['touch'] ?? null ?>" id="touch" required>
+                                                        value="<?= $row['touch'] ?? null ?>" id="touch" required>
                                                     </td>
                                                         <td>
                                                             <input class="form-control extra_touch" type="number" name="extra_touch[]" placeholder="Enter Extra touch  Name"
-                                                            value="<?= $update['extra_touch'] ?? null ?>" id="extra_touch" required>
+                                                            value="<?= $row['extra_touch'] ?? null ?>" id="extra_touch" required>
                                                         </td>
                                                         <td>
                                                             <input class="form-control wastage" type="number" name="wastage[]" placeholder="Enter Wastage Amount"
-                                                            value="<?= $update['wastage'] ?? null ?>" id="wastage" required>
+                                                            value="<?= $row['wastage'] ?? null ?>" id="wastage" required>
                                                         </td>
                                                         <td>
                                                             <select class="form-select select2 label" id="label" name="label[]" >
                                                                 <option selected value="">Select Label</option>
-                                                                <option value="NET" <?php if (!empty($update) && $update['label'] == 'NET') {
+                                                                <option value="NET" <?php if (!empty($row) && $row['label'] == 'NET') {
                                                                                                     echo 'selected';
                                                                                                 } ?>>NET</option>                      
-                                                                <option value="PCS" <?php if (!empty($update) && $update['label'] == 'PCS') {
+                                                                <option value="PCS" <?php if (!empty($row) && $row['label'] == 'PCS') {
                                                                                             echo 'selected';
                                                                                         } ?>>PCS</option>
-                                                                <option value="FIXED" <?php if (!empty($update) && $update['label'] == 'FIXED') {
+                                                                <option value="FIXED" <?php if (!empty($row) && $row['label'] == 'FIXED') {
                                                                                             echo 'selected';
                                                                                         } ?>>FIXED</option>
-                                                                <option value="GROSS" <?php if (!empty($update) && $update['label'] == 'GROSS') {
+                                                                <option value="GROSS" <?php if (!empty($row) && $row['label'] == 'GROSS') {
                                                                                             echo 'selected';
                                                                                         } ?>>GROSS</option>
                                                             </select>
                                                         </td>
                                                     <td>
                                                         <input class="form-control rate" type="number" name="rate[]" placeholder="Enter Rate Amount"
-                                                            value="<?= $update['rate'] ?? null ?>" id="rate" required>
+                                                            value="<?= $row['rate'] ?? null ?>" id="rate" required>
                                                     </td>
                                                     <td>
                                                         <input class="form-control sub_total" type="number" name="sub_total" placeholder="Subtotal"
-                                                        id="sub_total" required readonly>
+                                                        id="sub_total" value="<?= $row['sub_total'] ?? null ?>" required readonly>
                                                     </td>
                                                     <td>
                                                         <button type="button" class="btn btn-danger del">X</button>
                                                     </td>
                                                 </tr>
+                                                <?php }}else{?>
+
+                                                    <tr class="sectiontocopy">
+
+                                                    <td>
+                                                        <select class="form-select select2 item_id" name="item_id[]" id="item_id">
+                                                            <option>Select Item</option>
+                                                                <?php
+                                                                $item = $this->db->get('item')->result();
+                                                                foreach ($item as $value) {
+                                                                ?>
+                                                                    <option value="<?= $value->id; ?>"><?= $value->name; ?></option>
+                                                                <?php } ?>
+                                                        </select>
+                                                    </td>
+                                                    <td>
+                                                        <input class="form-control touch" type="number" name="touch[]" placeholder="Enter touch Amount"
+                                                        value="" id="touch" required>
+                                                    </td>
+                                                        <td>
+                                                            <input class="form-control extra_touch" type="number" name="extra_touch[]" placeholder="Enter Extra touch  Name"
+                                                            value="" id="extra_touch" required>
+                                                        </td>
+                                                        <td>
+                                                            <input class="form-control wastage" type="number" name="wastage[]" placeholder="Enter Wastage Amount"
+                                                            value="" id="wastage" required>
+                                                        </td>
+                                                        <td>
+                                                            <select class="form-select select2 label" id="label" name="label[]" >
+                                                                <option selected value="">Select Label</option>
+                                                                <option value="NET" >NET</option>                      
+                                                                <option value="PCS" >PCS</option>
+                                                                <option value="FIXED" >FIXED</option>
+                                                                <option value="GROSS" >GROSS</option>
+                                                            </select>
+                                                        </td>
+                                                    <td>
+                                                        <input class="form-control rate" type="number" name="rate[]" placeholder="Enter Rate Amount"
+                                                            value="" id="rate" required>
+                                                    </td>
+                                                    <td>
+                                                        <input class="form-control sub_total" type="number" name="sub_total" placeholder="Subtotal"
+                                                        id="sub_total" value="" required readonly>
+                                                    </td>
+                                                    <td>
+                                                        <button type="button" class="btn btn-danger del">X</button>
+                                                    </td>
+                                                </tr>
+                                                    <?php } ?>
                                             </tbody>
                                             <tfoot>
                                                 <tr>

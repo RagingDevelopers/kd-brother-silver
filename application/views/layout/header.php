@@ -81,17 +81,17 @@
                         <div class="dropdown-menu" data-bs-popper="static">
                             <div class="dropdown-menu-columns">
                                 <div class="dropdown-menu-column">
-                                    <a class="dropdown-item" href="<?= base_url("registration/user") ?>">
-                                        <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                            <i class="fa-solid fa-user-plus" aria-hidden="true"></i>
-                                        </span>
-                                        User
-                                    </a>
                                     <a class="dropdown-item" href="<?= base_url("registration/customer") ?>">
                                         <span class="nav-link-icon d-md-none d-lg-inline-block">
                                             <i class="fa-solid fa-address-card" aria-hidden="true"></i>
                                         </span>
                                         Customer
+                                    </a>
+                                    <a class="dropdown-item" href="<?= base_url("registration/user") ?>">
+                                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                            <i class="fa-solid fa-user-plus" aria-hidden="true"></i>
+                                        </span>
+                                        User
                                     </a>
                                 </div>
                             </div>
