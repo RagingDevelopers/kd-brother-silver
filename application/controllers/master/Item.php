@@ -20,12 +20,12 @@ class Item extends CI_Controller
         $page_data['page_title'] = 'Item';
         switch ($action) {
             case "":
-                // checkPrivilege(privilege["item_view"]);
+                checkPrivilege(privilege["item_view"]);
                 $page_data['data'] = $this->joinhelper->fetchJoinedTable('item', ['category']);
                 return view(self::View, $page_data);
 
             case "edit":
-                // checkPrivilege(privilege["item_edit"]);
+                checkPrivilege(privilege["item_edit"]);
                 $this->validateId($id);
                 $item = $this->joinhelper->fetchJoinedTableRow('item', ['category'], $id);
                 if (!$item) {
@@ -38,7 +38,7 @@ class Item extends CI_Controller
                 return view(self::View, $page_data);
 
             case "store":
-                // checkPrivilege(privilege["item_add"]);
+                checkPrivilege(privilege["item_add"]);
                 $validation = $this->form_validation;
                 $validation->set_rules('name', 'Name', 'required');
                 if (!$validation->run()) {
@@ -48,16 +48,16 @@ class Item extends CI_Controller
                 $this->db->insert('item', $data);
                 flash()->withSuccess("Item Added Successfully")->back();
                 break;
-            case "delete":
-                die("not permission to delete");
-                // checkPrivilege(privilege["item_delete"]);
-                $this->validateId($id);
-                $this->dbh->deleteRow('item', $id);
-                flash()->withSuccess("Item Deleted Successfully")->back();
+            // case "delete":
+            //     die("not permission to delete");
+            //     // checkPrivilege(privilege["item_delete"]);
+            //     $this->validateId($id);
+            //     $this->dbh->deleteRow('item', $id);
+            //     flash()->withSuccess("Item Deleted Successfully")->back();
 
-                break;
+            //     break;
             case "update":
-                // checkPrivilege(privilege["item_edit"]);
+                checkPrivilege(privilege["item_edit"]);
                 $validation = $this->form_validation;
                 $validation->set_rules('name', 'Name', 'required');
                 if ($validation->run() == false) {

@@ -58,13 +58,13 @@ class User extends CI_Controller
                 $this->db->insert('users', $data);
                 flash()->withSuccess("Users type Added Successfully")->back();
                 break;
-            case "delete":
-                die("not permission to delete");
-                // checkPrivilege(privilege["users_delete"]);
-                $this->validateId($id);
-                $this->dbh->deleteRow('users', $id);
-                flash()->withSuccess("Users type Deleted Successfully")->back();
-                break;
+            // case "delete":
+            //     die("not permission to delete");
+            //     // checkPrivilege(privilege["users_delete"]);
+            //     $this->validateId($id);
+            //     $this->dbh->deleteRow('users', $id);
+            //     flash()->withSuccess("Users type Deleted Successfully")->back();
+            //     break;
             case "update":
                 // checkPrivilege(privilege["users_edit"]);
                 $validation = $this->form_validation;

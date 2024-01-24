@@ -19,12 +19,12 @@ class Process extends CI_Controller
         $page_data['page_title'] = 'Process';
         switch ($action) {
             case "":
-                // checkPrivilege(privilege["process_view"]);
+                checkPrivilege(privilege["process_view"]);
                 $page_data['data'] = $this->dbh->getResultArray('process');
                 return view(self::View, $page_data);
 
             case "edit":
-                // checkPrivilege(privilege["process_edit"]);
+                checkPrivilege(privilege["process_edit"]);
                 $this->validateId($id);
                 $process = $this->dbh->find('process', $id);
                 if (!$process) {
@@ -37,7 +37,7 @@ class Process extends CI_Controller
                 return view(self::View, $page_data);
 
             case "store":
-                // checkPrivilege(privilege["process_add"]);
+                checkPrivilege(privilege["process_add"]);
                 $validation = $this->form_validation;
                 $validation->set_rules('name', 'Name', 'required');
                 if (!$validation->run()) {
@@ -47,16 +47,16 @@ class Process extends CI_Controller
                 $this->db->insert('process', $data);
                 flash()->withSuccess("Process Added Successfully")->back();
                 break;
-            case "delete":
-                die("not permission to delete");
-                // checkPrivilege(privilege["process_delete"]);
-                $this->validateId($id);
-                $this->dbh->deleteRow('process', $id);
-                flash()->withSuccess("Process Deleted Successfully")->back();
+            // case "delete":
+                // die("not permission to delete");
+                // // checkPrivilege(privilege["process_delete"]);
+                // $this->validateId($id);
+                // $this->dbh->deleteRow('process', $id);
+                // flash()->withSuccess("Process Deleted Successfully")->back();
 
-                break;
+                // break;
             case "update":
-                // checkPrivilege(privilege["process_edit"]);
+                checkPrivilege(privilege["process_edit"]);
                 $validation = $this->form_validation;
                 $validation->set_rules('name', 'Name', 'required');
                 if ($validation->run() == false) {

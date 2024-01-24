@@ -19,12 +19,12 @@ class Account_type extends CI_Controller
         $page_data['page_title'] = 'Account Type';
         switch ($action) {
             case "":
-                // checkPrivilege(privilege["account_type_view"]);
+                checkPrivilege(privilege["account_type_view"]);
                 $page_data['data'] = $this->dbh->getResultArray('account_type');
                 return view(self::View, $page_data);
 
             case "edit":
-                // checkPrivilege(privilege["account_type_edit"]);
+                checkPrivilege(privilege["account_type_edit"]);
                 $this->validateId($id);
                 $account_type = $this->dbh->find('account_type', $id);
                 if (!$account_type) {
@@ -37,7 +37,7 @@ class Account_type extends CI_Controller
                 return view(self::View, $page_data);
 
             case "store":
-                // checkPrivilege(privilege["account_type_add"]);
+                checkPrivilege(privilege["account_type_add"]);
                 $validation = $this->form_validation;
                 $validation->set_rules('name', 'Name', 'required');
                 $validation->set_rules('opening_amount', 'opening_amount', 'required');
@@ -48,13 +48,13 @@ class Account_type extends CI_Controller
                 $this->db->insert('account_type', $data);
                 flash()->withSuccess("Account type Added Successfully")->back();
                 break;
-            case "delete":
-                die("not permission to delete");
-                // checkPrivilege(privilege["account_type_delete"]);
-                $this->validateId($id);
-                $this->dbh->deleteRow('account_type', $id);
-                flash()->withSuccess("Account type Deleted Successfully")->back();
-                break;
+            // case "delete":
+            //     die("not permission to delete");
+            //     // checkPrivilege(privilege["account_type_delete"]);
+            //     $this->validateId($id);
+            //     $this->dbh->deleteRow('account_type', $id);
+            //     flash()->withSuccess("Account type Deleted Successfully")->back();
+            //     break;
             case "update":
                 // checkPrivilege(privilege["city_edit"]);
                 $validation = $this->form_validation;

@@ -53,22 +53,55 @@ class Customer extends CI_Controller
                     ->set_rules('opening_amount', 'opening_amount', 'required')
                     ->set_rules('opening_amount_type', 'opening_amount_type', 'required')
                     ->set_rules('opening_fine', 'opening_fine', 'required')
-                    ->set_rules('opening_fine_type', 'opening_fine_type', 'required');
+                    ->set_rules('item_id[]', 'item_id', 'required')
+                    ->set_rules('touch[]', 'touch', 'required')
+                    ->set_rules('extra_touch[]', 'extra_touch', 'required')
+                    ->set_rules('wastage[]', 'wastage', 'required')
+                    ->set_rules('label[]', 'label', 'required')
+                    ->set_rules('sub_total[]', 'sub_total', 'required');
 
                 if (!$validation->run()) {
                     return flash()->withError(validation_errors())->back();
                 }
                 $data = xss_clean($this->input->post());
-                $this->db->insert('customer', $data);
+                $customer = array();
+                $customer['name'] = $data['name'];
+                $customer['mobile'] = $data['mobile'];
+                $customer['city_id'] = $data['city_id'];
+                $customer['account_type_id'] = $data['account_type_id'];
+                $customer['opening_amount'] = $data['opening_amount'];
+                $customer['opening_amount_type'] = $data['opening_amount_type'];
+                $customer['opening_fine'] = $data['opening_fine'];
+                $customer['opening_fine_type'] = $data['opening_fine_type'];
+
+                $this->db->insert('customer', $customer);
+                $customer_id = $this->db->insert_id();
+
+                $customer_details = $new = array();
+                for ($i = 0; $i < count($data['item_id']); $i++) {
+                    $customer_details['item_id'] = $data['item_id'][$i];
+                    $customer_details['touch'] = $data['touch'][$i];
+                    $customer_details['extra_touch'] = $data['extra_touch'][$i];
+                    $customer_details['wastage'] = $data['wastage'][$i];
+                    $customer_details['label'] = $data['label'][$i];
+                    $customer_details['rate'] = $data['rate'][$i];
+                    $customer_details['sub_total'] = $data['sub_total'][$i];
+                    $customer_details['customer_id'] = $customer_id;
+                    $new[] = $customer_details;
+                }
+
+                $this->db->insert_batch('customer_item', $new);
+
                 flash()->withSuccess("Customer type Added Successfully")->to("registration/customer");
                 break;
-            case "delete":
-                die("not permission to delete");
-                // checkPrivilege(privilege["customer_delete"]);
-                $this->validateId($id);
-                $this->dbh->deleteRow('customer', $id);
-                flash()->withSuccess("Customer type Deleted Successfully")->back();
-                break;
+
+            // case "delete":
+            //     die("not permission to delete");
+            //     // checkPrivilege(privilege["customer_delete"]);
+            //     $this->validateId($id);
+            //     $this->dbh->deleteRow('customer', $id);
+            //     flash()->withSuccess("Customer type Deleted Successfully")->back();
+            //     break;
             case "update":
                 // checkPrivilege(privilege["customer_edit"]);
                 $validation = $this->form_validation;

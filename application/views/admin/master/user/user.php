@@ -192,4 +192,5 @@
                 }).join(',');
                 $('.permission').val(product_ids_str);
             });
+        });
  </script>

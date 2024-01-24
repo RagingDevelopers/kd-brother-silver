@@ -19,12 +19,12 @@ class Category extends CI_Controller
         $page_data['page_title'] = 'Category';
         switch ($action) {
             case "":
-                // checkPrivilege(privilege["category_view"]);
+                checkPrivilege(privilege["category_view"]);
                 $page_data['data'] = $this->dbh->getResultArray('category');
                 return view(self::View, $page_data);
 
             case "edit":
-                // checkPrivilege(privilege["category_edit"]);
+                checkPrivilege(privilege["category_edit"]);
                 $this->validateId($id);
                 $category = $this->dbh->find('category', $id);
                 if (!$category) {
@@ -37,7 +37,7 @@ class Category extends CI_Controller
                 return view(self::View, $page_data);
 
             case "store":
-                // checkPrivilege(privilege["category_add"]);
+                checkPrivilege(privilege["category_add"]);
                 $validation = $this->form_validation;
                 $validation->set_rules('name', 'Name', 'required');
                 if (!$validation->run()) {
@@ -47,16 +47,16 @@ class Category extends CI_Controller
                 $this->db->insert('category', $data);
                 flash()->withSuccess("Category Added Successfully")->back();
                 break;
-            case "delete":
-                die("not permission to delete");
-                // checkPrivilege(privilege["category_delete"]);
-                $this->validateId($id);
-                $this->dbh->deleteRow('category', $id);
-                flash()->withSuccess("Category Deleted Successfully")->back();
+            // case "delete":
+            //     die("not permission to delete");
+            //     // checkPrivilege(privilege["category_delete"]);
+            //     $this->validateId($id);
+            //     $this->dbh->deleteRow('category', $id);
+            //     flash()->withSuccess("Category Deleted Successfully")->back();
 
-                break;
+            //     break;
             case "update":
-                // checkPrivilege(privilege["category_edit"]);
+                checkPrivilege(privilege["category_edit"]);
                 $validation = $this->form_validation;
                 $validation->set_rules('name', 'Name', 'required');
                 if ($validation->run() == false) {

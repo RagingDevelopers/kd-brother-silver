@@ -53,123 +53,132 @@
                                      </select>
                                 </div>
                             </div>
-                                 <div class="row mt-3">
-                                <div class="col-sm-3">
-                                    <label class="form-label" for="prd"> Opening Amount: </label>
-                                    <input class="form-control" type="number" name="opening_amount"
-                                        placeholder="Enter Opening Amount"
-                                        value="<?= $update['opening_amount'] ?? null ?>" id="opening_amount" required>
-                                </div>
-                                <div class="col-sm-3">
-                                    <label class="form-label" for="prd"> Opening Amount Type: </label>
-                                    <select class="form-select select2" id="opening_amount_type" name="opening_amount_type" >
-                                <option selected value="">Select Opening Amount Type</option>
-                                <<option value="JAMA" <?php if (!empty($update) && $update['opening_amount_type'] == 'JAMA') {
-                                                                    echo 'selected';
-                                                                } ?>>Jama</option>                      
-                                <option value="BAKI" <?php if (!empty($update) && $update['opening_amount_type'] == 'BAKI') {
-                                                            echo 'selected';
-                                                        } ?>>Baki</option>
-                                    </select>
-                                </div>
+                            <div class="row mt-3">
+                                    <div class="col-sm-3">
+                                            <label class="form-label" for="prd"> Opening Amount: </label>
+                                            <input class="form-control" type="number" name="opening_amount"
+                                                placeholder="Enter Opening Amount"
+                                                value="<?= $update['opening_amount'] ?? null ?>" id="opening_amount" required>
+                                    </div>
+                                    <div class="col-sm-3">
+                                        <label class="form-label" for="prd"> Opening Amount Type: </label>
+                                        <select class="form-select select2" id="opening_amount_type" name="opening_amount_type" >
+                                    <option selected value="">Select Opening Amount Type</option>
+                                    <option value="JAMA" <?php if (!empty($update) && $update['opening_amount_type'] == 'JAMA') {
+                                                                        echo 'selected';
+                                                                    } ?>>Jama</option>                      
+                                    <option value="BAKI" <?php if (!empty($update) && $update['opening_amount_type'] == 'BAKI') {
+                                                                echo 'selected';
+                                                            } ?>>Baki</option>
+                                        </select>
+                                    </div>
 
-                                <div class="col-sm-3">
-                                    <label class="form-label" for="prd"> Opening Fine: </label>
-                                    <input class="form-control" type="number" name="opening_fine"
-                                        placeholder="Enter Opening Fine"
-                                        value="<?= $update['opening_fine'] ?? null ?>" id="opening_fine" required>
-                                </div>
-                                <div class="col-sm-3">
-                                    <label class="form-label" for="prd"> Opening Fine Type: </label>
-                                    <select class="form-select select2" id="opening_fine_type" name="opening_fine_type" >
-                                <option selected value="">Select Opening Fine Type</option>
-                                <option value="JAMA" <?php if (!empty($update) && $update['opening_fine_type'] == 'JAMA') {
-                                                                    echo 'selected';
-                                                                } ?>>Jama</option>                      
-                                <option value="BAKI" <?php if (!empty($update) && $update['opening_fine_type'] == 'BAKI') {
-                                                            echo 'selected';
-                                                        } ?>>Baki</option>
-                                    </select>
-                                </div>
+                                    <div class="col-sm-3">
+                                        <label class="form-label" for="prd"> Opening Fine: </label>
+                                        <input class="form-control" type="number" name="opening_fine"
+                                            placeholder="Enter Opening Fine"
+                                            value="<?= $update['opening_fine'] ?? null ?>" id="opening_fine" required>
+                                    </div>
+                                    <div class="col-sm-3">
+                                        <label class="form-label" for="prd"> Opening Fine Type: </label>
+                                        <select class="form-select select2" id="opening_fine_type" name="opening_fine_type" >
+                                    <option selected value="">Select Opening Fine Type</option>
+                                    <option value="JAMA" <?php if (!empty($update) && $update['opening_fine_type'] == 'JAMA') {
+                                                                        echo 'selected';
+                                                                    } ?>>Jama</option>                      
+                                    <option value="BAKI" <?php if (!empty($update) && $update['opening_fine_type'] == 'BAKI') {
+                                                                echo 'selected';
+                                                            } ?>>Baki</option>
+                                        </select>
+                                    </div>
+                            </div>
 
                             <div class="card mt-5">
                                 <div class="card-header bg-light">
-
                                 </div>
-                            <div class="row">
-                                <table class="table table-borderless">
-                                 <thead class="thead-light">
-                                        <th scope="col">Item</th>
-                                        <th scope="col">Touch</th>
-                                        <th scope="col">Extra Touch</th>
-                                        <th scope="col">Wastage</th>
-                                        <th scope="col">Label</th>
-                                        <th scope="col">Rate</th>
-                                        <th scope="col">Subtotal</th>
-                                        <th scope="col"></th>
-                                    </thead>
-                                    <tbody class="paste">
-                                      <tr class="sectiontocopy">
-                                        <td>
-                                                <select class="form-select select2 " name="city_id" id="city_id">
-                                                <option>Select City</option>
-                                                    <?php
-                                                    $city = $this->db->get('city')->result();
-                                                    foreach ($city as $value) {
-                                                    ?>
-                                                        <option value="<?= $value->id; ?>" <?php if (isset($update) && $value->id == $update['city_id']) {
-                                                                                                echo 'selected';
-                                                                                            } ?>><?= $value->name; ?></option>
-                                                    <?php } ?>
-                                            </select>
-                                    </td>
-                                     <td>
-                                        <input class="form-control" type="text" name="name" placeholder="Enter User  Name"
-                                        value="<?= $update['name'] ?? null ?>" id="name" required>
-                                    </td>
-                                    <td>
-                                        <input class="form-control" type="text" name="name" placeholder="Enter User  Name"
-                                        value="<?= $update['name'] ?? null ?>" id="name" required>
-                                    </td>
-                                    <td>
-                                        <input class="form-control" type="text" name="name" placeholder="Enter User  Name"
-                                        value="<?= $update['name'] ?? null ?>" id="name" required>
-                                    </td>
-                                    <td>
-                                        <select class="form-select select2" id="opening_fine_type" name="opening_fine_type" >
-                                            <option selected value="">Select Opening Fine Type</option>
-                                            <option value="JAMA" <?php if (!empty($update) && $update['opening_fine_type'] == 'JAMA') {
-                                                                                echo 'selected';
-                                                                            } ?>>Jama</option>                      
-                                            <option value="BAKI" <?php if (!empty($update) && $update['opening_fine_type'] == 'BAKI') {
-                                                                        echo 'selected';
-                                                                    } ?>>Baki</option>
-                                    </select>
-                                </td>
-                                <td>
-                                    <input class="form-control" type="text" name="name" placeholder="Enter User  Name"
-                                        value="<?= $update['name'] ?? null ?>" id="name" required>
-                                </td>
-                                <td>
-                                    <input class="form-control" type="text" name="name" placeholder="Enter User  Name"
-                                        value="<?= $update['name'] ?? null ?>" id="name" required>
-                                </td>
-                                <td>
-                                     <button type="button" class="btn btn-danger del ">X</button>
-                                </td>
-                                        </tr>
-                                      </div>
-                                
-                                    </tbody>
-                                    <tfoot>
-                                    <tr>
-                                    <td>      
-                                        <button type="button" class="btn btn-primary" id="add">+</button>
-                                     </td>                                    
-                                </tr>   
-                                    </tfoot>
-                            </table>
-                            </div>
+                                <div class="row">
+                                     <table class="table table-borderless">
+                                            <thead class="thead-light">
+                                                <th scope="col">Item</th>
+                                                <th scope="col">Touch</th>
+                                                <th scope="col">Extra Touch</th>
+                                                <th scope="col">Wastage</th>
+                                                <th scope="col">Label</th>
+                                                <th scope="col">Rate</th>
+                                                <th scope="col">Subtotal</th>
+                                                <th scope="col"></th>
+                                            </thead>  
+                                          
+                                            <tbody  class="paste">
+
+
+
+                                            
+                                                <tr class="sectiontocopy">
+                                                    <td>
+                                                        <select class="form-select select2 item_id" name="item_id[]" id="item_id">
+                                                            <option>Select Item</option>
+                                                                <?php
+                                                                $item = $this->db->get('item')->result();
+                                                                foreach ($item as $value) {
+                                                                ?>
+                                                                    <option value="<?= $value->id; ?>" <?php if (isset($update) && $value->id == $update['item_id']) {
+                                                                                                            echo 'selected';
+                                                                                                        } ?>><?= $value->name; ?></option>
+                                                                <?php } ?>
+                                                        </select>
+                                                    </td>
+                                                    <td>
+                                                        <input class="form-control touch" type="number" name="touch[]" placeholder="Enter touch Amount"
+                                                        value="<?= $update['touch'] ?? null ?>" id="touch" required>
+                                                    </td>
+                                                        <td>
+                                                            <input class="form-control extra_touch" type="number" name="extra_touch[]" placeholder="Enter Extra touch  Name"
+                                                            value="<?= $update['extra_touch'] ?? null ?>" id="extra_touch" required>
+                                                        </td>
+                                                        <td>
+                                                            <input class="form-control wastage" type="number" name="wastage[]" placeholder="Enter Wastage Amount"
+                                                            value="<?= $update['wastage'] ?? null ?>" id="wastage" required>
+                                                        </td>
+                                                        <td>
+                                                            <select class="form-select select2 label" id="label" name="label[]" >
+                                                                <option selected value="">Select Label</option>
+                                                                <option value="NET" <?php if (!empty($update) && $update['label'] == 'NET') {
+                                                                                                    echo 'selected';
+                                                                                                } ?>>NET</option>                      
+                                                                <option value="PCS" <?php if (!empty($update) && $update['label'] == 'PCS') {
+                                                                                            echo 'selected';
+                                                                                        } ?>>PCS</option>
+                                                                <option value="FIXED" <?php if (!empty($update) && $update['label'] == 'FIXED') {
+                                                                                            echo 'selected';
+                                                                                        } ?>>FIXED</option>
+                                                                <option value="GROSS" <?php if (!empty($update) && $update['label'] == 'GROSS') {
+                                                                                            echo 'selected';
+                                                                                        } ?>>GROSS</option>
+                                                            </select>
+                                                        </td>
+                                                    <td>
+                                                        <input class="form-control rate" type="number" name="rate[]" placeholder="Enter Rate Amount"
+                                                            value="<?= $update['rate'] ?? null ?>" id="rate" required>
+                                                    </td>
+                                                    <td>
+                                                        <input class="form-control sub_total" type="number" name="sub_total" placeholder="Subtotal"
+                                                        id="sub_total" required readonly>
+                                                    </td>
+                                                    <td>
+                                                        <button type="button" class="btn btn-danger del">X</button>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                            <tfoot>
+                                                <tr>
+                                                        <td>      
+                                                            <button type="button" class="btn btn-primary" id="add">+</button>
+                                                        </td>                                    
+                                                </tr>   
+                                            </tfoot>
+                                      </table>
+                                </div>
                             </div>
 
                                 <div class="row">
@@ -192,16 +201,32 @@
     var main_row = '';
     $(document).ready(function() {
         main_row = $(".sectiontocopy").html();
-    });
-    $("#add").click(function() {
-        var newContent = $("</br>").html(main_row);
-        $(".paste").append(main_row);
-        $(".product_id").select2();
-    });
-    $(document).on('click', '.del', function() {
-        var product = $(".product_id").length;
-        if (product > 1) {
-            $(this).parent().parent().remove();
-        }
+    
+            $("#add").click(function() {
+                var newRow = $("<tr></tr>");
+                newRow.append(main_row);
+                $(".paste").append(newRow);
+            });
+
+            $(document).on('click', '.del', function() {
+                var item = $(".item_id").length;
+                if (item > 1) {
+                    $(this).parent().parent().remove();
+                }
+
+            });
+
+            $(document).on('keyup', '.touch,.extra_touch,.wastage,.rate', function() {
+                var $row = $(this).closest('tr'); 
+
+                    var touch = parseFloat($row.find('.touch').val()) || 0;
+                    var extra_touch = parseFloat($row.find('.extra_touch').val()) || 0;
+                    var wastage = parseFloat($row.find('.wastage').val()) || 0;
+                    var rate = parseFloat($row.find('.rate').val()) || 0;
+
+                    var sum = touch + extra_touch + wastage + rate;
+                    $row.find('.sub_total').val(sum);
+            });
+            
     });
     </script>
