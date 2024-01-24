@@ -149,7 +149,7 @@
                         <i class="fs-2 ti ti-key dropdown-item-icon "></i>
                         Change Password
                     </a>
-                    <a href="<?= base_url('dashboard/logout') ?>" class="dropdown-item" data-bs-toggle="tooltip"
+                    <a href="<?= base_url('login/logout') ?>" class="dropdown-item" data-bs-toggle="tooltip"
                         data-bs-placement="left" data-bs-original-title="Logout">
                         <svg xmlns="http://www.w3.org/2000/svg" class="icon dropdown-item-icon" width="24" height="24"
                             viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
