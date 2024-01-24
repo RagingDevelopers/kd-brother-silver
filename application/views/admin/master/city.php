@@ -1,7 +1,6 @@
 <div class="row">
     <div class="col-sm-12">
         <div class="card  card-link card-link-pop">
-            <a href="<?= base_url('master/city/index/create') ?>" class="ribbon bg-primary">Add</a>
             <div class="card-header">
                 <div class="card-status-top bg-blue"></div>
                 <h1 class="card-title"><b> City </b></h1>
