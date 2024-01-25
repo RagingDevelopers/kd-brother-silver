@@ -1,7 +1,7 @@
 <div class="mb-3 sticky-top">
     <script src="<?= base_url("assets") ?>/dist/js/demo.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"
-    integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+        integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
     <header class="navbar navbar-expand-md navbar-light d-print-none">
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-menu"
             aria-controls="navbar-menu" aria-expanded="false" aria-label="Toggle navigation">
@@ -59,7 +59,7 @@
                                     </a>
                                     <a class="dropdown-item" href="<?= base_url("master/item") ?>">
                                         <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                            <i class="fa-solid fa-layer-group"  aria-hidden="true"></i>
+                                            <i class="fa-solid fa-layer-group" aria-hidden="true"></i>
                                         </span>
                                         Item
                                     </a>
@@ -115,6 +115,30 @@
                             </div>
                         </div>
                     </li>
+
+                    <li class="nav-item dropdown <?=IsActive("manufacturing");?>">
+                        <a class="nav-link dropdown-toggle" href="#navbar-third" data-bs-toggle="dropdown"
+                            data-bs-auto-close="outside" role="button" aria-expanded="false">
+                            <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                <i class="fa-solid fa-industry"></i>
+                            </span>
+                            <span class="nav-link-title">
+                                Manufacturing
+                            </span>
+                        </a>
+                        <div class="dropdown-menu" data-bs-popper="static">
+                            <div class="dropdown-menu-columns">
+                                <div class="dropdown-menu-column">
+                                    <a class="dropdown-item" href="<?= base_url("manufacturing/garnu") ?>">
+                                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                            <i class="fa-solid fa-address-card" aria-hidden="true"></i>
+                                        </span>
+                                        Garnu
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
                 </ul>
             </div>
         </div>
@@ -123,8 +147,7 @@
             <div class="nav-item dropdown">
                 <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown"
                     aria-label="Open user menu">
-                    <span class="avatar avatar-sm"
-                        style="background-image: url(<?= base_url("assets") ?>/man.png)">
+                    <span class="avatar avatar-sm" style="background-image: url(<?= base_url("assets") ?>/man.png)">
                         <span class="badge bg-success"></span>
 
                     </span>

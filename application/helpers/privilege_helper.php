@@ -1,6 +1,7 @@
 <?php
 
 const privilege = [
+
 	'process_add' => 1,
 	'process_view' => 2,
 	'process_edit' => 3,
@@ -51,13 +52,18 @@ const privilege = [
 	'item_view' => 38,
 	'item_edit' => 39,
 	'item_delete' => 40,
+
+	'garnu_add' => 41,
+	'garnu_view' => 42,
+	'garnu_edit' => 43,
+	'garnu_delete' => 44,
 ];
 
 function checkPrivilege($privilegeCode)
 {
 	$ci = ci();
-	if (in_array($privilegeCode, $ci->session->userdata('permission'))) {
-		flash()->withError('"Access Denied"')->to("dashboard");
+	if (!in_array($privilegeCode, $ci->session->userdata('permission')) && session('is_admin')) {
+		flash()->withError('You dont have permission')->to("dashboard");
 		exit();
 	}
 }
