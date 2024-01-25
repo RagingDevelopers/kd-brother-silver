@@ -111,11 +111,13 @@
                                           
                                             <tbody  class="paste">     
                                             <?php
-                                         if (!empty($items)) {
+                                         if (!empty($update)) {
                                                 $j = 1;
                                                  foreach($items as $row){ ?>                                             
                                                 <tr class="sectiontocopy">
-
+                                               <td class="d-none"> <input type="hidden" name="sdid[]" value="<?php if (isset($items)) {
+                                                                                            echo $row['sdid'];
+                                                                                        } ?>"/></td>
                                                     <td>
                                                         <select class="form-select select2 item_id" name="item_id[]" id="item_id">
                                                             <option>Select Item</option>
@@ -173,7 +175,7 @@
                                                 <?php }}else{?>
 
                                                     <tr class="sectiontocopy">
-
+                                                     <td class="d-none"><input type="hidden" name="sdid[]" value="0"></td>
                                                     <td>
                                                         <select class="form-select select2 item_id" name="item_id[]" id="item_id">
                                                             <option>Select Item</option>
