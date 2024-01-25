@@ -60,3 +60,6 @@ $route['registration/user/edit/(:any)'] = 'registration/user/index/edit/$1';
 $route['registration/customer/edit/(:any)'] = 'registration/customer/index/edit/$1';
 $route['master/category/edit/(:any)'] = 'master/category/index/edit/$1';
 $route['master/item/edit/(:any)'] = 'master/item/index/edit/$1';
+$route['master/row_meterial_type/edit/(:any)'] = 'master/row_meterial_type/index/edit/$1';
+$route['master/row_meterial/edit/(:any)'] = 'master/row_meterial/index/edit/$1';
+$route['master/metal_type/edit/(:any)'] = 'master/metal_type/index/edit/$1';

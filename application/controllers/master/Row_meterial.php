@@ -2,11 +2,11 @@
 
 defined('BASEPATH') or exit('No direct script access allowed');
 
-class Item extends CI_Controller
+class Row_meterial extends CI_Controller
 {
     public $form_validation, $dbh, $input, $db;
 
-    const View = "admin/master/item";
+    const View = "admin/master/row_meterial";
     public function __construct()
     {
         parent::__construct();
@@ -17,38 +17,39 @@ class Item extends CI_Controller
 
     public function index($action = "", $id = null)
     {
-        $page_data['page_title'] = 'Item';
+        $page_data['page_title'] = 'Row Meterial';
         switch ($action) {
             case "":
-                checkPrivilege(privilege["item_view"]);
-                $page_data['data'] = $this->joinhelper->fetchJoinedTable('item', ['category']);
+                checkPrivilege(privilege["row_meterial_view"]);
+                $page_data['data'] = $this->joinhelper->fetchJoinedTable('row_meterial', ['row_meterial_type']);
                 return view(self::View, $page_data);
 
             case "edit":
-                checkPrivilege(privilege["item_edit"]);
+                checkPrivilege(privilege["row_meterial_edit"]);
                 $this->validateId($id);
-                $item = $this->joinhelper->fetchJoinedTableRow('item', ['category'], $id);
-                if (!$item) {
-                    flash()->withError("Item Not Found")->to('master/item');
+                $row_meterial = $this->joinhelper->fetchJoinedTableRow('row_meterial', ['row_meterial_type'], $id);
+                if (!$row_meterial) {
+                    flash()->withError("Row Meterial Not Found")->to('master/row_meterial');
                 }
-                $page_data['data'] = $this->joinhelper->fetchJoinedTable('item', ['category']);
-                $page_data['update'] = $item;
+                $page_data['data'] = $this->joinhelper->fetchJoinedTable('row_meterial', ['row_meterial_type']);
+                $page_data['update'] = $row_meterial;
 
                 // pre($page_data,true);
                 return view(self::View, $page_data);
 
             case "store":
-                checkPrivilege(privilege["item_add"]);
+                checkPrivilege(privilege["row_meterial_add"]);
                 $validation = $this->form_validation;
                 $validation->set_rules('name', 'Name', 'required');
-                $validation->set_rules('category_id', 'category_id', 'required');
+                $validation->set_rules('row_meterial_type_id', 'row_meterial_type_id', 'required');
+                $validation->set_rules('opening_stock', 'opening_stock', 'required');
 
                 if (!$validation->run()) {
                     return flash()->withError(validation_errors())->back();
                 }
                 $data = xss_clean($this->input->post());
-                $this->db->insert('item', $data);
-                flash()->withSuccess("Item Added Successfully")->back();
+                $this->db->insert('row_meterial', $data);
+                flash()->withSuccess("Row Meterial Added Successfully")->back();
                 break;
             // case "delete":
             //     die("not permission to delete");
@@ -59,17 +60,18 @@ class Item extends CI_Controller
 
             //     break;
             case "update":
-                checkPrivilege(privilege["item_edit"]);
+                checkPrivilege(privilege["row_meterial_edit"]);
                 $validation = $this->form_validation;
                 $validation->set_rules('name', 'Name', 'required');
-                $validation->set_rules('category_id', 'category_id', 'required');
-
+                $validation->set_rules('row_meterial_type_id', 'row_meterial_type_id', 'required');
+                $validation->set_rules('opening_stock', 'opening_stock', 'required');
+                
                 if ($validation->run() == false) {
                     return flash()->withError(validation_errors())->back();
                 }
                 $data = xss_clean($this->input->post());
-                $this->dbh->updateRow('item', $id, $data);
-                flash()->withSuccess("Item Updated Successfully")->to("master/item");
+                $this->dbh->updateRow('row_meterial', $id, $data);
+                flash()->withSuccess("Row Meterial Updated Successfully")->to("master/row_meterial");
                 break;
             default:
                 flash()->withError("Invalid Arguments")->back();
@@ -78,6 +80,6 @@ class Item extends CI_Controller
 
     private function validateId($id)
     {
-        (!is_numeric($id) || empty($id)) && flash()->withError("invalid id please enter valid Id")->to("master/item");
+        (!is_numeric($id) || empty($id)) && flash()->withError("invalid id please enter valid Id")->to("master/row_meterial");
     }
 }

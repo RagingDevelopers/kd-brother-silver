@@ -95,6 +95,154 @@
                                 </label><br>
                             </div>
                         </div>
+
+                        <div class="col-md-2">
+                            <div>
+                                <label class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="privilege"
+                                        class="select_privilege" value="<?= privilege['category_add']; ?>" <?php if (isset($update) && in_array(privilege['category_add_add'], $permission)) {
+                                              echo "checked";
+                                          } else {
+                                          } ?>>
+                                    <span class="form-check-label">Category Add</span>
+                                </label>
+                                <label class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="privilege"
+                                        class="select_privilege" value="<?= privilege['category_view']; ?>" <?php if (isset($update) && in_array(privilege['category_view'], $permission)) {
+                                              echo "checked";
+                                          } else {
+                                          } ?>>
+                                    <span class="form-check-label">Category View</span>
+                                </label>
+                                <label class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="privilege"
+                                        class="select_privilege" value="<?= privilege['category_edit']; ?>" <?php if (isset($update) && in_array(privilege['category_edit'], $permission)) {
+                                              echo "checked";
+                                          } else {
+                                          } ?>>
+                                    <span class="form-check-label">Category Edit</span>
+                                </label><br>
+                            </div>
+                        </div>
+
+                        <div class="col-md-2">
+                            <div>
+                                <label class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="privilege"
+                                        class="select_privilege" value="<?= privilege['item_add']; ?>" <?php if (isset($update) && in_array(privilege['item_add'], $permission)) {
+                                              echo "checked";
+                                          } else {
+                                          } ?>>
+                                    <span class="form-check-label">Item Add</span>
+                                </label>
+                                <label class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="privilege"
+                                        class="select_privilege" value="<?= privilege['item_view']; ?>" <?php if (isset($update) && in_array(privilege['item_view'], $permission)) {
+                                              echo "checked";
+                                          } else {
+                                          } ?>>
+                                    <span class="form-check-label">Item View</span>
+                                </label>
+                                <label class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="privilege"
+                                        class="select_privilege" value="<?= privilege['item_edit']; ?>" <?php if (isset($update) && in_array(privilege['item_edit'], $permission)) {
+                                              echo "checked";
+                                          } else {
+                                          } ?>>
+                                    <span class="form-check-label">Item Edit</span>
+                                </label><br>
+                            </div>
+                        </div>
+
+                        <div class="col-md-2">
+                            <div>
+                                <label class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="privilege"
+                                        class="select_privilege" value="<?= privilege['row_meterial_type_add']; ?>"
+                                        <?php if (isset($update) && in_array(privilege['row_meterial_type_add'], $permission)) {
+                                            echo "checked";
+                                        } else {
+                                        } ?>>
+                                    <span class="form-check-label">Row Meterial Type Add</span>
+                                </label>
+                                <label class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="privilege"
+                                        class="select_privilege" value="<?= privilege['row_meterial_type_view']; ?>"
+                                        <?php if (isset($update) && in_array(privilege['row_meterial_type_view'], $permission)) {
+                                            echo "checked";
+                                        } else {
+                                        } ?>>
+                                    <span class="form-check-label">Row Meterial Type View</span>
+                                </label>
+                                <label class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="privilege"
+                                        class="select_privilege" value="<?= privilege['row_meterial_type_edit']; ?>"
+                                        <?php if (isset($update) && in_array(privilege['row_meterial_type_edit'], $permission)) {
+                                            echo "checked";
+                                        } else {
+                                        } ?>>
+                                    <span class="form-check-label">Row Meterial Type Edit</span>
+                                </label><br>
+                            </div>
+                        </div>
+
+                        <div class="col-md-2">
+                            <div>
+                                <label class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="privilege"
+                                        class="select_privilege" value="<?= privilege['row_meterial_add']; ?>" <?php if (isset($update) && in_array(privilege['row_meterial_add'], $permission)) {
+                                              echo "checked";
+                                          } else {
+                                          } ?>>
+                                    <span class="form-check-label">Row Meterial Add</span>
+                                </label>
+                                <label class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="privilege"
+                                        class="select_privilege" value="<?= privilege['row_meterial_view']; ?>" <?php if (isset($update) && in_array(privilege['row_meterial_view'], $permission)) {
+                                              echo "checked";
+                                          } else {
+                                          } ?>>
+                                    <span class="form-check-label">Row Meterial View</span>
+                                </label>
+                                <label class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="privilege"
+                                        class="select_privilege" value="<?= privilege['row_meterial_edit']; ?>" <?php if (isset($update) && in_array(privilege['row_meterial_edit'], $permission)) {
+                                              echo "checked";
+                                          } else {
+                                          } ?>>
+                                    <span class="form-check-label">Row Meterial Edit</span>
+                                </label><br>
+                            </div>
+                        </div>
+
+                        <div class="col-md-2">
+                            <div>
+                                <label class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="privilege"
+                                        class="select_privilege" value="<?= privilege['metal_type_add']; ?>" <?php if (isset($update) && in_array(privilege['metal_type_add'], $permission)) {
+                                              echo "checked";
+                                          } else {
+                                          } ?>>
+                                    <span class="form-check-label">Metal Type Add</span>
+                                </label>
+                                <label class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="privilege"
+                                        class="select_privilege" value="<?= privilege['metal_type_view']; ?>" <?php if (isset($update) && in_array(privilege['metal_type_view'], $permission)) {
+                                              echo "checked";
+                                          } else {
+                                          } ?>>
+                                    <span class="form-check-label">Metal Type View</span>
+                                </label>
+                                <label class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="privilege"
+                                        class="select_privilege" value="<?= privilege['metal_type_edit']; ?>" <?php if (isset($update) && in_array(privilege['metal_type_edit'], $permission)) {
+                                              echo "checked";
+                                          } else {
+                                          } ?>>
+                                    <span class="form-check-label">Metal Type Edit</span>
+                                </label><br>
+                            </div>
+                        </div>
                     </div><br>
                 </div>
             </div>

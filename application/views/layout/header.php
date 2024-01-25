@@ -63,6 +63,24 @@
                                         </span>
                                         Item
                                     </a>
+                                    <a class="dropdown-item" href="<?= base_url("master/row_meterial_type") ?>">
+                                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                            <i class="fa-solid fa-dumpster-fire" aria-hidden="true"></i>
+                                        </span>
+                                        Row Meterial type
+                                    </a>
+                                    <a class="dropdown-item" href="<?= base_url("master/row_meterial") ?>">
+                                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                            <i class="fa-brands fa-dropbox" aria-hidden="true"></i>
+                                        </span>
+                                        Row Meterial
+                                    </a>
+                                    <a class="dropdown-item" href="<?= base_url("master/metal_type") ?>">
+                                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                            <i class="fa-brands fa-squarespace" aria-hidden="true"></i>
+                                        </span>
+                                        Metal Type
+                                    </a>
                                 </div>
                             </div>
                         </div>

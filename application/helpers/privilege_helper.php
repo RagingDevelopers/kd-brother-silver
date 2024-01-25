@@ -25,6 +25,32 @@ const privilege = [
 	'customer_view' => 18,
 	'customer_edit' => 19,
 	'customer_delete' => 20,
+
+	'row_meterial_type_add' => 21,
+	'row_meterial_type_view' => 22,
+	'row_meterial_type_edit' => 23,
+	'row_meterial_type_delete' => 24,
+
+	'row_meterial_add' => 25,
+	'row_meterial_view' => 26,
+	'row_meterial_edit' => 27,
+	'row_meterial_delete' => 28,
+
+	'metal_type_add' => 29,
+	'metal_type_view' => 30,
+	'metal_type_edit' => 31,
+	'metal_type_delete' => 32,
+
+
+	'category_add' => 33,
+	'category_view' => 34,
+	'category_edit' => 35,
+	'category_delete' => 36,
+
+	'item_add' => 37,
+	'item_view' => 38,
+	'item_edit' => 39,
+	'item_delete' => 40,
 ];
 
 function checkPrivilege($privilegeCode)
