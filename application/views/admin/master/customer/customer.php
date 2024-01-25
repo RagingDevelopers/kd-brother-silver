@@ -100,7 +100,6 @@
                                      <table class="table table-borderless">
                                             <thead class="thead-light">
                                                 <th scope="col">Item</th>
-                                                <th scope="col">Touch</th>
                                                 <th scope="col">Extra Touch</th>
                                                 <th scope="col">Wastage</th>
                                                 <th scope="col">Label</th>
@@ -128,10 +127,6 @@
                                                                                                         } ?>><?= $value->name; ?></option>
                                                                 <?php } ?>
                                                         </select>
-                                                    </td>
-                                                    <td>
-                                                        <input class="form-control touch" type="number" name="touch[]" placeholder="Enter touch Amount"
-                                                        value="<?= $row['touch'] ?? null ?>" id="touch" required>
                                                     </td>
                                                         <td>
                                                             <input class="form-control extra_touch" type="number" name="extra_touch[]" placeholder="Enter Extra touch  Name"
@@ -185,10 +180,7 @@
                                                                 <?php } ?>
                                                         </select>
                                                     </td>
-                                                    <td>
-                                                        <input class="form-control touch" type="number" name="touch[]" placeholder="Enter touch Amount"
-                                                        value="" id="touch" required>
-                                                    </td>
+                                                  
                                                         <td>
                                                             <input class="form-control extra_touch" type="number" name="extra_touch[]" placeholder="Enter Extra touch  Name"
                                                             value="" id="extra_touch" required>
@@ -254,6 +246,8 @@
             $("#add").click(function() {               
                 $(".append-here").append(main_row);
                 $('.append-here tr').last().find('.sdid').val(0);
+                $('.append-here tr').last().find('.extra_touch, .wastage,.rate,.item_id,.label,.sub_total').val('');
+                $('.append-here tr').last().find('.label, .item_id').select2();
             });
 
             $(document).on('click', '.del', function() {
@@ -263,17 +257,14 @@
                 }
             });
 
-            $(document).on('keyup', '.touch,.extra_touch,.wastage,.rate', function() {
+            $(document).on('keyup', '.extra_touch,.wastage', function() {
                 var $row = $(this).closest('tr'); 
 
-                    var touch = parseFloat($row.find('.touch').val()) || 0;
                     var extra_touch = parseFloat($row.find('.extra_touch').val()) || 0;
                     var wastage = parseFloat($row.find('.wastage').val()) || 0;
-                    var rate = parseFloat($row.find('.rate').val()) || 0;
 
-                    var sum = touch + extra_touch + wastage + rate;
+                    var sum =  extra_touch + wastage
                     $row.find('.sub_total').val(sum);
             });
-            
-    });
+        });
     </script>

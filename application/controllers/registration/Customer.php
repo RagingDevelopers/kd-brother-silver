@@ -55,7 +55,6 @@ class Customer extends CI_Controller
                     ->set_rules('opening_amount_type', 'opening_amount_type', 'required')
                     ->set_rules('opening_fine', 'opening_fine', 'required')
                     ->set_rules('item_id[]', 'item_id', 'required')
-                    ->set_rules('touch[]', 'touch', 'required')
                     ->set_rules('extra_touch[]', 'extra_touch', 'required')
                     ->set_rules('wastage[]', 'wastage', 'required')
                     ->set_rules('label[]', 'label', 'required')
@@ -81,7 +80,6 @@ class Customer extends CI_Controller
                 $customer_details = $new = array();
                 for ($i = 0; $i < count($data['item_id']); $i++) {
                     $customer_details['item_id'] = $data['item_id'][$i];
-                    $customer_details['touch'] = $data['touch'][$i];
                     $customer_details['extra_touch'] = $data['extra_touch'][$i];
                     $customer_details['wastage'] = $data['wastage'][$i];
                     $customer_details['label'] = $data['label'][$i];
@@ -115,7 +113,6 @@ class Customer extends CI_Controller
                     ->set_rules('opening_fine', 'opening_fine', 'required')
                     ->set_rules('opening_fine_type', 'opening_fine_type', 'required')
                     ->set_rules('item_id[]', 'item_id', 'required')
-                    ->set_rules('touch[]', 'touch', 'required')
                     ->set_rules('extra_touch[]', 'extra_touch', 'required')
                     ->set_rules('wastage[]', 'wastage', 'required')
                     ->set_rules('label[]', 'label', 'required')
@@ -145,10 +142,9 @@ class Customer extends CI_Controller
                         $this->db->where(['id' => $row['id']])->delete('customer_item');
                     }
                 }
-                for ($i = 0; $i < count($data['touch']); $i++) {
+                for ($i = 0; $i < count($data['item_id']); $i++) {
                     $customer_item = array();
                     $customer_item['item_id'] = $data['item_id'][$i];
-                    $customer_item['touch'] = $data['touch'][$i];
                     $customer_item['extra_touch'] = $data['extra_touch'][$i];
                     $customer_item['wastage'] = $data['wastage'][$i];
                     $customer_item['label'] = $data['label'][$i];
