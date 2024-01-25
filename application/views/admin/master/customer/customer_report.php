@@ -18,7 +18,7 @@
                 <div class="table-responsive">
                     <div class="col-md-12 mb-5 ">
                         <div class="mt-3">
-                            <table class="table table-vcenter card-table">
+                            <table id="example_table" class="table table-vcenter card-table">
                                 <thead>
                                     <tr>
                                         <th scope="col">Serial No </th>

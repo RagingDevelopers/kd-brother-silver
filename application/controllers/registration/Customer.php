@@ -120,12 +120,15 @@ class Customer extends CI_Controller
                     ->set_rules('wastage[]', 'wastage', 'required')
                     ->set_rules('label[]', 'label', 'required')
                     ->set_rules('sub_total[]', 'sub_total', 'required');
-                    
+
 
                 if ($validation->run() == false) {
                     return flash()->withError(validation_errors())->back();
                 }
                 $data = xss_clean($this->input->post());
+
+                // pre($data);
+                // die;
                 $customer = array();
                 $customer['name'] = $data['name'];
                 $customer['mobile'] = $data['mobile'];
@@ -135,54 +138,33 @@ class Customer extends CI_Controller
                 $customer['opening_amount_type'] = $data['opening_amount_type'];
                 $customer['opening_fine'] = $data['opening_fine'];
                 $customer['opening_fine_type'] = $data['opening_fine_type'];
-
                 $this->db->where('id', $id)->update('customer', $customer);
-
-
-                for ($i = 0; $i < count($data['touch']); $i++) {
-
-                    if ($data['sdid'][$i] > 0) {
-
-                        $customer_item  = array();
-                        $customer_item['item_id'] = $data['item_id'][$i];
-                        $customer_item['touch'] = $data['touch'][$i];
-                        $customer_item['extra_touch'] = $data['extra_touch'][$i];
-                        $customer_item['wastage'] = $data['wastage'][$i];
-                        $customer_item['label'] = $data['label'][$i];
-                        $customer_item['rate'] = $data['rate'][$i];
-                        $customer_item['sub_total'] = $data['sub_total'][$i];
-                        $customer_item['customer_id'] = $id;
-                        $customer_item['id'] = $data['sdid'][$i];
-                        $new[] = $customer_item;
-                        $query = $this->db->get_where('customer_item', ['id' => $data['sdid'][$i]]);
-
-                        if ($query->num_rows() == 1) {
-                            $this->db->where(['customer_id' => $id, 'id' => $data['sdid'][$i]])->update('customer_item', $customer_item);
-                            flash()->withSuccess("Customer  Updated Successfully")->to("registration/customer");
-
-                        } else {
-                            flash()->withSuccess("Customer  not Updated Successfully")->to("registration/customer");
-
-                        }
-                    } else {
-                        $customer_item = array();
-                        $customer_item['item_id'] = $data['item_id'][$i];
-                        $customer_item['touch'] = $data['touch'][$i];
-                        $customer_item['extra_touch'] = $data['extra_touch'][$i];
-                        $customer_item['wastage'] = $data['wastage'][$i];
-                        $customer_item['label'] = $data['label'][$i];
-                        $customer_item['rate'] = $data['rate'][$i];
-                        $customer_item['sub_total'] = $data['sub_total'][$i];
-                        $customer_item['customer_id'] = $id;
-
-
-                        $this->db->insert('customer_item', $customer_item);
-                        flash()->withSuccess("Customer type Updated Successfully")->to("registration/customer");
-
+                $oldIds = $this->db->select('id')->get_where('customer_item', ['customer_id' => $id])->result_array();
+                foreach ($oldIds as $row) {
+                    if (!in_array($row['id'], $data['sdid'])) {
+                        $this->db->where(['id' => $row['id']])->delete('customer_item');
                     }
                 }
-
-                // $this->dbh->updateRow('customer', $id, $data);
+                for ($i = 0; $i < count($data['touch']); $i++) {
+                    $customer_item = array();
+                    $customer_item['item_id'] = $data['item_id'][$i];
+                    $customer_item['touch'] = $data['touch'][$i];
+                    $customer_item['extra_touch'] = $data['extra_touch'][$i];
+                    $customer_item['wastage'] = $data['wastage'][$i];
+                    $customer_item['label'] = $data['label'][$i];
+                    $customer_item['rate'] = $data['rate'][$i];
+                    $customer_item['sub_total'] = $data['sub_total'][$i];
+                    if ($data['sdid'][$i] > 0) {
+                        $query = $this->db->get_where('customer_item', ['id' => $data['sdid'][$i]]);
+                        if ($query->num_rows() == 1) {
+                            $this->db->where(['customer_id' => $id, 'id' => $data['sdid'][$i]])->update('customer_item', $customer_item);
+                        } 
+                    } else if ($data['sdid'][$i] == 0) {                       
+                        $customer_item['customer_id'] = $id;
+                        $this->db->insert('customer_item', $customer_item);
+                    }
+                }
+                flash()->withSuccess("Customer type Updated Successfully")->to("registration/customer");
                 break;
             default:
                 flash()->withError("Invalid Arguments")->back();

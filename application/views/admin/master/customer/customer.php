@@ -109,15 +109,13 @@
                                                 <th scope="col"></th>
                                             </thead>  
                                           
-                                            <tbody  class="paste">     
+                                            <tbody  class="paste append-here">     
                                             <?php
                                          if (!empty($update)) {
                                                 $j = 1;
                                                  foreach($items as $row){ ?>                                             
-                                                <tr class="sectiontocopy">
-                                               <td class="d-none"> <input type="hidden" name="sdid[]" value="<?php if (isset($items)) {
-                                                                                            echo $row['sdid'];
-                                                                                        } ?>"/></td>
+                                                <tr class="sectiontocopy">                                               
+                                                    <input type="hidden" class="sdid"  name="sdid[]" value="<?= $row['id'] ?? null;  ?>"/>
                                                     <td>
                                                         <select class="form-select select2 item_id" name="item_id[]" id="item_id">
                                                             <option>Select Item</option>
@@ -174,8 +172,8 @@
                                                 </tr>
                                                 <?php }}else{?>
 
-                                                    <tr class="sectiontocopy">
-                                                     <td class="d-none"><input type="hidden" name="sdid[]" value="0"></td>
+                                                <tr class="sectiontocopy">
+                                                    <input type="hidden" class="sdid" name="sdid[]" value="0">
                                                     <td>
                                                         <select class="form-select select2 item_id" name="item_id[]" id="item_id">
                                                             <option>Select Item</option>
@@ -224,9 +222,9 @@
                                             </tbody>
                                             <tfoot>
                                                 <tr>
-                                                        <td>      
-                                                            <button type="button" class="btn btn-primary" id="add">+</button>
-                                                        </td>                                    
+                                                    <td>      
+                                                        <button type="button" class="btn btn-primary" id="add">+</button>
+                                                    </td>                                    
                                                 </tr>   
                                             </tfoot>
                                       </table>
@@ -249,15 +247,13 @@
     </div>
 </div>
 
-<script>
+<script class="javascript">
     var main_row = '';
     $(document).ready(function() {
-        main_row = $(".sectiontocopy").html();
-    
-            $("#add").click(function() {
-                var newRow = $("<tr></tr>");
-                newRow.append(main_row);
-                $(".paste").append(newRow);
+        main_row = $(".sectiontocopy")[0].outerHTML;    
+            $("#add").click(function() {               
+                $(".append-here").append(main_row);
+                $('.append-here tr').last().find('.sdid').val(0);
             });
 
             $(document).on('click', '.del', function() {
@@ -265,7 +261,6 @@
                 if (item > 1) {
                     $(this).parent().parent().remove();
                 }
-
             });
 
             $(document).on('keyup', '.touch,.extra_touch,.wastage,.rate', function() {
