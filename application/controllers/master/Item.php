@@ -70,7 +70,7 @@ class Item extends CI_Controller
                 $data = xss_clean($this->input->post());
                 $this->dbh->updateRow('item', $id, $data);
                 flash()->withSuccess("Item Updated Successfully")->to("master/item");
-                break;
+            break;
             default:
                 flash()->withError("Invalid Arguments")->back();
         }

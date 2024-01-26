@@ -16,9 +16,9 @@
                                 <label class="form-check">
                                     <input class="form-check-input" type="checkbox" name="privilege"
                                         class="select_privilege" value="<?= privilege['process_add']; ?>" <?php if (isset($update) && in_array(privilege['process_add'], $permission)) {
-                                              echo "checked";
-                                          } else {
-                                          } ?>>
+                                             echo "checked";
+                                         } else {
+                                         } ?>>
                                     <span class="form-check-label">Process Add</span>
                                 </label>
                                 <label class="form-check">
@@ -100,7 +100,7 @@
                             <div>
                                 <label class="form-check">
                                     <input class="form-check-input" type="checkbox" name="privilege"
-                                        class="select_privilege" value="<?= privilege['category_add']; ?>" <?php if (isset($update) && in_array(privilege['category_add_add'], $permission)) {
+                                        class="select_privilege" value="<?= privilege['category_add']; ?>" <?php if (isset($update) && in_array(privilege['category_add'], $permission)) {
                                               echo "checked";
                                           } else {
                                           } ?>>

@@ -56,7 +56,7 @@ class Account_type extends CI_Controller
             //     flash()->withSuccess("Account type Deleted Successfully")->back();
             //     break;
             case "update":
-                // checkPrivilege(privilege["city_edit"]);
+                checkPrivilege(privilege["city_edit"]);
                 $validation = $this->form_validation;
                 $validation->set_rules('name', 'Name', 'required');
                 $validation->set_rules('opening_amount', 'Opening Amount', 'required');

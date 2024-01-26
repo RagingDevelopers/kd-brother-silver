@@ -242,12 +242,14 @@
 <script class="javascript">
     var main_row = '';
     $(document).ready(function() {
+
         main_row = $(".sectiontocopy")[0].outerHTML;    
+
             $("#add").click(function() {               
                 $(".append-here").append(main_row);
+                $('.append-here tr').find('.label, .item_id').select2();
                 $('.append-here tr').last().find('.sdid').val(0);
                 $('.append-here tr').last().find('.extra_touch, .wastage,.rate,.item_id,.label,.sub_total').val('');
-                $('.append-here tr').last().find('.label, .item_id').select2();
             });
 
             $(document).on('click', '.del', function() {
@@ -259,12 +261,14 @@
 
             $(document).on('keyup', '.extra_touch,.wastage', function() {
                 var $row = $(this).closest('tr'); 
-
+                                
                     var extra_touch = parseFloat($row.find('.extra_touch').val()) || 0;
                     var wastage = parseFloat($row.find('.wastage').val()) || 0;
 
-                    var sum =  extra_touch + wastage
+                    var sum =  extra_touch + wastage;
                     $row.find('.sub_total').val(sum);
             });
+
         });
     </script>
+

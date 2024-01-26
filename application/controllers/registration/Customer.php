@@ -136,12 +136,14 @@ class Customer extends CI_Controller
                 $customer['opening_fine'] = $data['opening_fine'];
                 $customer['opening_fine_type'] = $data['opening_fine_type'];
                 $this->db->where('id', $id)->update('customer', $customer);
+
                 $oldIds = $this->db->select('id')->get_where('customer_item', ['customer_id' => $id])->result_array();
                 foreach ($oldIds as $row) {
                     if (!in_array($row['id'], $data['sdid'])) {
                         $this->db->where(['id' => $row['id']])->delete('customer_item');
                     }
                 }
+                
                 for ($i = 0; $i < count($data['item_id']); $i++) {
                     $customer_item = array();
                     $customer_item['item_id'] = $data['item_id'][$i];
@@ -154,8 +156,8 @@ class Customer extends CI_Controller
                         $query = $this->db->get_where('customer_item', ['id' => $data['sdid'][$i]]);
                         if ($query->num_rows() == 1) {
                             $this->db->where(['customer_id' => $id, 'id' => $data['sdid'][$i]])->update('customer_item', $customer_item);
-                        } 
-                    } else if ($data['sdid'][$i] == 0) {                       
+                        }
+                    } else if ($data['sdid'][$i] == 0) {
                         $customer_item['customer_id'] = $id;
                         $this->db->insert('customer_item', $customer_item);
                     }
