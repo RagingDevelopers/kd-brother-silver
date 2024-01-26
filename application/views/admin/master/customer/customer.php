@@ -158,7 +158,7 @@
                                                             value="<?= $row['rate'] ?? null ?>" id="rate" required>
                                                     </td>
                                                     <td>
-                                                        <input class="form-control sub_total" type="number" name="sub_total" placeholder="Subtotal"
+                                                        <input class="form-control sub_total" type="number" name="sub_total[]" placeholder="Subtotal"
                                                         id="sub_total" value="<?= $row['sub_total'] ?? null ?>" required readonly>
                                                     </td>
                                                     <td>
@@ -242,14 +242,21 @@
 <script class="javascript">
     var main_row = '';
     $(document).ready(function() {
+        
+        $('.item_id').each(function(){
+          var item=   $(this);
+          console.log(item.val());
+          item.select2();
+        });
+
 
         main_row = $(".sectiontocopy")[0].outerHTML;    
 
             $("#add").click(function() {               
                 $(".append-here").append(main_row);
-                $('.append-here tr').find('.label, .item_id').select2();
                 $('.append-here tr').last().find('.sdid').val(0);
                 $('.append-here tr').last().find('.extra_touch, .wastage,.rate,.item_id,.label,.sub_total').val('');
+                $('.append-here tr').last().find('.label, .item_id').select2();
             });
 
             $(document).on('click', '.del', function() {
