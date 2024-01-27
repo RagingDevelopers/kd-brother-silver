@@ -271,7 +271,7 @@
 
                     var sum =  extra_touch + wastage;
                     $row.find('.sub_total').val(sum);
-            });
-        });
+                });
+             });
     </script>
 
