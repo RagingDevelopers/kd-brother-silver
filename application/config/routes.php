@@ -63,3 +63,4 @@ $route['master/item/edit/(:any)'] = 'master/item/index/edit/$1';
 $route['master/row_meterial_type/edit/(:any)'] = 'master/row_meterial_type/index/edit/$1';
 $route['master/row_meterial/edit/(:any)'] = 'master/row_meterial/index/edit/$1';
 $route['master/metal_type/edit/(:any)'] = 'master/metal_type/index/edit/$1';
+$route['manufacturing/garnu/edit/(:any)'] = 'manufacturing/garnu/index/edit/$1';
