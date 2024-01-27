@@ -107,7 +107,7 @@
                                                     <tr class="sectiontocopy">
                                                         <input type="hidden" class="sdid" name="sdid[]" value="<?= $row['id'] ?? null;  ?>" />
                                                         <td>
-                                                            <select class="form-select select2 item_id" name="item_id[]" >
+                                                            <select class="form-select select2 item_id" name="item_id[]">
                                                                 <option>Select Item</option>
                                                                 <?php
                                                                 $item = $this->db->get('item')->result();
@@ -126,7 +126,7 @@
                                                             <input class="form-control wastage" type="number" name="wastage[]" placeholder="Enter Wastage Amount" value="<?= $row['wastage'] ?? null ?>" id="wastage" required>
                                                         </td>
                                                         <td>
-                                                            <select class="form-select select2 label"  name="label[]">
+                                                            <select class="form-select select2 label" name="label[]">
                                                                 <option selected value="">Select Label</option>
                                                                 <option value="NET" <?php if (!empty($row) && $row['label'] == 'NET') {
                                                                                         echo 'selected';
@@ -199,7 +199,7 @@
                                         <tfoot>
                                             <tr>
                                                 <td>
-                                                    <button type="button" class="btn btn-primary" id="add">+</button>
+                                                    <button type="button" class="btn btn-success" id="add">Add Row</button>
                                                 </td>
                                             </tr>
                                         </tfoot>
@@ -213,38 +213,37 @@
                                     <input class="btn btn-primary " type="submit" value="<?= isset($update) ? "Update" : "Submit" ?>">
                                 </div>
                             </div>
+                        </form>
                     </div>
-                    </form>
                 </div>
             </div>
         </div>
     </div>
-</div>
 </div>
 
 <script class="javascript">
     var main_row = '';
     $(document).ready(function() {
         main_row = $(".sectiontocopy")[0].outerHTML;
-        $('.item_id').select2()
+        $('.item_id').each(function() {
+            $(this).select2({
+                width: '100'
+            })
+        })
         $("#add").click(function() {
             $(".append-here").append(main_row);
             $('.append-here tr').last().find('.sdid').val(0);
             $('.append-here tr').last().find('.extra_touch, .wastage,.rate,.item_id,.label,.sub_total').val('');
             $('.append-here tr').last().find('.item_id,.label').select2();
         });
-
-
         $(document).on('click', '.del', function() {
             var item = $(".item_id").length;
             if (item > 1) {
                 $(this).parent().parent().remove();
             }
         });
-
         $(document).on('keyup', '.extra_touch,.wastage', function() {
             var $row = $(this).closest('tr');
-
             var extra_touch = parseFloat($row.find('.extra_touch').val()) || 0;
             var wastage = parseFloat($row.find('.wastage').val()) || 0;
 
