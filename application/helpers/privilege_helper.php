@@ -1,6 +1,7 @@
 <?php
 
 const privilege = [
+
 	'process_add' => 1,
 	'process_view' => 2,
 	'process_edit' => 3,
@@ -16,26 +17,15 @@ const privilege = [
 	'account_type_edit' => 11,
 	'account_type_delete' => 12,
 
-	// 'users_add' => 13,
-	// 'users_view' => 14,
-	// 'users_edit' => 15,
-	// 'users_delete' => 16,
+	'users_add' => 13,
+	'users_view' => 14,
+	'users_edit' => 15,
+	'users_delete' => 16,
 
-	// 'customer_add' => 17,
-	// 'customer_view' => 18,
-	// 'customer_edit' => 19,
-	// 'customer_delete' => 20,
-
-
-	'category_add' => 13,
-	'category_view' => 14,
-	'category_edit' => 15,
-	'category_delete' => 16,
-
-	'item_add' => 17,
-	'item_view' => 18,
-	'item_edit' => 19,
-	'item_delete' => 20,
+	'customer_add' => 17,
+	'customer_view' => 18,
+	'customer_edit' => 19,
+	'customer_delete' => 20,
 
 	'row_meterial_type_add' => 21,
 	'row_meterial_type_view' => 22,
@@ -53,14 +43,27 @@ const privilege = [
 	'metal_type_delete' => 32,
 
 
+	'category_add' => 33,
+	'category_view' => 34,
+	'category_edit' => 35,
+	'category_delete' => 36,
 
+	'item_add' => 37,
+	'item_view' => 38,
+	'item_edit' => 39,
+	'item_delete' => 40,
+
+	'garnu_add' => 41,
+	'garnu_view' => 42,
+	'garnu_edit' => 43,
+	'garnu_delete' => 44,
 ];
 
 function checkPrivilege($privilegeCode)
 {
 	$ci = ci();
-	if (in_array($privilegeCode, $ci->session->userdata('permission'))) {
-		flash()->withError('"Access Denied"')->to("dashboard");
+	if (!in_array($privilegeCode, $ci->session->userdata('permission')) && session('is_admin')) {
+		flash()->withError('You dont have permission')->to("dashboard");
 		exit();
 	}
 }

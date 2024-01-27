@@ -33,7 +33,7 @@ class User extends CI_Controller
                 $page_data['data'] = $this->dbh->getResultArray('users');
                 $page_data['update'] = $users;
 
-                // pre($page_data,true);
+                // pre($_SESSION,true);
                 return view(self::View, $page_data);
 
             case "store":

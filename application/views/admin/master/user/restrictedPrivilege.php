@@ -242,10 +242,55 @@
                                     <span class="form-check-label">Metal Type Edit</span>
                                 </label><br>
                             </div>
-                        </div>
+                        </div>                     
                     </div><br>
                 </div>
             </div>
         </div>
-    </div><br>
+    </div>
+    <div class="accordion mt-3" id="Manufacturing_privilege ">
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="heading-2">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#collapse-2" aria-expanded="false">
+                    Manufacturing
+                </button>
+            </h2>
+            <div id="collapse-2" class="accordion-collapse collapse" data-bs-parent="#Manufacturing_privilege">
+                <div class="accordion-body pt-0">
+                    <div class="row">
+                        <div class="col-md-2">
+                            <div>
+                                <label class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="privilege"
+                                        class="select_privilege" value="<?= privilege['garnu_add']; ?>" <?php if (isset($update) && in_array(privilege['garnu_add'], $permission)) {
+                                              echo "checked";
+                                          } else {
+                                          } ?>>
+                                    <span class="form-check-label">Garnu Add</span>
+                                </label>
+                                <label class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="privilege"
+                                        class="select_privilege" value="<?= privilege['garnu_view']; ?>" <?php if (isset($update) && in_array(privilege['garnu_view'], $permission)) {
+                                              echo "checked";
+                                          } else {
+                                          } ?>>
+                                    <span class="form-check-label">Garnu View</span>
+                                </label>
+                                <label class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="privilege"
+                                        class="select_privilege" value="<?= privilege['garnu_edit']; ?>" <?php if (isset($update) && in_array(privilege['garnu_edit'], $permission)) {
+                                              echo "checked";
+                                          } else {
+                                          } ?>>
+                                    <span class="form-check-label">Garnu Edit</span>
+                                </label><br>
+                            </div>
+                        </div>                                           
+                    </div><br>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br>
 </div>
