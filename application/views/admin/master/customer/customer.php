@@ -169,7 +169,7 @@
 
                                                 <tr class="sectiontocopy">
                                                     <input type="hidden" class="sdid" name="sdid[]" value="0">
-                                                    <td>
+                                                    <td class="ITEM">
                                                         <select class="form-select select2 item_id" name="item_id[]" id="item_id">
                                                             <option>Select Item</option>
                                                                 <?php
@@ -242,21 +242,18 @@
 <script class="javascript">
     var main_row = '';
     $(document).ready(function() {
-        
-        $('.item_id').each(function(){
-          var item=   $(this);
-          console.log(item.val());
-          item.select2();
-        });
-
-
+    
         main_row = $(".sectiontocopy")[0].outerHTML;    
 
             $("#add").click(function() {               
                 $(".append-here").append(main_row);
                 $('.append-here tr').last().find('.sdid').val(0);
                 $('.append-here tr').last().find('.extra_touch, .wastage,.rate,.item_id,.label,.sub_total').val('');
-                $('.append-here tr').last().find('.label, .item_id').select2();
+                // $('.append-here tr').last().find('.label, .item_id').select2();
+            });
+
+            $('.append-here').on('mouseover', '.label, .item_id', function() {
+                $(this).select2();
             });
 
             $(document).on('click', '.del', function() {
@@ -275,7 +272,6 @@
                     var sum =  extra_touch + wastage;
                     $row.find('.sub_total').val(sum);
             });
-
         });
     </script>
 
