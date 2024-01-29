@@ -47,7 +47,7 @@
 
                             <div class="card mt-5">
                                 <div class="row">
-                                    <table class="table ">
+                                    <table class="table card-table table-vcenter text-center text-nowrap ">
                                         <thead class="thead-light">
                                             <th>Metal Type</th>
                                             <th scope="col">Weight(Gm)</th>
@@ -59,7 +59,7 @@
 
                                         <tbody class="paste append-here">
                                             <?php
-                                            if (empty($update)) {
+                                            if (empty($items)) {
                                                 $items[] = [
                                                     'metal_type_id' => '',
                                                     'weight'        => '',
@@ -239,7 +239,6 @@
                     });
                     $(this).on('click', "#add", function () {
                         var metal = $('.metal_type_id').last();
-                        console.log(metal)
                         if (metal.val() == '') {
                             return metal.select2('open');
                         }
@@ -252,7 +251,7 @@
                     $(this).on('click', '.remove-btn', function (e) {
                         var metal_type = $(".metal_type_id").length;
                         if (metal_type > 1) {
-                            $(this).parent().parent().remove();
+                            alert_if("Confirm delete this", () => $(this).parent().parent().remove())
                         }
                     });
                     $('.main-form').submit(function (e) {
@@ -331,55 +330,39 @@
                 $('.total_unused_copper').val(mainCopper - totalUsedCopper)
             },
             validateSubmit: function (ref) {
-                var preventEnter = true;
-                const metal_type = $('.metal_type_id').length;
+                var preventEnter = false;
+                const metal_type = $('.metal_type_id');
                 const form = $(ref);
-                const url = form.attr('action');
-                const method = form.attr('method');
-
                 var mainSilver = parseF($('.msilver').val()),
                     mainCopper = parseF($('.mcopper').val()),
                     mainWeight = parseF($('.mweight').val());
-
                 if (mainWeight < 1) {
-                    return SweetAlert('warning', 'Garnu Weight must be greater then: 1')
+                    return SweetAlert('warning', 'Garnu Weight must be greater then: 1'), preventEnter = true;
                 }
-
                 if (metal_type < 1)
-                    return SweetAlert('warning', 'Metal Type should not be empty'), $('.metal_type_id').focus();
-
-                $('.append-here tr').each(function () {
-                    var row = $(this),
-                        weight = (row.find('.weight')),
-                        silver = (row.find('.silver')),
-                        copper = (row.find('.copper'));
+                    return SweetAlert('warning', 'Metal Type should not be empty'), $('.metal_type_id').focus(), preventEnter = true;;
+                var rows = $('.append-here tr');
+                for (var i = 0; i < rows.length; i++) {
+                    var row = $(rows[i]),
+                        weight = row.find('.weight'),
+                        touch = row.find('.touch');
 
                     if (weight.val() == '') {
-                        return SweetAlert('warning', 'Weight should not be empty'), weight.focus();
+                        SweetAlert('warning', 'Weight should not be empty');
+                        weight.focus();
+                        preventEnter = true;
+                        break;
+                    } else if (touch.val() == '') {
+                        SweetAlert('warning', 'Touch should not be empty');
+                        touch.focus();
+                        preventEnter = true;
+                        break;
                     }
-                    if (silver.val() == '') {
-                        return SweetAlert('warning', 'Silver should not be empty'), silver.focus();
-                    }
-                    if (copper.val() == '') {
-                        return SweetAlert('warning', 'Copper should not be empty'), copper.focus();
-                    }
-                    if (weight.val() < 1) {
-                        return SweetAlert('warning', 'Weight must be greater then: 1')
-                    }
-                });
+                }
 
-
-                form.find('input,select,textarea').each(function () {
-                    if ($(this).val() == '') {
-                        $(this).addClass('is-invalid');
-                        preventEnter = false;
-                    } else {
-                        preventEnter = true
-                        $(this).removeClass('is-invalid');
-                    }
-                });
-                if (preventEnter)
-                    form.unbind('form').submit();
+                if(!preventEnter){
+                    form.unbind('submit').submit();
+                }
             }
         };
         return {
