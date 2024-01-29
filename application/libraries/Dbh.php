@@ -14,6 +14,11 @@ class Dbh extends CI_Model
 		return $this->db->get($table)->result_array();
 	}
 
+	public function findAll($table, $type = 'object')
+	{
+		return $this->db->get($table)->result($type);
+	}
+
 	public function getResultArrayDesc($table)
 	{
 		$this->db->order_by($table . '.id', 'DESC');
@@ -47,7 +52,11 @@ class Dbh extends CI_Model
 
 	public function deleteRow($table, $id)
 	{
-		$this->db->where('id', $id);
+		if (is_array($id)) {
+			$this->db->where_in('id', $id);
+		} else {
+			$this->db->where('is', $id);
+		}
 		if ($this->db->delete($table)) {
 			return true;
 		} else {
@@ -73,7 +82,7 @@ class Dbh extends CI_Model
 	public function findOrFail($table, $array, $type = "result")
 	{
 		$query = $this->db->get_where($table, $array);
-		if ($query->num_rows() > 0):
+		if ($query->num_rows() > 0) :
 			switch ($type) {
 				case 'row':
 					return $query->row_array();
@@ -119,5 +128,4 @@ class Dbh extends CI_Model
 		}
 		return false;
 	}
-
 }
