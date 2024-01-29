@@ -6,8 +6,8 @@ class Garnu extends CI_Controller
 {
     public $form_validation, $input, $db;
 
-    const View = "admin/manufacturing/garnu";
-    const ADD = "admin/manufacturing/customer/customer";
+    const View = "admin/manufacturing/garnu_report";
+    const ADD = "admin/manufacturing/garnu";
     public function __construct()
     {
         parent::__construct();
@@ -31,31 +31,33 @@ class Garnu extends CI_Controller
 
             case "edit":
                 $this->validateId($id);
-                $customer = $this->joinhelper->fetchJoinedTableRow('customer', ['city', 'account_type'], $id);
-                if (!$customer) {
-                    flash()->withError("Customer type Not Found")->to('registration/customer');
+                $garnu = $this->dbh->find('garnu', $id);
+                if (!$garnu) {
+                    flash()->withError("Garnu type Not Found")->to('manufacturing/garnu');
                 }
                 // $page_data['data'] = $this->joinhelper->fetchJoinedTable('customer', ['city', 'account_type']);
-                $page_data['items'] = $this->dbh->getWhereResultArray('customer_item', ['customer_id' => $id]);
-                $page_data['update'] = $customer;
+                $page_data['items'] = $this->dbh->getWhereResultArray('garnu_item', ['garnu_id' => $id]);
+                $page_data['update'] = $garnu;
 
                 // pre($page_data, true);
                 return view(self::ADD, $page_data);
 
             case "store":
+                // $post = xss_clean($this->input->post());
+                // pre($post);
+                // die;
                 $validation = $this->form_validation;
                 $validation->set_rules('name', 'Name', 'required')
                     ->set_rules('garnu_weight', 'garnu_weight', 'required')
-                    ->set_rules('touch', 'touch', 'required')
-                    ->set_rules('silver', 'silver', 'required')
-                    ->set_rules('copper', 'copper', 'required')
+                    ->set_rules('touchs', 'touch', 'required')
+                    ->set_rules('silvers', 'silver', 'required')
+                    ->set_rules('coppers', 'copper', 'required')
                     ->set_rules('total_used_weight', 'total_used_weight', 'required')
-                    ->set_rules('total_unused_weight', 'total_unused_weight', 'total_unused_weight')
+                    ->set_rules('total_unused_weight', 'total_unused_weight', 'required')
                     ->set_rules('total_used_silver', 'total_used_silver', 'required')
                     ->set_rules('remaining_silver', 'remaining_silver', 'required')
                     ->set_rules('total_used_copper', 'total_used_copper', 'required')
                     ->set_rules('remaining_copper', 'remaining_copper', 'required')
-                    ->set_rules('garnu_id[]', 'garnu_id', 'required')
                     ->set_rules('metal_type_id[]', 'metal_type_id', 'required')
                     ->set_rules('weight[]', 'weight', 'required')
                     ->set_rules('touch[]', 'touch', 'required')
@@ -69,17 +71,16 @@ class Garnu extends CI_Controller
                 $garnu = array();
                 $garnu['name'] = $post['name'];
                 $garnu['garnu_weight'] = $post['garnu_weight'];
-                $garnu['touch'] = $post['touch'];
-                $garnu['silver'] = $post['silver'];
-                $garnu['copper'] = $post['copper'];
+                $garnu['touch'] = $post['touchs'];
+                $garnu['silver'] = $post['silvers'];
+                $garnu['copper'] = $post['coppers'];
                 $garnu['total_used_weight'] = $post['total_used_weight'];
                 $garnu['total_unused_weight'] = $post['total_unused_weight'];
                 $garnu['total_used_silver'] = $post['total_used_silver'];
                 $garnu['remaining_silver'] = $post['remaining_silver'];
                 $garnu['total_used_copper'] = $post['total_used_copper'];
                 $garnu['remaining_copper'] = $post['remaining_copper'];
-                $garnu['creation_date'] = $post['creation_date'];
-
+                $garnu['creation_date'] = date('Y-m-d');
 
                 $this->db->insert('garnu', $garnu);
                 $garnu_id = $this->db->insert_id();
@@ -94,37 +95,36 @@ class Garnu extends CI_Controller
                     $garnu_item['touch'] = $post['touch'][$i];
                     $garnu_item['silver'] = $post['silver'][$i];
                     $garnu_item['copper'] = $post['copper'][$i];
-                    $garnu_item['customer_id'] = $garnu_id;
+                    $garnu_item['garnu_id'] = $garnu_id;
                     $new[] = $garnu_item;
                 }
 
                 $this->db->insert_batch('garnu_item', $new);
 
-                flash()->withSuccess("Garnu type Added Successfully")->to("registration/garnu");
+                flash()->withSuccess("Garnu type Added Successfully")->to("manufacturing/garnu");
                 break;
 
-                // case "delete":
-                //     die("not permission to delete");
-                //     // checkPrivilege(privilege["customer_delete"]);
-                //     $this->validateId($id);
-                //     $this->dbh->deleteRow('customer', $id);
-                //     flash()->withSuccess("Customer type Deleted Successfully")->back();
-                //     break;
+            // case "delete":
+            //     die("not permission to delete");
+            //     // checkPrivilege(privilege["garnu_delete"]);
+            //     $this->validateId($id);
+            //     $this->dbh->deleteRow('garnu', $id);
+            //     flash()->withSuccess("garnu type Deleted Successfully")->back();
+            //     break;
             case "update":
-                // checkPrivilege(privilege["customer_edit"]);
+                // checkPrivilege(privilege["garnu_edit"]);
                 $validation = $this->form_validation;
                 $validation->set_rules('name', 'Name', 'required')
                     ->set_rules('garnu_weight', 'garnu_weight', 'required')
-                    ->set_rules('touch', 'touch', 'required')
-                    ->set_rules('silver', 'silver', 'required')
-                    ->set_rules('copper', 'copper', 'required')
+                    ->set_rules('touchs', 'touch', 'required')
+                    ->set_rules('silvers', 'silver', 'required')
+                    ->set_rules('coppers', 'copper', 'required')
                     ->set_rules('total_used_weight', 'total_used_weight', 'required')
-                    ->set_rules('total_unused_weight', 'total_unused_weight', 'total_unused_weight')
+                    ->set_rules('total_unused_weight', 'total_unused_weight', 'required')
                     ->set_rules('total_used_silver', 'total_used_silver', 'required')
                     ->set_rules('remaining_silver', 'remaining_silver', 'required')
                     ->set_rules('total_used_copper', 'total_used_copper', 'required')
                     ->set_rules('remaining_copper', 'remaining_copper', 'required')
-                    ->set_rules('garnu_id[]', 'garnu_id', 'required')
                     ->set_rules('metal_type_id[]', 'metal_type_id', 'required')
                     ->set_rules('weight[]', 'weight', 'required')
                     ->set_rules('touch[]', 'touch', 'required')
@@ -142,25 +142,27 @@ class Garnu extends CI_Controller
                 $update = array();
                 $update['name'] = $post['name'];
                 $update['garnu_weight'] = $post['garnu_weight'];
-                $update['touch'] = $post['touch'];
-                $update['silver'] = $post['silver'];
-                $update['copper'] = $post['copper'];
+                $update['touch'] = $post['touchs'];
+                $update['silver'] = $post['silvers'];
+                $update['copper'] = $post['coppers'];
                 $update['total_used_weight'] = $post['total_used_weight'];
                 $update['total_unused_weight'] = $post['total_unused_weight'];
                 $update['total_used_silver'] = $post['total_used_silver'];
                 $update['remaining_silver'] = $post['remaining_silver'];
                 $update['total_used_copper'] = $post['total_used_copper'];
                 $update['remaining_copper'] = $post['remaining_copper'];
-                $update['creation_date'] = $post['creation_date'];
+                $update['creation_date'] = date('Y-m-d');
+
                 $this->db->where('id', $id)->update('garnu', $update);
 
-                $oldIds = $this->db->select('id')->get_where('garnu_item', ['garnu__id' => $id])->result_array();
+                $oldIds = $this->db->select('id')->get_where('garnu_item', ['garnu_id' => $id])->result_array();
                 $deleteIds = [];
                 foreach ($oldIds as $row) {
                     if (!in_array($row['id'], $post['rowid'])) {
                         $deleteIds[] = $row['id'];
                     }
                 }
+                
                 if (count($deleteIds) > 0) {
                     $this->dbh->deleteRow('garnu_item', $deleteIds);
                 }
