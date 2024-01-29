@@ -340,22 +340,3 @@ $(".validateForm-reset").on("click", function () {
 		if ($(this).hasClass("error")) $(this).removeClass("error").remove();
 	});
 });
-// $(document).on("change", "select", function (e) {
-// 	var temp = $(this);
-// 	setTimeout(function () {
-// 		$(".select2-container--focus").removeClass("select2-container--focus");
-// 		$(":focus").blur();
-// 		if (
-// 			temp.parent().next().children("input").prop("class") ==
-// 			"select2-hidden-accessible"
-// 		) {
-// 			temp.parent().next().children("input").select2("open");
-// 		} else {
-// 			if (temp.parent().next().children("input").attr("type") == "hidden") {
-// 				temp.parent().next().next().children("input").select();
-// 			} else {
-// 				temp.parent().next().children("input").select();
-// 			}
-// 		}
-// 	}, 50);
-// });

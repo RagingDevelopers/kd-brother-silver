@@ -27,19 +27,19 @@
                                 </div>
                                 <div class="col-sm-3">
                                     <label class="form-label">Touch(%): </label>
-                                    <input class="form-control mtouch" type="number" name="touch"
+                                    <input class="form-control mtouch" type="number" name="touchs"
                                         placeholder="Enter Touch (%)" value="<?= $update['touch'] ?? null ?>" required>
                                 </div>
 
                                 <div class="col-sm-3">
                                     <label class="form-label"> Silver: </label>
-                                    <input class="form-control msilver" type="number" name="silver"
+                                    <input class="form-control msilver" type="number" name="silvers"
                                         placeholder="Silver(Gm)" value="<?= $update['silver'] ?? null ?>" required
                                         readonly>
                                 </div>
                                 <div class="col-sm-3">
                                     <label class="form-label"> Copper: </label>
-                                    <input class="form-control mcopper" type="number" name="copper"
+                                    <input class="form-control mcopper" type="number" name="coppers"
                                         placeholder="Copper(Gm)" value="<?= $update['copper'] ?? null ?>" required
                                         readonly>
                                 </div>
@@ -62,11 +62,11 @@
                                             if (empty($items)) {
                                                 $items[] = [
                                                     'metal_type_id' => '',
-                                                    'weight'        => '',
-                                                    'touch'         => '',
-                                                    'silver'        => '',
-                                                    'copper'        => '',
-                                                    'id'            => 0
+                                                    'weight' => '',
+                                                    'touch' => '',
+                                                    'silver' => '',
+                                                    'copper' => '',
+                                                    'id' => 0
                                                 ];
                                             }
                                             foreach ($items as $row) { ?>
@@ -77,11 +77,13 @@
                                                         <select class="form-select select2 metal_type_id"
                                                             name="metal_type_id[]">
                                                             <option value="">Select Metal</option>
-                                                            <?php foreach ($metal_type as $value) { ?>
+                                                            <?php
+                                                            $metal_type = $this->db->get('metal_type')->result();
+                                                            foreach ($metal_type as $value) {
+                                                                ?>
                                                                 <option value="<?= $value->id; ?>" <?php if (isset($row) && $value->id == $row['metal_type_id']) {
                                                                       echo 'selected';
-                                                                  } ?>><?= $value->name; ?>
-                                                                </option>
+                                                                  } ?>><?= $value->name; ?></option>
                                                             <?php } ?>
                                                         </select>
                                                     </td>
@@ -118,19 +120,22 @@
                                                     <button type="button" class="btn btn-outline-warning" id="add">Add
                                                         Row</button>
                                                 </td>
+
                                                 <td>
                                                     <div class="">
                                                         <label class="form-label" for="prd">Total Used Weight: </label>
                                                         <input class="form-control total_used_weight" type="number"
-                                                            name="weight[]" placeholder="Weight(Gm)" value="" required
+                                                            name="total_used_weight" placeholder="Weight(Gm)"
+                                                            value="<?= $update['total_used_weight'] ?? null ?>" required
                                                             readonly>
                                                     </div>
                                                     <div class="mt-2">
                                                         <label class="form-label" for="prd">Total Un-Used Weight:
                                                         </label>
                                                         <input class="form-control total_unused_weight" type="number"
-                                                            name="weight[]" placeholder="Weight(Gm)" value="" required
-                                                            readonly>
+                                                            name="total_unused_weight" placeholder="Weight(Gm)"
+                                                            value="<?= $update['total_unused_weight'] ?? null ?>"
+                                                            required readonly>
                                                     </div>
                                                 </td>
                                                 <td></td>
@@ -138,14 +143,16 @@
                                                     <div class="">
                                                         <label class="form-label" for="prd">Total Used Silver: </label>
                                                         <input class="form-control total_used_silver" type="number"
-                                                            name="silver[]" placeholder="Silver(Gm)" value="" required
+                                                            name="total_used_silver" placeholder="Silver(Gm)"
+                                                            value="<?= $update['total_used_silver'] ?? null ?>" required
                                                             readonly>
                                                     </div>
                                                     <div class="mt-2">
                                                         <label class="form-label" for="prd">Total Un-Used Silver:
                                                         </label>
                                                         <input class="form-control total_unused_silver" type="number"
-                                                            name="silver" placeholder="Silver(Gm)" value="" required
+                                                            name="remaining_silver" placeholder="Silver(Gm)"
+                                                            value="<?= $update['remaining_silver'] ?? null ?>" required
                                                             readonly>
                                                     </div>
                                                 </td>
@@ -153,14 +160,16 @@
                                                     <div class="">
                                                         <label class="form-label" for="prd">Total Used Copper: </label>
                                                         <input class="form-control total_used_copper" type="number"
-                                                            name="copper[]" placeholder="copper(Gm)" value="" required
+                                                            name="total_used_copper" placeholder="copper(Gm)"
+                                                            value="<?= $update['total_used_copper'] ?? null ?>" required
                                                             readonly>
                                                     </div>
                                                     <div class='mt-2'>
                                                         <label class="form-label" for="prd">Total Un-Used Copper:
                                                         </label>
                                                         <input class="form-control total_unused_copper" type="number"
-                                                            name="silver" placeholder="Copper(Gm)" value="" required
+                                                            name="remaining_copper" placeholder="Copper(Gm)"
+                                                            value="<?= $update['remaining_copper'] ?? null ?>" required
                                                             readonly>
                                                     </div>
                                                 </td>
@@ -249,9 +258,13 @@
                         main.select2(lastTr.find('.metal_type_id')).select2('open');
                     });
                     $(this).on('click', '.remove-btn', function (e) {
+                        var $this = this;
                         var metal_type = $(".metal_type_id").length;
                         if (metal_type > 1) {
-                            alert_if("Confirm delete this", () => $(this).parent().parent().remove())
+                            alert_if("Confirm delete this", () => {
+                                $(this).parent().parent().remove(),
+                                    main.calculation($this);
+                            })
                         }
                     });
                     $('.main-form').submit(function (e) {
@@ -360,7 +373,7 @@
                     }
                 }
 
-                if(!preventEnter){
+                if (!preventEnter) {
                     form.unbind('submit').submit();
                 }
             }
