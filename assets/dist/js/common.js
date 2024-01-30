@@ -23,6 +23,15 @@ const SweetAlert = (type, message) => {
 	});
 };
 
+/* Swal */
+const swalAlert = (icon, title, text = "") => {
+	return Swal.fire({
+		title,
+		text,
+		icon,
+	});
+};
+/* Alert IF */
 const alert_if = (message, callBack) => {
 	Swal.fire({
 		title: "Are you sure?",
