@@ -1,3 +1,16 @@
+<style>
+    .silver-input {
+        background-color: #ebebeb;
+        color: black;
+    }
+    
+    .weight-input {
+        background-color: #e6fdff;
+    }
+    .copper-input {
+        background-color: #ffeeee;
+    }
+</style>
 <div class="row">
     <div class="col-sm-12">
         <div class="card">
@@ -21,25 +34,29 @@
                             <div class="row mt-3">
                                 <div class="col-sm-3">
                                     <label class="form-label"> Garnu Weight(Gm): </label>
-                                    <input class="form-control mweight" type="number" name="garnu_weight"
+                                    <input class="form-control weight-input mweight" type="number" name="garnu_weight"
                                         placeholder="Enter Garnu Weight(Gm)"
                                         value="<?= $update['garnu_weight'] ?? null ?>" required>
                                 </div>
                                 <div class="col-sm-3">
-                                    <label class="form-label">Touch(%): </label>
+                                    <label class="form-label">Touch (%): </label>
+                                <div class="form-group input-icon">
                                     <input class="form-control mtouch" type="number" name="touchs"
-                                        placeholder="Enter Touch (%)" value="<?= $update['touch'] ?? null ?>" required>
+                                    placeholder="Enter Touch (%)" value="<?= $update['touch'] ?? 0 ?>" required>
+                                    <span class="input-icon-addon"><i class="fa-light fa-percent" aria-hidden="true"></i></span>
+                                </div>
+
                                 </div>
 
                                 <div class="col-sm-3">
                                     <label class="form-label"> Silver: </label>
-                                    <input class="form-control msilver" type="number" name="silvers"
+                                    <input class="form-control msilver silver-input" type="number" name="silvers"
                                         placeholder="Silver(Gm)" value="<?= $update['silver'] ?? null ?>" required
                                         readonly>
                                 </div>
                                 <div class="col-sm-3">
                                     <label class="form-label"> Copper: </label>
-                                    <input class="form-control mcopper" type="number" name="coppers"
+                                    <input class="form-control copper-input mcopper" type="number" name="coppers"
                                         placeholder="Copper(Gm)" value="<?= $update['copper'] ?? null ?>" required
                                         readonly>
                                 </div>
@@ -62,11 +79,11 @@
                                             if (empty($items)) {
                                                 $items[] = [
                                                     'metal_type_id' => '',
-                                                    'weight' => '',
-                                                    'touch' => '',
-                                                    'silver' => '',
-                                                    'copper' => '',
-                                                    'id' => 0
+                                                    'weight'        => '',
+                                                    'touch'         => 0 ,
+                                                    'silver'        => '',
+                                                    'copper'        => '',
+                                                    'id'            => 0
                                                 ];
                                             }
                                             foreach ($items as $row) { ?>
@@ -88,22 +105,25 @@
                                                         </select>
                                                     </td>
                                                     <td>
-                                                        <input class="form-control weight" type="number" name="weight[]"
+                                                        <input class="form-control weight-input weight" type="number" name="weight[]"
                                                             placeholder="Enter Weight" value="<?= $row['weight'] ?? null ?>"
                                                             required>
                                                     </td>
                                                     <td>
-                                                        <input class="form-control touch" type="number" name="touch[]"
+                                                        <div class="form-group input-icon">
+                                                            <input class="form-control touch" type="number" name="touch[]"
                                                             placeholder="Enter touch(%)"
                                                             value="<?= $row['touch'] ?? null ?>" required>
+                                                            <span class="input-icon-addon"><i class="fa-light fa-percent" aria-hidden="true"></i></span>
+                                                        </div>
                                                     </td>
                                                     <td>
-                                                        <input class="form-control silver" type="number" name="silver[]"
+                                                        <input class="form-control silver silver-input" type="number" name="silver[]"
                                                             placeholder="Silver(Gm)" value="<?= $row['silver'] ?? null ?>"
                                                             required readonly>
                                                     </td>
                                                     <td>
-                                                        <input class="form-control copper" type="number" name="copper[]"
+                                                        <input class="form-control copper-input copper" type="number" name="copper[]"
                                                             placeholder="Copper(Gm)" value="<?= $row['copper'] ?? null ?>"
                                                             required readonly>
                                                     </td>
@@ -117,22 +137,22 @@
                                             <tr class="border border-none">
                                                 <td colspan="1"
                                                     class="d-flex border border-0 align-content-start flex-wrap">
-                                                    <button type="button" class="btn btn-outline-warning" id="add">Add
-                                                        Row</button>
+                                                    <button type="button" class="btn btn-success " id="add">
+                                                        Add row <i class="ms-2 fa-solid fa-plus"></i>
+                                                    </button>
                                                 </td>
-
                                                 <td>
-                                                    <div class="">
+                                                    <div class="col-8">
                                                         <label class="form-label" for="prd">Total Used Weight: </label>
-                                                        <input class="form-control total_used_weight" type="number"
+                                                        <input class="form-control weight-input total_used_weight" type="number"
                                                             name="total_used_weight" placeholder="Weight(Gm)"
                                                             value="<?= $update['total_used_weight'] ?? null ?>" required
                                                             readonly>
                                                     </div>
-                                                    <div class="mt-2">
+                                                    <div class="col-8 mt-2">
                                                         <label class="form-label" for="prd">Total Un-Used Weight:
                                                         </label>
-                                                        <input class="form-control total_unused_weight" type="number"
+                                                        <input class="form-control weight-input total_unused_weight" type="number"
                                                             name="total_unused_weight" placeholder="Weight(Gm)"
                                                             value="<?= $update['total_unused_weight'] ?? null ?>"
                                                             required readonly>
@@ -140,37 +160,37 @@
                                                 </td>
                                                 <td></td>
                                                 <td>
-                                                    <div class="">
+                                                    <div class="col-8">
                                                         <label class="form-label" for="prd">Total Used Silver: </label>
-                                                        <input class="form-control total_used_silver" type="number"
+                                                        <input class="form-control silver-input total_used_silver" type="number"
                                                             name="total_used_silver" placeholder="Silver(Gm)"
                                                             value="<?= $update['total_used_silver'] ?? null ?>" required
                                                             readonly>
                                                     </div>
-                                                    <div class="mt-2">
+                                                    <div class="col-8 mt-2">
                                                         <label class="form-label" for="prd">Total Un-Used Silver:
                                                         </label>
-                                                        <input class="form-control total_unused_silver" type="number"
+                                                        <input class="form-control  silver-input total_unused_silver" type="number"
                                                             name="remaining_silver" placeholder="Silver(Gm)"
                                                             value="<?= $update['remaining_silver'] ?? null ?>" required
                                                             readonly>
                                                     </div>
                                                 </td>
                                                 <td>
-                                                    <div class="">
+                                                    <div class="col-8 ">
                                                         <label class="form-label" for="prd">Total Used Copper: </label>
-                                                        <input class="form-control total_used_copper" type="number"
+                                                        <input class="form-control copper-input total_used_copper" type="number"
                                                             name="total_used_copper" placeholder="copper(Gm)"
                                                             value="<?= $update['total_used_copper'] ?? null ?>" required
                                                             readonly>
                                                     </div>
-                                                    <div class='mt-2'>
+                                                    <div class='col-8 mt-2'>
                                                         <label class="form-label" for="prd">Total Un-Used Copper:
                                                         </label>
-                                                        <input class="form-control total_unused_copper" type="number"
+                                                        <input class="form-control copper-input total_unused_copper" type="number"
                                                             name="remaining_copper" placeholder="Copper(Gm)"
                                                             value="<?= $update['remaining_copper'] ?? null ?>" required
-                                                            readonly>
+                                                            readonly />
                                                     </div>
                                                 </td>
                                             </tr>
@@ -223,7 +243,7 @@
             },
             lastTr: $('.append-here tr').last(),
             calculateMain: function (ref) {
-                const row = $(ref).parent().parent();
+                const row = $(ref).parents('.row');
                 const weight = parseF(row.find('.mweight').val());
                 const touch = parseF(row.find('.mtouch').val());
                 const silver = parseF(row.find('.msilver').val());

@@ -222,32 +222,46 @@ class Garnu extends CI_Controller
         $this->db->select('*');
         $this->db->from('garnu');
 
-
+        $where = [];
         if ($searchQuery != '')
-            $this->db->where($searchQuery);
+            $where = [$searchQuery];
         if (!empty($fromdate)) {
-            $this->db->where('DATE(garnu.creation_date) >=', $fromdate);
+            $where[] = "DATE(garnu.creation_date) >= '" . $fromdate . "'";
         }
         if (!empty($todate)) {
-            $this->db->where('DATE(garnu.creation_date) <=', $todate);
+            $where[] = "DATE(garnu.creation_date) <= '" . $todate . "'";
         }
+        count($where) > 0 && $this->db->where($where);
+
         $records = $this->db->get();
         $totalRecordwithFilter = $records->num_rows();
 
 
         ## Fetch records
+        $where = [];
         $this->db->select('*');
         $this->db->from('garnu');
 
-        if ($searchQuery != '')
-            $this->db->where($searchQuery);
+        // if ($searchQuery != '')
+        //     $this->db->where($searchQuery);
 
+        // if (!empty($fromdate)) {
+        //     $this->db->where('DATE(garnu.creation_date) >=', $fromdate);
+        // }
+        // if (!empty($todate)) {
+        //     $this->db->where('DATE(garnu.creation_date) <=', $todate);
+        // }
+        $where = [];
+        if ($searchQuery != '')
+            $where = [$searchQuery];
         if (!empty($fromdate)) {
-            $this->db->where('DATE(garnu.creation_date) >=', $fromdate);
+            $where[] = "DATE(garnu.creation_date) >= '" . $fromdate . "'";
         }
         if (!empty($todate)) {
-            $this->db->where('DATE(garnu.creation_date) <=', $todate);
+            $where[] = "DATE(garnu.creation_date) <= '" . $todate . "'";
         }
+        count($where) > 0 && $this->db->where($where);
+
         $this->db->limit($rowperpage, $start);
         $this->db->order_by('id', "desc");
         $records = $this->db->get()->result();
@@ -266,43 +280,34 @@ class Garnu extends CI_Controller
             </path>
             </svg>
             </a>
-            <buttton data-receiptid="' . $record->id . '" class="btn btn-action bg-green text-white me-2 garnu_receive" >
-            <i class="fa-solid fa-receipt"></i>
-         </button>
+
+            <span class="btn btn-action bg-green text-white me-2" data-bs-toggle="tooltip" data-bs-placement="top"  data-bs-original-title="Receive"><i class="fa-solid fa-receipt"></i></span>
             ';
             $data[] = array(
-                'id' => $i,
-                'action' => $action,
-                'name' => $record->name,
-                'garnu_weight' => $record->garnu_weight,
-                'touch' => $record->touch,
-                'silver' => $record->silver,
-                'copper' => $record->copper,
+                'id'            => $i,
+                'action'        => $action,
+                'name'          => $record->name,
+                'garnu_weight'  => $record->garnu_weight,
+                'touch'         => $record->touch,
+                'silver'        => $record->silver,
+                'copper'        => $record->copper,
                 'creation_date' => $record->creation_date,
-                'recieved' => $record->recieved,
-                'created_at' => $record->created_at,
+                'recieved'      => $record->recieved,
+                'created_at'    => $record->created_at,
             );
             $i = $i + 1;
         }
 
         $response = array(
-            "draw" => intval($draw),
-            "iTotalRecords" => $totalRecords,
+            "draw"                 => intval($draw),
+            "iTotalRecords"        => $totalRecords,
             "iTotalDisplayRecords" => $totalRecordwithFilter,
-            "aaData" => $data,
+            "aaData"               => $data,
         );
         echo json_encode($response);
         exit();
     }
 
-    // public function receive()
-    // {
-    //     $page_data['id'] = $this->input->post('id');
-    //     $page_data['data'] = $this->db->get_where('garnu_receive', array('garnu_id' => $page_data['id']))->result();
-    //     $page_data['receive_data'] = $this->db->get_where('garnu', array('id' => $page_data['id']))->row_array();
-    //     $res = view(self::RECEIVE, $page_data);
-    //     echo json_encode($res);
-    // }
 
     private function validateId($id)
     {

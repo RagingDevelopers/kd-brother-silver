@@ -12,7 +12,6 @@ class FlashRedirect
     public function __construct()
     {
         $this->CI = &get_instance();
-        // $this->CI->load->library('session');
     }
 
     public function withSuccess($message)
@@ -48,7 +47,7 @@ class FlashRedirect
 
     public function back()
     {
-        $this->url  = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : base_url('dashboard');
+        $this->url = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : base_url('dashboard');
 
         $this->CI->session->set_flashdata('flash', array('class' => $this->type, "message" => $this->message));
         if (!empty($this->url)) {
@@ -56,7 +55,16 @@ class FlashRedirect
         }
         return $this;
     }
-
+    public function dashboard()
+    {
+        $this->url = base_url('dashboard');
+        $this->CI->session->set_flashdata('flash', array('class' => $this->type, "message" => $this->message));
+        if (!empty($this->url)) {
+            redirect($this->url);
+        }
+        return $this;
+    }
+    
     public function go()
     {
         $this->CI->session->set_flashdata('flash', array('class' => $this->type, "message" => $this->message));
