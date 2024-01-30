@@ -48,7 +48,7 @@
 
                         </div>
                         <div class="mt-3">
-                            <table id="example_table" class="table table-vcenter card-table">
+                            <table id="garnu" class="table table-vcenter card-table">
                                 <thead>
                                     <tr>
                                         <th scope="col">Serial No </th>
@@ -63,107 +63,6 @@
                                         <th scope="col">Created At</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    <?php $i = 1;
-                                    if (count($data)) {
-                                        foreach ($data as $data) {
-                                            ?>
-                                            <?php if ($data['recieved'] == 'NO') { ?>
-                                                <tr class="text-danger">
-                                                    <td scope="row">
-                                                        <?= $i++ ?>
-                                                    </td>
-                                                    <td>
-                                                        <div>
-                                                            <a class="btn btn-action bg-success text-white me-2"
-                                                                data-bs-toggle="tooltip" data-bs-placement="top"
-                                                                data-bs-original-title="Edit"
-                                                                href="<?= base_url('manufacturing/garnu/edit/') . $data['id'] ?>">
-                                                                <i class="far fa-edit" aria-hidden="true"></i>
-                                                            </a>
-                                                            <buttton data-receiptid="$data['id']"
-                                                                class="btn btn-action bg-danger text-white me-2 Received"
-                                                                data-bs-toggle="tooltip" data-bs-placement="top"
-                                                                data-bs-original-title="Receive"><i class="fa-solid fa-receipt"></i>
-                                                            </buttton>
-                                                        </div>
-                                                    </td>
-
-                                                    <td>
-                                                        <?= $data['name']; ?>
-                                                    </td>
-                                                    <td>
-                                                        <?= $data['garnu_weight']; ?>
-                                                    </td>
-                                                    <td>
-                                                        <?= $data['touch']; ?>
-                                                    </td>
-                                                    <td>
-                                                        <?= $data['silver']; ?>
-                                                    </td>
-                                                    <td>
-                                                        <?= $data['copper']; ?>
-                                                    </td>
-                                                    <td>
-                                                        <?= $data['creation_date']; ?>
-                                                    </td>
-                                                    <td>
-                                                        <?= $data['recieved']; ?>
-                                                    </td>
-                                                    <td>
-                                                        <?= $data['created_at']; ?>
-                                                    </td>
-                                                </tr>
-                                            <?php } else { ?>
-                                                <tr class="text-green">
-                                                    <td scope="row">
-                                                        <?= $i++ ?>
-                                                    </td>
-                                                    <td>
-                                                        <div>
-                                                            <a class="btn btn-action bg-success text-white me-2"
-                                                                data-bs-toggle="tooltip" data-bs-placement="top"
-                                                                data-bs-original-title="Edit"
-                                                                href="<?= base_url('manufacturing/garnu/edit/') . $data['id'] ?>">
-                                                                <i class="far fa-edit" aria-hidden="true"></i>
-                                                            </a>
-                                                            <span class="btn btn-action bg-green text-white me-2"
-                                                                data-bs-toggle="tooltip" data-bs-placement="top"
-                                                                data-bs-original-title="Receive"><i
-                                                                    class="fa-solid fa-receipt"></i></span>
-                                                        </div>
-                                                    </td>
-
-                                                    <td>
-                                                        <?= $data['name']; ?>
-                                                    </td>
-                                                    <td>
-                                                        <?= $data['garnu_weight']; ?>
-                                                    </td>
-                                                    <td>
-                                                        <?= $data['touch']; ?>
-                                                    </td>
-                                                    <td>
-                                                        <?= $data['silver']; ?>
-                                                    </td>
-                                                    <td>
-                                                        <?= $data['copper']; ?>
-                                                    </td>
-                                                    <td>
-                                                        <?= $data['creation_date']; ?>
-                                                    </td>
-                                                    <td>
-                                                        <?= $data['recieved']; ?>
-                                                    </td>
-                                                    <td>
-                                                        <?= $data['created_at']; ?>
-                                                    </td>
-                                                </tr>
-                                                <?php
-                                            }
-                                        }
-                                    } ?>
-                                </tbody>
                             </table>
                         </div>
 
@@ -177,11 +76,83 @@
 </div>
 <script class="javascript">
     $(document).ready(function () {
+
+        var table = $('#garnu').DataTable({
+            "iDisplayLength": 5,
+            "lengthMenu": [
+                [5, 10, 25, 50, 100, 500, 1000, 5000],
+                [5, 10, 25, 50, 100, 500, 1000, 5000]
+            ],
+            'processing': true,
+            'serverSide': true,
+            'destroy': true,
+            'serverMethod': 'post',
+            'searching': true,
+            "ajax": {
+                'url': "<?= base_url(); ?>manufacturing/garnu/getlist",
+                'data': function (data) {
+                    data.todate = $('#todate').val();
+                    data.fromdate = $('#fromdate').val();
+                }
+            },
+            "columns": [{
+                data: 'id'
+            },
+            {
+                data: 'action'
+            },
+            {
+                data: 'name'
+            },
+            {
+                data: 'garnu_weight'
+            },
+            {
+                data: 'touch'
+            },
+            {
+                data: 'silver'
+            },
+            {
+                data: 'copper'
+            },
+            {
+                data: 'creation_date'
+            },
+            {
+                data: 'recieved'
+            },
+            {
+                data: 'created_at'
+            },
+
+            ],
+
+        });
+        $('#todate').on('change', function () {
+            table.clear()
+            table.draw()
+        });
+        $('#fromdate').on('change', function () {
+            table.clear()
+            table.draw()
+        });
+
+
         $(document).on('click', '.Received', function () {
             $("#ReceivedModel").modal('show');
             var id = $(this).data('receiveid');
             $('.modal-body_2html').html("");
-
+            $.ajax({
+                url: "<?= base_url() . 'manufacturing/garnu/receive'; ?>",
+                type: 'post',
+                data: {
+                    id: id,
+                },
+                success: function (res) {
+                    $('.modal-body_2html').html(res);
+                }
+            });
         });
     });
 </script>
