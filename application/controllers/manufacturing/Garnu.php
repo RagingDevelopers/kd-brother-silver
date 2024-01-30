@@ -222,16 +222,14 @@ class Garnu extends CI_Controller
         $this->db->select('*');
         $this->db->from('garnu');
 
-        $where = [];
         if ($searchQuery != '')
-            $where = [$searchQuery];
+            $this->db->where($searchQuery);
         if (!empty($fromdate)) {
-            $where[] = "DATE(garnu.creation_date) >= '" . $fromdate . "'";
+            $this->db->where('DATE(garnu.creation_date) >=', $fromdate);
         }
         if (!empty($todate)) {
-            $where[] = "DATE(garnu.creation_date) <= '" . $todate . "'";
+            $this->db->where('DATE(garnu.creation_date) <=', $todate);
         }
-        count($where) > 0 && $this->db->where($where);
 
         $records = $this->db->get();
         $totalRecordwithFilter = $records->num_rows();
@@ -242,25 +240,14 @@ class Garnu extends CI_Controller
         $this->db->select('*');
         $this->db->from('garnu');
 
-        // if ($searchQuery != '')
-        //     $this->db->where($searchQuery);
-
-        // if (!empty($fromdate)) {
-        //     $this->db->where('DATE(garnu.creation_date) >=', $fromdate);
-        // }
-        // if (!empty($todate)) {
-        //     $this->db->where('DATE(garnu.creation_date) <=', $todate);
-        // }
-        $where = [];
         if ($searchQuery != '')
-            $where = [$searchQuery];
+            $this->db->where($searchQuery);
         if (!empty($fromdate)) {
-            $where[] = "DATE(garnu.creation_date) >= '" . $fromdate . "'";
+            $this->db->where('DATE(garnu.creation_date) >=', $fromdate);
         }
         if (!empty($todate)) {
-            $where[] = "DATE(garnu.creation_date) <= '" . $todate . "'";
+            $this->db->where('DATE(garnu.creation_date) <=', $todate);
         }
-        count($where) > 0 && $this->db->where($where);
 
         $this->db->limit($rowperpage, $start);
         $this->db->order_by('id', "desc");
@@ -281,31 +268,58 @@ class Garnu extends CI_Controller
             </svg>
             </a>
 
-            <span class="btn btn-action bg-green text-white me-2" data-bs-toggle="tooltip" data-bs-placement="top"  data-bs-original-title="Receive"><i class="fa-solid fa-receipt"></i></span>
+            <span data-receiveid="' . $record->id . '" class="btn btn-action bg-green text-white me-2 garnu_receive" data-bs-toggle="tooltip" data-bs-placement="top"  data-bs-original-title="Receive"><i class="fa-solid fa-receipt"></i></span>
             ';
+
             $data[] = array(
-                'id'            => $i,
-                'action'        => $action,
-                'name'          => $record->name,
-                'garnu_weight'  => $record->garnu_weight,
-                'touch'         => $record->touch,
-                'silver'        => $record->silver,
-                'copper'        => $record->copper,
+                'id' => $i,
+                'action' => $action,
+                'name' => $record->name,
+                'garnu_weight' => $record->garnu_weight,
+                'touch' => $record->touch,
+                'silver' => $record->silver,
+                'copper' => $record->copper,
                 'creation_date' => $record->creation_date,
-                'recieved'      => $record->recieved,
-                'created_at'    => $record->created_at,
+                'recieved' => $record->recieved,
+                'created_at' => $record->created_at,
             );
             $i = $i + 1;
         }
 
         $response = array(
-            "draw"                 => intval($draw),
-            "iTotalRecords"        => $totalRecords,
+            "draw" => intval($draw),
+            "iTotalRecords" => $totalRecords,
             "iTotalDisplayRecords" => $totalRecordwithFilter,
-            "aaData"               => $data,
+            "aaData" => $data,
         );
         echo json_encode($response);
         exit();
+    }
+
+    public function receive()
+    {
+        // Get data from the AJAX request
+        $data = array(
+            'metal_type_id' => $this->input->post('metal_type_id'),
+            'touch' => $this->input->post('touch'),
+            'weight' => $this->input->post('weight'),
+
+        );
+
+        // Perform a direct database insert
+        $this->db->insert('receive_garnu', $data); // Replace 'your_table_name' with your table name
+
+        if ($this->db->affected_rows() > 0) {
+            // Data was inserted successfully
+            $response['success'] = true;
+            $response['message'] = 'Data added to the database.';
+        } else {
+            // Insertion failed
+            $response['success'] = false;
+            $response['message'] = 'Failed to add data to the database.';
+        }
+
+        echo json_encode($response);
     }
 
 

@@ -13,7 +13,7 @@
                                     aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
-                                <div class="row">
+                                <form id="garnu_receive">
                                     <table class="table card-table table-vcenter text-center text-nowrap ">
                                         <thead class="thead-light">
                                             <th>Metal Type</th>
@@ -53,14 +53,19 @@
 
                                         </tbody>
                                         <tfoot>
-                                            <td colspan="1"
-                                                class="d-flex border border-0 align-content-start flex-wrap">
-                                                <button type="button" class="btn btn-outline-warning" id="add">Add
-                                                    Row</button>
+                                            <td class="d-flex border border-0 align-content-start flex-wrap">
+                                                <button type="button" class="btn btn-outline-warning"
+                                                    id="add">AddRow</button>
+                                            </td>
+                                            <td>
+                                            </td>
+                                            <td class="d-flex border border-0 justify-content-end  flex-wrap">
+                                                <button type="button" class="btn btn-outline-primary submitBtn"
+                                                    id="submitBtn">Submit</button>
                                             </td>
                                         </tfoot>
                                     </table>
-                                </div>
+                                </form>
                             </div>
                         </div>
                     </div>
@@ -122,7 +127,6 @@
     $(document).ready(function () {
         main_row = $(".sectiontocopy")[0].outerHTML;
 
-
         $('.metal_type_id').each(function () {
             $(this).select2({
                 width: '100',
@@ -173,21 +177,19 @@
                 data: 'creation_date'
             },
             {
-                data: 'recieved',
+                data: 'recieved'
             },
             {
                 data: 'created_at'
             },
             ],
             "rowCallback": function (row, data) {
-                console.log(row);
                 if (data.recieved == 'YES') {
                     $(row).css('color', 'green');
                 } else if (data.recieved == 'NO') {
                     $(row).css('color', 'red');
                 }
             }
-
         });
         $('#todate').on('change', function () {
             table.clear()
@@ -204,12 +206,6 @@
             var id = $(this).data('receiveid');
         });
 
-        // $('.metal_type_id').select2({
-        //     width: '100',
-        //     dropdownParent: $('#ReceivedModel')
-        // })
-
-
         $("#add").click(function () {
             $(".append-here").append(main_row);
             $('.append-here tr').last().find('.sdid').val(0);
@@ -218,18 +214,55 @@
                 width: '100',
                 dropdownParent: $('#ReceivedModel')
             });
+
             $('.metal_type_id').each(function () {
-            $(this).select2({
-                width: '100',
-                dropdownParent: $('#ReceivedModel')
+                $(this).select2({
+                    width: '100',
+                    dropdownParent: $('#ReceivedModel')
+                });
             });
         });
-        });
+
         $(document).on('click', '.del', function () {
             var metal_type_id = $(".metal_type_id").length;
             if (metal_type_id > 1) {
                 $(this).parent().parent().remove();
             }
         });
+
+        $(document).on('click', ".submitBtn", function () {
+
+            var dataArray = [];
+            $(".append-here tr").each(function () {
+
+                var row = $(this);
+                var metal_type_id = row.find(".metal_type_id").val(); // Replace with your input field classes
+                var touch = row.find(".touch").val();
+                var weight = row.find(".weight").val();
+
+                var rowData = {
+                    metal_type_id: metal_type_id,
+                    touch: touch,
+                    weight: weight,
+                };
+                dataArray.push(rowData);
+            });
+
+            $.ajax({
+                url: "<?php echo base_url('manufacturing/garnu/receive'); ?>",
+                type: "POST",
+                data: { data: JSON.stringify(dataArray) }, 
+                dataType: "json",
+                success: function (response) {
+                    if (response.success) {
+                        alert("Receive  successfully: " + response.message);
+                    } else {
+                        alert("Failed to add data: " + response.message);
+                    }
+                }
+            });
+        });
+
+
     });
 </script>

@@ -18,7 +18,7 @@
                 <div class="table-responsive">
                     <div class="col-md-12 mb-5 ">
                         <div class="mt-3">
-                            <table id="example_table" class="table table-vcenter card-table">
+                            <table id="customer" class="table table-vcenter card-table">
                                 <thead>
                                     <tr>
                                         <th scope="col">Serial No </th>
@@ -34,79 +34,6 @@
                                         <th scope="col">Created At</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    <?php $i = 1;
-                                    if (count($data)) {
-                                        foreach ($data as $data) {
-                                            ?>
-                                            <tr>
-                                                <td scope="row">
-                                                    <?= $i++ ?>
-                                                </td>
-                                                <td>
-                                                    <div>
-                                                        <a class="btn btn-action bg-success text-white me-2"
-                                                        data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Edit"
-                                                            href="<?= base_url('registration/customer/edit/') . $data['id'] ?>">
-                                                            <i class="far fa-edit" aria-hidden="true"></i>
-                                                        </a>
-                                                        <a class="btn btn-action bg-danger text-white me-2"
-                                                        data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Delete"
-                                                            onclick="return confirm('Are you sure want to Delete.?');"
-                                                            href="<?= base_url('registration/customer/delete/') . $data['id'] ?>">
-                                                            <i class="fa-solid fa-trash"></i>
-                                                        </a>
-                                                    </div>
-                                                </td>
-
-                                                <td>
-                                                    <?= $data['name']; ?>
-                                                </td>
-                                                <td>
-                                                    <?= $data['mobile']; ?>
-                                                </td>
-                                                <td>
-                                                    <?= $data['city_name']; ?>
-                                                </td>
-                                                <td>
-                                                    <?= $data['account_type_name']; ?>
-                                                </td>
-                                                <td>
-                                                    <?= $data['opening_amount']; ?>
-                                                </td>
-                                                <td>
-                                                    <?php if ($data['opening_amount_type'] == "JAMA") { ?>
-                                                        <div class="badge bg-blue">
-                                                            <?= $data['opening_amount_type']; ?>
-                                                        </div>
-                                                    <?php } else { ?>
-                                                        <div class="badge bg-red">
-                                                            <?= $data['opening_amount_type']; ?>
-                                                        </div>
-                                                    <?php } ?>
-                                                </td>
-                                                <td>
-                                                    <?= $data['opening_fine']; ?>
-                                                </td>
-                                                <td>
-                                                    <?php if ($data['opening_fine_type'] == "JAMA") { ?>
-                                                        <div class="badge bg-blue">
-                                                            <?= $data['opening_fine_type']; ?>
-                                                        </div>
-                                                    <?php } else { ?>
-                                                        <div class="badge bg-red">
-                                                            <?= $data['opening_fine_type']; ?>
-                                                        </div>
-                                                    <?php } ?>
-                                                </td>
-
-                                                <td>
-                                                    <?= $data['created_at']; ?>
-                                                </td>
-                                            </tr>
-                                        <?php }
-                                    } ?>
-                                </tbody>
                             </table>
                         </div>
 
@@ -114,7 +41,76 @@
                 </div>
             </div>
         </div>
-
     </div>
-
 </div>
+<script class="javascript">
+    $(document).ready(function () {
+        var table = $('#customer').DataTable({
+            "iDisplayLength": 5,
+            "lengthMenu": [
+                [5, 10, 25, 50, 100, 500, 1000, 5000],
+                [5, 10, 25, 50, 100, 500, 1000, 5000]
+            ],
+            'processing': true,
+            'serverSide': true,
+            'destroy': true,
+            'serverMethod': 'post',
+            'searching': true,
+            "ajax": {
+                'url': "<?= base_url(); ?>registration/customer/getlist",
+                'data': function (data) {
+                    data.todate = $('#todate').val();
+                }
+            },
+            "columns": [{
+                data: 'id'
+            },
+            {
+                data: 'action'
+            },
+            {
+                data: 'name'
+            },
+            {
+                data: 'mobile'
+            },
+            {
+                data: 'city_name'
+            },
+            {
+                data: 'account_type_name'
+            },
+            {
+                data: 'opening_amount'
+            },
+            {
+                data: 'opening_amount_type',
+                'render': function (data, type, row) {
+                    if (data === 'JAMA') {
+                        return '<span class="badge bg-primary">' + data + '</span>';
+                    } else if (data === 'BAKI') {
+                        return '<span class="badge bg-danger">' + data + '</span>';
+                    }
+                }
+
+            },
+            {
+                data: 'opening_fine'
+            },
+            {
+                data: 'opening_fine_type',
+                'render': function (data, type, row) {
+                    if (data === 'JAMA') {
+                        return '<span class="badge bg-primary">' + data + '</span>';
+                    } else if (data === 'BAKI') {
+                        return '<span class="badge bg-danger">' + data + '</span>';
+                    }
+                }
+            },
+            {
+                data: 'created_at'
+            },
+            ],
+        });
+    });
+</script>
