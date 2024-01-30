@@ -8,6 +8,8 @@ class Garnu extends CI_Controller
 
     const View = "admin/manufacturing/garnu_report";
     const ADD = "admin/manufacturing/garnu";
+
+    const RECEIVE = "admin/manufacturing/receive";
     public function __construct()
     {
         parent::__construct();
@@ -264,10 +266,10 @@ class Garnu extends CI_Controller
             </path>
             </svg>
             </a>
-
-            <span class="btn btn-action bg-green text-white me-2" data-bs-toggle="tooltip" data-bs-placement="top"  data-bs-original-title="Receive"><i class="fa-solid fa-receipt"></i></span>
+            <buttton data-receiptid="' . $record->id . '" class="btn btn-action bg-green text-white me-2 garnu_receive" >
+            <i class="fa-solid fa-receipt"></i>
+         </button>
             ';
-
             $data[] = array(
                 'id' => $i,
                 'action' => $action,
@@ -293,6 +295,14 @@ class Garnu extends CI_Controller
         exit();
     }
 
+    // public function receive()
+    // {
+    //     $page_data['id'] = $this->input->post('id');
+    //     $page_data['data'] = $this->db->get_where('garnu_receive', array('garnu_id' => $page_data['id']))->result();
+    //     $page_data['receive_data'] = $this->db->get_where('garnu', array('id' => $page_data['id']))->row_array();
+    //     $res = view(self::RECEIVE, $page_data);
+    //     echo json_encode($res);
+    // }
 
     private function validateId($id)
     {
