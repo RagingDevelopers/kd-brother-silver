@@ -50,8 +50,8 @@
                                                     <button type="button" class="btn btn-danger del">X</button>
                                                 </td>
                                             </tr>
-
                                         </tbody>
+
                                         <tfoot>
                                             <td class="d-flex border border-0 align-content-start flex-wrap">
                                                 <button type="button" class="btn btn-outline-warning"
@@ -234,9 +234,8 @@
 
             var dataArray = [];
             $(".append-here tr").each(function () {
-
                 var row = $(this);
-                var metal_type_id = row.find(".metal_type_id").val(); // Replace with your input field classes
+                var metal_type_id = row.find(".metal_type_id").val();
                 var touch = row.find(".touch").val();
                 var weight = row.find(".weight").val();
 
@@ -247,22 +246,24 @@
                 };
                 dataArray.push(rowData);
             });
-
             $.ajax({
                 url: "<?php echo base_url('manufacturing/garnu/receive'); ?>",
                 type: "POST",
-                data: { data: JSON.stringify(dataArray) }, 
+                data: { data: JSON.stringify(dataArray) },
                 dataType: "json",
                 success: function (response) {
                     if (response.success) {
                         alert("Receive  successfully: " + response.message);
+                        location.reload();
                     } else {
                         alert("Failed to add data: " + response.message);
                     }
+                },
+                error: function (xhr, status, error) {
+                    alert("Error adding data: " + error);
                 }
             });
         });
-
 
     });
 </script>
