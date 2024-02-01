@@ -8,21 +8,28 @@
             <div class="card-body border-bottom py-3">
                 <div class="col-md-12 mb-5 ">
                     <div class="row ms-1">
-                        <form class="row" action="<?= (isset($update)) ? base_url("registration/user/index/update/{$update['id']}") : base_url('registration/user/index/store') ?>" method="post">
+                        <form class="row"
+                            action="<?= (isset($update)) ? base_url("registration/user/index/update/{$update['id']}") : base_url('registration/user/index/store') ?>"
+                            method="post">
                             <input type="hidden" name="permission" id="permission" class="permission" />
                             <div class="row">
                                 <div class="col-sm-3">
                                     <label class="form-label" for="prd"> Name: </label>
-                                    <input class="form-control" type="text" name="name" placeholder="Enter User  Name" value="<?= $update['name'] ?? null ?>" id="name" required>
+                                    <input class="form-control" type="text" name="name" placeholder="Enter User  Name"
+                                        value="<?= $update['name'] ?? null ?>" id="name" required>
                                 </div>
                                 <div class="col-sm-3">
                                     <label class="form-label" for="prd"> Mobile Number: </label>
-                                    <input class="form-control" type="number" name="mobile" placeholder="Enter Mobile Number" value="<?= $update['mobile'] ?? null ?>" id="mobile" required>
+                                    <input class="form-control" type="number" name="mobile"
+                                        placeholder="Enter Mobile Number" value="<?= $update['mobile'] ?? null ?>"
+                                        id="mobile" required>
                                 </div>
-                                <?php if (!isset($update)) {  ?>
+                                <?php if (!isset($update)) { ?>
                                     <div class="col-sm-3">
                                         <label class="form-label" for="prd"> Password: </label>
-                                        <input class="form-control" type="number" name="password" placeholder="Enter password" value="<?= $update['password'] ?? null ?>" id="password" required>
+                                        <input class="form-control" type="number" name="password"
+                                            placeholder="Enter password" value="<?= $update['password'] ?? null ?>"
+                                            id="password" required>
                                     </div>
                                 <?php } ?>
 
@@ -31,11 +38,11 @@
                                     <select class="form-select select2" id="select" name="type">
                                         <option selected value="">Select User Type</option>
                                         <option value="ADMIN" <?php if (!empty($update) && $update['type'] == 'ADMIN') {
-                                                                    echo 'selected';
-                                                                } ?>>Admin</option>
+                                            echo 'selected';
+                                        } ?>>Admin</option>
                                         <option value="OTHER" <?php if (!empty($update) && $update['type'] == 'OTHER') {
-                                                                    echo 'selected';
-                                                                } ?>>Other</option>
+                                            echo 'selected';
+                                        } ?>>Other</option>
                                     </select>
                                 </div>
                             </div>
@@ -45,28 +52,33 @@
                                     <select class="form-select select2" id="status" name="status">
                                         <option selected value="">Select Status Type</option>
                                         <option value="ACTIVE" <?php if (!empty($update) && $update['status'] == 'ACTIVE') {
-                                                                    echo 'selected';
-                                                                } ?>>Active</option>
+                                            echo 'selected';
+                                        } ?>>Active</option>
                                         <option value="INACTIVE" <?php if (!empty($update) && $update['status'] == 'INACTIVE') {
-                                                                        echo 'selected';
-                                                                    } ?>>In-active</option>
+                                            echo 'selected';
+                                        } ?>>In-active</option>
                                     </select>
                                 </div>
 
                                 <div class="col-sm-3">
                                     <label class="form-label" for="prd"> Opening Amount: </label>
-                                    <input class="form-control" type="number" name="opening_amount" placeholder="Enter Opening Amount" value="<?= $update['opening_amount'] ?? null ?>" id="opening_amount" required>
+                                    <input class="form-control" type="number" name="opening_amount"
+                                        placeholder="Enter Opening Amount"
+                                        value="<?= $update['opening_amount'] ?? null ?>" id="opening_amount" required>
                                 </div>
 
                                 <div class="col-sm-3">
                                     <label class="form-label" for="prd"> Opening Fine: </label>
-                                    <input class="form-control" type="number" name="opening_fine" placeholder="Enter Opening Fine" value="<?= $update['opening_fine'] ?? null ?>" id="opening_fine" required>
+                                    <input class="form-control" type="number" name="opening_fine"
+                                        placeholder="Enter Opening Fine" value="<?= $update['opening_fine'] ?? null ?>"
+                                        id="opening_fine" required>
                                 </div>
 
                                 <div class="row">
                                     <div class="col-md-5 md-ms-4">
                                         <label class="form-label" for="prd"> &nbsp </label>
-                                        <input class="btn btn-primary button" type="submit" value="<?= isset($update) ? "Update" : "Submit" ?>">
+                                        <input class="btn btn-primary button" type="submit"
+                                            value="<?= isset($update) ? "Update" : "Submit" ?>">
                                     </div>
                                 </div>
                             </div>
@@ -106,17 +118,22 @@
                         <?php $i = 1;
                         if (count($data)) {
                             foreach ($data as $data) {
-                        ?>
+                                ?>
                                 <tr>
                                     <td>
                                         <?= $i++ ?>
                                     </td>
                                     <td>
                                         <div>
-                                            <a class="btn btn-action bg-success text-white me-2 edit" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Edit" href="<?= base_url('registration/user/edit/') . $data['id'] ?>">
+                                            <a class="btn btn-action bg-success text-white me-2 edit" data-bs-toggle="tooltip"
+                                                data-bs-placement="top" data-bs-original-title="Edit"
+                                                href="<?= base_url('registration/user/edit/') . $data['id'] ?>">
                                                 <i class="far fa-edit" aria-hidden="true"></i>
                                             </a>
-                                            <a class="btn btn-action bg-danger text-white me-2" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Delete" onclick="return confirm('Are you sure want to Delete.?');" href="<?= base_url('registration/user/delete/') . $data['id'] ?>">
+                                            <a class="btn btn-action bg-danger text-white me-2" data-bs-toggle="tooltip"
+                                                data-bs-placement="top" data-bs-original-title="Delete"
+                                                onclick="return confirm('Are you sure want to Delete.?');"
+                                                href="<?= base_url('registration/user/delete/') . $data['id'] ?>">
                                                 <i class="fa-solid fa-trash"></i>
                                             </a>
                                         </div>
@@ -159,7 +176,7 @@
                                         <?= $data['created_at']; ?>
                                     </td>
                                 </tr>
-                        <?php }
+                            <?php }
                         } ?>
                     </tbody>
                 </table>
@@ -168,12 +185,12 @@
     </div>
 </div>
 <script>
-    $(document).ready(function() {
-        $(".button").click(function() {
-            var product_ids_str = $.map($('.form-check-input:checked'), function(n, i) {
+    $(document).ready(function () {
+        $(".button").click(function () {
+            var product_ids_str = $.map($('.form-check-input:checked'), function (n, i) {
                 return n.value;
-                }).join(',');
-                $('.permission').val(product_ids_str);
-            });
+            }).join(',');
+            $('.permission').val(product_ids_str);
         });
- </script>
+    });
+</script>

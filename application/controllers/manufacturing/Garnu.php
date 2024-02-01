@@ -8,6 +8,8 @@ class Garnu extends CI_Controller
 
     const View = "admin/manufacturing/garnu_report";
     const ADD = "admin/manufacturing/garnu";
+
+    const RECEIVE = "admin/manufacturing/receive";
     public function __construct()
     {
         parent::__construct();
@@ -220,16 +222,14 @@ class Garnu extends CI_Controller
         $this->db->select('*');
         $this->db->from('garnu');
 
-        $where = [];
         if ($searchQuery != '')
-            $where = [$searchQuery];
+            $this->db->where($searchQuery);
         if (!empty($fromdate)) {
-            $where[] = "DATE(garnu.creation_date) >= '" . $fromdate . "'";
+            $this->db->where('DATE(garnu.creation_date) >=', $fromdate);
         }
         if (!empty($todate)) {
-            $where[] = "DATE(garnu.creation_date) <= '" . $todate . "'";
+            $this->db->where('DATE(garnu.creation_date) <=', $todate);
         }
-        count($where) > 0 && $this->db->where($where);
 
         $records = $this->db->get();
         $totalRecordwithFilter = $records->num_rows();
@@ -240,25 +240,14 @@ class Garnu extends CI_Controller
         $this->db->select('*');
         $this->db->from('garnu');
 
-        // if ($searchQuery != '')
-        //     $this->db->where($searchQuery);
-
-        // if (!empty($fromdate)) {
-        //     $this->db->where('DATE(garnu.creation_date) >=', $fromdate);
-        // }
-        // if (!empty($todate)) {
-        //     $this->db->where('DATE(garnu.creation_date) <=', $todate);
-        // }
-        $where = [];
         if ($searchQuery != '')
-            $where = [$searchQuery];
+            $this->db->where($searchQuery);
         if (!empty($fromdate)) {
-            $where[] = "DATE(garnu.creation_date) >= '" . $fromdate . "'";
+            $this->db->where('DATE(garnu.creation_date) >=', $fromdate);
         }
         if (!empty($todate)) {
-            $where[] = "DATE(garnu.creation_date) <= '" . $todate . "'";
+            $this->db->where('DATE(garnu.creation_date) <=', $todate);
         }
-        count($where) > 0 && $this->db->where($where);
 
         $this->db->limit($rowperpage, $start);
         $this->db->order_by('id', "desc");
@@ -269,38 +258,94 @@ class Garnu extends CI_Controller
         $i = $start + 1;
         foreach ($records as $record) {
             $action = '
-                <a href="' . base_url('manufacturing/garnu/edit/') . $record->id . '" class="btn btn-action bg-success text-white me-2">
-                    <i class="far fa-edit" aria-hidden="true"></i>
-                </a>
-                <span class="btn btn-action bg-green text-white me-2" data-bs-toggle="tooltip" data-bs-placement="top"  data-bs-original-title="Receive">
-                    <i class="fa-solid fa-receipt"></i>
-                </span>
+            <a href="' . base_url('manufacturing/garnu/edit/') . $record->id . '" class="btn btn-action bg-success text-white me-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-edit " width="50" height="50" viewBox="0 0 25 25" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+            <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1"></path>
+            <path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z"></path>
+            <path d="M16 5l3 3">
+            </path>
+            </svg>
+            </a>
+
+            <span data-receiveid="' . $record->id . '" class="btn btn-action bg-green text-white me-2 garnu_receive" data-bs-toggle="tooltip" data-bs-placement="top"  data-bs-original-title="Receive"><i class="fa-solid fa-receipt"></i></span>
             ';
 
             $data[] = array(
-                'id'            => $i,
-                'action'        => $action,
-                'name'          => $record->name,
-                'garnu_weight'  => $record->garnu_weight,
-                'touch'         => $record->touch,
-                'silver'        => $record->silver,
-                'copper'        => $record->copper,
+                'id' => $i,
+                'action' => $action,
+                'name' => $record->name,
+                'garnu_weight' => $record->garnu_weight,
+                'touch' => $record->touch,
+                'silver' => $record->silver,
+                'copper' => $record->copper,
                 'creation_date' => $record->creation_date,
-                'recieved'      => $record->recieved,
-                'created_at'    => $record->created_at,
+                'recieved' => $record->recieved,
+                'created_at' => $record->created_at,
             );
             $i = $i + 1;
         }
 
         $response = array(
-            "draw"                 => intval($draw),
-            "iTotalRecords"        => $totalRecords,
+            "draw" => intval($draw),
+            "iTotalRecords" => $totalRecords,
             "iTotalDisplayRecords" => $totalRecordwithFilter,
-            "aaData"               => $data,
+            "aaData" => $data,
         );
         echo json_encode($response);
-    }``
+        exit();
+    }
 
+
+    public function receive()
+    {
+        $jsonData = $this->input->post('data'); // Assuming you send data as JSON
+        $dataArray = json_decode($jsonData, true); // Decode JSON into an array
+    
+        if (!empty($dataArray) && is_array($dataArray)) {
+            $insertedRows = 0;
+    
+            foreach ($dataArray as $rowData) {
+                // Check if required fields exist in the row data
+                if (isset($rowData['metal_type_id'], $rowData['touch'], $rowData['weight'])) {
+                    $data = array(
+                        'metal_type_id' => $rowData['metal_type_id'],
+                        'touch' => $rowData['touch'],
+                        'weight' => $rowData['weight'],
+                    );
+    
+                    // Insert the data into the database
+                    $this->db->insert('receive_garnu', $data);
+    
+                    if ($this->db->affected_rows() > 0) {
+                        $insertedRows++;
+                    }
+                }
+            }
+    
+            if ($insertedRows > 0) {
+                $response = array(
+                    'success' => true,
+                    'message' => 'Data added successfully!',
+                );
+            } else {
+                $response = array(
+                    'success' => false,
+                    'message' => 'No valid data to insert.',
+                );
+            }
+        } else {
+            $response = array(
+                'success' => false,
+                'message' => 'No data received or invalid data format.',
+            );
+        }
+    
+        // Return the JSON response
+        header('Content-Type: application/json');
+        echo json_encode($response);
+    }
+    
     private function validateId($id)
     {
         (!is_numeric($id) || empty($id)) && flash()->withError("invalid id please enter valid Id")->to("manufacturing/garnu");
