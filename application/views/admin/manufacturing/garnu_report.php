@@ -5,7 +5,7 @@
                 <div class="card-status-top bg-blue"></div>
 
                 <div class="modal modal-blur fade" id="ReceivedModel" tabindex="-1" role="dialog" aria-hidden="true">
-                    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+                    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
                         <div class="modal-content">
                             <div class="modal-header">
                                 <h5 class="modal-title">Received </h5>
@@ -31,9 +31,9 @@
                                                         <?php
                                                         $metal_type = $this->db->get('metal_type')->result();
                                                         foreach ($metal_type as $value) { ?>
-                                                            <option value="<?= $value->id; ?>">
-                                                                <?= $value->name; ?>
-                                                            </option>
+                                                        <option value="<?= $value->id; ?>">
+                                                            <?= $value->name; ?>
+                                                        </option>
                                                         <?php } ?>
                                                     </select>
                                                 </td>
@@ -106,14 +106,13 @@
                                         <th scope="col">Touch</th>
                                         <th scope="col">Silver</th>
                                         <th scope="col">Copper</th>
-                                        <th scope="col">Creation Date</th>
+                                        <th scope="col">Process</th>
                                         <th scope="col">Received</th>
                                         <th scope="col">Created At</th>
                                     </tr>
                                 </thead>
                             </table>
                         </div>
-
                     </div>
                 </div>
             </div>
@@ -123,36 +122,39 @@
 
 </div>
 <script class="javascript">
-    var main_row = '';
-    $(document).ready(function () {
-        main_row = $(".sectiontocopy")[0].outerHTML;
+var main_row = '';
+$(document).ready(function() {
+    main_row = $(".sectiontocopy")[0].outerHTML;
 
-        $('.metal_type_id').each(function () {
+    $('#ReceivedModel').on('shown.bs.modal', function(e) {
+        var modal = this;
+        $('.metal_type_id').each(function() {
             $(this).select2({
                 width: '100',
-                dropdownParent: $('#ReceivedModel')
+                dropdownParent: $(modal)
             });
         });
+    });
 
-        var table = $('#garnu').DataTable({
-            "iDisplayLength": 5,
-            "lengthMenu": [
-                [5, 10, 25, 50, 100, 500, 1000, 5000],
-                [5, 10, 25, 50, 100, 500, 1000, 5000]
-            ],
-            'processing': true,
-            'serverSide': true,
-            'destroy': true,
-            'serverMethod': 'post',
-            'searching': true,
-            "ajax": {
-                'url': "<?= base_url(); ?>manufacturing/garnu/getlist",
-                'data': function (data) {
-                    data.todate = $('#todate').val();
-                    data.fromdate = $('#fromdate').val();
-                }
-            },
-            "columns": [{
+    var table = $('#garnu').DataTable({
+        "iDisplayLength": 5,
+        "lengthMenu": [
+            [5, 10, 25, 50, 100, 500, 1000, 5000],
+            [5, 10, 25, 50, 100, 500, 1000, 5000]
+        ],
+        'processing': true,
+        'serverSide': true,
+        'destroy': true,
+        'serverMethod': 'post',
+        'searching': true,
+        "ajax": {
+            'url': "<?= base_url(); ?>manufacturing/garnu/getlist",
+            'data': function(data) {
+                data.todate = $('#todate').val();
+                data.fromdate = $('#fromdate').val();
+            }
+        },
+        "columns": [{
                 data: 'id'
             },
             {
@@ -174,7 +176,7 @@
                 data: 'copper'
             },
             {
-                data: 'creation_date'
+                data: 'process'
             },
             {
                 data: 'recieved'
@@ -182,88 +184,90 @@
             {
                 data: 'created_at'
             },
-            ],
-            "rowCallback": function (row, data) {
-                if (data.recieved == 'YES') {
-                    $(row).css('color', 'green');
-                } else if (data.recieved == 'NO') {
-                    $(row).css('color', 'red');
-                }
+        ],
+        "rowCallback": function(row, data) {
+            if (data.recieved == 'YES') {
+                $(row).css('color', 'green');
+            } else if (data.recieved == 'NO') {
+                $(row).css('color', 'red');
             }
-        });
-        $('#todate').on('change', function () {
-            table.clear()
-            table.draw()
-        });
-        $('#fromdate').on('change', function () {
-            table.clear()
-            table.draw()
-        });
+        }
+    });
+    $('#todate').on('change', function() {
+        table.clear()
+        table.draw()
+    });
+    $('#fromdate').on('change', function() {
+        table.clear()
+        table.draw()
+    });
 
 
-        $(document).on('click', '.garnu_receive', function () {
-            $("#ReceivedModel").modal('show');
-            var id = $(this).data('receiveid');
+    $(document).on('click', '.garnu_receive', function() {
+        $("#ReceivedModel").modal('show');
+        var id = $(this).data('receiveid');
+    });
+
+    $("#add").click(function() {
+        $(".append-here").append(main_row);
+        $('.append-here tr').last().find('.sdid').val(0);
+        $('.append-here tr').last().find('.touch, .weight,.metal_type_id').val('');
+        $('.append-here tr').last().find('.metal_type_id').select2({
+            width: '100',
+            dropdownParent: $('#ReceivedModel')
         });
 
-        $("#add").click(function () {
-            $(".append-here").append(main_row);
-            $('.append-here tr').last().find('.sdid').val(0);
-            $('.append-here tr').last().find('.touch, .weight,.metal_type_id').val('');
-            $('.append-here tr').last().find('.metal_type_id').select2({
+        $('.metal_type_id').each(function() {
+            $(this).select2({
                 width: '100',
                 dropdownParent: $('#ReceivedModel')
             });
-
-            $('.metal_type_id').each(function () {
-                $(this).select2({
-                    width: '100',
-                    dropdownParent: $('#ReceivedModel')
-                });
-            });
         });
+    });
 
-        $(document).on('click', '.del', function () {
-            var metal_type_id = $(".metal_type_id").length;
-            if (metal_type_id > 1) {
-                $(this).parent().parent().remove();
+    $(document).on('click', '.del', function() {
+        var metal_type_id = $(".metal_type_id").length;
+        if (metal_type_id > 1) {
+            $(this).parent().parent().remove();
+        }
+    });
+
+    $(document).on('click', ".submitBtn", function() {
+
+        var dataArray = [];
+        $(".append-here tr").each(function() {
+            var row = $(this);
+            var metal_type_id = row.find(".metal_type_id").val();
+            var touch = row.find(".touch").val();
+            var weight = row.find(".weight").val();
+
+            var rowData = {
+                metal_type_id: metal_type_id,
+                touch: touch,
+                weight: weight,
+            };
+            dataArray.push(rowData);
+        });
+        $.ajax({
+            url: "<?php echo base_url('manufacturing/garnu/receive'); ?>",
+            type: "POST",
+            data: {
+                data: JSON.stringify(dataArray)
+            },
+            dataType: "json",
+            success: function(response) {
+                if (response.success) {
+                    alert("Receive  successfully: " + response.message);
+                    // location.reload();
+                } else {
+                    alert("Failed to add data: " + response.message);
+                }
+            },
+            error: function(xhr, status, error) {
+                alert("Error adding data: " + error);
             }
         });
-
-        $(document).on('click', ".submitBtn", function () {
-
-            var dataArray = [];
-            $(".append-here tr").each(function () {
-                var row = $(this);
-                var metal_type_id = row.find(".metal_type_id").val();
-                var touch = row.find(".touch").val();
-                var weight = row.find(".weight").val();
-
-                var rowData = {
-                    metal_type_id: metal_type_id,
-                    touch: touch,
-                    weight: weight,
-                };
-                dataArray.push(rowData);
-            });
-            $.ajax({
-                url: "<?php echo base_url('manufacturing/garnu/receive'); ?>",
-                type: "POST",
-                data: { data: JSON.stringify(dataArray) },
-                dataType: "json",
-                success: function (response) {
-                    if (response.success) {
-                        alert("Receive  successfully: " + response.message);
-                        location.reload();
-                    } else {
-                        alert("Failed to add data: " + response.message);
-                    }
-                },
-                error: function (xhr, status, error) {
-                    alert("Error adding data: " + error);
-                }
-            });
-        });
-
     });
+
+});
 </script>

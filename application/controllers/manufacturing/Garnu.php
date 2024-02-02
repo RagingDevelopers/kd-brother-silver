@@ -271,6 +271,13 @@ class Garnu extends CI_Controller
             <span data-receiveid="' . $record->id . '" class="btn btn-action bg-green text-white me-2 garnu_receive" data-bs-toggle="tooltip" data-bs-placement="top"  data-bs-original-title="Receive"><i class="fa-solid fa-receipt"></i></span>
             ';
 
+            $process = '';
+            if($record->recieved == 'YES'){
+                $process = '<a href="' . base_url('manufacturing/process/manage/') . $record->id . '" class="btn btn-primary">Process</a>';
+            }else{
+                $process = '---';
+            }
+
             $data[] = array(
                 'id' => $i,
                 'action' => $action,
@@ -279,7 +286,7 @@ class Garnu extends CI_Controller
                 'touch' => $record->touch,
                 'silver' => $record->silver,
                 'copper' => $record->copper,
-                'creation_date' => $record->creation_date,
+                'process' => $process,
                 'recieved' => $record->recieved,
                 'created_at' => $record->created_at,
             );
