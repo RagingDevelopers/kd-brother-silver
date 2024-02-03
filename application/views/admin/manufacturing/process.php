@@ -9,7 +9,7 @@
                             <h1 class="card-title"><b> Garnu </b></h1>
                         </div>
                         <div class="card-body border-bottom py-3">
-                            <div class="row mt-1">                    
+                            <div class="row mt-1">                                  
                                 <input type="hidden" name="garnu_id" id="" class="form-control"
                                     value="<?= $data['id']; ?>">
                                 <div class="col-md-4 col-sm-3">
@@ -21,7 +21,7 @@
                                 <div class="col-md-4 col-sm-3">
                                     <label class="form-label" for="">Received Quantity: </label>
                                     <input type="text" name="rc_qty" id="" class="form-control"
-                                        placeholder="Enter Quantity" autocomplete="off">
+                                        placeholder="Enter Quantity" autocomplete="off" value="<?php if(isset($process_data['rc_qty'])) { echo $process_data['rc_qty'];}?>">
                                     <?php  echo form_error('rc_qty');  ?>
                                 </div>
                                 <div class="col-md-4 col-sm-3">
@@ -40,7 +40,7 @@
                                         <?php
                                         foreach ($process as $value) {
                                         ?>
-                                        <option value="<?= $value->id; ?>"><?= $value->name; ?></option>
+                                        <option value="<?= $value->id; ?>" <?php if($value->id == $process_data['process']){echo 'selected';} ?>><?= $value->name; ?></option>
                                         <?php } ?>
                                     </select>
                                     <?php  echo form_error('process');  ?>
@@ -57,7 +57,7 @@
                                 <div class="col-md-4 col-sm-3">
                                     <label class="form-label" for="">Remark: </label>
                                     <input type="text" name="remarks" id="" class="form-control"
-                                        placeholder="Enter Remark" autocomplete="off">
+                                        placeholder="Enter Remark" autocomplete="off" value="<?php if(isset($process_data['remarks'])) { echo $process_data['remarks'];}?>">
                                     <?php  echo form_error('remarks');  ?>
                                 </div>
                             </div>
@@ -65,19 +65,19 @@
                                 <div class="col-md-4 col-sm-3">
                                     <label class="form-label" for="">Given Quantity: </label>
                                     <input type="text" name="given_qty" id="" class="form-control"
-                                        placeholder="Enter Quantity" autocomplete="off">
+                                        placeholder="Enter Quantity" autocomplete="off" value="<?php if(isset($process_data['given_qty'])) { echo $process_data['given_qty'];}?>">
                                     <?php  echo form_error('given_qty');  ?>
                                 </div>
                                 <div class="col-md-4 col-sm-3">
                                     <label class="form-label" for="">Given Weight: </label>
                                     <input type="text" name="given_weight" id="" class="form-control"
-                                        placeholder="Enter Weight" autocomplete="off">
+                                        placeholder="Enter Weight" autocomplete="off" value="<?php if(isset($process_data['given_weight'])) { echo $process_data['given_weight'];}?>">
                                     <?php  echo form_error('given_weight');  ?>
                                 </div>
                                 <div class="col-md-4 col-sm-3">
                                     <label class="form-label" for="">Labour: </label>
                                     <input type="text" name="labour" id="" class="form-control"
-                                        placeholder="Enter Labour" autocomplete="off">
+                                        placeholder="Enter Labour" autocomplete="off" value="<?php if(isset($process_data['labour'])) { echo $process_data['labour'];}?>">
                                     <?php  echo form_error('labour');  ?>
                                 </div>
                             </div>
@@ -85,18 +85,18 @@
                                 <div class="col-md-4 col-sm-3">
                                     <label class="form-label" for="">Received Quantity: </label>
                                     <input type="text" name="receive_qty" id="" class="form-control"
-                                        placeholder="Enter Quantity" autocomplete="off">
+                                        placeholder="Enter Quantity" autocomplete="off" value="<?php if(isset($process_data['receive_qty'])) { echo $process_data['receive_qty'];}?>">
                                     <?php  echo form_error('receive_qty');  ?>
                                 </div>
                                 <div class="col-md-4 col-sm-3">
                                     <label class="form-label" for="">Received Weight: </label>
                                     <input type="text" name="receive_weight" id="" class="form-control"
-                                        placeholder="Enter Weight" autocomplete="off">
+                                        placeholder="Enter Weight" autocomplete="off" value="<?php if(isset($process_data['receive_weight'])) { echo $process_data['receive_weight'];}?>">
                                     <?php  echo form_error('receive_weight');  ?>
                                 </div>
                                 <div class="col-md-4 col-sm-3">
                                     <label class="form-label" for="">Total: </label>
-                                    <input type="text" name="total" id="" class="form-control" autocomplete="off">
+                                    <input type="text" name="total" id="" class="form-control" autocomplete="off" value="<?php if(isset($process_data['total'])) { echo $process_data['total'];}?>">
                                     <?php  echo form_error('total');  ?>
                                 </div>
                             </div>
@@ -134,13 +134,13 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                   <?php foreach ($table as $result) { ?>
+                                   <?php foreach ($table as $key => $result) { ?>
                                     <tr>
-                                        <td>1</td>
-                                        <td><a href="" class="btn btn-warning">Edit</a></td>
+                                        <td><?= $key + 1; ?></td>
+                                        <td><a href="<?= base_url('manufacturing/process/manage/').$id.'/'.$result->id;?>" class="btn btn-warning">Edit</a></td>
                                         <td><?= $result->creation_date; ?></td>
-                                        <td>@mdo</td>
-                                        <td>sdf</td>
+                                        <td><?=$result->process_name;?></td>
+                                        <td><?=$result->customer_name;?></td>
                                         <td><?= $result->given_qty; ?></td>
                                         <td><?= $result->given_weight; ?></td>
                                     </tr> 
@@ -148,7 +148,6 @@
                                 </tbody>
                             </table>
                         </div>
-
                     </div>
                 </div>
             </div>

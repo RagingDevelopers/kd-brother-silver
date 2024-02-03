@@ -12,10 +12,12 @@ class Process extends CI_Controller
         $this->load->model('manufacturing/Process_model', "modal");
     }
 
-    public function manage($id=null)
+    public function manage($id=null,$pid=null)
     {
+        $page_data['id'] = $id;
         $page_data['data'] = $this->db->select('*')->from('garnu')->where('id',$id)->get()->row_array();
-        $page_data['table'] = $this->db->select('*')->from('given')->where('garnu_id',$id)->get()->result();
+        $page_data['process_data'] = $this->db->select('*')->from('given')->where('id',$pid)->get()->row_array();
+        $page_data['table'] = $this->db->select('given.*,customer.name AS customer_name, process.name AS process_name')->from('given')->where('garnu_id',$id)->join('process', 'given.process = process.id', 'left')->join('customer', 'given.workers = customer.id', 'left')->get()->result();
         $page_data['page_title'] = 'Process';
         $page_data['process'] = $this->modal->fetch_process();
         return view(self::View, $page_data);
