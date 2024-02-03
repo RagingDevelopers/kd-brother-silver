@@ -15,8 +15,6 @@
 <script src="<?= base_url("assets/") ?>plugins/datatables-buttons/js/buttons.print.min.js"></script>
 <script src="<?= base_url("assets/") ?>plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
 <!--<script src="https://cdn.datatables.net/select/1.4.0/js/dataTables.select.min.js"></script>-->
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.3/jquery.validate.min.js"></script>
 
 <script src="<?= base_url("assets/") ?>plugins/datatables/dataTables.checkboxes.min.js"></script>
 <script src="<?= base_url("assets") ?>/dist/libs/apexcharts/dist/apexcharts.min.js?1684106062" defer></script>

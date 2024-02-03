@@ -5,6 +5,11 @@ const parseF = (str) => {
 	}
 	return f;
 };
+const { format: formatCurrency } = new Intl.NumberFormat("hi-in", {
+	style: "currency",
+	currency: "INR",
+});
+
 const SweetAlert = (type, message) => {
 	const Toast = Swal.mixin({
 		toast: true,
