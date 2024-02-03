@@ -271,6 +271,13 @@ class Garnu extends CI_Controller
             <span data-receiveid="' . $record->id . '" class="btn btn-action bg-green text-white me-2 garnu_receive" data-bs-toggle="tooltip" data-bs-placement="top"  data-bs-original-title="Receive"><i class="fa-solid fa-receipt"></i></span>
             ';
 
+            $process = '';
+            if($record->recieved == 'YES'){
+                $process = '<a href="' . base_url('manufacturing/process/manage/') . $record->id . '" class="btn btn-primary">Process</a>';
+            }else{
+                $process = '---';
+            }
+
             $data[] = array(
                 'id' => $i,
                 'action' => $action,
@@ -279,7 +286,7 @@ class Garnu extends CI_Controller
                 'touch' => $record->touch,
                 'silver' => $record->silver,
                 'copper' => $record->copper,
-                'creation_date' => $record->creation_date,
+                'process' => $process,
                 'recieved' => $record->recieved,
                 'created_at' => $record->created_at,
             );
@@ -296,33 +303,56 @@ class Garnu extends CI_Controller
         exit();
     }
 
+
     public function receive()
     {
-        // Get data from the AJAX request
-        $data = array(
-            'metal_type_id' => $this->input->post('metal_type_id'),
-            'touch' => $this->input->post('touch'),
-            'weight' => $this->input->post('weight'),
-
-        );
-
-        // Perform a direct database insert
-        $this->db->insert('receive_garnu', $data); // Replace 'your_table_name' with your table name
-
-        if ($this->db->affected_rows() > 0) {
-            // Data was inserted successfully
-            $response['success'] = true;
-            $response['message'] = 'Data added to the database.';
+        $jsonData = $this->input->post('data'); // Assuming you send data as JSON
+        $dataArray = json_decode($jsonData, true); // Decode JSON into an array
+    
+        if (!empty($dataArray) && is_array($dataArray)) {
+            $insertedRows = 0;
+    
+            foreach ($dataArray as $rowData) {
+                // Check if required fields exist in the row data
+                if (isset($rowData['metal_type_id'], $rowData['touch'], $rowData['weight'])) {
+                    $data = array(
+                        'metal_type_id' => $rowData['metal_type_id'],
+                        'touch' => $rowData['touch'],
+                        'weight' => $rowData['weight'],
+                    );
+    
+                    // Insert the data into the database
+                    $this->db->insert('receive_garnu', $data);
+    
+                    if ($this->db->affected_rows() > 0) {
+                        $insertedRows++;
+                    }
+                }
+            }
+    
+            if ($insertedRows > 0) {
+                $response = array(
+                    'success' => true,
+                    'message' => 'Data added successfully!',
+                );
+            } else {
+                $response = array(
+                    'success' => false,
+                    'message' => 'No valid data to insert.',
+                );
+            }
         } else {
-            // Insertion failed
-            $response['success'] = false;
-            $response['message'] = 'Failed to add data to the database.';
+            $response = array(
+                'success' => false,
+                'message' => 'No data received or invalid data format.',
+            );
         }
-
+    
+        // Return the JSON response
+        header('Content-Type: application/json');
         echo json_encode($response);
     }
-
-
+    
     private function validateId($id)
     {
         (!is_numeric($id) || empty($id)) && flash()->withError("invalid id please enter valid Id")->to("manufacturing/garnu");

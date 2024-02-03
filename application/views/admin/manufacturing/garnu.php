@@ -209,7 +209,7 @@
     </div>
 </div>
 
-<script class="javascript">
+<script class="javascript"> 
     // var main_row = '';
     var mainFunction = (function () {
         let main = {
