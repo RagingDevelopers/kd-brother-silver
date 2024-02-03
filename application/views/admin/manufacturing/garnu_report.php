@@ -156,7 +156,7 @@ $(document).ready(function() {
         },
         "columns": [{
                 data: 'id'
-            },
+            }, 
             {
                 data: 'action'
             },
@@ -202,10 +202,42 @@ $(document).ready(function() {
         table.draw()
     });
 
+	function reciveGarnu(id = null) {
+    var postData = { id: id };
+    return $.ajax({
+        url: '<?= base_url('manufacturing/garnu/checkReceive'); ?>', // Make sure this is in a PHP file
+        type: 'POST',
+        dataType: 'json',
+        data: postData,
+        success: function(response) {
+            if (response.success) {
+                $(response.data).each(function(index, value) {
+                    $(".append-here").append(main_row);
+                    var $lastRow = $('.append-here tr').last();
+                    $lastRow.find('.sdid').val(value.sdid);
+                    $lastRow.find('.touch, .weight, .metal_type_id').val('');
+                    $lastRow.find('.metal_type_id').val(value.metal_type_id).trigger('change');
+                    $lastRow.find('.metal_type_id').select2({
+                        width: '100',
+                        dropdownParent: $('#ReceivedModel')
+                    });
+                });
+            } else {
+                alert(response.message);
+            }
+        },
+        error: function() {
+            alert("An error occurred.");
+        }
+    });
+}
 
-    $(document).on('click', '.garnu_receive', function() {
-        $("#ReceivedModel").modal('show');
-        var id = $(this).data('receiveid');
+
+    $(document).on('click', '.receive-btn', function() {
+		var id = $(this).data('receiveid');
+		reciveGarnu(id).done(function(){
+			$("#ReceivedModel").modal('show');
+		});
     });
 
     $("#add").click(function() {
@@ -232,42 +264,42 @@ $(document).ready(function() {
         }
     });
 
-    $(document).on('click', ".submitBtn", function() {
+    // $(document).on('click', ".submitBtn", function() {
 
-        var dataArray = [];
-        $(".append-here tr").each(function() {
-            var row = $(this);
-            var metal_type_id = row.find(".metal_type_id").val();
-            var touch = row.find(".touch").val();
-            var weight = row.find(".weight").val();
+    //     var dataArray = [];
+    //     $(".append-here tr").each(function() {
+    //         var row = $(this);
+    //         var metal_type_id = row.find(".metal_type_id").val();
+    //         var touch = row.find(".touch").val();
+    //         var weight = row.find(".weight").val();
 
-            var rowData = {
-                metal_type_id: metal_type_id,
-                touch: touch,
-                weight: weight,
-            };
-            dataArray.push(rowData);
-        });
-        $.ajax({
-            url: "<?php echo base_url('manufacturing/garnu/receive'); ?>",
-            type: "POST",
-            data: {
-                data: JSON.stringify(dataArray)
-            },
-            dataType: "json",
-            success: function(response) {
-                if (response.success) {
-                    alert("Receive  successfully: " + response.message);
-                    // location.reload();
-                } else {
-                    alert("Failed to add data: " + response.message);
-                }
-            },
-            error: function(xhr, status, error) {
-                alert("Error adding data: " + error);
-            }
-        });
-    });
+    //         var rowData = {
+    //             metal_type_id: metal_type_id,
+    //             touch: touch,
+    //             weight: weight,
+    //         };
+    //         dataArray.push(rowData);
+    //     });
+    //     $.ajax({
+    //         url: "<?php echo base_url('manufacturing/garnu/receive'); ?>",
+    //         type: "POST",
+    //         data: {
+    //             data: JSON.stringify(dataArray)
+    //         },
+    //         dataType: "json",
+    //         success: function(response) {
+    //             if (response.success) {
+    //                 alert("Receive  successfully: " + response.message);
+    //                 // location.reload();
+    //             } else {
+    //                 alert("Failed to add data: " + response.message);
+    //             }
+    //         },
+    //         error: function(xhr, status, error) {
+    //             alert("Error adding data: " + error);
+    //         }
+    //     });
+    // });
 
 });
 </script>
