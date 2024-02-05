@@ -40,7 +40,7 @@
                                         <?php
                                         foreach ($process as $value) {
                                         ?>
-                                        <option value="<?= $value->id; ?>" <?php if($value->id == $process_data['process']){echo 'selected';} ?>><?= $value->name; ?></option>
+                                        <option value="<?= $value->id; ?>" data-workerId = "<?=$process_data['workers'] ?? 0 ?>" <?php if(isset($process_data) &&($value->id == $process_data['process'])){echo 'selected';} ?>><?= $value->name; ?></option>
                                         <?php } ?>
                                     </select>
                                     <?php  echo form_error('process');  ?>
@@ -159,12 +159,14 @@
 $(document).ready(function() {
     $('.process').change(function() {
         var process_id = $(this).val();
+        var worker_id = $(this).find(":selected").data('workerid')
         if (process_id != '') {
             $.ajax({
                 url: "<?php echo base_url(); ?>manufacturing/process/getWorkers",
                 method: "POST",
                 data: {
-                    process_id
+                    process_id,
+                    worker_id
                 },
                 success: function(data) {
                     $('#workers').html(data);
@@ -173,6 +175,6 @@ $(document).ready(function() {
         } else {
             $('#workers').html('<option value="">Select Workers</option>');
         }
-    });
+    }).trigger('change');
 });
 </script>
