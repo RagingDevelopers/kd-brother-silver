@@ -2,7 +2,6 @@
     <div class="col-md-6">
         <div class="card">
             <div class="row">
-
                 <div class="modal modal-blur fade modal-lg" id="modal-report" tabindex="-1" role="dialog"
                     aria-hidden="true">
                     <div class="modal-dialog" role="document">

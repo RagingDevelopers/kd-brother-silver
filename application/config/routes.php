@@ -54,6 +54,7 @@ $route['404_override'] = '';
 $route['translate_uri_dashes'] = FALSE;
 
 $route['master/city/edit/(:any)'] = 'master/city/index/edit/$1';
+$route['master/bank/edit/(:any)'] = 'master/bank/index/edit/$1';
 $route['master/process/edit/(:any)'] = 'master/process/index/edit/$1';
 $route['master/account_type/edit/(:any)'] = 'master/account_type/index/edit/$1';
 $route['registration/user/edit/(:any)'] = 'registration/user/index/edit/$1';

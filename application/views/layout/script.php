@@ -1,6 +1,8 @@
 <!-- Libs JS -->
 <?php $time = time() ?>
 
+<script src="<?= base_url(); ?>assets/dist/js/flatpickr.min.js"></script>
+
 <!-- DataTables  & Plugins -->
 <script src="<?= base_url("assets/") ?>plugins/datatables/jquery.dataTables.min.js"></script>
 <script src="<?= base_url("assets/") ?>plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
