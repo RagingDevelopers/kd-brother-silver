@@ -13,15 +13,15 @@ class Process_model extends CI_Model
         return $query->result();
     }
 
-    function fetch_workers($process_id)
+    function fetch_workers($post)
     {
         $data = $this->dbh->getWhereResultArray('customer',[
-            'process_id'        => $process_id ?? null ,
+            'process_id'        => $post['process_id'] ?? null ,
             'account_type_id' => 7
         ]);       
         $output = '<option value="">Select Workers</option>';
         foreach($data as $row)  {
-            $output .= '<option value="'.$row['id'].'">'.$row['name'].'</option>';
+            $output .= '<option value="'.$row['id'].'" '.( $post['worker_id'] == $row['id'] ? "selected":"").'>'.$row['name'].'</option>';
         }
         return $output;
     }
