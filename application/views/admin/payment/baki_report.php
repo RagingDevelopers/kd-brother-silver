@@ -1,10 +1,10 @@
 <style>
-	#cutomerJamaReport_filter {
+	#customerBakiReport_filter {
 		float: right;
 		padding-right: 15px;
 	}
 
-	#cutomerJamaReport_length {
+	#customerBakiReport_length {
 		padding: 10px 15px;
 	}
 
@@ -12,12 +12,12 @@
 		padding: 0px 0px 5px 15px;
 	}
 
-	#cutomerJamaReport_info {
+	#customerBakiReport_info {
 		float: left;
 		padding: 15px;
 	}
 
-	#cutomerJamaReport_paginate {
+	#customerBakiReport_paginate {
 		float: right;
 		padding: 10px 15px;
 	}
@@ -30,7 +30,7 @@
 					<div class="card-status-top bg-primary"></div>
 					<div class="card-header justify-content-between">
 						<h3 class="card-title"><b><?= $page_title; ?> </b></h3>
-						<a class="btn btn-action bg-primary text-white m-1 p-3" href="<?= base_url(); ?>payment/jama">
+						<a class="btn btn-action bg-primary text-white m-1 p-3" href="<?= base_url(); ?>payment/baki">
 							<i class="far fa-plus card-title"></i>
 						</a>
 					</div>
@@ -69,7 +69,7 @@
 					</div>
 					<div class="table-responsive">
 						<b>
-							<table class="table card-table table-vcenter text-center text-nowrap datatable" id="cutomerJamaReport">
+							<table class="table card-table table-vcenter text-center text-nowrap datatable" id="customerBakiReport">
 								<thead>
 									<tr>
 										<th>Sl No</th>
@@ -108,7 +108,7 @@
 		$("#to").flatpickr();
 		// $("#group_by").select2();
 
-		var cutomerJamaReport = $('#cutomerJamaReport').DataTable({
+		var customerBakiReport = $('#customerBakiReport').DataTable({
 			"iDisplayLength": 25,
 			"fixedHeader": true,
 			"lengthMenu": [
@@ -119,7 +119,7 @@
 			'serverSide': true,
 			'serverMethod': 'post',
 			"ajax": {
-				'url': "<?php echo base_url(); ?>payment/jama_report/report",
+				'url': "<?php echo base_url(); ?>payment/baki_report/report/",
 				'data': function(data) {
 					var from = $("#from").val();
 					var to = $("#to").val();
@@ -127,7 +127,7 @@
 					data.from = from;
 					data.to = to;
 					data.group_by = group_by;
-					data.jama_code = $('#jama_code').val();
+					data.baki_code = $('#baki_code').val();
 				}
 			},
 			"columns": [{
@@ -178,8 +178,8 @@
 		});
 
 		$("#from,#to,#group_by").change(function() {
-			cutomerJamaReport.clear();
-			cutomerJamaReport.draw();
+			customerBakiReport.clear();
+			customerBakiReport.draw();
 		});
 	});
 </script>

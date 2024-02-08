@@ -12,7 +12,7 @@
                             <div class="row">
 							<div class="col-md-2">
 								<div class="form-group">
-								    <input type="hidden" value="<?php if(!empty($jama_code)){echo $jama_code;}else{echo '0';}?>" name="jama_code" id="jama_code">
+								    <input type="hidden" value="<?php if(!empty($baki_code)){echo $baki_code;}else{echo '0';}?>" name="baki_code" id="baki_code">
 									<label class="form-label">Date <span class="text-danger">*</span></label>
 									<input type="date" name="date" class="form-control" id="date" value="<?=date('Y-m-d');?>" />
 								</div>
@@ -21,11 +21,11 @@
 							<div class="col-md-2">
 								<div class="form-group">
 									<label class="form-label">Party<span class="text-danger">*</span></label>
-									<input type="hidden" id="check_party_id" value="<?php if(!empty($party_id)){echo $party_id;}else{echo '0';}?>">
+									<input type="hidden" id="check_party_id" value="0">
 									<select name="party_id" id="party_id" class="form-select select2">
 									        <option value="">Select</option>
-											<?php foreach ($party as $C) { ?>
-												<option value="<?= $C['id']; ?>" <?php if($C['id'] == $party_id){echo 'selected';}?>><?= $C['name']; ?></option>
+											<?php foreach ($party as $c) { ?>
+												<option value="<?= $c['id']; ?>" <?php if($c['id'] == $party_id){echo 'selected';}?>><?= $c['name']; ?> </option>
 											<?php } ?>
 									</select>
 								</div>
@@ -53,7 +53,7 @@
 							<div class="col-md-2 allinone dfine dratecutfine dratecutrs">
 								<div class="form-group">
 									<label class="form-label">Mode<span class="text-danger">*</span></label>
-									<select name="mode" id="mode" class="form-select">
+									<select name="mode" id="mode" class="form-select select2">
 									</select>
 								</div>
 							</div>
@@ -110,13 +110,13 @@
 							
 							<br />
 							<div class="card-footer">
-						        <button type="button" id="jama_data" class="btn btn-primary">Submit</button>
-						        <input type="hidden" value="" id="jama_id">
-								<button type="button" id="jama_data_ajax_update" class="btn btn-primary">Update</button>
+						        <button type="button" id="baki_data" class="btn btn-primary">Submit</button>
+						        <input type="hidden" value="" id="baki_id">
+								<button type="button" id="baki_data_ajax_update" class="btn btn-primary">Update</button>
 							</div>
 						</div>
 						<div class="card-footer">
-						    <table class="table" id="table-jama">
+						    <table class="table" id="table-baki">
 						        <thead>
 						            <tr>
 						                <th>Sl No</th>
@@ -150,18 +150,18 @@
 </div>
 <script>
 	$(document).ready(function() {
-	  
-	    $('#jama_data_ajax_update').hide();
-        var example_table_billing = $('#table-jama').DataTable({            
-            'paging': false,
+	    // $("#party_id").select2();
+	    $('#baki_data_ajax_update').hide();
+     var example_table_billing = $('#table-baki').DataTable({
+		    'paging': false,
             "searching": false,
 			'processing': true,
 			'serverSide': true,
 			'serverMethod': 'post',
 			"ajax": {
-				'url': "<?php echo base_url(); ?>payment/jama/report",
+				'url': "<?php echo base_url(); ?>payment/baki/report/",
 				'data': function(data){
-                    data.jama_code = $('#jama_code').val();
+                    data.baki_code = $('#baki_code').val();
                 }
 			},
 			"columns": [{
@@ -204,10 +204,8 @@
 					data: 'remark'
 				},
 			],
-
 		});	    
 	    $(".allinone").hide();
-        // $(".party_id").select2({});
 // 		$("#type").select2();
 		
 		
@@ -306,8 +304,7 @@
 		    
 		});
 		
-		
-		$(document).on("click", "#jama_data", function() {
+		$(document).on("click", "#baki_data", function() {
 			var date = $("#date").val();
 			var party_id = $("#party_id").val();
 			var type = $("#type").val();
@@ -331,114 +328,36 @@
     				'rate':  $("#rate").val(),
     				'amount':  $("#amount").val(),
     				'remark':  $("#remark").val(),
-    				'code':$('#jama_code').val(),
+    				'code':$('#baki_code').val(),
     				'check_party_id':$('#check_party_id').val(),
-    			}
-
-			    $.ajax({
-				type: "POST",
-				url: "<?php echo base_url(); ?>payment/jama/jama_data",
-				data: data,
-				success: function(res) {
-					try {
-						res = JSON.parse(res);
-						$('#jama_code').val(res.jama_code);
-						example_table_billing.clear();
-                        example_table_billing.draw();
-						if (res.status) {
-							
-							$('#check_party_id').val(res.party_id);
-						    $('#gross').val('');
-						    $('#purity').val(100);
-						    $('#wb').val('');
-						    $('#fine').val('');
-						    $('#rate').val('');
-						    $('#amount').val('');
-						    $("#amount2").val()
-						    $('#rate').val('');
-						    $('#remark').val('');
-						} else {
-							swal({
-								icon: 'error',
-								title: 'Error 500',
-								text: res.message
-							})
-						}
-					} catch (error) {
-						console.log(error);
-						swal({
-							icon: 'error',
-							title: 'Something went wrong',
-							text: error.message
-						})
-					}
-				},
-				error: function(error) {
-					console.log(error);
-					swal({
-						icon: 'error',
-						title: 'Something went wrong. Please try again.',
-						text: error.message
-					});
-				}
-			});
-            }
-		});
-		
-			$(document).on("click", "#jama_data_ajax_update", function() {
-			var date = $("#date").val();
-			var party_id = $("#party_id").val();
-			var type = $("#type").val();
-			
-            if(date=="" || party_id=="" || type==""){
-                alert('Field Are Required');
-            }else{
-                
-                if(type=="ratecutrs"){
-                    $("#amount").val($("#amount2").val());
-                }
-                
-    			var data = {
-    				'date': date,
-    				'party_id': party_id,
-    				'type': type,
-    				'mode': $("#mode").val(),
-    				'gross':  $("#gross").val(),
-    				'purity':  $("#purity").val(),
-    				'wb':  $("#wb").val(),
-    				'fine':  $("#fine").val(),
-    				'rate':  $("#rate").val(),
-    				'amount':  $("#amount").val(),
-    				'remark':  $("#remark").val(),
-    				'code':$('#jama_code').val(),
-    				'jama_id':$('#jama_id').val(),
     			}
 
     			$.ajax({
     				type: "POST",
-    				url: "<?php echo base_url(); ?>payment/jama/jama_data_ajax_update",
+    				url: "<?php echo base_url(); ?>payment/baki/baki_data",
     				data: data,
     				success: function(res) {
     					try {
     						res = JSON.parse(res);
-    						$('#jama_code').val(res.jama_code);
+    						$('#baki_code').val(res.baki_code);
     						example_table_billing.clear();
                             example_table_billing.draw();
     						if (res.status) {
-    							
-    						    // $('#party_id').val('');
-    						    $('#type').val('');
+    							swal({
+    								title: 'Saved Successfully',
+    								text: res.message,
+    								icon: 'success',
+    							});
+    							$('#check_party_id').val(res.party_id);
     						    $('#gross').val('');
     						    $('#purity').val(100);
     						    $('#wb').val('');
     						    $('#fine').val('');
     						    $('#rate').val('');
+    						    $("#amount2").val('')
     						    $('#amount').val('');
-    						    $("#amount2").val()
     						    $('#rate').val('');
     						    $('#remark').val('');
-    						    $('#jama_data').show();
-    						    $('#jama_data_ajax_update').hide();
     						} else {
     							swal({
     								icon: 'error',
@@ -467,12 +386,97 @@
             }
 		});
 		
-		$(document).on("click", ".jama_edit_row", function() {
-			var jama_id = $(this).data('id');
+			$(document).on("click", "#baki_data_ajax_update", function() {
+			var date = $("#date").val();
+			var party_id = $("#party_id").val();
+			var type = $("#type").val();
+            if(date=="" || party_id=="" || type==""){
+                alert('Field Are Required');
+            }else{
+                
+                if(type=="ratecutrs"){
+                    $("#amount").val($("#amount2").val());
+                }
+                
+    			var data = {
+    				'date': date,
+    				'party_id': party_id,
+    				'type': type,
+    				'mode': $("#mode").val(),
+    				'gross':  $("#gross").val(),
+    				'purity':  $("#purity").val(),
+    				'wb':  $("#wb").val(),
+    				'fine':  $("#fine").val(),
+    				'rate':  $("#rate").val(),
+    				'amount':  $("#amount").val(),
+    				'remark':  $("#remark").val(),
+    				'code':$('#baki_code').val(),
+    				'baki_id':$('#baki_id').val(),
+    			}
+    
+    			$.ajax({
+    				type: "POST",
+    				url: "<?php echo base_url(); ?>payment/baki/baki_data_ajax_update",
+    				data: data,
+    				success: function(res) {
+    					try {
+    						res = JSON.parse(res);
+    						$('#baki_code').val(res.baki_code);
+    						example_table_billing.clear();
+                            example_table_billing.draw();
+    						if (res.status) {
+    							swal({
+    								title: 'Saved Successfully',
+    								text: res.message,
+    								icon: 'success',
+    							});
+    						    $('#party_id').val('');
+    						    $('#type').val('');
+    						    $('#gross').val('');
+    						    $('#purity').val(100);
+    						    $('#wb').val('');
+    						    $('#fine').val('');
+    						    $('#rate').val('');
+    						    $("#amount2").val('')
+    						    $('#amount').val('');
+    						    $('#rate').val('');
+    						    $('#remark').val('');
+    						    $('#baki_data').show();
+    						    $('#baki_data_ajax_update').hide();
+    						} else {
+    							swal({
+    								icon: 'error',
+    								title: 'Error 500',
+    								text: res.message
+    							})
+    						}
+    					} catch (error) {
+    						console.log(error);
+    						swal({
+    							icon: 'error',
+    							title: 'Something went wrong',
+    							text: error.message
+    						})
+    					}
+    				},
+    				error: function(error) {
+    					console.log(error);
+    					swal({
+    						icon: 'error',
+    						title: 'Something went wrong. Please try again.',
+    						text: error.message
+    					});
+    				}
+    			});
+            }
+		});
+		
+		$(document).on("click", ".baki_edit_row", function() {
+			var baki_id = $(this).data('id');
 			$.ajax({
 				type: "POST",
-				url: "<?php echo base_url(); ?>payment/jama/jama_edit_row",
-				data: {jama_id:jama_id},
+				url: "<?php echo base_url(); ?>payment/baki/baki_edit_row",
+				data: {baki_id:baki_id},
 				success: function(res) {
 					try {
 						res = JSON.parse(res);
@@ -483,7 +487,9 @@
 						    }
 						    
 						    $('#date').val(res.data.date);
-						    $("#party_id").val(res.data.customer_id).trigger('change');
+						    $("#party_id").val(res.data.party_id).trigger('change');
+
+						  //  $('#party_id').val();
 						    $('#type').val(res.data.type).trigger('change');
 						    $('#gross').val(res.data.gross);
 						    $('#purity').val(res.data.purity);
@@ -493,10 +499,10 @@
 						    $('#amount').val(res.data.amount);
 						    $('#rate').val(res.data.rate);
 						    $('#remark').val(res.data.remark);
-						    $('#jama_id').val(res.data.id);
+						    $('#baki_id').val(res.data.id);
 						    $('#mode').html('<option value="'+res.data.mode+'" selected>'+res.data.mode+'</option>');
-						    $('#jama_data').hide();
-						    $('#jama_data_ajax_update').show();
+						    $('#baki_data').hide();
+						    $('#baki_data_ajax_update').show();
 						    
 						} else {
 							swal({
@@ -525,12 +531,13 @@
 			});
 
 		});
-	    $(document).on("click", ".delete_row", function() {
-			var jama_id = $(this).data('id');
+		
+		$(document).on("click", ".delete_row", function() {
+			var baki_id = $(this).data('id');
 			$.ajax({
 				type: "POST",
-				url: "<?php echo base_url(); ?>payment/jama/delete_row",
-				data: {jama_id:jama_id},
+				url: "<?php echo base_url(); ?>payment/baki/delete_row",
+				data: {baki_id:baki_id},
 				success: function(res) {
 				    res = JSON.parse(res);
 						if (res.status) {
@@ -555,5 +562,6 @@
 			});
 
 		});
+
 	});
 </script>
