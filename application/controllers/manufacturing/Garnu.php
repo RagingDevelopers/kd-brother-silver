@@ -15,7 +15,7 @@ class Garnu extends CI_Controller
 		parent::__construct();
 		check_login();
 		library("dbh");
-		library("Joinhelper");
+		// library("Joinhelper");
 	}
 
 	public function index($action = "", $id = null)
@@ -38,7 +38,13 @@ class Garnu extends CI_Controller
 					flash()->withError("Garnu type Not Found")->to('manufacturing/garnu');
 				}
 				// $page_data['data'] = $this->joinhelper->fetchJoinedTable('customer', ['city', 'account_type']);
-				$page_data['items'] = $this->dbh->getWhereResultArray('garnu_item', ['garnu_id' => $id]);
+				// $page_data['items'] = $this->dbh->getWhereResultArray('garnu_item', ['garnu_id' => $id]);
+
+				$this->db->select('*');
+				$this->db->from('garnu_item');
+				$this->db->where('garnu_id', $id);
+				$page_data['items'] = $this->db->get()->result_array();
+
 				$page_data['update'] = $garnu;
 
 				// pre($page_data, true);
@@ -299,82 +305,76 @@ class Garnu extends CI_Controller
 
 
 	public function checkReceive()
-{
-    try {
-        $this->load->library('form_validation');
-        $this->form_validation->set_rules('id', 'Garnu Id', 'trim|required|numeric');
-        
-        if ($this->form_validation->run() == FALSE) {
-            $response = ['success' => false, 'error' => validation_errors()];
-            echo json_encode($response);
-			return;
-        } else {
-            $postData = $this->input->post();
-            $id = $postData['id'];  
-            $data = $this->dbh->getWhereResultArray('garnu_item', ['garnu_id' => $id]);
-            if (!empty($data)) {
-                $response = ['success' => true, 'message' => 'Data Fetched successfully.', 'data' => $data];
-            } else {
-                $response = ['success' => false, 'message' => 'Data Not Found.', 'data' => []];
-            }
-            echo json_encode($response);
-            return;
-        }
-    } catch (Exception $e) {
-        $response = ['success' => false, 'error' => $e->getMessage(),'data' => []
-        ];
-        echo json_encode($response);
-    }
-}
+	{
+		try {
+			$this->form_validation->set_rules('id', 'Garnu Id', 'trim|required|numeric');
+			if ($this->form_validation->run() == FALSE) {
+				$response = ['success' => false, 'error' => validation_errors()];
+				echo json_encode($response);
+				return;
+			} else {
+				$postData = $this->input->post();
+				$id = $postData['id'];
+				$data = $this->dbh->getWhereResultArray('garnu_item', ['garnu_id' => $id]);
+				if (!empty($data)) {
+					$response = ['success' => true, 'message' => 'Data Fetched successfully.', 'data' => $data];
+				} else {
+					$response = ['success' => false, 'message' => 'Data Not Found.', 'data' => []];
+				}
+				echo json_encode($response);
+				return;
+			}
+		} catch (Exception $e) {
+			$response = [
+				'success' => false, 'error' => $e->getMessage(), 'data' => []
+			];
+			echo json_encode($response);
+		}
+	}
 
 
 	public function receive()
 	{
-		$jsonData = $this->input->post('data'); // Assuming you send data as JSON
-		$dataArray = json_decode($jsonData, true); // Decode JSON into an array
+		$post = $this->input->post();
+		$insertBatch = [];
+		$updateBatch = [];
+		$existingIds = isset($post['sdid']) ? $post['sdid'] : [];
+		$allids = isset($post['ids']) ? $post['ids'] : [];
 
-		if (!empty($dataArray) && is_array($dataArray)) {
-			$insertedRows = 0;
-
-			foreach ($dataArray as $rowData) {
-				// Check if required fields exist in the row data
-				if (isset($rowData['metal_type_id'], $rowData['touch'], $rowData['weight'])) {
-					$data = array(
-						'metal_type_id' => $rowData['metal_type_id'],
-						'touch' => $rowData['touch'],
-						'weight' => $rowData['weight'],
-					);
-
-					// Insert the data into the database
-					$this->db->insert('receive_garnu', $data);
-
-					if ($this->db->affected_rows() > 0) {
-						$insertedRows++;
-					}
-				}
-			}
-
-			if ($insertedRows > 0) {
-				$response = array(
-					'success' => true,
-					'message' => 'Data added successfully!',
-				);
-			} else {
-				$response = array(
-					'success' => false,
-					'message' => 'No valid data to insert.',
-				);
-			}
-		} else {
-			$response = array(
-				'success' => false,
-				'message' => 'No data received or invalid data format.',
-			);
+		$idsNotExisting = array_diff($allids, $existingIds);
+		if (!empty($idsNotExisting)) {
+			$this->db->where_in('id', $idsNotExisting);
+			$this->db->delete('garnu_item');
 		}
 
-		// Return the JSON response
-		header('Content-Type: application/json');
+		foreach ($post['sdid'] as $key => $sdid) {
+			$rmData = [
+				'metal_type_id' => isset($post['metal_type_id'][$key]) ? $post['metal_type_id'][$key] : null,
+				'touch' => isset($post['touch'][$key]) ? $post['touch'][$key] : null,
+				'weight' => isset($post['weight'][$key]) ? $post['weight'][$key] : null,
+			];
+
+			if ($sdid == 0) {
+				$rmData['garnu_id'] = $post['garnu_id'];
+				$insertBatch[] = $rmData;
+			} else if (in_array($sdid, $existingIds)) {
+				$rmData['id'] = $sdid;
+				$updateBatch[] = $rmData;
+			}
+		}
+
+		if (!empty($insertBatch)) {
+			$this->db->insert_batch('garnu_item', $insertBatch);
+			$response = ['success' => true, 'message' => 'Data Add Successfully.'];
+		} else {
+			$response = ['success' => false, 'message' => 'Data Add Failed.'];
+		}
+		if (!empty($updateBatch)) {
+			$this->db->update_batch('garnu_item', $updateBatch, 'id');
+			$response = ['success' => true, 'message' => 'Data Update Successfully.'];
+		}
 		echo json_encode($response);
+		return;
 	}
 
 	private function validateId($id)

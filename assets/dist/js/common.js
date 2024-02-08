@@ -28,6 +28,65 @@ const SweetAlert = (type, message) => {
 	});
 };
 
+$(document).ajaxSend(function (event, jqXHR, { showLoader }) {
+	if (showLoader) {
+	  $.blockUI({
+		message: `<div class="sk-wave mx-auto">
+					  <div class="sk-rect sk-wave-rect"></div> 
+					  <div class="sk-rect sk-wave-rect"></div> 
+					  <div class="sk-rect sk-wave-rect"></div> 
+					  <div class="sk-rect sk-wave-rect"></div> 
+					  <div class="sk-rect sk-wave-rect"></div>
+				  </div>`,
+		// message: `<div class="spinner-border text-white mx-auto">
+		// 		  </div>`,
+		css: {
+		  backgroundColor: "transparent",
+		  border: "0",
+		},
+		overlayCSS: {
+		  opacity: 0.5,
+		},
+	  });
+	}
+  });
+$(document).ajaxComplete(() => $.unblockUI());
+  /* common loader  */
+  function ShowBlockUi(selector, timer = 1000) {
+	// console.log(selector);
+	if (selector == "body") {
+	  $.blockUI({
+		message: `<div class="sk-wave mx-auto">
+					  <div class="sk-rect sk-wave-rect"></div> 
+					  <div class="sk-rect sk-wave-rect"></div> 
+					  <div class="sk-rect sk-wave-rect"></div> 
+					  <div class="sk-rect sk-wave-rect"></div> 
+					  <div class="sk-rect sk-wave-rect"></div>
+				  </div>`,
+		css: {
+		  backgroundColor: "transparent",
+		  border: "0",
+		},
+		overlayCSS: {
+		  opacity: 0.5,
+		},
+	  });
+	} else {
+	  $(selector).block({
+		message: '<div class="spinner-border text-primary" role="status"></div>',
+		timeout: timer,
+		css: {
+		  backgroundColor: "transparent",
+		  border: "0",
+		},
+		overlayCSS: {
+		  backgroundColor: "#fff",
+		  opacity: 0.8,
+		},
+	  });
+	}
+  }
+
 /* Swal */
 const swalAlert = (icon, title, text = "") => {
 	return Swal.fire({

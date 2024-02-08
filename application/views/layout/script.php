@@ -24,6 +24,8 @@
 <script src="<?= base_url("assets") ?>/dist/js/tabler.min.js?1684106062" defer></script>
 <script src="<?= base_url("assets") ?>/dist/js/demo.min.js?1684106062" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="<?= base_url("assets") ?>/dist/libs/block-ui/block-ui.js"></script>
 <script src="<?= base_url("assets") ?>/dist/js/common.js?v=<?= $time ?>" defer></script>
 
 

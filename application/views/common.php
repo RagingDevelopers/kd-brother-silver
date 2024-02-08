@@ -22,6 +22,7 @@
     <link href="<?= base_url("assets") ?>/dist/css/tabler-payments.min.css?1684106062" rel="stylesheet" />
     <link href="<?= base_url("assets") ?>/dist/css/tabler-vendors.min.css?1684106062" rel="stylesheet" />
     <link href="<?= base_url("assets") ?>/dist/css/demo.min.css?1684106062" rel="stylesheet" />
+	<link rel="stylesheet" href="<?= base_url("assets") ?>/dist/css/spinkit/spinkit.css" />
 
     <link rel="stylesheet" href="<?= base_url("assets/") ?>plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
     <link rel="stylesheet"
