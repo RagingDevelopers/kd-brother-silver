@@ -8,11 +8,7 @@ class Baki_report extends CI_Controller
 	function __construct()
 	{
 		parent::__construct();
-		if ($this->session->userdata('logStatus') != 1 || $this->session->userdata('admin_ID') == "") {
-			$message = array('message' => "Your Session has Been Expired.!!", 'class' => 'danger');
-			$this->session->set_flashdata('flash_message', $message);
-			redirect(base_url(), 'refresh');
-		}
+		check_login();
 	}
 
 	public function index()
@@ -43,7 +39,7 @@ class Baki_report extends CI_Controller
 		$admin_id = $this->session->userdata('admin_ID');
 		$searchQuery = "";
 		if ($searchValue != '') {
-			$searchQuery = " (customer.name like '%" . $searchValue . "%') ";
+			$searchQuery = " (customer.name like '%" . $searchValue . "%') or (baki.type like '%" . $searchValue . "%') or (baki.date like '%" . $searchValue . "%') or (baki.mode like '%" . $searchValue . "%')  or (baki.remark like '%" . $searchValue . "%')";
 		}
 
 
@@ -72,7 +68,6 @@ class Baki_report extends CI_Controller
 		if (!empty($group_by)) {
 			$this->db->where("baki.type", $group_by);
 		}
-
 
 		$this->db->group_by('baki.id');
 		$this->db->order_by('baki.id', 'desc');
@@ -105,6 +100,7 @@ class Baki_report extends CI_Controller
 		$this->db->limit($rowperpage, $start);
 		$records = $this->db->get()->result();
 		$data = array();
+		$uniquePartyNames = array();
 		$i = $start + 1;
 		foreach ($records as $record) {
 
@@ -112,6 +108,7 @@ class Baki_report extends CI_Controller
 			$this->db->from("baki");
 			$this->db->where('baki.baki_code', $record->baki_code);
 			$this->db->join('customer', 'customer.id = baki.customer_id', 'left');
+
 
 			$query = $this->db->get();
 			$mk = $query->result_array();
@@ -129,8 +126,15 @@ class Baki_report extends CI_Controller
 
 			foreach ($mk as $rm) {
 
+				if (!isset($uniquePartyNames[$record->baki_code])) {
+					$party = "<span>" . $record->pname . "</span><br>";
+					$uniquePartyNames[$record->baki_code] = $record->pname;
+				} else {
+					$party = "<span>" . $uniquePartyNames[$record->baki_code] . "</span><br>";
+				}
+				
+				// $party .= "<span>" . $rm['pname'] . "</span></br>";
 				$date .= "<span>" . $rm['date'] . "</span></br>";
-				$party .= "<span>" . $rm['pname'] . "</span></br>";
 				$type .= "<span>" . $rm['type'] . "</span></br>";
 				$purity .= "<span>" . $rm['purity'] . "</span></br>";
 				$mode .= "<span>" . $rm['mode'] . "</span></br>";

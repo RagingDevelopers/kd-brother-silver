@@ -81,6 +81,24 @@
                                         </span>
                                         Metal Type
                                     </a>
+                                    <a class="dropdown-item" href="<?= base_url("master/bank") ?>">
+                                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                            <i class="fa-brands fa-squarespace" aria-hidden="true"></i>
+                                        </span>
+                                        Bank
+                                    </a>
+                                    <a class="dropdown-item" href="<?= base_url("master/stamp") ?>">
+                                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                            <i class="fa-brands fa-squarespace" aria-hidden="true"></i>
+                                        </span>
+                                        Stamp
+                                    </a>
+                                    <a class="dropdown-item" href="<?= base_url("master/unit") ?>">
+                                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                            <i class="fa-brands fa-squarespace" aria-hidden="true"></i>
+                                        </span>
+                                        Unit
+                                    </a>
                                 </div>
                             </div>
                         </div>

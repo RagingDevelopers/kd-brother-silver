@@ -8,11 +8,7 @@ class Jama_report extends CI_Controller
 	function __construct()
 	{
 		parent::__construct();
-		if ($this->session->userdata('logStatus') != 1 || $this->session->userdata('admin_ID') == "") {
-			$message = array('message' => "Your Session has Been Expired.!!", 'class' => 'danger');
-			$this->session->set_flashdata('flash_message', $message);
-			redirect(base_url(), 'refresh');
-		}
+		check_login();
 	}
 
 	public function index()
@@ -43,7 +39,7 @@ class Jama_report extends CI_Controller
 		$admin_id = $this->session->userdata('admin_id');
 		$searchQuery = "";
 		if ($searchValue != '') {
-			$searchQuery = " (customer.name like '%" . $searchValue . "%') ";
+			$searchQuery = " (customer.name like '%" . $searchValue . "%') or (jama.type like '%" . $searchValue . "%') or (jama.date like '%" . $searchValue . "%') or (jama.mode like '%" . $searchValue . "%')  or (jama.remark like '%" . $searchValue . "%')";
 		}
 
 
@@ -104,6 +100,7 @@ class Jama_report extends CI_Controller
 		$this->db->limit($rowperpage, $start);
 		$records = $this->db->get()->result();
 		$data = array();
+		$partyNames = array();
 		$i = $start + 1;
 		foreach ($records as $record) {
 
@@ -112,6 +109,10 @@ class Jama_report extends CI_Controller
 			$this->db->where('jama.jama_code', $record->jama_code);
             $this->db->join('customer', 'customer.id = jama.customer_id', 'left');
 
+
+			if (!isset($partyNames[$record->jama_code])) {
+				$partyNames[$record->jama_code] = $record->pname;
+			}
 
 			$query = $this->db->get();
 			$mk = $query->result_array();
@@ -148,7 +149,7 @@ class Jama_report extends CI_Controller
             <a class="btn btn-action bg-danger text-white me-2" href="' . $url_delete . '"><i class="fa-solid fa-trash"></i></a>';
 			$data[] = array(
 				"sno" => $i,
-				"party" => $party,
+				"party" => $partyNames[$record->jama_code],
 				"action" => $edit,
 				"date" => $date,
 				"type" => $type,

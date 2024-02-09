@@ -6,10 +6,10 @@ class Baki_model extends CI_model
 
 	public function getData($department_id)
 	{
-		$this->db->select('baki.*,bank.name as bank_name,party.name as party_name');
+		$this->db->select('baki.*,bank.name as bank_name,customer.name as party_name');
 		$this->db->from('baki');
 		$this->db->join('bank', 'bank.id = baki.bank_id', 'left');
-		$this->db->join('customet', 'customer.id = baki.customer_id', 'left');
+		$this->db->join('customer', 'customer.id = baki.customer_id', 'left');
 		$this->db->where('baki.department_id', $department_id);
 		$this->db->order_by('id', 'desc');
 		return $this->db->get();

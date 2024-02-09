@@ -21,7 +21,7 @@
 							<div class="col-md-2">
 								<div class="form-group">
 									<label class="form-label">Party<span class="text-danger">*</span></label>
-									<input type="hidden" id="check_party_id" value="0">
+									<input type="hidden" id="check_party_id" value="<?php if(!empty($party_id)){echo $party_id;}else{echo '0';}?>">
 									<select name="party_id" id="party_id" class="form-select select2">
 									        <option value="">Select</option>
 											<?php foreach ($party as $c) { ?>
@@ -159,7 +159,7 @@
 			'serverSide': true,
 			'serverMethod': 'post',
 			"ajax": {
-				'url': "<?php echo base_url(); ?>payment/baki/report/",
+				'url': "<?php echo base_url(); ?>payment/baki/report",
 				'data': function(data){
                     data.baki_code = $('#baki_code').val();
                 }
@@ -219,7 +219,7 @@
             if(modearray.length>0){
                 var html='';
                 $.each(modearray, function( index, value ) {
-                    html +='<option value='+value+'>'+value+'</option>';
+                    html +='<option value="'+value+'">'+value+'</option>';
                 });
                 $("#mode").html(html);
             }
@@ -343,11 +343,11 @@
     						example_table_billing.clear();
                             example_table_billing.draw();
     						if (res.status) {
-    							swal({
-    								title: 'Saved Successfully',
-    								text: res.message,
-    								icon: 'success',
-    							});
+    							// swal({
+    							// 	title: 'Saved Successfully',
+    							// 	text: res.message,
+    							// 	icon: 'success',
+    							// });
     							$('#check_party_id').val(res.party_id);
     						    $('#gross').val('');
     						    $('#purity').val(100);
@@ -487,7 +487,7 @@
 						    }
 						    
 						    $('#date').val(res.data.date);
-						    $("#party_id").val(res.data.party_id).trigger('change');
+						    $("#party_id").val(res.data.customer_id).trigger('change');
 
 						  //  $('#party_id').val();
 						    $('#type').val(res.data.type).trigger('change');

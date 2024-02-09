@@ -2,11 +2,11 @@
 
 defined('BASEPATH') or exit('No direct script access allowed');
 
-class Bank extends CI_Controller
+class Unit extends CI_Controller
 {
     public $form_validation, $dbh, $input, $db;
 
-    const View = "admin/master/bank";
+    const View = "admin/master/unit";
     public function __construct()
     {
         parent::__construct();
@@ -16,37 +16,37 @@ class Bank extends CI_Controller
 
     public function index($action = "", $id = null)
     {
-        $page_data['page_title'] = 'Bank';
+        $page_data['page_title'] = 'Unit';
         switch ($action) {
             case "":
                 // pre($_SESSION);die;
-                checkPrivilege(privilege["bank_view"]);
-                $page_data['data'] = $this->dbh->getResultArray('bank');
+                // checkPrivilege(privilege["bank_view"]);
+                $page_data['data'] = $this->dbh->getResultArray('unit');
                 return view(self::View, $page_data);
 
             case "edit":
-                checkPrivilege(privilege["bank_edit"]);
+                // checkPrivilege(privilege["bank_edit"]);
                 $this->validateId($id);
-                $bank = $this->dbh->find('bank', $id);
-                if (!$bank) {
-                    flash()->withError("bank Not Found")->to('master/bank');
+                $unit = $this->dbh->find('unit', $id);
+                if (!$unit) {
+                    flash()->withError("Unit Not Found")->to('master/unit');
                 }
-                $page_data['data'] = $this->dbh->getResultArray('bank');
-                $page_data['update'] = $bank;
+                $page_data['data'] = $this->dbh->getResultArray('unit');
+                $page_data['update'] = $unit;
 
                 // pre($page_data,true);
                 return view(self::View, $page_data);
 
             case "store":
-                checkPrivilege(privilege["bank_add"]);
+                // checkPrivilege(privilege["bank_add"]);
                 $validation = $this->form_validation;
                 $validation->set_rules('name', 'Name', 'required');
                 if (!$validation->run()) {
                     return flash()->withError(validation_errors())->back();
                 }
                 $data = xss_clean($this->input->post());
-                $this->db->insert('bank', $data);
-                flash()->withSuccess("bank Added Successfully")->back();
+                $this->db->insert('unit', $data);
+                flash()->withSuccess("Unit Added Successfully")->back();
                 break;
             // case "delete":
             //     die("not permission to delete");
@@ -56,15 +56,15 @@ class Bank extends CI_Controller
             //     flash()->withSuccess("bank Deleted Successfully")->back();
             //     break;
             case "update":
-                checkPrivilege(privilege["bank_edit"]);
+                // checkPrivilege(privilege["bank_edit"]);
                 $validation = $this->form_validation;
                 $validation->set_rules('name', 'Name', 'required');
                 if ($validation->run() == false) {
                     return flash()->withError(validation_errors())->back();
                 }
                 $data = xss_clean($this->input->post());
-                $this->dbh->updateRow('bank', $id, $data);
-                flash()->withSuccess("bank Updated Successfully")->to("master/bank");
+                $this->dbh->updateRow('unit', $id, $data);
+                flash()->withSuccess("Unit Updated Successfully")->to("master/unit");
                 break;
             default:
                 flash()->withError("Invalid Arguments")->back();
@@ -73,6 +73,6 @@ class Bank extends CI_Controller
 
     private function validateId($id)
     {
-        (!is_numeric($id) || empty($id)) && flash()->withError("invalid id please enter valid Id")->to("master/bank");
+        (!is_numeric($id) || empty($id)) && flash()->withError("invalid id please enter valid Id")->to("master/unit");
     }
 }

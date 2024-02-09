@@ -32,8 +32,7 @@
 							</div>
                             
                             </div>
-							
-                            
+							                          
 							<div class="row" style="margin-top:1%;">
 							<div class="col-md-2">
 								<div class="form-group">
@@ -153,7 +152,7 @@
 	  
 	    $('#jama_data_ajax_update').hide();
         var example_table_billing = $('#table-jama').DataTable({            
-            'paging': false,
+	        'paging': false,
             "searching": false,
 			'processing': true,
 			'serverSide': true,
@@ -221,7 +220,7 @@
             if(modearray.length>0){
                 var html='';
                 $.each(modearray, function( index, value ) {
-                    html +='<option value='+value+'>'+value+'</option>';
+                    html +='<option value="'+value+'">'+value+'</option>';
                 });
                 $("#mode").html(html);
             }

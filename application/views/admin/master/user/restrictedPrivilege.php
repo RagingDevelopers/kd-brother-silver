@@ -242,7 +242,36 @@
                                     <span class="form-check-label">Metal Type Edit</span>
                                 </label><br>
                             </div>
-                        </div>                     
+                        </div>
+                        
+                        <div class="col-md-2">
+                            <div>
+                                <label class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="privilege"
+                                        class="select_privilege" value="<?= privilege['bank_add']; ?>" <?php if (isset($update) && in_array(privilege['bank_add'], $permission)) {
+                                              echo "checked";
+                                          } else {
+                                          } ?>>
+                                    <span class="form-check-label">Bank Add</span>
+                                </label>
+                                <label class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="privilege"
+                                        class="select_privilege" value="<?= privilege['bank_view']; ?>" <?php if (isset($update) && in_array(privilege['bank_view'], $permission)) {
+                                              echo "checked";
+                                          } else {
+                                          } ?>>
+                                    <span class="form-check-label">Bank View</span>
+                                </label>
+                                <label class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="privilege"
+                                        class="select_privilege" value="<?= privilege['bank_edit']; ?>" <?php if (isset($update) && in_array(privilege['bank_edit'], $permission)) {
+                                              echo "checked";
+                                          } else {
+                                          } ?>>
+                                    <span class="form-check-label">Bank Edit</span>
+                                </label><br>
+                            </div>
+                        </div>
                     </div><br>
                 </div>
             </div>
