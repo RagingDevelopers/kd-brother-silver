@@ -41,7 +41,7 @@
 		<tr>
 			<th>Receiveid Pcs</th>
 			<th>Receiveid Weight</th>
-			<th>Row Meterial Weight</th>
+			<th>Row material Weight</th>
 			<th>Final Weight</th>
 			<th>Receiveid Remark</th>
 			<th></th>
@@ -61,7 +61,7 @@
 		}
 		foreach ($receivedData as $row) {
 			if($row['id'] > 0){
-				$rawMaterial = $this->dbh->getWhereResultArray('receive_row_meterial', ['received_id' => $row['id']]);
+				$rawMaterial = $this->dbh->getWhereResultArray('receive_row_material', ['received_id' => $row['id']]);
 				foreach ($rawMaterial as $rm) {
 					$rm_string_array[] = implode(',', [
 						$rm['row_material_id'],
@@ -71,7 +71,7 @@
 						$rm['id']
 					]);
 				}
-				$row['raw_material_string'] = implode('|', $rm_string_array ?? []) ?? [];
+				$row['raw_material_string'] = implode('|', $rm_string_array ?? []) ?? "";
 			}
 		?>
 			<input type="hidden" class="ids" name="ids[]" value="<?= $row['id'] ?? "0"; ?>" />
@@ -84,13 +84,13 @@
 					<input type="hidden" name="raw-material-data[]" value="<?=$row['raw_material_string'] ?? null;?>" class="form-control rmdata" placeholder="Enter Weight" autocomplete="off">
 					<div class='d-flex gap-2'>
 						<input type="number" name="weight[]" value="<?= $row['weight'] ?? "0"; ?>" class="form-control receivedWeight" placeholder="Enter Weight" autocomplete="off">
-						<a class="bg-danger btn btn-action text-danger-fg me-2 Receivedmeterial" data-demo-color data-bs-toggle="tooltip" data-bs-placement="top" data-garnu_id="<?= $id; ?>" data-given_id="<?= $result->id; ?>" data-bs-original-title="Received" href="#">
+						<a class="bg-danger btn btn-action text-danger-fg me-2 Receivedmaterial" data-demo-color data-bs-toggle="tooltip" data-bs-placement="top" data-garnu_id="<?= $id; ?>" data-given_id="<?= $result->id; ?>" data-bs-original-title="Received" href="#">
 							<i class="far fa-edit" aria-hidden="true"></i>
 						</a>
 					</div>
 				</td>
 				<td class="text-muted">
-					<input type="number" name="rm_weight[]" value="<?= $row['row_meterial_weight'] ?? "0"; ?>" class="form-control receivedRmWeight" value="0" readonly autocomplete="off">
+					<input type="number" name="rm_weight[]" value="<?= $row['row_material_weight'] ?? "0"; ?>" class="form-control receivedRmWeight" value="0" readonly autocomplete="off">
 				</td>
 				<td class="text-muted">
 					<input type="number" name="total_weight[]" value="<?= $row['total_weight'] ?? "0"; ?>" class="form-control receivedfinalWeight" value="0" readonly autocomplete="off">

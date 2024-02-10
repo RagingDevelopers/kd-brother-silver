@@ -27,15 +27,15 @@ const privilege = [
 	'customer_edit' => 19,
 	'customer_delete' => 20,
 
-	'row_meterial_type_add' => 21,
-	'row_meterial_type_view' => 22,
-	'row_meterial_type_edit' => 23,
-	'row_meterial_type_delete' => 24,
+	'row_material_type_add' => 21,
+	'row_material_type_view' => 22,
+	'row_material_type_edit' => 23,
+	'row_material_type_delete' => 24,
 
-	'row_meterial_add' => 25,
-	'row_meterial_view' => 26,
-	'row_meterial_edit' => 27,
-	'row_meterial_delete' => 28,
+	'row_material_add' => 25,
+	'row_material_view' => 26,
+	'row_material_edit' => 27,
+	'row_material_delete' => 28,
 
 	'metal_type_add' => 29,
 	'metal_type_view' => 30,

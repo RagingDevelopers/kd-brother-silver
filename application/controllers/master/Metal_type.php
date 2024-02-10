@@ -26,12 +26,12 @@ class Metal_type extends CI_Controller
             case "edit":
                 checkPrivilege(privilege["metal_type_edit"]);
                 $this->validateId($id);
-                $row_meterial_type = $this->dbh->find('metal_type', $id);
-                if (!$row_meterial_type) {
+                $row_material_type = $this->dbh->find('metal_type', $id);
+                if (!$row_material_type) {
                     flash()->withError("Metal Type Not Found")->to('master/metal_type');
                 }
                 $page_data['data'] = $this->dbh->getResultArray('metal_type');
-                $page_data['update'] = $row_meterial_type;
+                $page_data['update'] = $row_material_type;
 
                 // pre($page_data,true);
                 return view(self::View, $page_data);

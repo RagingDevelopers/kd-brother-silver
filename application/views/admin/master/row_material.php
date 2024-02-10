@@ -3,32 +3,32 @@
         <div class="card">
             <div class="card-header">
                 <div class="card-status-top bg-blue"></div>
-                <h1 class="card-title"><b> Row Meterial </b></h1>
+                <h1 class="card-title"><b> Row Material </b></h1>
             </div>
             <div class="card-body border-bottom py-3">
                 <div class="col-md-12 mb-5 ">
                     <div class="row ms-1">
                         <form class="row"
-                            action="<?= (isset($update)) ? base_url("master/row_meterial/index/update/{$update['id']}") : base_url('master/row_meterial/index/store') ?>"
+                            action="<?= (isset($update)) ? base_url("master/row_material/index/update/{$update['id']}") : base_url('master/row_material/index/store') ?>"
                             method="post">
 
                             <div class="row">
                                 <div class="col-sm-3">
                                     <label class="form-label" for="prd"> Name: </label>
-                                    <input class="form-control" type="text" name="name" placeholder="Enter Row Meterial Name"
+                                    <input class="form-control" type="text" name="name" placeholder="Enter Row Material Name"
                                         value="<?= $update['name'] ?? null ?>" id="name" required>
 
                                 </div>
 
                                 <div class="col-sm-3">
                                     <label class="form-label" for="prd"> type: </label>
-                                    <select class="form-select select2 " name="row_meterial_type_id" id="row_meterial_type_id">
-                                        <option>Select Row Meterial Type</option>
+                                    <select class="form-select select2 " name="row_material_type_id" id="row_material_type_id">
+                                        <option>Select Row Material Type</option>
                                         <?php
-                                        $row_meterial_type = $this->db->get('row_meterial_type')->result();
-                                        foreach ($row_meterial_type as $value) {
+                                        $row_material_type = $this->db->get('row_material_type')->result();
+                                        foreach ($row_material_type as $value) {
                                             ?>
-                                            <option value="<?= $value->id; ?>" <?php if (isset($update) && $value->id == $update['row_meterial_type_id']) {
+                                            <option value="<?= $value->id; ?>" <?php if (isset($update) && $value->id == $update['row_material_type_id']) {
                                                   echo 'selected';
                                               } ?>><?= $value->name; ?></option>
                                         <?php } ?>
@@ -60,7 +60,7 @@
                                     <th>Serial No </th>
                                     <th>Action</th>
                                     <th>Name</th>
-                                    <th>Row Meterial</th>
+                                    <th>Row Material</th>
                                     <th>Opening Stock</th>
                                     <th>Created At</th>
                                 </tr>
@@ -79,13 +79,13 @@
                                                     <a class="btn btn-action bg-success text-white me-2"
                                                         data-bs-toggle="tooltip" data-bs-placement="top"
                                                         data-bs-original-title="Edit"
-                                                        href="<?= base_url('master/row_meterial/edit/') . $data['id'] ?>">
+                                                        href="<?= base_url('master/row_material/edit/') . $data['id'] ?>">
                                                         <i class="far fa-edit" aria-hidden="true"></i>
                                                     </a>
                                                     <a class="btn btn-action bg-danger text-white me-2" data-bs-toggle="tooltip"
                                                         data-bs-placement="top" data-bs-original-title="Delete"
                                                         onclick="return confirm('Are you sure want to Delete.?');"
-                                                        href="<?= base_url('master/row_meterial/delete/') . $data['id'] ?>">
+                                                        href="<?= base_url('master/row_material/delete/') . $data['id'] ?>">
                                                         <i class="fa-solid fa-trash"></i>
                                                     </a>
                                                 </div>
@@ -94,7 +94,7 @@
                                                 <?= $data['name']; ?>
                                             </td>
                                             <td>
-                                                <?= $data['row_meterial_type_name']; ?>
+                                                <?= $data['row_material_type_name']; ?>
                                             </td>
                                             <td>
                                                 <?= $data['opening_stock']; ?>

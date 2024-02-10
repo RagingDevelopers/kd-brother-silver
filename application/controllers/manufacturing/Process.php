@@ -18,8 +18,8 @@ class Process extends CI_Controller
 		$page_data['id'] = $id;
 		$page_data['data'] = $this->db->select('*')->from('garnu')->where('id', $id)->get()->row_array();
 		$page_data['process_data'] = $this->db->select('*')->from('given')->where('id', $pid)->get()->row_array();
-		$page_data['given_row_meterial'] = $this->db->select('*')->from('given_row_meterial')->where(array('given_id' => $pid, 'garnu_id' => $id))->get()->result_array();
-		$page_data['row_material'] = $this->db->select('id,name')->from('row_meterial')->where('status', "ACTIVE")->get()->result_array();
+		$page_data['given_row_material'] = $this->db->select('*')->from('given_row_material')->where(array('given_id' => $pid, 'garnu_id' => $id))->get()->result_array();
+		$page_data['row_material'] = $this->db->select('id,name')->from('row_material')->where('status', "ACTIVE")->get()->result_array();
 		$page_data['table'] = $this->db->select('given.*,customer.name AS customer_name, process.name AS process_name')->from('given')->where('garnu_id', $id)->join('process', 'given.process_id = process.id', 'left')->join('customer', 'given.worker_id = customer.id', 'left')->get()->result();
 		$page_data['page_title'] = 'Process';
 		$page_data['process'] = $this->modal->fetch_process();
@@ -79,7 +79,7 @@ class Process extends CI_Controller
 			$batchData[] = $rmData;
 		}
 		if (!empty($batchData)) {
-			$this->db->insert_batch('given_row_meterial', $batchData);
+			$this->db->insert_batch('given_row_material', $batchData);
 		}
 		flash()->withSuccess("Garnu Added Successfully.")->back();
 	}
@@ -123,7 +123,7 @@ class Process extends CI_Controller
 		$idsNotExisting = array_diff($allids, $existingIds);
 		if (!empty($idsNotExisting)) {
 			$this->db->where_in('id', $idsNotExisting);
-			$this->db->delete('given_row_meterial');
+			$this->db->delete('given_row_material');
 		}
 
 		foreach ($post['rowid'] as $key => $rowid) {
@@ -146,10 +146,10 @@ class Process extends CI_Controller
 		}
 
 		if (!empty($insertBatch)) {
-			$this->db->insert_batch('given_row_meterial', $insertBatch);
+			$this->db->insert_batch('given_row_material', $insertBatch);
 		}
 		if (!empty($updateBatch)) {
-			$this->db->update_batch('given_row_meterial', $updateBatch, 'id');
+			$this->db->update_batch('given_row_material', $updateBatch, 'id');
 		}
 		flash()->withSuccess("Update Successfully.")->to("manufacturing/garnu");
 	}
@@ -186,18 +186,25 @@ class Process extends CI_Controller
 		$updateBatch = [];
 		$existingIds = isset($post['rcid']) ? $post['rcid'] : [];
 		$allids = isset($post['ids']) ? $post['ids'] : [];
-
 		$idsNotExisting = array_diff($allids, $existingIds);
+		echo "<pre>";
+		print_r($idsNotExisting);
+
 		if (!empty($idsNotExisting)) {
 			$this->db->where_in('id', $idsNotExisting);
-			$this->db->delete('receive_row_meterial');
+			$this->db->delete('receive');
+		}
+
+		if (!empty($idsNotExisting)) {
+			$this->db->where_in('id', $idsNotExisting);
+			$this->db->delete('receive_row_material');
 		}
 
 		foreach ($post['rcid'] as $key => $rcid) {
 			$receivedData = [
 				'pcs' => isset($post['pcs'][$key]) ? $post['pcs'][$key] : 0,
 				'weight' => isset($post['weight'][$key]) ? $post['weight'][$key] : 0,
-				'row_meterial_weight' => isset($post['rm_weight'][$key]) ? $post['rm_weight'][$key] : 0,
+				'row_material_weight' => isset($post['rm_weight'][$key]) ? $post['rm_weight'][$key] : 0,
 				'total_weight' => isset($post['total_weight'][$key]) ? $post['total_weight'][$key] : 0,
 				'remark' => isset($post['remark'][$key]) ? $post['remark'][$key] : null,
 			];
@@ -214,7 +221,6 @@ class Process extends CI_Controller
 			}
 
 			$rawMaterialData = $post['raw-material-data'][$key];
-
 			$updateArray['rcdid'] = [];
 			$updateData = [];
 			$updateArray['rm']['insert'] = [];
@@ -223,7 +229,7 @@ class Process extends CI_Controller
 
 			if (isset($rawMaterialData) && $rawMaterialData !== NULL) {
 				$rm_data = explode('|', $rawMaterialData);
-				$rmDelete = $this->db->select('id')->where('received_id', $receive_id)->get('receive_row_meterial')->result();
+				$rmDelete = $this->db->select('id')->where('received_id', $receive_id)->get('receive_row_material')->result();
 				foreach ($rm_data as $rcD) {
 					$rm = explode(',', $rcD);
 					$updateArray['rcdid'][] = $rm[4];
@@ -244,13 +250,13 @@ class Process extends CI_Controller
 				}
 
 				if (!empty($updateArray['rm']['insert'])) {
-					$this->db->insert_batch('receive_row_meterial', $updateArray['rm']['insert']);
+					$this->db->insert_batch('receive_row_material', $updateArray['rm']['insert']);
 					$response = ['success' => true, 'message' => 'Data Add Successfully.'];
 				} else {
 					$response = ['success' => false, 'message' => 'Data Add Failed.'];
 				}
 				if (!empty($updateArray['rm']['update'])) {
-					$this->db->update_batch('receive_row_meterial', $updateArray['rm']['update'], 'id');
+					$this->db->update_batch('receive_row_material', $updateArray['rm']['update'], 'id');
 					$response = ['success' => true, 'message' => 'Data Update Successfully.'];
 				}
 
@@ -261,7 +267,7 @@ class Process extends CI_Controller
 							$updateArray['rm']['delete'][] = $rmD->id;
 						}
 					});
-					($updateArray['rm']['delete'] && $this->db->where_in('id', $updateArray['rm']['delete'])->delete('receive_row_meterial'));
+					($updateArray['rm']['delete'] && $this->db->where_in('id', $updateArray['rm']['delete'])->delete('receive_row_material'));
 				}
 			}
 		}
