@@ -1,3 +1,9 @@
+<style>
+	.net_weight{
+		background-color: #ebebeb;
+		color: black;
+	}
+</style>
 <div class="row">
 	<div class="col-sm-12">
 		<div class="card mt-3">
@@ -19,6 +25,7 @@
 											<th>Metal Type</th>
 											<th scope="col">Weight(Gm)</th>
 											<th scope="col">Touch (%)</th>
+											<th scope="col">Net Weight</th>
 											<th scope="col"></th>
 										</thead>
 
@@ -46,6 +53,9 @@
 													<input class="form-control touch" type="number" name="touch[]" placeholder="Enter touch(%)" value="" required>
 												</td>
 												<td>
+													<input class="form-control net_weight" type="number" readonly name="net_weight[]">
+												</td>
+												<td>
 													<button type="button" class="btn btn-danger del">X</button>
 												</td>
 											</tr>
@@ -54,6 +64,8 @@
 										<tfoot>
 											<td class="d-flex border border-0 align-content-start flex-wrap">
 												<button type="button" class="btn btn-outline-warning" id="add">AddRow</button>
+											</td>
+											<td>
 											</td>
 											<td>
 											</td>
@@ -198,18 +210,21 @@
 			table.draw()
 		});
 
-		function receiveGarnu(id = null){
+		function receiveGarnu(id = null) {
 			return $.ajax({
 				showLoader: true,
 				url: '<?= base_url("manufacturing/garnu/checkReceive"); ?>',
 				type: 'POST',
 				dataType: 'json',
-				data: {id},
+				data: {
+					id
+				},
 				success: function(response) {
 					if (response.success) {
 						$('.garnu_id').val("");
 						$('.garnu_id').val(id);
 						$(response.data).each(function(index, value) {
+							var net_weight = (value.net_weight != 0) ? value.net_weight : value.touch * value.weight / 100;
 							var $lastRow;
 							if (index == 0) {
 								$lastRow = $('.append-here tr').last();
@@ -223,6 +238,7 @@
 							$lastRow.find('.sdid').val(value.id);
 							$lastRow.find('.touch').val(value.touch).trigger('change');
 							$lastRow.find('.weight').val(value.weight).trigger('change');
+							$lastRow.find('.net_weight').val(net_weight).trigger('change');
 							$lastRow.find('.metal_type_id')
 								.val(value.metal_type_id)
 								.trigger('change')
@@ -296,6 +312,17 @@
 			if (touch.val() > 100) {
 				SweetAlert('warning', 'Touch should be less than equal to 100'), touch.val("");
 			}
+			var weight = touch.parent().siblings().find('.weight').val();
+			var net_weight = weight * touch.val() / 100;
+			touch.parent().siblings().find('.net_weight').val(net_weight);
+		});
+
+		$(document).on('input', '.weight', function() {
+			var weight = $(this);
+			var touch = weight.parent().siblings().find('.touch').val();
+			var net_weight = touch * weight.val() / 100;
+			weight.parent().siblings().find('.net_weight').val(net_weight);
+
 		});
 
 		$('#garnu_receive').on('submit', function(e) {

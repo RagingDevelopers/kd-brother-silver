@@ -1,3 +1,24 @@
+<style>
+	.finalWeight {
+		background-color: #ebebeb;
+		color: black;
+	}
+
+	.totalRmWeight {
+		background-color: #ebebeb;
+		color: black;
+	}
+
+	.receivedfinalWeight {
+		background-color: #ebebeb;
+		color: black;
+	}
+
+	.receivedRmWeight {
+		background-color: #ebebeb;
+		color: black;
+	}
+</style>
 <div class="row">
 	<div class="col-md-6">
 		<div class="card">
@@ -10,7 +31,7 @@
 						</div>
 						<div class="card-body border-bottom py-3">
 							<div class="row mt-1">
-								<input type="hidden" name="garnu_received_id" id="" class="form-control garnu_received_id" value="<?= $data['id'] ?? null ?>">
+								<input type="hidden" name="garnu_id" id="" class="form-control garnu_id" value="<?= $data['id'] ?? null ?>">
 								<input type="hidden" name="given_id" id="" class="form-control given_id" value="<?= $process_data['id'] ?? null ?>">
 								<div class="col-md-4 col-sm-3">
 									<label class="form-label" for="">Garnu Name: </label>
@@ -60,7 +81,7 @@
 								</div>
 								<div class="col-md-4 col-sm-3">
 									<label class="form-label" for="">Given Weight: </label>
-									<input type="text" name="given_weight" id="" class="form-control" placeholder="Enter Weight" autocomplete="off" value="<?= (isset($process_data)) ? $process_data['given_weight'] : '' ?>">
+									<input type="text" name="given_weight" id="" class="form-control given_weight" placeholder="Enter Weight" autocomplete="off" value="<?= (isset($process_data)) ? $process_data['given_weight'] : '' ?>">
 								</div>
 								<div class="col-md-4 col-sm-3">
 									<label class="form-label" for="">Labour: </label>
@@ -70,11 +91,11 @@
 							<div class="row mt-3">
 								<div class="col-md-4 col-sm-3">
 									<label class="form-label" for="">Row Material Weight: </label>
-									<input type="text" name="" id="" class="form-control" placeholder="Enter Weight" autocomplete="off" value="">
+									<input type="text" name="" id="" class="form-control totalRmWeight" autocomplete="off" value="0" readonly>
 								</div>
 								<div class="col-md-4 col-sm-3">
 									<label class="form-label" for="">Final Weight: </label>
-									<input type="text" name="" id="" class="form-control" placeholder="Enter Weight" autocomplete="off" value="">
+									<input type="text" name="" id="" class="form-control finalWeight" autocomplete="off" value="0" readonly>
 								</div>
 								<div class="col-md-4 col-sm-3">
 									<label class="form-label" for="">&nbsp </label>
@@ -87,12 +108,12 @@
 							</button>
 						</div>
 
-						<div class="modal modal-blur fade modal-lg" id="modal-report" tabindex="-1" role="dialog" aria-hidden="true">
-							<div class="modal-dialog" role="document">
+						<div class="modal modal-blur fade modal-lg" data-bs-backdrop="static" data-bs-keyboard="false" id="modal-report" tabindex="-1" role="dialog" aria-hidden="true">
+							<div class="modal-dialog modal-dialog-scrollable" role="document">
 								<div class="modal-content">
 									<div class="modal-header">
 										<h5 class="modal-title">Add Row Material</h5>
-										<!-- <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button> -->
+										<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 									</div>
 									<div class="modal-body">
 										<table class="table table-vcenter card-table table-striped">
@@ -125,10 +146,10 @@
 																<option value="">Select RM</option>
 																<?php
 																if (!empty($row_material)) {
-																	foreach ($row_material as $rm) { ?>
-																		<option value="<?= $rm['id']; ?>" <?php if (isset($row) && $rm['id'] == $row['row_material_id']) {
-																												echo 'selected';
-																											} ?>><?= $rm['name']; ?></option>
+																	for ($i = 0; $i < count($row_material); $i++) { ?>
+																		<option value="<?= $row_material[$i]['id']; ?>" <?php if (isset($row) && $row_material[$i]['id'] == $row['row_material_id']) {
+																															echo 'selected';
+																														} ?>><?= $row_material[$i]['name']; ?></option>
 																<?php }
 																} ?>
 															</select>
@@ -159,8 +180,108 @@
 								</div>
 							</div>
 						</div>
-
 					</form>
+
+					<form id="received-garnu">
+						<div class="modal modal-blur fade modal-xl" data-bs-backdrop="static" data-bs-keyboard="false" id="received1-report" tabindex="-1" role="dialog" aria-hidden="true">
+							<div class="modal-dialog modal-dialog-scrollable modal-xl" role="document">
+								<div class="modal-content">
+									<div class="modal-header">
+										<h5 class="modal-title">Received</h5>
+										<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+									</div>
+									<div class="modal-body">
+										<div id="receveData"></div>
+									</div>
+									<div class="modal-footer justify-content-between">
+										<button type="button" class="btn btn-success receivedAddButton2">
+											<span class="mx-1">Add </span><i class="fa-solid fa-plus"></i>
+										</button>
+										<div>
+											<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+											<button type="submit" class="btn btn-primary">Save</button>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</form>
+
+						<div class="modal modal-blur fade modal-lg" data-bs-backdrop="static" data-bs-keyboard="false" id="received-report" tabindex="-1" role="dialog" aria-hidden="true">
+							<div class="modal-dialog modal-dialog-scrollable" role="document">
+								<div class="modal-content">
+									<div class="modal-header">
+										<h5 class="modal-title">Received Row Material</h5>
+										<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+									</div>
+									<div class="modal-body">
+										<table class="table table-vcenter card-table table-striped">
+											<thead>
+												<tr>
+													<th>Row Material</th>
+													<th>Touch %</th>
+													<th>Weight</th>
+													<th>Quantity</th>
+													<th></th>
+												</tr>
+											</thead>
+											<tbody id="JBody">
+												<?php
+												if (empty($given_row_meterials)) {
+													$given_row_meterials[] = [
+														'row_material_id' => 0,
+														'rmWeight'        => '',
+														'rmTouch'         => 0,
+														'rmQuantity'      => '',
+														'id'              => 0
+													];
+												}
+												foreach ($given_row_meterials as $row) { ?>
+													<input type="hidden" class="ids" value="0"/>
+													<tr class="mainRow2 main-row">
+														<td>
+															<input type="hidden" class="received_detail_id" />
+															<select class="form-select select2 row_material2" >
+																<option value="">Select RM</option>
+																<?php
+																if (!empty($row_material)) {
+																	foreach ($row_material as $rm) { ?>
+																		<option value="<?= $rm['id']; ?>" <?php if (isset($row) && $rm['id'] == $row['row_material_id']) {
+																												echo 'selected';
+																											} ?>><?= $rm['name']; ?></option>
+																<?php }
+																} ?>
+															</select>
+														</td>
+														<td class="text-muted">
+															<input type="number" class="form-control touch2" placeholder="Enter Touch" autocomplete="off">
+														</td>
+														<td class="text-muted">
+															<input type="number" class="form-control weight2" placeholder="Enter Weight" autocomplete="off">
+														</td>
+														<td class="text-muted">
+															<input type="number" class="form-control quantity2" placeholder="Enter Quantity" autocomplete="off">
+														</td>
+														<td>
+															<button type="button" class="btn btn-danger deleteRow2">X</button>
+														</td>
+													</tr>
+												<?php } ?>
+											</tbody>
+										</table>
+									</div>
+									<div class="modal-footer justify-content-between">
+										<button type="button" class="btn btn-success addButton2">
+											<span class="mx-1">Add </span><i class="fa-solid fa-plus"></i>
+										</button>
+										<div>
+											<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+											<button type="button" class="btn btn-primary saveRmData">Save</button>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
 				</div>
 			</div>
 		</div>
@@ -193,7 +314,16 @@
 									<?php foreach ($table as $key => $result) { ?>
 										<tr>
 											<td><?= $key + 1; ?></td>
-											<td><a href="<?= base_url('manufacturing/process/manage/') . $id . '/' . $result->id; ?>" class="btn btn-warning">Edit</a></td>
+											<td>
+												<div>
+													<a class="btn btn-action bg-success text-white me-2 edit" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Edit" href="<?= base_url('manufacturing/process/manage/') . $id . '/' . $result->id; ?>">
+														<i class="far fa-edit" aria-hidden="true"></i>
+													</a>
+													<a class="bg-purple btn btn-action text-purple-fg me-2 Received" data-demo-color data-bs-toggle="tooltip" data-bs-placement="top" data-garnu_id="<?= $id; ?>" data-given_id="<?= $result->id; ?>" data-bs-original-title="Received" href="#">
+														<i class="fa fa-connectdevelop" aria-hidden="true"></i>
+													</a>
+												</div>
+											</td>
 											<td><?= $result->creation_date; ?></td>
 											<td><?= $result->process_name; ?></td>
 											<td><?= $result->customer_name; ?></td>
@@ -214,6 +344,9 @@
 <script class="javascript">
 	$(document).ready(function() {
 		var mainRow = $('.mainRow')[0].outerHTML;
+		var mainRmRow = $('.main-row')[0]?.outerHTML;
+		var ReceivedMainRow;
+		var rmBtn = null;
 		$('.process').change(function() {
 			var process_id = $(this).val();
 			var worker_id = $(this).find(":selected").data('workerid')
@@ -234,13 +367,25 @@
 			}
 		}).trigger('change');
 
+		function autoValueEnter() {
+			var totalRmWeight = parseFloat($('.totalRmWeight').val()) || 0;
+			var given_weight = parseFloat($('.given_weight').val()) || 0;
+
+			var totalRmWeight = 0;
+			$('.weight').each(function() {
+				totalRmWeight += parseFloat($(this).val()) || 0;
+			});
+			$('.totalRmWeight').val(totalRmWeight);
+			$('.finalWeight').val(parseFloat(given_weight) + parseFloat(totalRmWeight));
+		}
+
+		autoValueEnter();
+
 		$("button[data-target='#exampleModal']").click(function(event) {
 			event.preventDefault();
-
-			var garnu_received_id = $('#garnu_received_id').val();
+			var garnu_id = $('#garnu_id').val();
 			var given_id = $('#given_id').val();
-
-			if (garnu_received_id != "" && given_id != "") {}
+			if (garnu_id != "" && given_id != "") {}
 			$("#modal-report").modal('show');
 		});
 
@@ -263,7 +408,6 @@
 		$(document).on('click', '.deleteRow', function() {
 			if ($('.deleteRow').length > 1) {
 				$(this).parents('tr').remove();
-				console.log($(this).parents('tr'));
 			}
 		});
 
@@ -273,17 +417,23 @@
 				var row_material = $(this).val();
 				if (row_material == "") {
 					count += 1;
-					SweetAlert('warning', 'Please Fill your form.');
+					SweetAlert('warning', 'Please Enter Row Material and Touch.');
 				}
 			});
 			$('.touch').each(function() {
 				var touch = $(this).val();
 				if (touch == "") {
 					count += 1;
-					SweetAlert('warning', 'Please Fill your form.');
+					SweetAlert('warning', 'Please Enter Row Material and Touch.');
 				}
 			});
 			(count == 0) ? $("#modal-report").modal('hide'): null;
+			var totalRmWeight = 0;
+			$('.weight').each(function() {
+				totalRmWeight += parseFloat($(this).val()) || 0;
+			});
+			$('.totalRmWeight').val(totalRmWeight);
+			autoValueEnter();
 		});
 
 		$(document).on('input', '.touch', function() {
@@ -293,6 +443,10 @@
 			}
 		});
 
+		$(document).on('input', '.totalRmWeight,.given_weight', function() {
+			autoValueEnter();
+		});
+
 		$('#modal-report').on('shown.bs.modal', function(e) {
 			var modal = this;
 			$('.row_material').each(function() {
@@ -300,6 +454,212 @@
 					width: '200',
 					dropdownParent: $(modal)
 				});
+			});
+		});
+
+
+		// second modal received
+		$(document).on('click', '.Received', function() {
+			event.preventDefault();
+			var garnu_id = $(this).data('garnu_id');
+			var given_id = $(this).data('given_id');
+
+			if (garnu_id != "" && given_id != "") {
+				$.ajax({
+					url: "<?php echo base_url(); ?>manufacturing/process/receiveGarnu",
+					method: "POST",
+					showLoader: true,
+					data: {
+						garnu_id,
+						given_id
+					},
+					success: function(response) {
+						$('#receveData').html(response);
+					}
+				}).done(function(response) {
+					$("#received1-report").modal('show');
+				});
+			}
+		});
+
+		$('#received1-report').on('shown.bs.modal', function(e) {
+			ReceivedMainRow = $('.ReceivedMainRow')[0].outerHTML;
+			var modal = this;
+			$('.customer').each(function() {
+				$(this).select2({
+					width: '200',
+					dropdownParent: $(modal)
+				});
+			});
+		});
+
+		$('.receivedAddButton2').click(function() {
+			$('#ReceivedBody').append(ReceivedMainRow);
+			const lastTr = $('#ReceivedBody tr').last();
+			lastTr.find('.rowid2').val(0);
+			lastTr.find('.rcid').val("");
+			lastTr.find('.rcid').val(0);
+			lastTr.find('.Pcs, .receivedWeight, .receivedRemark,.rmdata').val('');
+			lastTr.find('.receivedRmWeight').val(0);
+			lastTr.find('.receivedfinalWeight').val(0);
+		});
+
+		$(document).on('click', '.receiveddeleteRow', function() {
+			if ($('.receiveddeleteRow').length > 1) {
+				$(this).parents('tr').remove();
+			}
+		});
+
+		$('#received-report').on('shown.bs.modal', function(e) {
+			var modal = this;
+			$('.row_material2').each(function() {
+				$(this).select2({
+					width: '200',
+					dropdownParent: $(modal)
+				});
+			});
+		});
+
+		var mainRow2 = $('.mainRow2')[0].outerHTML;
+		$('.addButton2').click(function() {
+			var LastRm = $('.row_material2').last();
+			if (LastRm.val() == '') {
+				return LastRm.select2('open');
+			}
+			$('#JBody').append(mainRow2);
+			const lastTr = $('#JBody tr').last();
+			lastTr.find('.rowid2').val(0);
+			lastTr.find('.weight2, .touch2, .quantity2').val('');
+			lastTr.find('.row_material2').select2({
+				width: '200',
+				dropdownParent: $('#received-report')
+			});
+			lastTr.find('.row_material2').last().select2('open');
+		});
+
+		$(document).on('click', '.deleteRow2', function() {
+			if ($('.deleteRow2').length > 1) {
+				$(this).parents('tr').remove();
+			}
+		});
+
+		$(document).on('input', '.touch2', function() {
+			var touch = $(this);
+			if (touch.val() > 100) {
+				SweetAlert('warning', 'Touch should be less than equal to 100'), touch.val("");
+			}
+		});
+
+		$(document).on('click', '.saveRmData', function() {
+			var count = 0;
+			$('.row_material2').each(function() {
+				var row_material = $(this).val();
+				if (row_material == 0 || row_material == "") {
+					count += 1;
+					SweetAlert('warning', 'Please Enter Row Material and Touch.');
+				}
+			});
+
+			$('.touch2').each(function() {
+				var touch = $(this).val();
+				if (touch == 0 || touch == "") {
+					count += 1;
+					SweetAlert('warning', 'Please Enter Row Material and Touch.');
+				}
+			});
+			(count == 0) ? $("#received-report").modal('hide'): null;
+
+			var modal = $('#received-report');
+			var container = rmBtn.parents('tr');
+			var mainSection = modal.find(".main-row");
+			var mainSectionLength = modal.find('tbody tr').length;
+			let FilterVar = (el) => {
+				if (el == "" || el == undefined || el == NaN) {
+					return 0;
+				}
+				return el;
+			};
+			var string = "";
+			var totalRmWeight = 0;
+			for (var i = 0; i < mainSectionLength; i++) {
+				var row = mainSection.eq(i);
+				var rm = row.find(".row_material2 option:selected").val();
+				var touch = FilterVar(row.find(".touch2").val());
+				var weight = FilterVar(row.find(".weight2").val());
+				var quantity = FilterVar(row.find(".quantity2").val());
+				var received_detail_id = FilterVar(row.find(".received_detail_id").val());
+				totalRmWeight += parseFloat(weight) || 0;
+				string += [rm, touch, weight, quantity, received_detail_id].join(",");
+				if (mainSectionLength > i + 1)
+					string += "|";
+			}
+			container.find(".rmdata").val(string);
+			container.find(".receivedRmWeight").val(totalRmWeight);
+			finalCalculation(rmBtn);
+		});
+
+		function finalCalculation(i) {
+			var container = i.parents('tr');
+			var receivedWeight = container.find(".receivedWeight").val() || 0;
+			var receivedRmWeight = container.find(".receivedRmWeight").val() || 0;
+			container.find(".receivedfinalWeight").val(parseFloat(receivedWeight) + parseFloat(receivedRmWeight));
+		}
+
+		$(document).on('input', '.receivedWeight', function() {
+			finalCalculation($(this));
+		});
+
+		$(document).on('click', '.Receivedmeterial', function() {
+			rmBtn = $(this);
+			var modal = $("#received-report");
+			var givenContainer = rmBtn.parents('tr');;
+			var mainSection = modal.find(".main-row");
+			modal.find("tbody").html("");
+			var string = givenContainer.find(".rmdata").val();
+			var data = string?.split("|");
+			mainSectionLength = data?.length ?? 0;
+			if (mainSectionLength > 0) {
+				for (var i = 0; i < mainSectionLength; i++) {
+					modal.find("tbody").append(mainRmRow);
+					var row = modal.find(".main-row").eq(i),
+						splitByHash = data[i]?.split(","),
+						row_material2 = splitByHash[0] ?? 0,
+						touch2 = splitByHash[1] ?? 0,
+						weight2 = splitByHash[2] ?? 0;
+						quantity2 = splitByHash[3] ?? 0;
+						received_detail_id = splitByHash[4] ?? 0;
+					row.find(".row_material2 ").val(row_material2).trigger("change");;
+					(row.find(".touch2").val(touch2));
+					(row.find(".weight2").val(weight2));
+					(row.find(".quantity2").val(quantity2));
+					(row.find(".received_detail_id").val(received_detail_id));
+				}
+			} else {
+				modal.find("tbody").append(mainRmRow);
+			}
+			modal.modal("show");
+		});
+
+		$('#received-garnu').on('submit', function(e) {
+			e.preventDefault();
+			var formData = $(this).serialize();
+			$.ajax({
+				url: '<?php echo base_url('manufacturing/process/receiveGarnuAdd'); ?>',
+				type: 'POST',
+				data: formData,
+				success: function(response) {
+					var response = JSON.parse(response);
+					if (response.success === true) {
+						$('#received1-report').modal('hide');
+						SweetAlert('success', response.message);
+					} else {
+						$('#received1-report').modal('hide');
+						SweetAlert('error', response.message);
+					}
+				},
+				error: function() {
+					SweetAlert('error', "Error submitting form");
+				}
 			});
 		});
 
