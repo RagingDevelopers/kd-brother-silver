@@ -5,6 +5,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
 class Process extends CI_Controller
 {
 	const View = "admin/manufacturing/process";
+	const receiveGarnu = "admin/manufacturing/receive_garnu";
 	public function __construct()
 	{
 		parent::__construct();
@@ -17,7 +18,7 @@ class Process extends CI_Controller
 		$page_data['id'] = $id;
 		$page_data['data'] = $this->db->select('*')->from('garnu')->where('id', $id)->get()->row_array();
 		$page_data['process_data'] = $this->db->select('*')->from('given')->where('id', $pid)->get()->row_array();
-		$page_data['given_row_meterial'] = $this->db->select('*')->from('given_row_meterial')->where(array('given_id' => $pid, 'garnu_received_id' => $id))->get()->result_array();
+		$page_data['given_row_meterial'] = $this->db->select('*')->from('given_row_meterial')->where(array('given_id' => $pid, 'garnu_id' => $id))->get()->result_array();
 		$page_data['row_material'] = $this->db->select('id,name')->from('row_meterial')->where('status', "ACTIVE")->get()->result_array();
 		$page_data['table'] = $this->db->select('given.*,customer.name AS customer_name, process.name AS process_name')->from('given')->where('garnu_id', $id)->join('process', 'given.process_id = process.id', 'left')->join('customer', 'given.worker_id = customer.id', 'left')->get()->result();
 		$page_data['page_title'] = 'Process';
@@ -52,7 +53,7 @@ class Process extends CI_Controller
 		$post = xss_clean($this->input->post());
 
 		$data = array();
-		$data['garnu_id'] = $post['garnu_received_id'];
+		$data['garnu_id'] = $post['garnu_id'];
 		$data['rc_qty'] = $post['rc_qty'];
 		$data['process_id'] = $post['process'];
 		$data['worker_id'] = $post['workers'];
@@ -68,7 +69,7 @@ class Process extends CI_Controller
 		foreach ($post['rowid'] as $key => $rowid) {
 			$rmData = [
 				'given_id' => $given_id,
-				'garnu_received_id' => isset($post['garnu_received_id']) ? $post['garnu_received_id'] : null,
+				'garnu_id' => isset($post['garnu_id']) ? $post['garnu_id'] : null,
 				'row_material_id' => isset($post['row_material'][$key]) ? $post['row_material'][$key] : null,
 				'touch' => isset($post['rmTouch'][$key]) ? $post['rmTouch'][$key] : null,
 				'weight' => isset($post['rmWeight'][$key]) ? $post['rmWeight'][$key] : null,
@@ -104,7 +105,7 @@ class Process extends CI_Controller
 		}
 		$post = xss_clean($this->input->post());
 		$data = array();
-		$data['garnu_id'] = $post['garnu_received_id'];
+		$data['garnu_id'] = $post['garnu_id'];
 		$data['rc_qty'] = $post['rc_qty'];
 		$data['process_id'] = $post['process'];
 		$data['worker_id'] = $post['workers'];
@@ -136,7 +137,7 @@ class Process extends CI_Controller
 			if ($rowid == 0) {
 				$rmData['given_id'] = $post['given_id'];
 				$rmData['creation_date'] = date('Y-m-d');
-				$rmData['garnu_received_id'] = isset($post['garnu_received_id']) ? $post['garnu_received_id'] : null;
+				$rmData['garnu_id'] = isset($post['garnu_id']) ? $post['garnu_id'] : null;
 				$insertBatch[] = $rmData;
 			} else if (in_array($rowid, $existingIds)) {
 				$rmData['id'] = $rowid;
@@ -148,8 +149,136 @@ class Process extends CI_Controller
 			$this->db->insert_batch('given_row_meterial', $insertBatch);
 		}
 		if (!empty($updateBatch)) {
-			$this->db->update_batch('given_row_meterial', $updateBatch,'id');
+			$this->db->update_batch('given_row_meterial', $updateBatch, 'id');
 		}
 		flash()->withSuccess("Update Successfully.")->to("manufacturing/garnu");
+	}
+
+	public function receiveGarnu()
+	{
+		$validation = $this->form_validation;
+		$validation->set_rules('garnu_id', 'Garnu Id', 'required')
+			->set_rules('given_id', 'Given Id', 'required');
+
+		if (!$validation->run()) {
+			return flash()->withError(validation_errors())->back();
+		}
+
+
+		$post = $this->input->post();
+		$garnu_id = $post['garnu_id'];
+		$given_id = $post['given_id'];
+
+		$page_data['garnuData'] = $this->dbh->getWhereRowArray('garnu', ['id' => $garnu_id]);
+		$page_data['givenData'] = $this->dbh->getWhereRowArray('given', ['id' => $given_id]);
+		$page_data['receivedData'] = $this->dbh->getWhereResultArray('receive', ['given_id' => $given_id, 'garnu_id' => $garnu_id]);
+		$page_data['customer'] = $this->dbh->getWhereResultArray('customer', ['account_type_id' => 7]);
+
+		echo $this->load->view(self::receiveGarnu, $page_data, true);
+	}
+
+	public function receiveGarnuAdd()
+	{
+		$post = $this->input->post();
+		echo "<pre>";
+		print_r($post);
+		$insertBatch = [];
+		$updateBatch = [];
+		$existingIds = isset($post['rcid']) ? $post['rcid'] : [];
+		$allids = isset($post['ids']) ? $post['ids'] : [];
+
+		$idsNotExisting = array_diff($allids, $existingIds);
+		if (!empty($idsNotExisting)) {
+			$this->db->where_in('id', $idsNotExisting);
+			$this->db->delete('receive_row_meterial');
+		}
+
+		foreach ($post['rcid'] as $key => $rcid) {
+			$receivedData = [
+				'pcs' => isset($post['pcs'][$key]) ? $post['pcs'][$key] : 0,
+				'weight' => isset($post['weight'][$key]) ? $post['weight'][$key] : 0,
+				'row_meterial_weight' => isset($post['rm_weight'][$key]) ? $post['rm_weight'][$key] : 0,
+				'total_weight' => isset($post['total_weight'][$key]) ? $post['total_weight'][$key] : 0,
+				'remark' => isset($post['remark'][$key]) ? $post['remark'][$key] : null,
+			];
+
+			if ($rcid == 0) {
+				$receivedData['given_id'] = $post['given_id'];
+				$receivedData['garnu_id'] = $post['garnu_id'];
+				$receivedData['creation_date'] = date('Y-m-d');
+				$update = $this->db->insert('receive', $receivedData);
+				$receive_id = $this->db->insert_id();
+			} else if (in_array($rcid, $existingIds)) {
+				$receive_id = $rcid;
+				$update = $this->dbh->updateRow('receive', $rcid, $receivedData);
+			}
+
+			$rawMaterialData = $post['raw-material-data'][$key];
+
+			$updateArray['rcdid'] = [];
+			$updateData = [];
+			$updateArray['rm']['insert'] = [];
+			$updateArray['rm']['update'] = [];
+			$updateArray['rm']['delete'] = [];
+
+			if (isset($rawMaterialData) && $rawMaterialData !== NULL) {
+				$rm_data = explode('|', $rawMaterialData);
+				$rmDelete = $this->db->select('id')->where('received_id', $receive_id)->get('receive_row_meterial')->result();
+				foreach ($rm_data as $rcD) {
+					$rm = explode(',', $rcD);
+					$updateArray['rcdid'][] = $rm[4];
+					$updateData = [
+						'received_id'      => $receive_id,
+						'row_material_id'  => $rm[0],
+						'touch'            => $rm[1],
+						'weight'           => $rm[2],
+						'quantity'         => $rm[3],
+					];
+					if ($rm[4] > 0) {
+						$updateData['id'] = $rm[4];
+						$updateArray['rm']['update'][] = $updateData;
+					} else {
+						$updateData['creation_date'] = date('Y-m-d');
+						$updateArray['rm']['insert'][] = $updateData;
+					}
+				}
+
+				if (!empty($updateArray['rm']['insert'])) {
+					$this->db->insert_batch('receive_row_meterial', $updateArray['rm']['insert']);
+					$response = ['success' => true, 'message' => 'Data Add Successfully.'];
+				} else {
+					$response = ['success' => false, 'message' => 'Data Add Failed.'];
+				}
+				if (!empty($updateArray['rm']['update'])) {
+					$this->db->update_batch('receive_row_meterial', $updateArray['rm']['update'], 'id');
+					$response = ['success' => true, 'message' => 'Data Update Successfully.'];
+				}
+
+
+				if ($rmDelete) {
+					array_walk($rmDelete, function ($rmD) use (&$updateArray) {
+						if (!in_array($rmD->id, $updateArray['rcdid'])) {
+							$updateArray['rm']['delete'][] = $rmD->id;
+						}
+					});
+					($updateArray['rm']['delete'] && $this->db->where_in('id', $updateArray['rm']['delete'])->delete('receive_row_meterial'));
+				}
+			}
+		}
+
+		if ($update) {
+			$response = ['success' => true, 'message' => 'Data Add Successfully.'];
+		} else {
+			$response = ['success' => false, 'message' => 'Data Add Failed.'];
+		}
+		if ($update) {
+			$response = ['success' => true, 'message' => 'Data Update Successfully.'];
+		}
+
+		echo "<pre>";
+		print_r($response);
+		exit;
+		echo json_encode($response);
+		return;
 	}
 }

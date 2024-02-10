@@ -352,6 +352,7 @@ class Garnu extends CI_Controller
 				'metal_type_id' => isset($post['metal_type_id'][$key]) ? $post['metal_type_id'][$key] : null,
 				'touch' => isset($post['touch'][$key]) ? $post['touch'][$key] : null,
 				'weight' => isset($post['weight'][$key]) ? $post['weight'][$key] : null,
+				'net_weight' => isset($post['net_weight'][$key]) ? $post['net_weight'][$key] : null,
 			];
 
 			if ($sdid == 0) {
