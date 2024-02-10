@@ -154,8 +154,8 @@
 											</thead>
 											<tbody id="TBody">
 												<?php
-												if (empty($given_row_meterial)) {
-													$given_row_meterial[] = [
+												if (empty($given_row_material)) {
+													$given_row_material[] = [
 														'row_material_id' => 0,
 														'rmWeight'        => '',
 														'rmTouch'         => 0,
@@ -163,7 +163,7 @@
 														'id'              => 0
 													];
 												}
-												foreach ($given_row_meterial as $row) { ?>
+												foreach ($given_row_material as $row) { ?>
 													<input type="hidden" class="ids" name="ids[]"
 														value="<?= $row['id'] ?? "0"; ?>" />
 													<tr class="mainRow">
@@ -272,8 +272,8 @@
 										</thead>
 										<tbody id="JBody">
 											<?php
-											if (empty($given_row_meterials)) {
-												$given_row_meterials[] = [
+											if (empty($given_row_materials)) {
+												$given_row_materials[] = [
 													'row_material_id' => 0,
 													'rmWeight'        => '',
 													'rmTouch'         => 0,
@@ -281,7 +281,7 @@
 													'id'              => 0
 												];
 											}
-											foreach ($given_row_meterials as $row) { ?>
+											foreach ($given_row_materials as $row) { ?>
 												<input type="hidden" class="ids" value="0" />
 												<tr class="mainRow2 main-row">
 													<td>
@@ -677,7 +677,7 @@
 			finalCalculation($(this));
 		});
 
-		$(document).on('click', '.Receivedmeterial', function () {
+		$(document).on('click', '.Receivedmaterial', function () {
 			rmBtn = $(this);
 			var modal = $("#received-report");
 			var givenContainer = rmBtn.parents('tr');;

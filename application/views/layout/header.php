@@ -63,13 +63,13 @@
                                         </span>
                                         Item
                                     </a>
-                                    <a class="dropdown-item" href="<?= base_url("master/row_meterial_type") ?>">
+                                    <a class="dropdown-item" href="<?= base_url("master/row_material_type") ?>">
                                         <span class="nav-link-icon d-md-none d-lg-inline-block">
                                             <i class="fa-solid fa-dumpster-fire" aria-hidden="true"></i>
                                         </span>
                                         Row Meterial type
                                     </a>
-                                    <a class="dropdown-item" href="<?= base_url("master/row_meterial") ?>">
+                                    <a class="dropdown-item" href="<?= base_url("master/row_material") ?>">
                                         <span class="nav-link-icon d-md-none d-lg-inline-block">
                                             <i class="fa-brands fa-dropbox" aria-hidden="true"></i>
                                         </span>
