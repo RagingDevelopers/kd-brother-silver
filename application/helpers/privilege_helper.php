@@ -62,6 +62,16 @@ const privilege = [
 	'bank_view' => 46,
 	'bank_edit' => 47,
 	'bank_delete' => 48,
+
+	'stamp_add' => 49,
+	'stamp_view' => 50,
+	'stamp_edit' => 51,
+	'stamp_delete' => 52,
+
+	'unit_add' => 53,
+	'unit_view' => 54,
+	'unit_edit' => 55,
+	'unit_delete' => 56,
 ];
 
 function checkPrivilege($privilegeCode)
