@@ -20,6 +20,61 @@
 	}
 </style>
 <div class="row">
+<<<<<<< HEAD
+    <div class="col-md-6">
+        <div class="card">
+            <div class="row">
+                <div class="modal modal-blur fade modal-lg" id="modal-report" tabindex="-1" role="dialog"
+                    aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Add Row Material</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <table class="table table-vcenter card-table table-striped">
+                                    <thead>                               
+                                        <tr>
+                                            <th>Row Material</th>
+                                            <th>Touch</th>
+                                            <th>Weight</th>
+                                            <th>Quantity</th>
+                                            <th></th>
+                                        </tr>                                   
+                                    </thead>
+                                    <tbody id="TBody">
+                                        <tr class="mainRow">
+                                            <td><select name="" id="" class="form-select">
+                                                    <option value="">Select RM</option>
+                                                    <option value="">1</option>
+                                                    <option value="">2</option>
+                                                </select></td>
+                                            <td class="text-muted">
+                                            <p></p>
+                                            </td>
+                                            <td class="text-muted">
+                                            <p></p>
+                                            </td>
+                                            <td class="text-muted"><p></p></td>
+                                            <td>
+                                                <a href="#"> <button type="button" class="btn btn-danger deleteRow">X</button></a>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>                           
+                            </div>
+                            <div class="modal-footer justify-content-between">
+                                <button type="button" class="btn btn-success addButton">
+                                    <span class="mx-1">Add </span><i class="fa-solid fa-plus"></i>
+                                </button>
+                                <button type="button" class="btn btn-primary">Save Changes</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+=======
 	<div class="col-md-6">
 		<div class="card">
 			<div class="row">
@@ -68,6 +123,7 @@
 										<option value="">Select Worker:</option>
 									</select>
 								</div>
+>>>>>>> 92c975cdf4f5256b62fd9b7efd38dddc7a55f875
 
 								<div class="col-md-4 col-sm-3">
 									<label class="form-label" for="">Remark: </label>

@@ -57,6 +57,11 @@ const privilege = [
 	'garnu_view' => 42,
 	'garnu_edit' => 43,
 	'garnu_delete' => 44,
+
+	'bank_add' => 45,
+	'bank_view' => 46,
+	'bank_edit' => 47,
+	'bank_delete' => 48,
 ];
 
 function checkPrivilege($privilegeCode)
