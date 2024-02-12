@@ -9,7 +9,7 @@ class Sales_model extends CI_Model
     function fetch_party()
     {
         $this->db->order_by("name", "ASC");
-        $query = $this->db->get("customer");
+        $query = $this->db->get_where("customer",array('account_type_id'=>8));
         return $query->result_array();
     }
 
