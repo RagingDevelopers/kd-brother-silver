@@ -180,110 +180,92 @@ class Process extends CI_Controller
 	public function receiveGarnuAdd()
 	{
 		$post = $this->input->post();
-		echo "<pre>";
-		print_r($post);
-		$insertBatch = [];
-		$updateBatch = [];
 		$existingIds = isset($post['rcid']) ? $post['rcid'] : [];
 		$allids = isset($post['ids']) ? $post['ids'] : [];
 		$idsNotExisting = array_diff($allids, $existingIds);
-		echo "<pre>";
-		print_r($idsNotExisting);
 
 		if (!empty($idsNotExisting)) {
 			$this->db->where_in('id', $idsNotExisting);
 			$this->db->delete('receive');
-		}
 
-		if (!empty($idsNotExisting)) {
-			$this->db->where_in('id', $idsNotExisting);
+			$this->db->where_in('received_id', $idsNotExisting);
 			$this->db->delete('receive_row_material');
 		}
 
 		foreach ($post['rcid'] as $key => $rcid) {
-			$receivedData = [
-				'pcs' => isset($post['pcs'][$key]) ? $post['pcs'][$key] : 0,
-				'weight' => isset($post['weight'][$key]) ? $post['weight'][$key] : 0,
-				'row_material_weight' => isset($post['rm_weight'][$key]) ? $post['rm_weight'][$key] : 0,
-				'total_weight' => isset($post['total_weight'][$key]) ? $post['total_weight'][$key] : 0,
-				'remark' => isset($post['remark'][$key]) ? $post['remark'][$key] : null,
-			];
 
-			if ($rcid == 0) {
-				$receivedData['given_id'] = $post['given_id'];
-				$receivedData['garnu_id'] = $post['garnu_id'];
-				$receivedData['creation_date'] = date('Y-m-d');
-				$update = $this->db->insert('receive', $receivedData);
-				$receive_id = $this->db->insert_id();
-			} else if (in_array($rcid, $existingIds)) {
-				$receive_id = $rcid;
-				$update = $this->dbh->updateRow('receive', $rcid, $receivedData);
-			}
-
-			$rawMaterialData = $post['raw-material-data'][$key];
-			$updateArray['rcdid'] = [];
-			$updateData = [];
-			$updateArray['rm']['insert'] = [];
-			$updateArray['rm']['update'] = [];
-			$updateArray['rm']['delete'] = [];
-
-			if (isset($rawMaterialData) && $rawMaterialData !== NULL) {
-				$rm_data = explode('|', $rawMaterialData);
-				$rmDelete = $this->db->select('id')->where('received_id', $receive_id)->get('receive_row_material')->result();
-				foreach ($rm_data as $rcD) {
-					$rm = explode(',', $rcD);
-					$updateArray['rcdid'][] = $rm[4];
-					$updateData = [
-						'received_id'      => $receive_id,
-						'row_material_id'  => $rm[0],
-						'touch'            => $rm[1],
-						'weight'           => $rm[2],
-						'quantity'         => $rm[3],
-					];
-					if ($rm[4] > 0) {
-						$updateData['id'] = $rm[4];
-						$updateArray['rm']['update'][] = $updateData;
+			if(!empty($post['pcs'][$key]) || !empty($post['weight'][$key] || !empty($post['total_weight'][$key]) || !empty($post['remark'][$key]))){
+				$receivedData = [
+					'pcs' => isset($post['pcs'][$key]) ? $post['pcs'][$key] : 0,
+					'weight' => isset($post['weight'][$key]) ? $post['weight'][$key] : 0,
+					'row_material_weight' => isset($post['rm_weight'][$key]) ? $post['rm_weight'][$key] : 0,
+					'total_weight' => isset($post['total_weight'][$key]) ? $post['total_weight'][$key] : 0,
+					'remark' => isset($post['remark'][$key]) ? $post['remark'][$key] : null,
+				];
+	
+				if ($rcid == 0) {
+					$receivedData['given_id'] = $post['given_id'];
+					$receivedData['garnu_id'] = $post['garnu_id'];
+					$receivedData['creation_date'] = date('Y-m-d');
+					$update = $this->db->insert('receive', $receivedData);
+					$receive_id = $this->db->insert_id();
+				} else if (in_array($rcid, $existingIds)) {
+					$receive_id = $rcid;
+					$update = $this->dbh->updateRow('receive', $rcid, $receivedData);
+				}
+	
+				$rawMaterialData = $post['raw-material-data'][$key];
+				$updateArray['rcdid'] = [];
+				$updateData = [];
+				$updateArray['rm']['insert'] = [];
+				$updateArray['rm']['update'] = [];
+				$updateArray['rm']['delete'] = [];
+	
+				if (isset($rawMaterialData) && $rawMaterialData !== NULL) {
+					$rm_data = explode('|', $rawMaterialData);
+					$rmDelete = $this->db->select('id')->where('received_id', $receive_id)->get('receive_row_material')->result();
+					foreach ($rm_data as $rcD) {
+						$rm = explode(',', $rcD);
+						$updateArray['rcdid'][] = $rm[4];
+						$updateData = [
+							'received_id'      => $receive_id,
+							'row_material_id'  => $rm[0],
+							'touch'            => $rm[1],
+							'weight'           => $rm[2],
+							'quantity'         => $rm[3],
+						];
+						if ($rm[4] > 0) {
+							$updateData['id'] = $rm[4];
+							$updateArray['rm']['update'][] = $updateData;
+						} else {
+							$updateData['creation_date'] = date('Y-m-d');
+							$updateArray['rm']['insert'][] = $updateData;
+						}
+					}
+	
+					if (!empty($updateArray['rm']['insert'])) {
+						$this->db->insert_batch('receive_row_material', $updateArray['rm']['insert']);
+						$response = ['success' => true, 'message' => 'Data Add Successfully.'];
 					} else {
-						$updateData['creation_date'] = date('Y-m-d');
-						$updateArray['rm']['insert'][] = $updateData;
+						$response = ['success' => false, 'message' => 'Data Add Failed.'];
+					}
+					if (!empty($updateArray['rm']['update'])) {
+						$this->db->update_batch('receive_row_material', $updateArray['rm']['update'], 'id');
+						$response = ['success' => true, 'message' => 'Data Update Successfully.'];
+					}
+	
+	
+					if ($rmDelete) {
+						array_walk($rmDelete, function ($rmD) use (&$updateArray) {
+							if (!in_array($rmD->id, $updateArray['rcdid'])) {
+								$updateArray['rm']['delete'][] = $rmD->id;
+							}
+						});
+						($updateArray['rm']['delete'] && $this->db->where_in('id', $updateArray['rm']['delete'])->delete('receive_row_material'));
 					}
 				}
-
-				if (!empty($updateArray['rm']['insert'])) {
-					$this->db->insert_batch('receive_row_material', $updateArray['rm']['insert']);
-					$response = ['success' => true, 'message' => 'Data Add Successfully.'];
-				} else {
-					$response = ['success' => false, 'message' => 'Data Add Failed.'];
-				}
-				if (!empty($updateArray['rm']['update'])) {
-					$this->db->update_batch('receive_row_material', $updateArray['rm']['update'], 'id');
-					$response = ['success' => true, 'message' => 'Data Update Successfully.'];
-				}
-
-
-				if ($rmDelete) {
-					array_walk($rmDelete, function ($rmD) use (&$updateArray) {
-						if (!in_array($rmD->id, $updateArray['rcdid'])) {
-							$updateArray['rm']['delete'][] = $rmD->id;
-						}
-					});
-					($updateArray['rm']['delete'] && $this->db->where_in('id', $updateArray['rm']['delete'])->delete('receive_row_material'));
-				}
 			}
 		}
-
-		if ($update) {
-			$response = ['success' => true, 'message' => 'Data Add Successfully.'];
-		} else {
-			$response = ['success' => false, 'message' => 'Data Add Failed.'];
-		}
-		if ($update) {
-			$response = ['success' => true, 'message' => 'Data Update Successfully.'];
-		}
-
-		echo "<pre>";
-		print_r($response);
-		exit;
 		echo json_encode($response);
 		return;
 	}

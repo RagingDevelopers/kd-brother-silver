@@ -211,6 +211,7 @@ class Garnu extends CI_Controller
 		$searchValue = $postData['search']['value']; // Search value
 		$todate = $postData['todate'];
 		$fromdate = $postData['fromdate'];
+		$received = $postData['received'];
 
 		# Search 
 		$searchQuery = "";
@@ -236,6 +237,9 @@ class Garnu extends CI_Controller
 		if (!empty($todate)) {
 			$this->db->where('DATE(garnu.creation_date) <=', $todate);
 		}
+		if (!empty($received)) {
+			$this->db->where('garnu.recieved', $received);
+		}
 
 		$records = $this->db->get();
 		$totalRecordwithFilter = $records->num_rows();
@@ -254,6 +258,9 @@ class Garnu extends CI_Controller
 		if (!empty($todate)) {
 			$this->db->where('DATE(garnu.creation_date) <=', $todate);
 		}
+		if (!empty($received)) {
+			$this->db->where('garnu.recieved', $received);
+		}
 
 		$this->db->limit($rowperpage, $start);
 		$this->db->order_by('id', "desc");
@@ -263,20 +270,42 @@ class Garnu extends CI_Controller
 		$data = array();
 		$i = $start + 1;
 		foreach ($records as $record) {
-			$action = '
-            <a href="' . base_url('manufacturing/garnu/edit/') . $record->id . '" class="btn btn-action bg-success text-white me-2">
-            <i class="fas fa-edit"></i>
-            </a>
-
-            <span data-receiveid="' . $record->id . '" class="btn btn-action bg-green text-white me-2 receive-btn" data-bs-toggle="tooltip" data-bs-placement="top"  data-bs-original-title="Receive"><i class="fa-solid fa-receipt"></i></span>
-            ';
-
-			$process = '';
-			if ($record->recieved == 'YES') {
-				$process = '<a href="' . base_url('manufacturing/process/manage/') . $record->id . '" class="btn btn-primary">Process</a>';
+			$this->db->select_max('id');
+			$this->db->where('garnu_id', $record->id);
+			$query1 = $this->db->get('given')->row_array();
+			if ($query1) {
+				$this->db->select('process.name AS process_name,customer.name as worker_name')
+					->from('given')
+					->join('process', 'given.process_id = process.id', 'left')
+					->join('customer', 'given.worker_id = customer.id', 'left')
+					->where('given.id', $query1['id']);
+				$query2 = $this->db->get()->row_array();
 			} else {
-				$process = '---';
+				$query2 = array();
 			}
+
+			$action = '
+				<div class="d-flex gap-1">
+					<a href="' . base_url('manufacturing/garnu/edit/') . $record->id . '" class="btn btn-action bg-warning text-white me-2" data-bs-toggle="tooltip" data-bs-placement="top"  data-bs-original-title="Edit Proccess"><i class="fas fa-edit"></i></a>
+					<span data-receiveid="' . $record->id . '" class="btn btn-action bg-green text-white me-2 receive-btn" data-bs-toggle="tooltip" data-bs-placement="top"  data-bs-original-title="Receive"><i class="fa-solid fa-receipt"></i></span>
+			';
+
+			if ($record->recieved == 'YES') {
+				$action = $action.'<a href="' . base_url('manufacturing/process/manage/') . $record->id . '" class="btn btn-action bg-indigo text-white" data-bs-toggle="tooltip" data-bs-placement="top"  data-bs-original-title="Proccess Manage"><i class="fa-solid fa-code-fork"></i></a> </div>';
+			}else{
+				$action = $action.'</div>';
+			}
+
+			if (!empty($query2)) {
+				$processName = "<span>{$query2['process_name']}</span>";
+				$worker_name = "<span>{$query2['worker_name']}</span>";
+			} else {
+				$processName = "<span class='text-center'> -- </span>";
+				$worker_name = "<span class='text-center'> -- </span>";
+			}
+
+			$class = ($record->recieved == "YES") ? 'indigo' : 'danger';
+			$received = "<span class='badge bg-$class'>$record->recieved</span>";
 
 			$data[] = array(
 				'id' => $i,
@@ -286,9 +315,11 @@ class Garnu extends CI_Controller
 				'touch' => $record->touch,
 				'silver' => $record->silver,
 				'copper' => $record->copper,
-				'process' => $process,
-				'recieved' => $record->recieved,
-				'created_at' => $record->created_at,
+				'process_name' => $processName,
+				'worker_name' => $worker_name,
+				'recieved' => $received,
+				'is_recieved' => $record->recieved,
+				'created_at' => date('d-m-Y g:i A', strtotime($record->created_at)),
 			);
 			$i = $i + 1;
 		}

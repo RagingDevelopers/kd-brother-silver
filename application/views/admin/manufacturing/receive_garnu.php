@@ -36,7 +36,7 @@
 </table>
 
 <h3 class="pb-0 mb-2 mt-5 ps-2">Data Fetched From: <?= $garnuData['name']; ?></h3>
-<table class="table table-vcenter card-table table-striped">
+<table class="table table-vcenter card-table table-striped" id="Received">
 	<thead>
 		<tr>
 			<th>Receiveid Pcs</th>
@@ -60,8 +60,9 @@
 			];
 		}
 		foreach ($receivedData as $row) {
-			if($row['id'] > 0){
+			if ($row['id'] > 0) {
 				$rawMaterial = $this->dbh->getWhereResultArray('receive_row_material', ['received_id' => $row['id']]);
+				$rm_string_array = [];
 				foreach ($rawMaterial as $rm) {
 					$rm_string_array[] = implode(',', [
 						$rm['row_material_id'],
@@ -81,19 +82,20 @@
 					<input type="number" name="pcs[]" class="form-control Pcs" value="<?= $row['pcs'] ?? "0"; ?>" placeholder="Enter Pcs" autocomplete="off">
 				</td>
 				<td class="text-muted">
-					<input type="hidden" name="raw-material-data[]" value="<?=$row['raw_material_string'] ?? null;?>" class="form-control rmdata" placeholder="Enter Weight" autocomplete="off">
+					<input type="hidden" name="raw-material-data[]" value="<?= $row['raw_material_string'] ?? null; ?>" class="form-control rmdata" placeholder="Enter Weight" autocomplete="off">
 					<div class='d-flex gap-2'>
 						<input type="number" name="weight[]" value="<?= $row['weight'] ?? "0"; ?>" class="form-control receivedWeight" placeholder="Enter Weight" autocomplete="off">
-						<a class="bg-danger btn btn-action text-danger-fg me-2 Receivedmaterial" data-demo-color data-bs-toggle="tooltip" data-bs-placement="top" data-garnu_id="<?= $id; ?>" data-given_id="<?= $result->id; ?>" data-bs-original-title="Received" href="#">
+						<a class="btn btn-action text-white bg-danger Receivedmaterial"><i class="fa-solid fa-circle-plus" aria-hidden="true"></i></a>
+						<!-- <a class="bg-danger btn btn-action text-danger-fg me-2 Receivedmaterial" data-demo-color data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Received" href="#">
 							<i class="far fa-edit" aria-hidden="true"></i>
-						</a>
+						</a> -->
 					</div>
 				</td>
 				<td class="text-muted">
-					<input type="number" name="rm_weight[]" value="<?= $row['row_material_weight'] ?? "0"; ?>" class="form-control receivedRmWeight" value="0" readonly autocomplete="off">
+					<input type="number" name="rm_weight[]" value="<?= $row['row_material_weight'] ?? "0"; ?>" class="form-control receivedRmWeight readonly" value="0" readonly autocomplete="off">
 				</td>
 				<td class="text-muted">
-					<input type="number" name="total_weight[]" value="<?= $row['total_weight'] ?? "0"; ?>" class="form-control receivedfinalWeight" value="0" readonly autocomplete="off">
+					<input type="number" name="total_weight[]" value="<?= $row['total_weight'] ?? "0"; ?>" class="form-control receivedfinalWeight readonly" value="0" readonly autocomplete="off">
 				</td>
 				<td class="text-muted">
 					<input type="text" name="remark[]" value="<?= $row['remark'] ?? "0"; ?>" class="form-control receivedRemark" placeholder="Enter remark" autocomplete="off">
@@ -102,6 +104,16 @@
 					<button type="button" class="btn btn-danger receiveddeleteRow">X</button>
 				</td>
 			</tr>
+		<?php } ?>
 	</tbody>
-<?php } ?>
+	<tfoot>
+		<tr>
+			<td><div class="d-flex"><h4>Total Pcs : <span class='text-end ms-3' id="totalPcs"></span> </h4></div></td>
+			<td><div class="d-flex"><h4>Total Weight : <span class='text-end ms-3' id="TotalWeight"></span></h4></div></td>
+			<td><div class="d-flex"><h4>Total Rm Weight : <span class='text-end ms-3' id="rowMaterialWeight"></span></h4></div></td>
+			<td><div class="d-flex"><h4>Total Final : <span class='text-end ms-3' id="totalFinalWeight"></span></h4></div></td>
+			<td></td>
+			<td></td>
+		</tr>
+	</tfoot>
 </table>
