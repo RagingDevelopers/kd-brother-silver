@@ -1,7 +1,14 @@
 <style>
-	.net_weight{
+	.net_weight {
 		background-color: #ebebeb;
 		color: black;
+	}
+
+	#garnu,
+	#garnu th,
+	#garnu td {
+		font-weight: bold;
+		/* Make text bold */
 	}
 </style>
 <div class="row">
@@ -10,15 +17,15 @@
 			<div class="card-header">
 				<div class="card-status-top bg-blue"></div>
 
-				<div class="modal modal-blur fade" id="ReceivedModel" tabindex="-1" role="dialog" aria-hidden="true">
-					<div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
-						<div class="modal-content">
-							<div class="modal-header">
-								<h5 class="modal-title">Received </h5>
-								<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-							</div>
-							<div class="modal-body">
-								<form id="garnu_receive">
+				<form id="garnu_receive">
+					<div class="modal modal-blur fade" id="ReceivedModel" tabindex="-1" role="dialog" aria-hidden="true">
+						<div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
+							<div class="modal-content">
+								<div class="modal-header">
+									<h5 class="modal-title">Received </h5>
+									<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+								</div>
+								<div class="modal-body">
 									<input type="hidden" class="garnu_id" name="garnu_id" />
 									<table class="table card-table table-vcenter text-center text-nowrap ">
 										<thead class="thead-light">
@@ -60,25 +67,21 @@
 												</td>
 											</tr>
 										</tbody>
-
-										<tfoot>
-											<td class="d-flex border border-0 align-content-start flex-wrap">
-												<button type="button" class="btn btn-outline-warning" id="add">AddRow</button>
-											</td>
-											<td>
-											</td>
-											<td>
-											</td>
-											<td class="d-flex border border-0 justify-content-end  flex-wrap">
-												<button type="submit" class="btn btn-outline-primary submitBtn" id="submitBtn">Submit</button>
-											</td>
-										</tfoot>
 									</table>
-								</form>
+								</div>
+								<div class="modal-footer justify-content-between">
+									<button type="button" class="btn btn-outline-success btn-success" id="add">
+										<span class="mx-1">Add Row</span><i class="fa-solid fa-plus"></i>
+									</button>
+									<div>
+										<button type="button" class="btn btn-outline-secondary btn-secondary" data-bs-dismiss="modal">Close</button>
+										<button type="submit" class="btn btn-outline-primary btn-primary submitBtn" id="submitBtn">Submit</button>
+									</div>
+								</div>
 							</div>
 						</div>
 					</div>
-				</div>
+				</form>
 
 				<div class="col-sm-11">
 					<h1 class="card-title"><b> Garnu Report </b></h1>
@@ -102,6 +105,14 @@
 								<label>To date:</label> <br>
 								<input type="date" id="todate" name="todate" class="form-control">
 							</div>
+							<div class="col-sm-2">
+								<label>Received:</label> <br>
+								<select class="form-select select2" id="received">
+									<option value="">All</option>
+									<option value="YES">YES</option>
+									<option value="NO">NO</option>
+								</select>
+							</div>
 						</div>
 						<div class="mt-3">
 							<table id="garnu" class="table table-vcenter card-table">
@@ -114,7 +125,8 @@
 										<th scope="col">Touch</th>
 										<th scope="col">Silver</th>
 										<th scope="col">Copper</th>
-										<th scope="col">Process</th>
+										<th scope="col">Process Name</th>
+										<th scope="col">Worker Name</th>
 										<th scope="col">Received</th>
 										<th scope="col">Created At</th>
 									</tr>
@@ -160,6 +172,7 @@
 				'data': function(data) {
 					data.todate = $('#todate').val();
 					data.fromdate = $('#fromdate').val();
+					data.received = $('#received').val();
 				}
 			},
 			"columns": [{
@@ -184,7 +197,10 @@
 					data: 'copper'
 				},
 				{
-					data: 'process'
+					data: 'process_name'
+				},
+				{
+					data: 'worker_name'
 				},
 				{
 					data: 'recieved'
@@ -193,10 +209,13 @@
 					data: 'created_at'
 				},
 			],
+			drawCallback: function(settings) {
+				$('[data-bs-toggle="tooltip"]').tooltip();
+			},
 			"rowCallback": function(row, data) {
-				if (data.recieved == 'YES') {
+				if (data.is_recieved == 'YES') {
 					$(row).css('color', 'green');
-				} else if (data.recieved == 'NO') {
+				} else if (data.is_recieved == 'NO') {
 					$(row).css('color', 'red');
 				}
 			}
@@ -205,7 +224,7 @@
 			table.clear()
 			table.draw()
 		});
-		$('#fromdate').on('change', function() {
+		$('#fromdate,#received').on('change', function() {
 			table.clear()
 			table.draw()
 		});
@@ -234,7 +253,7 @@
 								$lastRow = $('.append-here tr').last();
 								$lastRow.parent().append('<input type="hidden" class="ids" name="ids[]" value="' + value.id + '" />');
 							}
-							
+
 							$lastRow.find('.sdid').val(value.id);
 							$lastRow.find('.touch').val(value.touch).trigger('change');
 							$lastRow.find('.weight').val(value.weight).trigger('change');
@@ -255,6 +274,12 @@
 					alert("An error occurred.");
 				}
 			});
+		}
+
+		function scrollEvent(target, pixel = 500) {
+			var animated = target.animate({
+				scrollTop: target.prop('scrollHeight')
+			}, pixel);
 		}
 
 		$(document).on('click', '.receive-btn', function() {
@@ -298,6 +323,8 @@
 					dropdownParent: $('#ReceivedModel')
 				});
 			});
+			var modalBody = $('#ReceivedModel .modal-body');
+			scrollEvent(modalBody, 550);
 		});
 
 		$(document).on('click', '.del', function() {
@@ -332,6 +359,9 @@
 				url: '<?php echo base_url('manufacturing/garnu/receive'); ?>',
 				type: 'POST',
 				data: formData,
+				beforeSend: (data) => {
+					ShowBlockUi('#ReceivedModel');
+				},
 				success: function(response) {
 					var response = JSON.parse(response);
 					if (response.success === true) {
