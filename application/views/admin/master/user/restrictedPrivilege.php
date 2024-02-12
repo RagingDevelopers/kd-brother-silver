@@ -272,6 +272,64 @@
                                 </label><br>
                             </div>
                         </div>
+
+                        <div class="col-md-2">
+                            <div>
+                                <label class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="privilege"
+                                        class="select_privilege" value="<?= privilege['stamp_add']; ?>" <?php if (isset($update) && in_array(privilege['stamp_add'], $permission)) {
+                                              echo "checked";
+                                          } else {
+                                          } ?>>
+                                    <span class="form-check-label">Stamp Add</span>
+                                </label>
+                                <label class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="privilege"
+                                        class="select_privilege" value="<?= privilege['stamp_view']; ?>" <?php if (isset($update) && in_array(privilege['stamp_view'], $permission)) {
+                                              echo "checked";
+                                          } else {
+                                          } ?>>
+                                    <span class="form-check-label">Stamp View</span>
+                                </label>
+                                <label class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="privilege"
+                                        class="select_privilege" value="<?= privilege['stamp_edit']; ?>" <?php if (isset($update) && in_array(privilege['stamp_edit'], $permission)) {
+                                              echo "checked";
+                                          } else {
+                                          } ?>>
+                                    <span class="form-check-label">Stamp Edit</span>
+                                </label><br>
+                            </div>
+                        </div>
+
+                        <div class="col-md-2">
+                            <div>
+                                <label class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="privilege"
+                                        class="select_privilege" value="<?= privilege['unit_add']; ?>" <?php if (isset($update) && in_array(privilege['unit_add'], $permission)) {
+                                              echo "checked";
+                                          } else {
+                                          } ?>>
+                                    <span class="form-check-label">Unit Add</span>
+                                </label>
+                                <label class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="privilege"
+                                        class="select_privilege" value="<?= privilege['unit_view']; ?>" <?php if (isset($update) && in_array(privilege['unit_view'], $permission)) {
+                                              echo "checked";
+                                          } else {
+                                          } ?>>
+                                    <span class="form-check-label">Unit View</span>
+                                </label>
+                                <label class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="privilege"
+                                        class="select_privilege" value="<?= privilege['unit_edit']; ?>" <?php if (isset($update) && in_array(privilege['unit_edit'], $permission)) {
+                                              echo "checked";
+                                          } else {
+                                          } ?>>
+                                    <span class="form-check-label">Unit Edit</span>
+                                </label><br>
+                            </div>
+                        </div>
                     </div><br>
                 </div>
             </div>
