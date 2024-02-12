@@ -23,6 +23,7 @@ class Sales extends CI_Controller
     public function create()
     {
         $page_data['page_title'] = 'Sales';
+		$page_data['row_material'] = $this->db->select('id,name')->from('row_material')->where('status', "ACTIVE")->get()->result_array();
         $page_data['party'] = $this->sales->fetch_party();
         $page_data['item'] = $this->sales->fetch_item();
         $page_data['stamp'] = $this->sales->fetch_stamp();
