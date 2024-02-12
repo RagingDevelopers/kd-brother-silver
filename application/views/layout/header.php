@@ -83,19 +83,19 @@
                                     </a>
                                     <a class="dropdown-item" href="<?= base_url("master/bank") ?>">
                                         <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                            <i class="fa-brands fa-squarespace" aria-hidden="true"></i>
+                                        <i class="fa-solid fa-building-columns" aria-hidden="true"></i>                                          
                                         </span>
                                         Bank
                                     </a>
                                     <a class="dropdown-item" href="<?= base_url("master/stamp") ?>">
                                         <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                            <i class="fa-brands fa-squarespace" aria-hidden="true"></i>
+                                        <i class="fa-solid fa-stamp" aria-hidden="true"></i>
                                         </span>
                                         Stamp
                                     </a>
                                     <a class="dropdown-item" href="<?= base_url("master/unit") ?>">
                                         <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                            <i class="fa-brands fa-squarespace" aria-hidden="true"></i>
+                                        <i class="fa-solid fa-bars" aria-hidden="true"></i>
                                         </span>
                                         Unit
                                     </a>
@@ -158,6 +158,54 @@
                         </div>
                     </li>
 
+                    <li class="nav-item dropdown <?= IsActive("purchase"); ?>">
+                        <a class="nav-link dropdown-toggle" href="#navbar-third" data-bs-toggle="dropdown"
+                            data-bs-auto-close="outside" role="button" aria-expanded="false">
+                            <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                <i class="fa fa-solid fa-money-check-dollar"></i>
+                            </span>
+                            <span class="nav-link-title">
+                                Purchase
+                            </span>
+                        </a>
+                        <div class="dropdown-menu" data-bs-popper="static">
+                            <div class="dropdown-menu-columns">
+                                <div class="dropdown-menu-column">
+                                <a class="dropdown-item" href="<?= base_url("") ?>">
+                                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                            <i class="fa-solid fa-user-plus"></i>
+                                        </span>
+                                        Purchase Item
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+
+                    <li class="nav-item dropdown <?= IsActive("sales"); ?>">
+                        <a class="nav-link dropdown-toggle" href="#navbar-third" data-bs-toggle="dropdown"
+                            data-bs-auto-close="outside" role="button" aria-expanded="false">
+                            <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                <i class="fa-solid fa-file-invoice-dollar"></i>
+                            </span>
+                            <span class="nav-link-title">
+                                Sales
+                            </span>
+                        </a>
+                        <div class="dropdown-menu" data-bs-popper="static">
+                            <div class="dropdown-menu-columns">
+                                <div class="dropdown-menu-column">
+                                <a class="dropdown-item" href="<?= base_url("sales") ?>">
+                                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                            <i class="fa-solid fa-money-bills"></i>
+                                        </span>
+                                        Sales Report
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+
                     <li class="nav-item dropdown <?= IsActive("payment"); ?>">
                         <a class="nav-link dropdown-toggle" href="#navbar-third" data-bs-toggle="dropdown"
                             data-bs-auto-close="outside" role="button" aria-expanded="false">
@@ -187,6 +235,7 @@
                             </div>
                         </div>
                     </li>
+
                 </ul>
             </div>
         </div>

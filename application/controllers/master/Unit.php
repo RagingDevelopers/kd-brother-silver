@@ -20,12 +20,12 @@ class Unit extends CI_Controller
         switch ($action) {
             case "":
                 // pre($_SESSION);die;
-                // checkPrivilege(privilege["bank_view"]);
+                // checkPrivilege(privilege["unit_view"]);
                 $page_data['data'] = $this->dbh->getResultArray('unit');
                 return view(self::View, $page_data);
 
             case "edit":
-                // checkPrivilege(privilege["bank_edit"]);
+                // checkPrivilege(privilege["unit_edit"]);
                 $this->validateId($id);
                 $unit = $this->dbh->find('unit', $id);
                 if (!$unit) {
@@ -38,7 +38,7 @@ class Unit extends CI_Controller
                 return view(self::View, $page_data);
 
             case "store":
-                // checkPrivilege(privilege["bank_add"]);
+                // checkPrivilege(privilege["unit_add"]);
                 $validation = $this->form_validation;
                 $validation->set_rules('name', 'Name', 'required');
                 if (!$validation->run()) {
@@ -56,7 +56,7 @@ class Unit extends CI_Controller
             //     flash()->withSuccess("bank Deleted Successfully")->back();
             //     break;
             case "update":
-                // checkPrivilege(privilege["bank_edit"]);
+                // checkPrivilege(privilege["unit_edit"]);
                 $validation = $this->form_validation;
                 $validation->set_rules('name', 'Name', 'required');
                 if ($validation->run() == false) {

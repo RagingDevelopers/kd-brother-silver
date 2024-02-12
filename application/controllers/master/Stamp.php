@@ -20,12 +20,12 @@ class Stamp extends CI_Controller
         switch ($action) {
             case "":
                 // pre($_SESSION);die;
-                // checkPrivilege(privilege["bank_view"]);
+                // checkPrivilege(privilege["stamp_view"]);
                 $page_data['data'] = $this->dbh->getResultArray('stamp');
                 return view(self::View, $page_data);
 
             case "edit":
-                // checkPrivilege(privilege["bank_edit"]);
+                // checkPrivilege(privilege["stamp_edit"]);
                 $this->validateId($id);
                 $stamp = $this->dbh->find('stamp', $id);
                 if (!$stamp) {
@@ -38,7 +38,7 @@ class Stamp extends CI_Controller
                 return view(self::View, $page_data);
 
             case "store":
-                // checkPrivilege(privilege["bank_add"]);
+                // checkPrivilege(privilege["stamp_add"]);
                 $validation = $this->form_validation;
                 $validation->set_rules('name', 'Name', 'required');
                 if (!$validation->run()) {
@@ -56,7 +56,7 @@ class Stamp extends CI_Controller
             //     flash()->withSuccess("bank Deleted Successfully")->back();
             //     break;
             case "update":
-                // checkPrivilege(privilege["bank_edit"]);
+                // checkPrivilege(privilege["stamp_edit"]);
                 $validation = $this->form_validation;
                 $validation->set_rules('name', 'Name', 'required');
                 if ($validation->run() == false) {
