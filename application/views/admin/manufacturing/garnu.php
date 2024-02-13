@@ -273,8 +273,8 @@
                         }
                         $(".append-here").append(main.mainRow);
                         const lastTr = $('.append-here tr').last();
-                        lastTr.find('.rowid').val(0);
-                        lastTr.find('.weight, .touch,.silver,.copper').val('');
+                        lastTr.find('.rowid,.touch').val(0);
+                        lastTr.find('.weight,.silver,.copper').val('');
                         main.select2(lastTr.find('.metal_type_id')).select2('open');
                     });
                     $(this).on('click', '.remove-btn', function (e) {

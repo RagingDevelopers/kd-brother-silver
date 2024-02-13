@@ -164,7 +164,6 @@ class Process extends CI_Controller
 			return flash()->withError(validation_errors())->back();
 		}
 
-
 		$post = $this->input->post();
 		$garnu_id = $post['garnu_id'];
 		$given_id = $post['given_id'];

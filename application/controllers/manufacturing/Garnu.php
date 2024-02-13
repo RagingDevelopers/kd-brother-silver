@@ -346,7 +346,7 @@ class Garnu extends CI_Controller
 			} else {
 				$postData = $this->input->post();
 				$id = $postData['id'];
-				$data = $this->dbh->getWhereResultArray('garnu_item', ['garnu_id' => $id]);
+				$data = $this->dbh->getWhereResultArray('receive_garnu', ['garnu_id' => $id]);
 				if (!empty($data)) {
 					$response = ['success' => true, 'message' => 'Data Fetched successfully.', 'data' => $data];
 				} else {
@@ -375,7 +375,7 @@ class Garnu extends CI_Controller
 		$idsNotExisting = array_diff($allids, $existingIds);
 		if (!empty($idsNotExisting)) {
 			$this->db->where_in('id', $idsNotExisting);
-			$this->db->delete('garnu_item');
+			$this->db->delete('receive_garnu');
 		}
 
 		foreach ($post['sdid'] as $key => $sdid) {
@@ -396,13 +396,15 @@ class Garnu extends CI_Controller
 		}
 
 		if (!empty($insertBatch)) {
-			$this->db->insert_batch('garnu_item', $insertBatch);
+			$this->db->insert_batch('receive_garnu', $insertBatch);
+			$this->db->where('id', $post['garnu_id'])->update('garnu',['recieved'=>'YES']);
 			$response = ['success' => true, 'message' => 'Data Add Successfully.'];
 		} else {
 			$response = ['success' => false, 'message' => 'Data Add Failed.'];
 		}
 		if (!empty($updateBatch)) {
-			$this->db->update_batch('garnu_item', $updateBatch, 'id');
+			$this->db->update_batch('receive_garnu', $updateBatch, 'id');
+			$this->db->where('id', $post['garnu_id'])->update('garnu',['recieved'=>'YES']);
 			$response = ['success' => true, 'message' => 'Data Update Successfully.'];
 		}
 		echo json_encode($response);

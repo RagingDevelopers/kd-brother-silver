@@ -1,5 +1,5 @@
 <style>
-	.readonly{
+	.readonly {
 		background-color: #ebebeb;
 		color: black;
 	}
@@ -118,9 +118,9 @@
 												if (empty($given_row_material)) {
 													$given_row_material[] = [
 														'row_material_id' => 0,
-														'rmWeight'        => '',
+														'rmWeight'        => 0,
 														'rmTouch'         => 0,
-														'rmQuantity'      => '',
+														'rmQuantity'      => 0,
 														'id'              => 0
 													];
 												}
@@ -143,13 +143,13 @@
 															</select>
 														</td>
 														<td class="text-muted">
-															<input type="number" name="rmTouch[]" value="<?= $row['touch'] ?? null ?>" required class="form-control touch" placeholder="Enter Touch" autocomplete="off">
+															<input type="number" name="rmTouch[]" value="<?= $row['touch'] ?? 0 ?>" required class="form-control touch" placeholder="Enter Touch" autocomplete="off">
 														</td>
 														<td class="text-muted">
-															<input type="number" name="rmWeight[]" value="<?= $row['weight'] ?? null ?>" class="form-control weight" placeholder="Enter Weight" autocomplete="off">
+															<input type="number" name="rmWeight[]" value="<?= $row['weight'] ?? 0 ?>" class="form-control weight" placeholder="Enter Weight" autocomplete="off">
 														</td>
 														<td class="text-muted">
-															<input type="number" name="rmQuantity[]" value="<?= $row['quantity'] ?? null ?>" class="form-control quantity" placeholder="Enter Quantity" autocomplete="off">
+															<input type="number" name="rmQuantity[]" value="<?= $row['quantity'] ?? 0 ?>" class="form-control quantity" placeholder="Enter Quantity" autocomplete="off">
 														</td>
 														<td>
 															<button type="button" class="btn btn-danger deleteRow">X</button>
@@ -157,6 +157,29 @@
 													</tr>
 												<?php } ?>
 											</tbody>
+											<tfoot>
+												<tr>
+													<td>
+														<h3>Total :</h3>
+													</td>
+													<td>
+														<div class="d-flex">
+															<h4><span class='text-end ms-3 total-touch'>0</span></h4>
+														</div>
+													</td>
+													<td>
+														<div class="d-flex">
+															<h4><span class='text-end ms-3 total-weight'>0</span></h4>
+														</div>
+													</td>
+													<td>
+														<div class="d-flex">
+															<h4><span class='text-end ms-3 total-qty'>0</span></h4>
+														</div>
+													</td>
+													<td></td>
+												</tr>
+											</tfoot>
 										</table>
 									</div>
 									<div class="modal-footer justify-content-between">
@@ -218,9 +241,9 @@
 											if (empty($given_row_materials)) {
 												$given_row_materials[] = [
 													'row_material_id' => 0,
-													'rmWeight'        => '',
+													'rmWeight'        => 0,
 													'rmTouch'         => 0,
-													'rmQuantity'      => '',
+													'rmQuantity'      => 0,
 													'id'              => 0
 												];
 											}
@@ -243,13 +266,13 @@
 														</select>
 													</td>
 													<td class="text-muted">
-														<input type="number" class="form-control touch2" placeholder="Enter Touch" autocomplete="off">
+														<input type="number" class="form-control touch2" value="0" placeholder="Enter Touch" autocomplete="off">
 													</td>
 													<td class="text-muted">
-														<input type="number" class="form-control weight2" placeholder="Enter Weight" autocomplete="off">
+														<input type="number" class="form-control weight2" value="0" placeholder="Enter Weight" autocomplete="off">
 													</td>
 													<td class="text-muted">
-														<input type="number" class="form-control quantity2" placeholder="Enter Quantity" autocomplete="off">
+														<input type="number" class="form-control quantity2" value="0" placeholder="Enter Quantity" autocomplete="off">
 													</td>
 													<td>
 														<button type="button" class="btn btn-danger deleteRow2">X</button>
@@ -257,6 +280,29 @@
 												</tr>
 											<?php } ?>
 										</tbody>
+										<tfoot>
+											<tr>
+												<td>
+													<h3>Total :</h3>
+												</td>
+												<td>
+													<div class="d-flex">
+														<h4><span class='text-end ms-3 total-touch'>0</span></h4>
+													</div>
+												</td>
+												<td>
+													<div class="d-flex">
+														<h4><span class='text-end ms-3 total-weight'>0</span></h4>
+													</div>
+												</td>
+												<td>
+													<div class="d-flex">
+														<h4><span class='text-end ms-3 total-qty'>0</span></h4>
+													</div>
+												</td>
+												<td></td>
+											</tr>
+										</tfoot>
 									</table>
 								</div>
 								<div class="modal-footer justify-content-between">
@@ -389,6 +435,7 @@
 			var given_id = $('#given_id').val();
 			if (garnu_id != "" && given_id != "") {}
 			$("#modal-report").modal('show');
+			Rmcalculate();
 		});
 
 		$('.addButton').click(function() {
@@ -399,7 +446,7 @@
 			$('#TBody').append(mainRow);
 			const lastTr = $('#TBody tr').last();
 			lastTr.find('.rowid').val(0);
-			lastTr.find('.weight, .touch, .quantity').val('');
+			lastTr.find('.weight, .touch, .quantity').val(0);
 			lastTr.find('.row_material').select2({
 				width: '200',
 				dropdownParent: $('#modal-report')
@@ -506,8 +553,8 @@
 			$('#ReceivedBody').append(ReceivedMainRow);
 			const lastTr = $('#ReceivedBody tr').last();
 			lastTr.find('.rcid').val("");
-			lastTr.find('.rcid').val(0);
-			lastTr.find('.Pcs, .receivedWeight, .receivedRemark,.rmdata').val("");
+			lastTr.find('.rcid,.Pcs, .receivedWeight').val(0);
+			lastTr.find('.receivedRemark,.rmdata').val("");
 			lastTr.find('.receivedRmWeight').val(0);
 			lastTr.find('.receivedfinalWeight').val(0);
 			var modalBody = $('#received1-report .modal-body');
@@ -540,7 +587,7 @@
 			$('#JBody').append(mainRow2);
 			const lastTr = $('#JBody tr').last();
 			lastTr.find('.rowid2').val(0);
-			lastTr.find('.weight2, .touch2, .quantity2').val('');
+			lastTr.find('.weight2, .touch2, .quantity2').val(0);
 			lastTr.find('.row_material2').select2({
 				width: '200',
 				dropdownParent: $('#received-report')
@@ -556,6 +603,9 @@
 			}
 		});
 
+		$(document).on('input', '.touch2,.weight2,.quantity2', function() {
+			RmcalculateMain();
+		});
 		$(document).on('input', '.touch2', function() {
 			var touch = $(this);
 			if (touch.val() > 100) {
@@ -622,6 +672,9 @@
 			finalCalculation($(this));
 			TotalCalculation();
 		});
+		$(document).on('input', '.Pcs', function() {
+			TotalCalculation();
+		});
 
 		$(document).on('click', '.Receivedmaterial', function() {
 			rmBtn = $(this);
@@ -647,12 +700,33 @@
 					(row.find(".weight2").val(weight2));
 					(row.find(".quantity2").val(quantity2));
 					(row.find(".received_detail_id").val(received_detail_id));
+					RmcalculateMain();
 				}
 			} else {
 				modal.find("tbody").append(mainRmRow);
 			}
 			modal.modal("show");
 		});
+
+		function RmcalculateMain() {
+			var Totaltouch = 0;
+			var Totalweight = 0;
+			var Totalqty = 0;
+
+			$('.touch2').each(function() {
+				Totaltouch += parseFloat($(this).val() || 0);
+			});
+			$('.weight2').each(function() {
+				Totalweight += parseFloat($(this).val() || 0);
+			});
+			$('.quantity2').each(function() {
+				Totalqty += parseFloat($(this).val() || 0);
+			});
+
+			$('.total-touch').text(Totaltouch);
+			$('.total-weight').text(Totalweight);
+			$('.total-qty').text(Totalqty);
+		}
 
 		$('#received-garnu').on('submit', function(e) {
 			e.preventDefault();
@@ -707,6 +781,49 @@
 			$('#rowMaterialWeight').text(receivedRmWeight);
 			$('#totalFinalWeight').text('');
 			$('#totalFinalWeight').text(receivedfinalWeight);
+		}
+
+		$(document).on('input', '.touch,.weight,.quantity', function() {
+			Rmcalculate();
+		});
+
+		function Rmcalculate() {
+			var Totaltouch = 0;
+			var Totalweight = 0;
+			var Totalqty = 0;
+
+			$('.weight').each(function() {
+				Totalweight += parseFloat($(this).val() || 0);
+			});
+			$('.touch').each(function() {
+				Totaltouch += parseFloat($(this).val() || 0);
+			});
+			$('.quantity').each(function() {
+				Totalqty += parseFloat($(this).val() || 0);
+			});
+
+			$('.total-touch').text("");
+			$('.total-weight').text("");
+			$('.total-net_weight').text("");
+
+			$('.total-touch').text(Totaltouch);
+			$('.total-weight').text(Totalweight);
+			$('.total-qty').text(Totalqty);
+		}
+
+		$(document).on('focus', '.touch,.weight,.quantity,.Pcs,.receivedWeight,.touch2, .weight2, .quantity2', function() {
+			handleInputFocusAndBlur(this, 'focus');
+		}).on('blur', '.touch,.weight,.quantity,.Pcs,.receivedWeight,.touch2, .weight2, .quantity2', function() {
+			handleInputFocusAndBlur(this, 'blur');
+		});
+
+		function handleInputFocusAndBlur(element, eventType) {
+			var $element = $(element);
+			if (eventType === 'focus' && $element.val() == '0') {
+				$element.val('');
+			} else if (eventType === 'blur' && $element.val() == '') {
+				$element.val('0');
+			}
 		}
 
 	});

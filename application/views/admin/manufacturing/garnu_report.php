@@ -54,19 +54,42 @@
 												</td>
 
 												<td>
-													<input class="form-control weight" type="number" name="weight[]" placeholder="Enter Weight" value="" required>
+													<input class="form-control weight" type="number" name="weight[]" placeholder="Enter Weight" value="0" required>
 												</td>
 												<td>
-													<input class="form-control touch" type="number" name="touch[]" placeholder="Enter touch(%)" value="" required>
+													<input class="form-control touch" type="number" name="touch[]" placeholder="Enter touch(%)" value="0" required>
 												</td>
 												<td>
-													<input class="form-control net_weight" type="number" readonly name="net_weight[]">
+													<input class="form-control net_weight" type="number" value="0" readonly name="net_weight[]">
 												</td>
 												<td>
 													<button type="button" class="btn btn-danger del">X</button>
 												</td>
 											</tr>
 										</tbody>
+										<tfoot>
+											<tr>
+												<td>
+													<h3>Total :</h3>
+												</td>
+												<td>
+													<div class="d-flex">
+														<h4><span class='text-end ms-3 total-weight'>0</span></h4>
+													</div>
+												</td>
+												<td>
+													<div class="d-flex">
+														<h4><span class='text-end ms-3 total-touch'>0</span></h4>
+													</div>
+												</td>
+												<td>
+													<div class="d-flex">
+														<h4><span class='text-end ms-3 total-net_weight'>0</span></h4>
+													</div>
+												</td>
+												<td></td>
+											</tr>
+										</tfoot>
 									</table>
 								</div>
 								<div class="modal-footer justify-content-between">
@@ -229,6 +252,34 @@
 			table.draw()
 		});
 
+		$(document).on('input', '.touch,.weight', function() {
+			RmcalculateMain();
+		});
+
+		function RmcalculateMain() {
+			var Totaltouch = 0;
+			var Totalweight = 0;
+			var Totalnet_weight = 0;
+
+			$('.weight').each(function() {
+				Totalweight += parseFloat($(this).val() || 0);
+			});
+			$('.touch').each(function() {
+				Totaltouch += parseFloat($(this).val() || 0);
+			});
+			$('.net_weight').each(function() {
+				Totalnet_weight += parseFloat($(this).val() || 0);
+			});
+
+			$('.total-touch').text("");
+			$('.total-weight').text("");
+			$('.total-net_weight').text("");
+
+			$('.total-touch').text(Totaltouch);
+			$('.total-weight').text(Totalweight);
+			$('.total-net_weight').text(Totalnet_weight);
+		}
+
 		function receiveGarnu(id = null) {
 			return $.ajax({
 				showLoader: true,
@@ -267,7 +318,7 @@
 								});
 						});
 					} else {
-						SweetAlert('error', response.message);
+						// SweetAlert('error', response.message);
 					}
 				},
 				error: function() {
@@ -289,8 +340,8 @@
 			$(".ids").val(0);
 			$('.garnu_id').val("");
 			$('.garnu_id').val(id);
-			$('.append-here tr').first().find('.sdid').val(0);
-			$('.append-here tr').first().find('.touch, .weight,.metal_type_id').val('');
+			$('.append-here tr').first().find('.sdid,.touch, .weight,.net_weight').val(0);
+			$('.append-here tr').first().find('.metal_type_id').val('');
 			$('.append-here tr').first().find('.metal_type_id').select2({
 				width: '100',
 				dropdownParent: $('#ReceivedModel')
@@ -305,13 +356,19 @@
 
 			receiveGarnu(id).done(function() {
 				$("#ReceivedModel").modal('show');
+				RmcalculateMain();
 			});
 		});
 
 		$("#add").click(function() {
+			var metal = $('.metal_type_id ').last();
+			if (metal.val() == '') {
+				return metal.select2('open');
+			}
+
 			$(".append-here").append(main_row);
-			$('.append-here tr').last().find('.sdid').val(0);
-			$('.append-here tr').last().find('.touch, .weight,.metal_type_id').val('');
+			$('.append-here tr').last().find('.sdid,.touch, .weight,.net_weight').val(0);
+			$('.append-here tr').last().find('.metal_type_id').val('');
 			$('.append-here tr').last().find('.metal_type_id').select2({
 				width: '100',
 				dropdownParent: $('#ReceivedModel')
@@ -323,6 +380,8 @@
 					dropdownParent: $('#ReceivedModel')
 				});
 			});
+			$('.metal_type_id ').last().select2('open');
+
 			var modalBody = $('#ReceivedModel .modal-body');
 			scrollEvent(modalBody, 550);
 		});
@@ -340,17 +399,33 @@
 				SweetAlert('warning', 'Touch should be less than equal to 100'), touch.val("");
 			}
 			var weight = touch.parent().siblings().find('.weight').val();
-			var net_weight = weight * touch.val() / 100;
+			var net_weight = weight * touch.val();
 			touch.parent().siblings().find('.net_weight').val(net_weight);
+			RmcalculateMain();
 		});
 
 		$(document).on('input', '.weight', function() {
 			var weight = $(this);
 			var touch = weight.parent().siblings().find('.touch').val();
-			var net_weight = touch * weight.val() / 100;
+			var net_weight = touch * weight.val();
 			weight.parent().siblings().find('.net_weight').val(net_weight);
-
+			RmcalculateMain();
 		});
+
+		$(document).on('focus', '.touch,.weight,.quantity,.Pcs,.receivedWeight,.touch2, .weight2, .quantity2', function() {
+			handleInputFocusAndBlur(this, 'focus');
+		}).on('blur', '.touch,.weight,.quantity,.Pcs,.receivedWeight,.touch2, .weight2, .quantity2', function() {
+			handleInputFocusAndBlur(this, 'blur');
+		});
+
+		function handleInputFocusAndBlur(element, eventType) {
+			var $element = $(element);
+			if (eventType === 'focus' && $element.val() == '0') {
+				$element.val('');
+			} else if (eventType === 'blur' && $element.val() == '') {
+				$element.val('0');
+			}
+		}
 
 		$('#garnu_receive').on('submit', function(e) {
 			e.preventDefault();
@@ -365,9 +440,13 @@
 				success: function(response) {
 					var response = JSON.parse(response);
 					if (response.success === true) {
+						table.clear();
+						table.draw();
 						$('#ReceivedModel').modal('hide');
 						SweetAlert('success', response.message);
 					} else {
+						table.clear();
+						table.draw();
 						$('#ReceivedModel').modal('hide');
 						SweetAlert('error', response.message);
 					}
