@@ -71,6 +71,7 @@
 													<th>Net Weight</th>
 													<th>Touch</th>
 													<th>Wastage</th>
+													<th>Fine</th>
 													<th>Piece</th>
 													<th>Labour</th>
 													<th>Rate</th>
@@ -87,15 +88,16 @@
 														'stamp'              => 0,
 														'unit'               => 0,
 														'remark'             => '',
-														'gross_weight'       => '',
-														'less_weight'        => '',
-														'net_weight'         => '',
-														'touch'       		 => '',
-														'wastage'     		 => '',
-														'piece'       		 => '',
-														'labour'      		 => '',
-														'rate'        		 => '',
-														'sub_total'   		 => '',
+														'gross_weight'       => 0,
+														'less_weight'        => 0,
+														'net_weight'         => 0,
+														'touch'       		 => 0,
+														'wastage'     		 => 0,
+														'fine'       		 => 0,
+														'piece'       		 => 0,
+														'labour'      		 => 0,
+														'rate'        		 => 0,
+														'sub_total'   		 => 0,
 														'id'          		 => 0
 													];
 												}
@@ -143,9 +145,10 @@
 																</button>
 															</div>
 														</td>
-														<td><input type="text" class="form-control inputBox net_weight" placeholder="Net Weight" value="<?= $row['net_weight'] ?? null ?>"></td>
+														<td><input type="text" class="form-control inputBox net_weight readonly" readonly placeholder="Net Weight" value="<?= $row['net_weight'] ?? null ?>"></td>
 														<td><input type="text" class="form-control inputBox touchData" placeholder="Touch" value="<?= $row['touch'] ?? null ?>"></td>
 														<td><input type="text" class="form-control inputBox wastage" placeholder="Wastage" value="<?= $row['wastage'] ?? null ?>"></td>
+														<td><input type="text" class="form-control inputBox fine readonly" readonly placeholder="Fine" value="<?= $row['fine'] ?? null ?>"></td>
 														<td><input type="text" class="form-control inputBox piece" placeholder="Piece" value="<?= $row['piece'] ?? null ?>"></td>
 														<td><select name="labour[]" id="" class="form-control select2 labour">
 																<option value="">Select Labour</option>
@@ -193,6 +196,11 @@
 													<td>
 														<div class="d-flex">
 															<h4><span class='text-end ms-3 TotalWastage'>0</span></h4>
+														</div>
+													</td>
+													<td>
+														<div class="d-flex">
+															<h4><span class='text-end ms-3 TotalFine'>0</span></h4>
 														</div>
 													</td>
 													<td>
@@ -316,6 +324,7 @@
 									<h4><span class='text-end ms-3 total-rmsub_total'>0</span></h4>
 								</div>
 							</td>
+							<td></td>
 						</tr>
 					</tfoot>
 				</table>
@@ -399,8 +408,8 @@
 						}
 						$(".append-here").append(main.mainRow);
 						const lastTr = $('.append-here tr').last();
-						lastTr.find('.rowid').val(0);
-						lastTr.find('.remark, .raw_material_string,.gross_weight,.less_weight,.net_weight,.touchData,.wastage,.piece,.labour,.rate,.sub_total').val('');
+						lastTr.find('.remark').val("");
+						lastTr.find('.rowid,.raw_material_string,.gross_weight,.less_weight,.net_weight,.touchData,.wastage,.piece,.labour,.rate,.sub_total').val(0);
 						main.select2(lastTr.find('.item')).select2('open');
 						main.select2(lastTr.find('.stamp'));
 						main.select2(lastTr.find('.unit'));
@@ -441,7 +450,7 @@
 					$(this).on('click', '.Receivedmaterial', function() {
 						rmBtn = $(this);
 						var modal = $("#received-report");
-						var givenContainer = rmBtn.parents('tr');;
+						var givenContainer = rmBtn.parents('tr');
 						var mainSection = modal.find(".mainRow");
 						modal.find("tbody").html("");
 						var string = givenContainer.find(".rmdata").val();
@@ -453,19 +462,20 @@
 								var row = modal.find(".mainRow").eq(i),
 									splitByHash = data[i]?.split(","),
 									row_material = splitByHash[0] ?? 0,
-									touch = splitByHash[1] ?? 0,
-									weight = splitByHash[2] ?? 0;
-								quantity = splitByHash[3] ?? 0;
+									quantity = splitByHash[1] ?? 0;
+								rmrate = splitByHash[2] ?? 0,
+									rmsub_total = splitByHash[3] ?? 0;
 								received_detail_id = splitByHash[4] ?? 0;
 								row.find(".row_material").val(row_material).trigger("change");;
-								(row.find(".touch").val(touch));
-								(row.find(".weight").val(weight));
 								(row.find(".quantity").val(quantity));
+								(row.find(".rmrate").val(rmrate));
+								(row.find(".rmsub_total").val(rmsub_total));
 								(row.find(".received_detail_id").val(received_detail_id));
 								row.find('.row_material').select2({
 									width: '200',
 									dropdownParent: $('#received-report')
 								});
+								main.RmcalculateMain(rmBtn);
 								// main.select2(row.find(".row_material"));
 							}
 						} else {
@@ -475,8 +485,35 @@
 					});
 
 					$('#received-report').on('shown.bs.modal', function(e) {
-						$('.row_material').last().select2('open');
+						var lastrm = $('.row_material').last().val();
+						if (lastrm == "") {
+							$('.row_material').last().select2('open');
+						}
+						var lastquantity = $('.quantity').last().val();
+						if (lastquantity == 0) {
+							$('.quantity').last().focus();
+						}
+						var lastrmrate = $('.rmrate').last().val();
+						if (lastrmrate == 0) {
+							$('.rmrate').last().focus();
+						}
 					});
+
+					function handleInputFocusAndBlur(element, eventType) {
+						var $element = $(element);
+						if (eventType === 'focus' && $element.val() == '0') {
+							$element.val('');
+						} else if (eventType === 'blur' && $element.val() == '') {
+							$element.val('0');
+						}
+					}
+
+					$(document).on('focus', '.gross_weight, .touchData, .wastage, .quantity, .rmrate', function() {
+						main.handleInputFocusAndBlur(this, 'focus');
+					}).on('blur', '.gross_weight, .touchData, .wastage, .quantity, .rmrate', function() {
+						main.handleInputFocusAndBlur(this, 'blur');
+					});
+
 
 					$('.addButton2').click(function() {
 						var LastRm = $('.row_material').last();
@@ -502,7 +539,7 @@
 						}
 					});
 
-					$(document).on('click', '.saveRmData', function() {
+					$(this).on('click', '.saveRmData', function() {
 						var count = 0;
 						$('.row_material').each(function() {
 							var row_material = $(this).val();
@@ -514,7 +551,7 @@
 						});
 						$('.rmrate').each(function() {
 							var rmrate = $(this).val();
-							if (rmrate == "") {
+							if (rmrate == 0 || rmrate == "") {
 								count += 1;
 								$(this).focus();
 								SweetAlert('warning', 'Please fill all rows.');
@@ -541,56 +578,41 @@
 							return el;
 						};
 						var string = "";
-						var totalRmWeight = 0;
+						var totalRmSub_total = 0;
 						for (var i = 0; i < mainSectionLength; i++) {
 							var row = mainSection.eq(i);
 							var rm = row.find(".row_material option:selected").val();
-							var touch = FilterVar(row.find(".touch").val());
-							var weight = FilterVar(row.find(".weight").val());
 							var quantity = FilterVar(row.find(".quantity").val());
+							var rmrate = FilterVar(row.find(".rmrate").val());
+							var rmsub_total = FilterVar(row.find(".rmsub_total").val());
 							var received_detail_id = FilterVar(row.find(".received_detail_id").val());
-							totalRmWeight += parseFloat(weight) || 0;
-							string += [rm, touch, weight, quantity, received_detail_id].join(",");
+							totalRmSub_total += parseFloat(rmsub_total) || 0;
+							string += [rm, quantity, rmrate, rmsub_total, received_detail_id].join(",");
 							if (mainSectionLength > i + 1)
 								string += "|";
 						}
 						container.find(".rmdata").val(string);
-						container.find(".less_weight").val(totalRmWeight);
+						container.find(".less_weight").val(totalRmSub_total / 1000);
 						// finalCalculation(rmBtn);
 						main.calculateMain(rmBtn);
 						main.Totalcalculate();
 					});
 
-					$(document).on('input', '.touch', function() {
+					$(this).on('input', '.touch', function() {
 						var touch = $(this);
 						if (touch.val() > 100) {
 							SweetAlert('warning', 'Touch should be less than equal to 100'), touch.val("");
 						}
 					});
 
-					$(document).on('input', '.gross_weight,.touchData,.wastage,.piece,.rate,.sub_total', function() {
+					$(this).on('input', '.gross_weight,.touchData,.wastage,.piece,.rate,.sub_total', function() {
 						main.calculateMain($(this));
 						main.Totalcalculate();
 					});
 
-					$(document).on('input', '.quantity,.rmrate', function() {
+					$(this).on('input', '.quantity,.rmrate', function() {
 						main.RmcalculateMain($(this));
 					});
-
-					// function finalCalculation(i) {
-					// 	var container = i.parents('tr');
-					// 	var gross_weight = container.find(".gross_weight").val() || 0;
-					// 	var less_weight = container.find(".less_weight").val() || 0;
-					// 	container.find(".net_weight").val(parseFloat(gross_weight) + parseFloat(less_weight));
-					// }
-
-					// $(this).on('keyup', '.mweight,.mtouch,.msilver,.mcopper', function() {
-					// 	main.calculateMain(this)
-					// 	main.calculation($('.append-here tr').eq(0).find('.touch'));
-					// })
-					// $(this).on('keyup', '.touch,.weight', function() {
-					// 	main.calculation(this);
-					// });
 				});
 			},
 
@@ -598,9 +620,17 @@
 				var container = ref.parents('tr');
 				var gross_weight = container.find(".gross_weight").val() || 0;
 				var less_weight = container.find(".less_weight").val() || 0;
-				container.find(".net_weight").val(parseFloat(gross_weight) + parseFloat(less_weight));
+				container.find(".net_weight").val(parseFloat(gross_weight) - parseFloat(less_weight));
 
+				var net_weight = container.find(".net_weight").val() || 0;
+				var touch = container.find(".touchData").val() || 0;
+				var wastage = container.find(".wastage").val() || 0;
+
+				var fine = parseFloat(touch) + parseFloat(wastage);
+				container.find(".fine").val(fine * parseFloat(net_weight) / 100);
+				main.Totalcalculate();
 			},
+
 			RmcalculateMain: function(ref) {
 				var Totalquantity = 0;
 				var Totalrmrate = 0;
@@ -609,7 +639,7 @@
 				var container = ref.parents('tr');
 				var quantity = container.find(".quantity").val() || 0;
 				var rmrate = container.find(".rmrate").val() || 0;
-				container.find(".rmsub_total").val(parseFloat(quantity) + parseFloat(rmrate));
+				container.find(".rmsub_total").val(parseFloat(quantity) * parseFloat(rmrate));
 
 				$('.quantity').each(function() {
 					Totalquantity += parseFloat($(this).val() || 0);
@@ -624,14 +654,15 @@
 				$('.total-qty').text(Totalquantity);
 				$('.total-rmrate').text(Totalrmrate);
 				$('.total-rmsub_total').text(Totalrmsub_total);
-
 			},
+
 			Totalcalculate: function() {
 				var gross_weight = 0;
 				var less_weight = 0;
 				var net_weight = 0;
 				var touchData = 0;
 				var wastage = 0;
+				var Fine = 0;
 				var piece = 0;
 				var rate = 0;
 				var sub_total = 0;
@@ -650,6 +681,9 @@
 				});
 				$('.wastage').each(function() {
 					wastage += parseFloat($(this).val() || 0);
+				});
+				$('.fine').each(function() {
+					Fine += parseFloat($(this).val() || 0);
 				});
 				$('.piece').each(function() {
 					piece += parseFloat($(this).val() || 0);
@@ -671,111 +705,27 @@
 				$('.TotalTouchData').text(touchData);
 				$('.TotalWastage').text("");
 				$('.TotalWastage').text(wastage);
+				$('.TotalFine').text("");
+				$('.TotalFine').text(Fine);
 				$('.TotalPiece').text("");
 				$('.TotalPiece').text(piece);
 				$('.TotalRate').text("");
 				$('.TotalRate').text(rate);
 				$('.Sub_total').text("");
 				$('.Sub_total').text(sub_total);
-
 			},
 
-			// calculation: function(ref) {
-			// 	var valid = true;
-			// 	const mainWeight = parseF($('.mweight').val()),
-			// 		mainTouch = parseF($('.mtouch').val()),
-			// 		mainSilver = parseF($('.msilver').val()),
-			// 		mainCopper = parseF($('.mcopper').val()),
-			// 		row = $(ref).parents('tr'),
-			// 		weight = parseF(row.find('.weight').val()),
-			// 		touch = parseF(row.find('.touch').val()),
-			// 		silver = parseF(row.find('.silver').val()),
-			// 		copper = parseF(row.find('.copper').val());
+			handleInputFocusAndBlur: function(element, eventType) {
+				var $element = $(element);
+				if (eventType === 'focus' && $element.val() == '0') {
+					$element.val('');
+				} else if (eventType === 'blur' && $element.val() == '') {
+					$element.val('0');
+				}
+			}
 
-			// 	if (mainWeight == 0)
-			// 		return SweetAlert('warning', 'Weight should not be empty'), $(ref).val(''), $('.mweight').focus();
-
-			// 	if (touch > 100) {
-			// 		return SweetAlert('warning', 'Touch should be less than equal to 100'), $(ref).val(0.00);
-			// 	}
-
-			// 	const fSilver = ((weight * touch) / 100);
-			// 	const fCopper = weight - fSilver;
-			// 	row.find('.silver').val(fSilver), row.find('.copper').val(fCopper);
-
-			// 	var totalUsedWeight = 0,
-			// 		totalUsedSilver = 0,
-			// 		totalUsedCopper = 0
-
-			// 	$('.append-here tr').each(function() {
-			// 		var row = $(this),
-			// 			rowWeight = parseF(row.find('.weight').val()),
-			// 			rowSilver = parseF(row.find('.silver').val()),
-			// 			rowCopper = parseF(row.find('.copper').val());
-
-			// 		totalUsedWeight += rowWeight;
-			// 		totalUsedSilver += rowSilver;
-			// 		totalUsedCopper += rowCopper;
-			// 	});
-			// 	if (totalUsedWeight > mainWeight) {
-			// 		SweetAlert('warning', 'Total Used Weight should not be equal to Main Weight');
-			// 		row.find('.weight').val(0);
-			// 		return;
-			// 	} else if (totalUsedSilver > mainSilver) {
-
-			// 		SweetAlert('warning', 'Total Used Silver should not be greater than Main Silver'), valid = false
-			// 		row.find('.silver').val(0);
-			// 		return;
-			// 	} else if (totalUsedCopper > mainCopper) {
-			// 		SweetAlert('warning', 'Total Used Copper should not be greater than Main Copper'), valid = false
-			// 		row.find('.copper').val(0);
-			// 		return;
-			// 	}
-
-			// 	$('.total_used_weight').val(totalUsedWeight)
-			// 	$('.total_used_silver').val(totalUsedSilver)
-			// 	$('.total_used_copper').val(totalUsedCopper)
-
-			// 	$('.total_unused_weight').val(mainWeight - totalUsedWeight)
-			// 	$('.total_unused_silver').val(mainSilver - totalUsedSilver)
-			// 	$('.total_unused_copper').val(mainCopper - totalUsedCopper)
-			// },
-			// validateSubmit: function(ref) {
-			// 	var preventEnter = false;
-			// 	const metal_type = $('.metal_type_id');
-			// 	const form = $(ref);
-			// 	var mainSilver = parseF($('.msilver').val()),
-			// 		mainCopper = parseF($('.mcopper').val()),
-			// 		mainWeight = parseF($('.mweight').val());
-			// 	if (mainWeight < 1) {
-			// 		return SweetAlert('warning', 'Garnu Weight must be greater then: 1'), preventEnter = true;
-			// 	}
-			// 	if (metal_type < 1)
-			// 		return SweetAlert('warning', 'Metal Type should not be empty'), $('.metal_type_id').focus(), preventEnter = true;;
-			// 	var rows = $('.append-here tr');
-			// 	for (var i = 0; i < rows.length; i++) {
-			// 		var row = $(rows[i]),
-			// 			weight = row.find('.weight'),
-			// 			touch = row.find('.touch');
-
-			// 		if (weight.val() == '') {
-			// 			SweetAlert('warning', 'Weight should not be empty');
-			// 			weight.focus();
-			// 			preventEnter = true;
-			// 			break;
-			// 		} else if (touch.val() == '') {
-			// 			SweetAlert('warning', 'Touch should not be empty');
-			// 			touch.focus();
-			// 			preventEnter = true;
-			// 			break;
-			// 		}
-			// 	}
-
-			// 	if (!preventEnter) {
-			// 		form.unbind('submit').submit();
-			// 	}
-			// }
 		};
+
 		return {
 			init: main.init
 		}
