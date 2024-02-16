@@ -22,8 +22,18 @@
 						<div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
 							<div class="modal-content">
 								<div class="modal-header">
-									<h5 class="modal-title">Received </h5>
-									<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+									<div class="col-md-3">
+										<p class="modal-title">Issue Weight </p>
+									</div>
+									<div class="col-md-4">
+										<p class="modal-title">Garnu Weight:- <span class="garnu_weight"></span></p>
+									</div>
+									<div class="col-md-4 text-center">
+										<p class="modal-title">Garnu Name:- <span class="garnu_name"></span></p>
+									</div>
+									<!-- <div class="col-md-1"> -->
+										<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+									<!-- </div> -->
 								</div>
 								<div class="modal-body">
 									<input type="hidden" class="garnu_id" name="garnu_id" />
@@ -168,6 +178,10 @@
 	var main_row = '';
 	$(document).ready(function() {
 		main_row = $(".sectiontocopy")[0].outerHTML;
+		var garnuTouch = "";
+		var garnuWeight = "";
+		var garnuName = "";
+		var trRef = null;
 
 		$('#ReceivedModel').on('shown.bs.modal', function(e) {
 			var modal = this;
@@ -177,10 +191,15 @@
 					dropdownParent: $(modal)
 				});
 			});
+
+			var LastRm = $('.metal_type_id').last();
+			if (LastRm.val() == '' || LastRm.val() == 0 || LastRm.val() == null) {
+				return LastRm.select2('open');
+			}
 		});
 
 		var table = $('#garnu').DataTable({
-			"iDisplayLength": 5,
+			"iDisplayLength": 10,
 			"lengthMenu": [
 				[5, 10, 25, 50, 100, 500, 1000, 5000],
 				[5, 10, 25, 50, 100, 500, 1000, 5000]
@@ -293,32 +312,51 @@
 					if (response.success) {
 						$('.garnu_id').val("");
 						$('.garnu_id').val(id);
-						$(response.data).each(function(index, value) {
-							var net_weight = (value.net_weight != 0) ? value.net_weight : value.touch * value.weight / 100;
-							var $lastRow;
-							if (index == 0) {
-								$lastRow = $('.append-here tr').last();
-								$lastRow.parent().find('.ids').val(value.id);
-							} else {
-								$(".append-here").append(main_row);
-								$lastRow = $('.append-here tr').last();
-								$lastRow.parent().append('<input type="hidden" class="ids" name="ids[]" value="' + value.id + '" />');
-							}
 
-							$lastRow.find('.sdid').val(value.id);
-							$lastRow.find('.touch').val(value.touch).trigger('change');
-							$lastRow.find('.weight').val(value.weight).trigger('change');
-							$lastRow.find('.net_weight').val(net_weight).trigger('change');
-							$lastRow.find('.metal_type_id')
-								.val(value.metal_type_id)
-								.trigger('change')
-								.select2({
-									width: '100%',
-									dropdownParent: $('#ReceivedModel')
-								});
-						});
-					} else {
-						// SweetAlert('error', response.message);
+						garnuTouch = response.garnuData.touch;
+						garnuName = response.garnuData.name;
+						garnuWeight = response.garnuData.garnu_weight;
+
+						$('.garnu_weight').text("");
+						$('.garnu_name').text("");
+						$('.garnu_weight').text(garnuWeight);
+						$('.garnu_name').text(garnuName);
+						if (response.data != "") {
+							$(response.data).each(function(index, value) {
+								var net_weight = (value.net_weight != 0) ? value.net_weight : value.touch * value.weight / 100;
+								var metal_type_id = (value.metal_type_id) ? value.metal_type_id : "0";
+								var touch = (value.touch) ? value.touch : garnuTouch;
+
+								var $lastRow;
+								if (index == 0) {
+									$lastRow = $('.append-here tr').last();
+									$lastRow.parent().find('.ids').val(value.id);
+								} else {
+									$(".append-here").append(main_row);
+									$lastRow = $('.append-here tr').last();
+									$lastRow.parent().append('<input type="hidden" class="ids" name="ids[]" value="' + value.id + '" />');
+								}
+
+								$lastRow.find('.sdid').val(value.id);
+								$lastRow.find('.touch').val(touch).trigger('change');
+								$lastRow.find('.weight').val(value.weight).trigger('change');
+								$lastRow.find('.net_weight').val(net_weight).trigger('change');
+								$lastRow.find('.metal_type_id')
+									.val(metal_type_id)
+									.trigger('change')
+									.select2({
+										width: '100%',
+										dropdownParent: $('#ReceivedModel')
+									});
+
+								var LastRm = $lastRow.find('.metal_type_id');
+								if (LastRm.val() == " " || LastRm.val() == '0' || LastRm.val() == null) {
+									return LastRm.select2('open');
+								}
+							});
+						} else {
+							$('.touch').last().val(garnuTouch);
+						}
 					}
 				},
 				error: function() {
@@ -334,13 +372,14 @@
 		}
 
 		$(document).on('click', '.receive-btn', function() {
+			trRef = $(this);
 			var id = $(this).data('receiveid');
 			$(".sectiontocopy").not(':first').remove();
 			$(".ids").not(':first').remove();
 			$(".ids").val(0);
 			$('.garnu_id').val("");
 			$('.garnu_id').val(id);
-			$('.append-here tr').first().find('.sdid,.touch, .weight,.net_weight').val(0);
+			$('.append-here tr').first().find('.sdid,.weight,.net_weight').val(0);
 			$('.append-here tr').first().find('.metal_type_id').val('');
 			$('.append-here tr').first().find('.metal_type_id').select2({
 				width: '100',
@@ -353,6 +392,7 @@
 					dropdownParent: $('#ReceivedModel')
 				});
 			});
+
 
 			receiveGarnu(id).done(function() {
 				$("#ReceivedModel").modal('show');
@@ -367,7 +407,8 @@
 			}
 
 			$(".append-here").append(main_row);
-			$('.append-here tr').last().find('.sdid,.touch, .weight,.net_weight').val(0);
+			$('.append-here tr').last().find('.sdid,.weight,.net_weight').val(0);
+			$('.append-here tr').last().find('.touch').val(garnuTouch);
 			$('.append-here tr').last().find('.metal_type_id').val('');
 			$('.append-here tr').last().find('.metal_type_id').select2({
 				width: '100',
@@ -384,6 +425,7 @@
 
 			var modalBody = $('#ReceivedModel .modal-body');
 			scrollEvent(modalBody, 550);
+			RmcalculateMain();
 		});
 
 		$(document).on('click', '.del', function() {
@@ -391,6 +433,7 @@
 			if (metal_type_id > 1) {
 				$(this).parent().parent().remove();
 			}
+			RmcalculateMain();
 		});
 
 		$(document).on('input', '.touch', function() {
@@ -400,7 +443,7 @@
 			}
 			var weight = touch.parent().siblings().find('.weight').val();
 			var net_weight = weight * touch.val();
-			touch.parent().siblings().find('.net_weight').val(net_weight);
+			touch.parent().siblings().find('.net_weight').val(net_weight / 100);
 			RmcalculateMain();
 		});
 
@@ -408,7 +451,7 @@
 			var weight = $(this);
 			var touch = weight.parent().siblings().find('.touch').val();
 			var net_weight = touch * weight.val();
-			weight.parent().siblings().find('.net_weight').val(net_weight);
+			weight.parent().siblings().find('.net_weight').val(net_weight / 100);
 			RmcalculateMain();
 		});
 
@@ -429,6 +472,7 @@
 
 		$('#garnu_receive').on('submit', function(e) {
 			e.preventDefault();
+
 			var formData = $(this).serialize();
 			$.ajax({
 				url: '<?php echo base_url('manufacturing/garnu/receive'); ?>',
@@ -440,13 +484,15 @@
 				success: function(response) {
 					var response = JSON.parse(response);
 					if (response.success === true) {
-						table.clear();
-						table.draw();
+						var tr = trRef.parents('tr');
+						tr.css('color', 'green');
+						tr.find('.d-flex a').removeClass("d-none");
+						tr.find('.badge').removeClass("bg-danger");
+						tr.find('.badge').addClass('bg-indigo');
+
 						$('#ReceivedModel').modal('hide');
 						SweetAlert('success', response.message);
 					} else {
-						table.clear();
-						table.draw();
 						$('#ReceivedModel').modal('hide');
 						SweetAlert('error', response.message);
 					}

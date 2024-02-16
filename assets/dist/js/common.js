@@ -1,5 +1,5 @@
 const parseF = (str) => {
-	var f = parseInt(str);
+	var f = parseFloat(str);
 	if (isNaN(f)) {
 		f = 0;
 	}
@@ -30,62 +30,62 @@ const SweetAlert = (type, message) => {
 
 $(document).ajaxSend(function (event, jqXHR, { showLoader }) {
 	if (showLoader) {
-	  $.blockUI({
-		message: `<div class="sk-wave mx-auto">
+		$.blockUI({
+			message: `<div class="sk-wave mx-auto">
 					  <div class="sk-rect sk-wave-rect"></div> 
 					  <div class="sk-rect sk-wave-rect"></div> 
 					  <div class="sk-rect sk-wave-rect"></div> 
 					  <div class="sk-rect sk-wave-rect"></div> 
 					  <div class="sk-rect sk-wave-rect"></div>
 				  </div>`,
-		// message: `<div class="spinner-border text-white mx-auto">
-		// 		  </div>`,
-		css: {
-		  backgroundColor: "transparent",
-		  border: "0",
-		},
-		overlayCSS: {
-		  opacity: 0.5,
-		},
-	  });
+			// message: `<div class="spinner-border text-white mx-auto">
+			// 		  </div>`,
+			css: {
+				backgroundColor: "transparent",
+				border: "0",
+			},
+			overlayCSS: {
+				opacity: 0.5,
+			},
+		});
 	}
-  });
+});
 $(document).ajaxComplete(() => $.unblockUI());
-  /* common loader  */
-  function ShowBlockUi(selector, timer = 1000) {
+/* common loader  */
+function ShowBlockUi(selector, timer = 1000) {
 	// console.log(selector);
 	if (selector == "body") {
-	  $.blockUI({
-		message: `<div class="sk-wave mx-auto">
+		$.blockUI({
+			message: `<div class="sk-wave mx-auto">
 					  <div class="sk-rect sk-wave-rect"></div> 
 					  <div class="sk-rect sk-wave-rect"></div> 
 					  <div class="sk-rect sk-wave-rect"></div> 
 					  <div class="sk-rect sk-wave-rect"></div> 
 					  <div class="sk-rect sk-wave-rect"></div>
 				  </div>`,
-		css: {
-		  backgroundColor: "transparent",
-		  border: "0",
-		},
-		overlayCSS: {
-		  opacity: 0.5,
-		},
-	  });
+			css: {
+				backgroundColor: "transparent",
+				border: "0",
+			},
+			overlayCSS: {
+				opacity: 0.5,
+			},
+		});
 	} else {
-	  $(selector).block({
-		message: '<div class="spinner-border text-primary" role="status"></div>',
-		timeout: timer,
-		css: {
-		  backgroundColor: "transparent",
-		  border: "0",
-		},
-		overlayCSS: {
-		  backgroundColor: "#fff",
-		  opacity: 0.8,
-		},
-	  });
+		$(selector).block({
+			message: '<div class="spinner-border text-primary" role="status"></div>',
+			timeout: timer,
+			css: {
+				backgroundColor: "transparent",
+				border: "0",
+			},
+			overlayCSS: {
+				backgroundColor: "#fff",
+				opacity: 0.8,
+			},
+		});
 	}
-  }
+}
 
 /* Swal */
 const swalAlert = (icon, title, text = "") => {
@@ -413,3 +413,65 @@ $(".validateForm-reset").on("click", function () {
 		if ($(this).hasClass("error")) $(this).removeClass("error").remove();
 	});
 });
+
+function Validator() {
+	this.fieldConfigs = [];
+}
+
+Validator.prototype.addField = function (field, message, actionOnFail) {
+	this.fieldConfigs.push({ field, message, actionOnFail });
+	return this;
+};
+
+Validator.prototype.validate = function () {
+	for (let { field, message, actionOnFail } of this.fieldConfigs) {
+		if (!(field instanceof jQuery)) {
+			field = $(field);
+		}
+		if (!field.val()) {
+			if (["textarea", "number", "text"].indexOf(field?.attr("type")) != -1) {
+				field.focus();
+			}
+			SweetAlert("warning", message);
+			if (typeof actionOnFail == "function") actionOnFail(field);
+			return false;
+		}
+	}
+	return true;
+};
+// $("form").on("submit", function (e) {
+// 	let isValid = true;
+// 	$(this)
+// 	  .find(".required")
+// 	  .each(function () {
+// 		if ($(this).val().trim() === "") {
+// 		  $(this).addClass("is-invalid");
+// 		  if ($(this).parent().next(".error-message").length == 0) {
+// 			$(this)
+// 			  .parent()
+// 			  .after("<div class='error-message text-danger'></div>");
+// 			if ($(this).hasClass("select2")) {
+// 			  var dataLabelValue = $(this).data("lable");
+// 			  $(this)
+// 				.parent()
+// 				.next(".error-message")
+// 				.html(dataLabelValue + " field is required.<br>");
+// 			} else {
+// 			  $(this)
+// 				.parent()
+// 				.next(".error-message")
+// 				.html(
+// 				  $(this).siblings("label").text() + " field is required.<br>"
+// 				);
+// 			}
+// 		  }
+// 		  isValid = false;
+// 		} else {
+// 		  $(this).removeClass("is-invalid");
+// 		  $(this).parent().next(".error-message").html("");
+// 		}
+// 	  });
+// 	if (!isValid) {
+// 	  e.preventDefault();
+// 	}
+//   });
