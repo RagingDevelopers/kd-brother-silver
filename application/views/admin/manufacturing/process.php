@@ -3,16 +3,26 @@
 		background-color: #ebebeb;
 		color: black;
 	}
+
+	tr .given {
+		background-color: #ffe1e1;
+		color: black;
+	}
+
+	tr .received {
+		background-color: #d9ffd9;
+		color: black;
+	}
 </style>
 <div class="row">
-	<div class="col-md-6">
+	<div class="col-md-8 pb-3">
 		<div class="card">
 			<div class="row">
 				<div class="col-sm-12">
-					<form action="<?= (isset($process_data)) ? base_url('manufacturing/process/update') : base_url('manufacturing/process/add') ?>" method="post" class="" novalidate>
+					<form action="<?= (isset($process_data)) ? base_url('manufacturing/process/update') : base_url('manufacturing/process/add') ?>" method="post" class="ManageProcess">
 						<div class="card-header">
 							<div class="card-status-top bg-blue"></div>
-							<h1 class="card-title"><b> Garnu </b></h1>
+							<h1 class="card-title"><b> Process Manage ( <?= $id; ?> ) </b></h1>
 						</div>
 						<div class="card-body border-bottom py-3">
 							<div class="row mt-1">
@@ -20,15 +30,15 @@
 								<input type="hidden" name="given_id" id="" class="form-control given_id" value="<?= $process_data['id'] ?? null ?>">
 								<div class="col-md-4 col-sm-3">
 									<label class="form-label" for="">Garnu Name: </label>
-									<input type="text" name="name" id="" class="form-control" placeholder="Enter Garnu Name" value="<?= $data['name'] ?? null ?>" autocomplete="off">
+									<input type="text" name="name" id="" class="form-control readonly" placeholder="Enter Garnu Name" readonly value="<?= $data['name'] ?? null ?>" autocomplete="off">
 								</div>
-								<div class="col-md-4 col-sm-3">
+								<!-- <div class="col-md-4 col-sm-3">
 									<label class="form-label" for="">Received Quantity: </label>
 									<input type="text" name="rc_qty" id="" class="form-control" placeholder="Enter Quantity" autocomplete="off" value="<?= (isset($process_data)) ? $process_data['rc_qty'] : '' ?>">
-								</div>
+								</div> -->
 								<div class="col-md-4 col-sm-3">
 									<label class="form-label" for="">Garnu Weight: </label>
-									<input type="text" name="weight" id="" class="form-control" placeholder="Enter Weight" value="<?= $data['garnu_weight'] ?? null ?>" autocomplete="off">
+									<input type="text" name="weight" id="" class="form-control readonly" readonly placeholder="Enter Weight" value="<?= $data['garnu_weight'] ?? null ?>" autocomplete="off">
 								</div>
 							</div>
 							<div class="row mt-3">
@@ -63,7 +73,7 @@
 							<div class="row mt-3">
 								<div class="col-md-4 col-sm-3">
 									<label class="form-label" for="">Given Quantity: </label>
-									<input type="text" name="given_qty" id="" class="form-control" placeholder="Enter Quantity" autocomplete="off" value="<?= (isset($process_data)) ? $process_data['given_qty'] : '' ?>">
+									<input type="text" name="given_qty" id="" class="form-control given-qty" placeholder="Enter Quantity" autocomplete="off" value="<?= (isset($process_data)) ? $process_data['given_qty'] : "" ?>">
 								</div>
 								<div class="col-md-4 col-sm-3">
 									<label class="form-label" for="">Given Weight: </label>
@@ -71,17 +81,17 @@
 								</div>
 								<div class="col-md-4 col-sm-3">
 									<label class="form-label" for="">Labour: </label>
-									<input type="text" name="labour" id="" class="form-control" placeholder="Enter Labour" autocomplete="off" value="<?= (isset($process_data)) ? $process_data['labour'] : '' ?>">
+									<input type="text" name="labour" id="" class="form-control labour" placeholder="Enter Labour" autocomplete="off" value="<?= (isset($process_data)) ? $process_data['labour'] : 0 ?>">
 								</div>
 							</div>
 							<div class="row mt-3">
 								<div class="col-md-4 col-sm-3">
 									<label class="form-label" for="">Row Material Weight: </label>
-									<input type="text" name="" id="" class="form-control totalRmWeight readonly" autocomplete="off" value="0" readonly>
+									<input type="text" name="total-rm_weight" id="" class="form-control totalRmWeight readonly" autocomplete="off" value="0" readonly>
 								</div>
 								<div class="col-md-4 col-sm-3">
 									<label class="form-label" for="">Final Weight: </label>
-									<input type="text" name="" id="" class="form-control finalWeight readonly" autocomplete="off" value="0" readonly>
+									<input type="text" name="total_weight" id="" class="form-control finalWeight readonly" autocomplete="off" value="0" readonly>
 								</div>
 								<div class="col-md-4 col-sm-3">
 									<label class="form-label" for="">&nbsp </label>
@@ -129,7 +139,7 @@
 													<tr class="mainRow">
 														<td>
 															<input type="hidden" class="rowid" name="rowid[]" value="<?= $row['id'] ?? "0"; ?>" />
-															<select class="form-select select2 row_material" required name="row_material[]">
+															<select class="form-select select2 row_material" name="row_material[]">
 																<option value="">Select RM</option>
 																<?php
 																if (!empty($row_material)) {
@@ -195,15 +205,9 @@
 
 					<form id="received-garnu">
 						<div class="modal modal-blur fade modal-xl" data-bs-backdrop="static" data-bs-keyboard="false" id="received1-report" tabindex="-1" role="dialog" aria-hidden="true">
-							<div class="modal-dialog modal-dialog-scrollable modal-xl" role="document">
+							<div class="modal-dialog modal-xl" role="document">
 								<div class="modal-content">
-									<div class="modal-header">
-										<h5 class="modal-title">Received</h5>
-										<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-									</div>
-									<div class="modal-body">
-										<div id="receveData"></div>
-									</div>
+									<div id="receveData"></div>
 									<div class="modal-footer justify-content-between">
 										<button type="button" class="btn btn-outline-success btn-success receivedAddButton2">
 											<span class="mx-1">Add </span><i class="fa-solid fa-plus"></i>
@@ -322,7 +326,7 @@
 		</div>
 	</div>
 
-	<div class="col-md-6">
+	<div class="col-md-12">
 		<div class="card">
 			<div class="row">
 				<div class="col-sm-12">
@@ -343,40 +347,67 @@
 										<th scope="col">Worker Name</th>
 										<th scope="col">Given Quantity</th>
 										<th scope="col">Given Weight</th>
-										<th scope="col">Received</th>
+										<th scope="col">Row Material Weight</th>
+										<th scope="col">Total Weight</th>
+										<th scope="col">Received Pcs</th>
+										<th scope="col">Received Weight</th>
+										<th scope="col">Received RM Weight</th>
+										<th scope="col">Received Final Weight</th>
 									</tr>
 								</thead>
 								<tbody>
-									<?php foreach ($table as $key => $result) { ?>
+									<?php foreach ($table as $key => $result) {
+										$receive = $this->db->select('pcs,weight,row_material_weight,total_weight')->get_where('receive', array('given_id' => $result->id))->result_array();
+										$totalPcs = 0;
+										$totalweight = 0;
+										$totalRMweight = 0;
+										$finalWeight = 0;
+										foreach ($receive as $data) {
+											$totalPcs += $data['pcs'];
+											$totalweight += $data['weight'];
+											$totalRMweight += $data['row_material_weight'];
+											$finalWeight += $data['total_weight'];
+										}
+									?>
 										<tr>
-											<td>
+											<td class="given">
 												<?= $key + 1; ?>
 											</td>
-											<td>
-												<a class="btn btn-action bg-success text-white me-2 edit" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Edit" href="<?= base_url('manufacturing/process/manage/') . $id . '/' . $result->id; ?>">
-													<i class="far fa-edit" aria-hidden="true"></i>
-												</a>
+											<td class="given">
+												<div class="d-flex gap-2">
+													<a class="btn btn-action bg-success text-white me-2 edit" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Edit" href="<?= base_url('manufacturing/process/manage/') . $id . '/' . $result->id; ?>">
+														<i class="far fa-edit" aria-hidden="true"></i>
+													</a>
+													<a class="bg-warning btn btn-action text-warning-fg me-2 Received" data-demo-color data-bs-toggle="tooltip" data-bs-placement="top" data-garnu_id="<?= $id; ?>" data-given_id="<?= $result->id; ?>" data-bs-original-title="Received" href="#">
+														<i class="fa-brands fa-connectdevelop"></i>
+													</a>
+												</div>
 											</td>
-											<td>
+											<td class="given">
 												<?= $result->creation_date; ?>
 											</td>
-											<td>
+											<td class="given">
 												<?= $result->process_name; ?>
 											</td>
-											<td>
+											<td class="given">
 												<?= $result->customer_name; ?>
 											</td>
-											<td>
+											<td class="given">
 												<?= $result->given_qty; ?>
 											</td>
-											<td>
+											<td class="given">
 												<?= $result->given_weight; ?>
 											</td>
-											<td>
-												<a class="bg-purple btn btn-action text-purple-fg me-2 Received" data-demo-color data-bs-toggle="tooltip" data-bs-placement="top" data-garnu_id="<?= $id; ?>" data-given_id="<?= $result->id; ?>" data-bs-original-title="Received" href="#">
-													<i class="fa-brands fa-connectdevelop"></i>
-												</a>
+											<td class="given">
+												<?= $result->row_material_weight; ?>
 											</td>
+											<td class="given">
+												<?= $result->total_weight; ?>
+											</td>
+											<td class="received totalPcs"><?= $totalPcs; ?></td>
+											<td class="received totalWeight"><?= $totalweight; ?></td>
+											<td class="received rowMaterialWeight"><?= $totalRMweight; ?></td>
+											<td class="received totalFinalWeight"><?= $finalWeight; ?></td>
 										</tr>
 									<?php } ?>
 								</tbody>
@@ -391,10 +422,27 @@
 
 <script class="javascript">
 	$(document).ready(function() {
+		$('.ManageProcess').submit(function(e) {
+			e.preventDefault();
+			var validator = new Validator();
+			validator
+				.addField('.process', "Please select process!", (el) =>
+					el.select2("open")
+				)
+				.addField('#workers', "Please select Worker!", (el) =>
+					el.select2("open")
+				)
+				.addField('.given-qty', "Please Enter Given Quantity!")
+				.addField('.given_weight', "Please Enter Given Weight!")
+			if (!validator.validate()) return;
+			else $(this).off("submit").submit();
+		});
+
 		var mainRow = $('.mainRow')[0].outerHTML;
 		var mainRmRow = $('.main-row')[0]?.outerHTML;
 		var ReceivedMainRow;
 		var rmBtn = null;
+		var receiveBtn = null;
 		$('.process').change(function() {
 			var process_id = $(this).val();
 			var worker_id = $(this).find(":selected").data('workerid')
@@ -458,6 +506,7 @@
 			if ($('.deleteRow').length > 1) {
 				$(this).parents('tr').remove();
 			}
+			Rmcalculate();
 		});
 
 		function scrollEvent(target, pixel = 500) {
@@ -510,11 +559,16 @@
 					dropdownParent: $(modal)
 				});
 			});
+			var LastRm = $('.row_material').last();
+			if (LastRm.val() == '' || LastRm.val() == 0 || LastRm.val() == null) {
+				return LastRm.select2('open');
+			}
 		});
 
 		// second modal received
 		$(document).on('click', '.Received', function() {
 			event.preventDefault();
+			receiveBtn = $(this);
 			var garnu_id = $(this).data('garnu_id');
 			var given_id = $(this).data('given_id');
 
@@ -576,6 +630,11 @@
 					dropdownParent: $(modal)
 				});
 			});
+			var LastRm = $('.row_material2').last();
+			if (LastRm.val() == '' || LastRm.val() == 0 || LastRm.val() == null) {
+				return LastRm.select2('open');
+			}
+
 		});
 
 		var mainRow2 = $('.mainRow2')[0].outerHTML;
@@ -601,6 +660,7 @@
 			if ($('.deleteRow2').length > 1) {
 				$(this).parents('tr').remove();
 			}
+			RmcalculateMain();
 		});
 
 		$(document).on('input', '.touch2,.weight2,.quantity2', function() {
@@ -659,6 +719,7 @@
 			container.find(".rmdata").val(string);
 			container.find(".receivedRmWeight").val(totalRmWeight);
 			finalCalculation(rmBtn);
+			TotalCalculation();
 		});
 
 		function finalCalculation(i) {
@@ -741,6 +802,11 @@
 				success: function(response) {
 					var response = JSON.parse(response);
 					if (response.success === true) {
+						receiveBtn.parents('tr').find('.totalPcs').text($('#totalPcs').text());
+						receiveBtn.parents('tr').find('.totalWeight').text($('#TotalWeight').text());
+						receiveBtn.parents('tr').find('.rowMaterialWeight').text($('#rowMaterialWeight').text());
+						receiveBtn.parents('tr').find('.totalFinalWeight').text($('#totalFinalWeight').text());
+
 						$('#received1-report').modal('hide');
 						SweetAlert('success', response.message);
 					} else {
@@ -811,9 +877,9 @@
 			$('.total-qty').text(Totalqty);
 		}
 
-		$(document).on('focus', '.touch,.weight,.quantity,.Pcs,.receivedWeight,.touch2, .weight2, .quantity2', function() {
+		$(document).on('focus', '.touch,.weight,.quantity,.Pcs,.receivedWeight,.touch2, .weight2, .quantity2,.given-qty,.labour', function() {
 			handleInputFocusAndBlur(this, 'focus');
-		}).on('blur', '.touch,.weight,.quantity,.Pcs,.receivedWeight,.touch2, .weight2, .quantity2', function() {
+		}).on('blur', '.touch,.weight,.quantity,.Pcs,.receivedWeight,.touch2, .weight2, .quantity2,.given-qty,.labour', function() {
 			handleInputFocusAndBlur(this, 'blur');
 		});
 

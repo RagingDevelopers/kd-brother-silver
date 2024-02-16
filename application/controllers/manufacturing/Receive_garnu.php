@@ -2,11 +2,11 @@
 
 defined('BASEPATH') or exit('No direct script access allowed');
 
-class Garnu extends CI_Controller
+class Receive_garnu extends CI_Controller
 {
 	public $form_validation, $input, $db;
 
-	const View = "admin/manufacturing/garnu_report";
+	const View = "admin/manufacturing/receive_garnu_report";
 	const ADD = "admin/manufacturing/garnu";
 
 	const RECEIVE = "admin/manufacturing/receive";
@@ -20,7 +20,7 @@ class Garnu extends CI_Controller
 
 	public function index($action = "", $id = null)
 	{
-		$page_data['page_title'] = 'Garnu';
+		$page_data['page_title'] = 'Received Garnu';
 		switch ($action) {
 			case "":
 				$page_data['data'] = $this->dbh->getResultArray('garnu');
@@ -35,7 +35,7 @@ class Garnu extends CI_Controller
 				$this->validateId($id);
 				$garnu = $this->dbh->find('garnu', $id);
 				if (!$garnu) {
-					flash()->withError("Garnu type Not Found")->to('manufacturing/garnu');
+					flash()->withError("Garnu type Not Found")->to('manufacturing/receive_garnu');
 				}
 				// $page_data['data'] = $this->joinhelper->fetchJoinedTable('customer', ['city', 'account_type']);
 				// $page_data['items'] = $this->dbh->getWhereResultArray('garnu_item', ['garnu_id' => $id]);
@@ -109,7 +109,7 @@ class Garnu extends CI_Controller
 
 				$this->db->insert_batch('garnu_item', $new);
 
-				flash()->withSuccess("Garnu type Added Successfully")->to("manufacturing/garnu");
+				flash()->withSuccess("Garnu type Added Successfully")->to("manufacturing/receive_garnu");
 				break;
 
 				// case "delete":
@@ -192,7 +192,7 @@ class Garnu extends CI_Controller
 						$this->db->insert('garnu_item', $garnu_item);
 					}
 				}
-				flash()->withSuccess("Garnu Updated Successfully")->to("manufacturing/garnu");
+				flash()->withSuccess("Garnu Updated Successfully")->to("manufacturing/receive_garnu");
 				break;
 			default:
 				return flash()->withError("Invalid Arguments")->back();
@@ -237,9 +237,9 @@ class Garnu extends CI_Controller
 		if (!empty($todate)) {
 			$this->db->where('DATE(garnu.creation_date) <=', $todate);
 		}
-		if (!empty($received)) {
-			$this->db->where('garnu.recieved', $received);
-		}
+		$this->db->where('garnu.recieved', 'YES');
+		// if (!empty($received)) {
+		// }
 
 		$records = $this->db->get();
 		$totalRecordwithFilter = $records->num_rows();
@@ -258,9 +258,10 @@ class Garnu extends CI_Controller
 		if (!empty($todate)) {
 			$this->db->where('DATE(garnu.creation_date) <=', $todate);
 		}
-		if (!empty($received)) {
-			$this->db->where('garnu.recieved', $received);
-		}
+		$this->db->where('garnu.recieved', 'YES');
+		// if (!empty($received)) {
+		// 	$this->db->where('garnu.recieved', $received);
+		// }
 
 		$this->db->limit($rowperpage, $start);
 		$this->db->order_by('id', "desc");
@@ -284,18 +285,19 @@ class Garnu extends CI_Controller
 				$query2 = array();
 			}
 
+			// <a href="' . base_url('manufacturing/receive_garnu/edit/') . $record->id . '" class="btn btn-action bg-warning text-white me-2" data-bs-toggle="tooltip" data-bs-placement="top"  data-bs-original-title="Edit Proccess"><i class="fas fa-edit"></i></a>
 			if ($record->recieved == 'NO') {
 				$dnone = "d-none";
 			}else{
 				$dnone = "";
 			}
+			// <span data-receiveid="' . $record->id . '" class="btn btn-action bg-green text-white me-2 receive-btn" data-bs-toggle="tooltip" data-bs-placement="top"  data-bs-original-title="Receive"><i class="fa-solid fa-receipt"></i></span>
 			$action ='
-			<div class="d-flex gap-1">
-			        <a href="' . base_url('manufacturing/garnu/edit/') . $record->id . '" class="btn btn-action bg-warning text-white me-2" data-bs-toggle="tooltip" data-bs-placement="top"  data-bs-original-title="Edit Proccess"><i class="fas fa-edit"></i></a>
-					<span data-receiveid="' . $record->id . '" class="btn btn-action bg-green text-white me-2 receive-btn" data-bs-toggle="tooltip" data-bs-placement="top"  data-bs-original-title="Receive"><i class="fa-solid fa-receipt"></i></span>
+				<div class="d-flex gap-1">
 					<a href="' . base_url('manufacturing/process/manage/') . $record->id . '" class="btn btn-action bg-indigo text-white '.$dnone.'" data-bs-toggle="tooltip" data-bs-placement="top"  data-bs-original-title="Proccess Manage"><i class="fa-solid fa-code-fork"></i></a>
 				</div>
 			';
+
 
 			if (!empty($query2)) {
 				$processName = "<span>{$query2['process_name']}</span>";
@@ -336,86 +338,90 @@ class Garnu extends CI_Controller
 	}
 
 
-	public function checkReceive()
-	{
-		try {
-			$this->form_validation->set_rules('id', 'Garnu Id', 'trim|required|numeric');
-			if ($this->form_validation->run() == FALSE) {
-				$response = ['success' => false, 'error' => validation_errors()];
-				echo json_encode($response);
-				return;
-			} else {
-				$postData = $this->input->post();
-				$id = $postData['id'];
-				$data = $this->dbh->getWhereResultArray('receive_garnu', ['garnu_id' => $id]);
-				$garnuData = $this->db->select('*')->from('garnu')->where('id', $id)->get()->row_array();
-				// $garnuData = $this->dbh->getWhereRowArray('garnu', ['id' => $id]);
-				if (!empty($data) || !empty($garnuData)) {
-					$response = ['success' => true, 'message' => 'Data Fetched successfully.', 'data' => $data,'garnuData' => $garnuData];
-				} else {
-					$response = ['success' => false, 'message' => 'Data Not Found.', 'data' => []];
-				}
-				echo json_encode($response);
-				return;
-			}
-		} catch (Exception $e) {
-			$response = [
-				'success' => false, 'error' => $e->getMessage(), 'data' => []
-			];
-			echo json_encode($response);
-		}
-	}
+	// public function checkReceive()
+	// {
+	// 	try {
+	// 		$this->form_validation->set_rules('id', 'Garnu Id', 'trim|required|numeric');
+	// 		if ($this->form_validation->run() == FALSE) {
+	// 			$response = ['success' => false, 'error' => validation_errors()];
+	// 			echo json_encode($response);
+	// 			return;
+	// 		} else {
+	// 			$postData = $this->input->post();
+	// 			$id = $postData['id'];
+	// 			$data = $this->dbh->getWhereResultArray('receive_garnu', ['garnu_id' => $id]);
+	// 			$garnuData = $this->dbh->getWhereRowArray('garnu', ['id'=>$id,'recieved'=>'YES']);
+	// 			if (!empty($data) || !empty($garnuData)) {
+	// 				$response = ['success' => true, 'message' => 'Data Fetched successfully.', 'data' => $data,'garnuData' => $garnuData];
+	// 			} else {
+	// 				$response = ['success' => false, 'message' => 'Data Not Found.', 'data' => []];
+	// 			}
+	// 			echo json_encode($response);
+	// 			return;
+	// 		}
+	// 	} catch (Exception $e) {
+	// 		$response = [
+	// 			'success' => false, 'error' => $e->getMessage(), 'data' => []
+	// 		];
+	// 		echo json_encode($response);
+	// 	}
+	// }
 
 
-	public function receive()
-	{
-		$post = $this->input->post();
-		$insertBatch = [];
-		$updateBatch = [];
-		$existingIds = isset($post['sdid']) ? $post['sdid'] : [];
-		$allids = isset($post['ids']) ? $post['ids'] : [];
-
-		$idsNotExisting = array_diff($allids, $existingIds);
-		if (!empty($idsNotExisting)) {
-			$this->db->where_in('id', $idsNotExisting);
-			$this->db->delete('receive_garnu');
-		}
-
-		foreach ($post['sdid'] as $key => $sdid) {
-			$rmData = [
-				'metal_type_id' => isset($post['metal_type_id'][$key]) ? $post['metal_type_id'][$key] : null,
-				'touch' => isset($post['touch'][$key]) ? $post['touch'][$key] : null,
-				'weight' => isset($post['weight'][$key]) ? $post['weight'][$key] : null,
-				'net_weight' => isset($post['net_weight'][$key]) ? $post['net_weight'][$key] : null,
-			];
-
-			if ($sdid == 0) {
-				$rmData['garnu_id'] = $post['garnu_id'];
-				$insertBatch[] = $rmData;
-			} else if (in_array($sdid, $existingIds)) {
-				$rmData['id'] = $sdid;
-				$updateBatch[] = $rmData;
-			}
-		}
-
-		if (!empty($insertBatch)) {
-			$this->db->insert_batch('receive_garnu', $insertBatch);
-			$this->db->where('id', $post['garnu_id'])->update('garnu',['recieved'=>'YES']);
-			$response = ['success' => true, 'message' => 'Data Add Successfully.'];
-		} else {
-			$response = ['success' => false, 'message' => 'Data Add Failed.'];
-		}
-		if (!empty($updateBatch)) {
-			$this->db->update_batch('receive_garnu', $updateBatch, 'id');
-			$this->db->where('id', $post['garnu_id'])->update('garnu',['recieved'=>'YES']);
-			$response = ['success' => true, 'message' => 'Data Update Successfully.'];
-		}
-		echo json_encode($response);
-		return;
-	}
+	// public function receive()
+	// {
+	// 	$post = $this->input->post();
+	// 	$garnuRecieved = $this->db->select('recieved')->from('garnu')->where('id', $post['garnu_id'])->get()->row_array();
+	// 	if($garnuRecieved['recieved'] == 'YES'){
+	// 		$insertBatch = [];
+	// 		$updateBatch = [];
+	// 		$existingIds = isset($post['sdid']) ? $post['sdid'] : [];
+	// 		$allids = isset($post['ids']) ? $post['ids'] : [];
+	
+	// 		$idsNotExisting = array_diff($allids, $existingIds);
+	// 		if (!empty($idsNotExisting)) {
+	// 			$this->db->where_in('id', $idsNotExisting);
+	// 			$this->db->delete('receive_garnu');
+	// 		}
+	
+	// 		foreach ($post['sdid'] as $key => $sdid) {
+	// 			$rmData = [
+	// 				'metal_type_id' => isset($post['metal_type_id'][$key]) ? $post['metal_type_id'][$key] : null,
+	// 				'touch' => isset($post['touch'][$key]) ? $post['touch'][$key] : null,
+	// 				'weight' => isset($post['weight'][$key]) ? $post['weight'][$key] : null,
+	// 				'net_weight' => isset($post['net_weight'][$key]) ? $post['net_weight'][$key] : null,
+	// 			];
+	
+	// 			if ($sdid == 0) {
+	// 				$rmData['garnu_id'] = $post['garnu_id'];
+	// 				$insertBatch[] = $rmData;
+	// 			} else if (in_array($sdid, $existingIds)) {
+	// 				$rmData['id'] = $sdid;
+	// 				$updateBatch[] = $rmData;
+	// 			}
+	// 		}
+	
+	// 		if (!empty($insertBatch)) {
+	// 			$this->db->insert_batch('receive_garnu', $insertBatch);
+	// 			$this->db->where('id', $post['garnu_id'])->update('garnu',['recieved'=>'YES']);
+	// 			$response = ['success' => true, 'message' => 'Data Add Successfully.'];
+	// 		} else {
+	// 			$response = ['success' => false, 'message' => 'Data Add Failed.'];
+	// 		}
+	// 		if (!empty($updateBatch)) {
+	// 			$this->db->update_batch('receive_garnu', $updateBatch, 'id');
+	// 			$this->db->where('id', $post['garnu_id'])->update('garnu',['recieved'=>'YES']);
+	// 			$response = ['success' => true, 'message' => 'Data Update Successfully.'];
+	// 		}
+	// 	}else{
+	// 		$response = ['success' => false, 'message' => 'Garnu Is Not Received'];
+	// 	}
+	// 	echo json_encode($response);
+	// 	return;
+	// }
 
 	private function validateId($id)
 	{
-		(!is_numeric($id) || empty($id)) && flash()->withError("invalid id please enter valid Id")->to("manufacturing/garnu");
+		(!is_numeric($id) || empty($id)) && flash()->withError("invalid id please enter valid Id")->to("manufacturing/receive_garnu");
 	}
 }

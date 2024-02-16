@@ -54,11 +54,11 @@ class Customer extends CI_Controller
                     ->set_rules('opening_amount', 'opening_amount', 'required')
                     ->set_rules('opening_amount_type', 'opening_amount_type', 'required')
                     ->set_rules('opening_fine', 'opening_fine', 'required')
-                    ->set_rules('item_id[]', 'item_id', 'required')
-                    ->set_rules('extra_touch[]', 'extra_touch', 'required')
-                    ->set_rules('wastage[]', 'wastage', 'required')
-                    ->set_rules('label[]', 'label', 'required')
-                    ->set_rules('sub_total[]', 'sub_total', 'required');
+                    ->set_rules('item_id[]', 'item_id', 'trim')
+                    ->set_rules('extra_touch[]', 'extra_touch', 'trim')
+                    ->set_rules('wastage[]', 'wastage', 'trim')
+                    ->set_rules('label[]', 'label', 'trim')
+                    ->set_rules('sub_total[]', 'sub_total', 'trim');
 
                 if (!$validation->run()) {
                     return flash()->withError(validation_errors())->back();
@@ -72,6 +72,7 @@ class Customer extends CI_Controller
                 $customer['opening_amount'] = $data['opening_amount'];
                 $customer['opening_amount_type'] = $data['opening_amount_type'];
                 $customer['opening_fine'] = $data['opening_fine'];
+				$customer['process_id'] = $data['process_id'] ?? null; 
                 $customer['opening_fine_type'] = $data['opening_fine_type'];
 
                 $this->db->insert('customer', $customer);
@@ -112,11 +113,11 @@ class Customer extends CI_Controller
                     ->set_rules('opening_amount_type', 'opening_amount_type', 'required')
                     ->set_rules('opening_fine', 'opening_fine', 'required')
                     ->set_rules('opening_fine_type', 'opening_fine_type', 'required')
-                    ->set_rules('item_id[]', 'item_id', 'required')
-                    ->set_rules('extra_touch[]', 'extra_touch', 'required')
-                    ->set_rules('wastage[]', 'wastage', 'required')
-                    ->set_rules('label[]', 'label', 'required')
-                    ->set_rules('sub_total[]', 'sub_total', 'required');
+                    ->set_rules('item_id[]', 'item_id', 'trim')
+                    ->set_rules('extra_touch[]', 'extra_touch', 'trim')
+                    ->set_rules('wastage[]', 'wastage', 'trim')
+                    ->set_rules('label[]', 'label', 'trim')
+                    ->set_rules('sub_total[]', 'sub_total', 'trim');
 
 
                 if ($validation->run() == false) {
@@ -135,6 +136,7 @@ class Customer extends CI_Controller
                 $customer['opening_amount_type'] = $data['opening_amount_type'];
                 $customer['opening_fine'] = $data['opening_fine'];
                 $customer['opening_fine_type'] = $data['opening_fine_type'];
+                $customer['process_id'] = $data['process_id'] ?? null; 
                 $this->db->where('id', $id)->update('customer', $customer);
 
                 $oldIds = $this->db->select('id')->get_where('customer_item', ['customer_id' => $id])->result_array();
