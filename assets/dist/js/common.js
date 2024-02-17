@@ -1,3 +1,4 @@
+const BaseUrl = $("meta[name=baseurl]").attr("content");
 const parseF = (str) => {
 	var f = parseFloat(str);
 	if (isNaN(f)) {
@@ -9,6 +10,83 @@ const { format: formatCurrency } = new Intl.NumberFormat("hi-in", {
 	style: "currency",
 	currency: "INR",
 });
+
+const getOptions = function (response, props) {
+	var options = "";
+	var selected = "";
+	if (props.default) {
+		if (props.default_html !== undefined) {
+			options += `<option value=""> ${props.default_html}</option>`;
+		} else {
+			options += `<option value=""> Select <option>`;
+		}
+	}
+	$.each(response, function (key, value) {
+		selected =
+			props.selected_id != null && props.selected_id == value.id
+				? "selected"
+				: " ";
+		if (props.format) {
+			const parts = props.format.split("-");
+			let label = "";
+			$.each(parts, function (i, part) {
+				if ($.inArray(part, value)) {
+					label +=
+						part == "user_type" ? `( ${value[part]} )` : value[part] + " ";
+				} else {
+					label += value.name;
+				}
+			});
+			options += `<option value="${value.id}" ${selected}>${label}</option>`;
+		} else {
+			options += `<option value="${value["id"]}" ${selected}>${value["name"]}</option>`;
+		}
+	});
+	return options;
+};
+
+const getWorker = function (process_id, selected_id = null) {
+	if (process_id) {
+		var optionHTML = "";
+		var selected = "";
+		optionHTML += `<option value=""> Select <option>`;
+		
+		$.ajax({
+			type: "POST",
+			dataType: "json",
+			url: `${BaseUrl}manufacturing/process/getWorkers`,
+			method: "POST",
+			data: { process_id, selected_id },
+			success: function (response) {
+				$(".workers").empty();
+				$.each(response, function (key, value) {
+					selected =
+						selected_id != null && selected_id == value.id ? "selected" : " ";
+					optionHTML += `<option value="${value["id"]}" ${selected}>${value["name"]}</option>`;
+				});
+				$(".workers").html(optionHTML);
+			},
+		});
+	} else {
+		$(".workers").empty();
+		$(".workers").append('<option value="">Select</option>');
+	}
+};
+
+function formatNumber(number = null) {
+	let formattedTotal;
+	if (!Number.isInteger(number)) {
+		const parts = number.toString().split(".");
+		if (parts[1] && parseInt(parts[1].length) > 2) {
+			formattedTotal = number.toFixed(4);
+		} else {
+			formattedTotal = number.toString();
+		}
+	} else {
+		formattedTotal = number.toString();
+	}
+	return formattedTotal;
+}
 
 const SweetAlert = (type, message) => {
 	const Toast = Swal.mixin({

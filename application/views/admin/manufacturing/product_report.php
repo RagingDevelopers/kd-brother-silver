@@ -186,7 +186,7 @@
 			table.clear();
 			table.draw();
 		});
-		$('#fromdate,#status').on('change', function() {
+		$('#fromdate,#process,#worker,#product,#status').on('change', function() {
 			table.clear();
 			table.draw();
 		});
