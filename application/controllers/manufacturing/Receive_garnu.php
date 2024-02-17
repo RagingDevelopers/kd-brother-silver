@@ -307,9 +307,6 @@ class Receive_garnu extends CI_Controller
 				$worker_name = "<span class='text-center'> -- </span>";
 			}
 
-			$class = ($record->recieved == "YES") ? 'indigo' : 'danger';
-			$received = "<span class='badge bg-$class'>$record->recieved</span>";
-
 			$data[] = array(
 				'id' => $i,
 				'action' => $action,
@@ -320,7 +317,6 @@ class Receive_garnu extends CI_Controller
 				'copper' => $record->copper,
 				'process_name' => $processName,
 				'worker_name' => $worker_name,
-				'recieved' => $received,
 				'is_recieved' => $record->recieved,
 				'created_at' => date('d-m-Y g:i A', strtotime($record->created_at)),
 			);

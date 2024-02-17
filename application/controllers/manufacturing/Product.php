@@ -67,6 +67,9 @@ class Product extends CI_Controller
 		if (!empty($todate)) {
 			$this->db->where('creation_date <=', $todate);
 		}
+		if (!empty($product_id)) {
+			$this->db->where('id', $product_id);
+		}
 		if (!empty($received)) {
 			$this->db->where('recieved', $received);
 		}
@@ -89,6 +92,9 @@ class Product extends CI_Controller
 		if (!empty($received)) {
 			$this->db->where('recieved', $received);
 		}
+		if (!empty($product_id)) {
+			$this->db->where('id', $product_id);
+		}
 		$this->db->limit($rowperpage, $start);
 		$this->db->group_by('id');
 		$this->db->order_by('id', "desc");
@@ -98,15 +104,18 @@ class Product extends CI_Controller
 		$i = $start + 1;
 		foreach ($records as $record) {
 			$process = "";
-			$given = $this->db->select('given.*,customer.name AS customer_name, process.name AS process_name')
+			$this->db->select('given.*,customer.name AS customer_name, process.name AS process_name')
 			->from('given')
-			->where('garnu_id', $record->id)
-			// if (!empty($worker_id)) {
-			// 	$this->db->where('worker_id', $worker_id);
-			// }
-			->join('process', 'given.process_id = process.id', 'left')
-			->join('customer', 'given.worker_id = customer.id', 'left')
-			->get()->result();
+			->where('garnu_id', $record->id);
+			if (!empty($process_id)) {
+				$this->db->where('given.process_id', $process_id);
+			}
+			if (!empty($worker_id)) {
+				$this->db->where('given.worker_id', $worker_id);
+			}
+			$this->db->join('process', 'given.process_id = process.id', 'left')
+			->join('customer', 'given.worker_id = customer.id', 'left');
+			$given = $this->db->get()->result();
 			$process .= '<div class="table-responsive">
 			<table class="table table-bordered" style="width: 100%;">
 				<thead>

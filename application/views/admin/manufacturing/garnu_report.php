@@ -294,9 +294,9 @@
 			$('.total-weight').text("");
 			$('.total-net_weight').text("");
 
-			$('.total-touch').text(Totaltouch);
-			$('.total-weight').text(Totalweight);
-			$('.total-net_weight').text(Totalnet_weight);
+			$('.total-touch').text(formatNumber(Totaltouch));
+			$('.total-weight').text(formatNumber(Totalweight));
+			$('.total-net_weight').text(formatNumber(Totalnet_weight));
 		}
 
 		function receiveGarnu(id = null) {
@@ -325,7 +325,7 @@
 							$(response.data).each(function(index, value) {
 								var net_weight = (value.net_weight != 0) ? value.net_weight : value.touch * value.weight / 100;
 								var metal_type_id = (value.metal_type_id) ? value.metal_type_id : "0";
-								var touch = (value.touch) ? value.touch : garnuTouch;
+								var touch = (value.touch) ? value.touch : garnuTouch; 
 
 								var $lastRow;
 								if (index == 0) {
@@ -443,7 +443,7 @@
 			}
 			var weight = touch.parent().siblings().find('.weight').val();
 			var net_weight = weight * touch.val();
-			touch.parent().siblings().find('.net_weight').val(net_weight / 100);
+			touch.parent().siblings().find('.net_weight').val(formatNumber(net_weight / 100));
 			RmcalculateMain();
 		});
 
@@ -451,7 +451,7 @@
 			var weight = $(this);
 			var touch = weight.parent().siblings().find('.touch').val();
 			var net_weight = touch * weight.val();
-			weight.parent().siblings().find('.net_weight').val(net_weight / 100);
+			weight.parent().siblings().find('.net_weight').val(formatNumber(net_weight / 100));
 			RmcalculateMain();
 		});
 

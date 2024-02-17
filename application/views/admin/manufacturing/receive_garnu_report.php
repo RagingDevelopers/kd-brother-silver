@@ -19,12 +19,6 @@
 				<div class="col-sm-11">
 					<h1 class="card-title"><b>Received Garnu Report </b></h1>
 				</div>
-				<!-- <div class="col-sm-1 ms-5 ps-5">
-					<a class="btn btn-action bg-primary text-white" href="<?= base_url('manufacturing/garnu/index/add') ?>">
-						<i class="far fa-plus card-title" aria-hidden="true">
-						</i>
-					</a>
-				</div> -->
 			</div>
 			<div class="card-body border-bottom py-3">
 				<div class="table-responsive">
@@ -38,14 +32,6 @@
 								<label>To date:</label> <br>
 								<input type="date" id="todate" name="todate" class="form-control">
 							</div>
-							<!-- <div class="col-sm-2">
-								<label>Received:</label> <br>
-								<select class="form-select select2" id="received">
-									<option value="">All</option>
-									<option value="YES">YES</option>
-									<option value="NO">NO</option>
-								</select>
-							</div> -->
 						</div>
 						<div class="mt-3">
 							<table id="garnu" class="table table-vcenter card-table">
@@ -60,7 +46,6 @@
 										<th scope="col">Copper</th>
 										<th scope="col">Process Name</th>
 										<th scope="col">Worker Name</th>
-										<th scope="col">Received</th>
 										<th scope="col">Created At</th>
 									</tr>
 								</thead>
@@ -125,22 +110,12 @@
 					data: 'worker_name'
 				},
 				{
-					data: 'recieved'
-				},
-				{
 					data: 'created_at'
 				},
 			],
 			drawCallback: function(settings) {
 				$('[data-bs-toggle="tooltip"]').tooltip();
 			},
-			"rowCallback": function(row, data) {
-				if (data.is_recieved == 'YES') {
-					$(row).css('color', 'green');
-				} else if (data.is_recieved == 'NO') {
-					$(row).css('color', 'red');
-				}
-			}
 		});
 		$('#todate').on('change', function() {
 			table.clear()
