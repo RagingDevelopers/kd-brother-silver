@@ -28,6 +28,7 @@
 							<div class="row mt-1">
 								<input type="hidden" name="garnu_id" id="" class="form-control garnu_id" value="<?= $data['id'] ?? null ?>">
 								<input type="hidden" name="given_id" id="" class="form-control given_id" value="<?= $process_data['id'] ?? null ?>">
+								<input type="hidden" id="gatnuTouch" value="<?= $data['touch'] ?? null ?>">
 								<div class="col-md-4 col-sm-3">
 									<label class="form-label" for="">Garnu Name: </label>
 									<input type="text" name="name" id="" class="form-control readonly" placeholder="Enter Garnu Name" readonly value="<?= $data['name'] ?? null ?>" autocomplete="off">
@@ -60,7 +61,7 @@
 
 								<div class="col-md-4 col-sm-3">
 									<label class="form-label" for="workers">Workers: </label>
-									<select class="form-select select2 " name="workers" id="workers">
+									<select class="form-select select2 workers" name="workers" id="workers">
 										<option value="">Select Worker:</option>
 									</select>
 								</div>
@@ -321,6 +322,106 @@
 							</div>
 						</div>
 					</div>
+
+					<div class="modal modal-blur fade modal-lg" data-bs-backdrop="static" data-bs-keyboard="false" id="metalType-report" tabindex="-1" role="dialog" aria-hidden="true">
+						<div class="modal-dialog modal-dialog-scrollable" role="document">
+							<div class="modal-content">
+								<div class="modal-header">
+									<h5 class="modal-title">Received Metal Type</h5>
+									<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+								</div>
+								<div class="modal-body">
+									<table class="table table-vcenter card-table table-striped">
+										<thead>
+											<tr>
+												<th>Metal Type</th>
+												<th>Touch %</th>
+												<th>Weight</th>
+												<th>Quantity</th>
+												<th></th>
+											</tr>
+										</thead>
+										<tbody id="MetalBody">
+											<?php
+											if (empty($metalData)) {
+												$metalData[] = [
+													'metal_type_id' => 0,
+													'rmWeight'        => 0,
+													'rmTouch'         => 0,
+													'rmQuantity'      => 0,
+													'id'              => 0
+												];
+											}
+											foreach ($metalData as $row) { ?>
+												<!-- <input type="hidden" class="ids" value="0" /> -->
+												<tr class="metalRow">
+													<td>
+														<input type="hidden" class="process_metal_type" value="0" />
+														<select class="form-select select2 metal_type">
+															<option value="">Select Metal Type</option>
+															<?php
+															if (!empty($metal_type)) {
+																foreach ($metal_type as $mt) { ?>
+																	<option value="<?= $mt['id']; ?>" <?php if (isset($row) && $mt['id'] == $row['metal_type_id']) {
+																											echo 'selected';
+																										} ?>><?= $mt['name']; ?>
+																	</option>
+															<?php }
+															} ?>
+														</select>
+													</td>
+													<td class="text-muted">
+														<input type="number" class="form-control metalTouch" value="0" placeholder="Enter Touch" autocomplete="off">
+													</td>
+													<td class="text-muted">
+														<input type="number" class="form-control metalWeight" value="0" placeholder="Enter Weight" autocomplete="off">
+													</td>
+													<td class="text-muted">
+														<input type="number" class="form-control metalQuantity" value="0" placeholder="Enter Quantity" autocomplete="off">
+													</td>
+													<td>
+														<button type="button" class="btn btn-danger metalDeleteRow">X</button>
+													</td>
+												</tr>
+											<?php } ?>
+										</tbody>
+										<tfoot>
+											<tr>
+												<td>
+													<h3>Total :</h3>
+												</td>
+												<td>
+													<div class="d-flex">
+														<h4><span class='text-end ms-3 metal-total-touch'>0</span></h4>
+													</div>
+												</td>
+												<td>
+													<div class="d-flex">
+														<h4><span class='text-end ms-3 metal-total-weight'>0</span></h4>
+													</div>
+												</td>
+												<td>
+													<div class="d-flex">
+														<h4><span class='text-end ms-3 metal-total-qty'>0</span></h4>
+													</div>
+												</td>
+												<td></td>
+											</tr>
+										</tfoot>
+									</table>
+								</div>
+								<div class="modal-footer justify-content-between">
+									<button type="button" class="btn btn-outline-success btn-success metalAddButton">
+										<span class="mx-1">Add </span><i class="fa-solid fa-plus"></i>
+									</button>
+									<div>
+										<button type="button" class="btn btn-outline-secondary btn-secondary" data-bs-dismiss="modal">Close</button>
+										<button type="button" class="btn btn-outline-primary btn-primary saveMetalData">Save</button>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -438,28 +539,48 @@
 			else $(this).off("submit").submit();
 		});
 
+		var garnuTouch = $('#gatnuTouch').val();
 		var mainRow = $('.mainRow')[0].outerHTML;
 		var mainRmRow = $('.main-row')[0]?.outerHTML;
+		var metalRow = $('.metalRow')[0]?.outerHTML;
 		var ReceivedMainRow;
 		var rmBtn = null;
 		var receiveBtn = null;
+
 		$('.process').change(function() {
 			var process_id = $(this).val();
-			var worker_id = $(this).find(":selected").data('workerid')
-			if (process_id != '') {
+			var selected_id = $(this).find(":selected").data('workerid');
+			$(".workers").empty();
+			if (process_id) {
+				var optionHTML = "";
+				var selected = "";
+				optionHTML += `<option value=""> Select <option>`;
+
 				$.ajax({
-					url: "<?php echo base_url(); ?>manufacturing/process/getWorkers",
+					type: "POST",
+					dataType: "json",
+					url: `${BaseUrl}manufacturing/process/getWorkers`,
 					method: "POST",
 					data: {
 						process_id,
-						worker_id
+						selected_id
 					},
-					success: function(data) {
-						$('#workers').html(data);
-					}
+					success: function(response) {
+						$.each(response, function(key, value) {
+							selected =
+								selected_id != null && selected_id == value.id ? "selected" : " ";
+							optionHTML += `<option value="${value["id"]}" ${selected}>${value["name"]}</option>`;
+						});
+						if (selected_id != null) {
+							$(".workers").html(optionHTML);
+						} else {
+							$(".workers").html(optionHTML).select2('open');
+						}
+					},
 				});
 			} else {
-				$('#workers').html('<option value="">Select Workers</option>');
+				$(".workers").empty();
+				$(".workers").append('<option value="">Select</option>');
 			}
 		}).trigger('change');
 
@@ -471,8 +592,8 @@
 			$('.weight').each(function() {
 				totalRmWeight += parseFloat($(this).val()) || 0;
 			});
-			$('.totalRmWeight').val(totalRmWeight);
-			$('.finalWeight').val(parseFloat(given_weight) + parseFloat(totalRmWeight));
+			$('.totalRmWeight').val(formatNumber(totalRmWeight));
+			$('.finalWeight').val(formatNumber(parseFloat(given_weight) + parseFloat(totalRmWeight)));
 		}
 
 		autoValueEnter();
@@ -540,7 +661,7 @@
 			autoValueEnter();
 		});
 
-		$(document).on('input', '.touch', function() {
+		$(document).on('input', '.touch,.touch2,.metalTouch', function() {
 			var touch = $(this);
 			if (touch.val() > 100) {
 				SweetAlert('warning', 'Touch should be less than equal to 100'), touch.val("");
@@ -637,13 +758,12 @@
 
 		});
 
-		var mainRow2 = $('.mainRow2')[0].outerHTML;
 		$('.addButton2').click(function() {
 			var LastRm = $('.row_material2').last();
 			if (LastRm.val() == '') {
 				return LastRm.select2('open');
 			}
-			$('#JBody').append(mainRow2);
+			$('#JBody').append(mainRmRow);
 			const lastTr = $('#JBody tr').last();
 			lastTr.find('.rowid2').val(0);
 			lastTr.find('.weight2, .touch2, .quantity2').val(0);
@@ -665,12 +785,6 @@
 
 		$(document).on('input', '.touch2,.weight2,.quantity2', function() {
 			RmcalculateMain();
-		});
-		$(document).on('input', '.touch2', function() {
-			var touch = $(this);
-			if (touch.val() > 100) {
-				SweetAlert('warning', 'Touch should be less than equal to 100'), touch.val("");
-			}
 		});
 
 		$(document).on('click', '.saveRmData', function() {
@@ -726,7 +840,7 @@
 			var container = i.parents('tr');
 			var receivedWeight = container.find(".receivedWeight").val() || 0;
 			var receivedRmWeight = container.find(".receivedRmWeight").val() || 0;
-			container.find(".receivedfinalWeight").val(parseFloat(receivedWeight) + parseFloat(receivedRmWeight));
+			container.find(".receivedfinalWeight").val(formatNumber(parseFloat(receivedWeight) + parseFloat(receivedRmWeight)));
 		}
 
 		$(document).on('input', '.receivedWeight', function() {
@@ -784,9 +898,9 @@
 				Totalqty += parseFloat($(this).val() || 0);
 			});
 
-			$('.total-touch').text(Totaltouch);
-			$('.total-weight').text(Totalweight);
-			$('.total-qty').text(Totalqty);
+			$('.total-touch').text(formatNumber(Totaltouch));
+			$('.total-weight').text(formatNumber(Totalweight));
+			$('.total-qty').text(formatNumber(Totalqty));
 		}
 
 		$('#received-garnu').on('submit', function(e) {
@@ -842,11 +956,25 @@
 			$('#totalPcs').text('');
 			$('#totalPcs').text(totalPcs);
 			$('#TotalWeight').text('');
-			$('#TotalWeight').text(receivedWeight);
+			$('#TotalWeight').text(formatNumber(receivedWeight));
 			$('#rowMaterialWeight').text('');
-			$('#rowMaterialWeight').text(receivedRmWeight);
+			$('#rowMaterialWeight').text(formatNumber(receivedRmWeight));
 			$('#totalFinalWeight').text('');
-			$('#totalFinalWeight').text(receivedfinalWeight);
+			$('#totalFinalWeight').text(formatNumber(receivedfinalWeight));
+
+			var Total = $('#givenTotal_weight').text() - receivedfinalWeight;
+			let formattedTotal = formatNumber(Total);
+			var jamaBaki = "";
+			if (formattedTotal > 0) {
+				jamaBaki = `<h4 class='text-danger'>ધટાડો :- <span class='ps-3'> ${formattedTotal} </span></h4>`;
+			} else if (formattedTotal == 0) {
+				jamaBaki = `<h4 class='text-success'>સરભર :- <span class='ps-3'> ${formattedTotal} </span></h4>`;
+			} else {
+				jamaBaki = `<h4 class='text-success'>વધારો :- <span class='ps-3'> ${formattedTotal} </span></h4>`;
+			}
+			$('.jama_baki').val(formattedTotal);
+			$('#jama_baki').html('');
+			$('#jama_baki').html(jamaBaki);
 		}
 
 		$(document).on('input', '.touch,.weight,.quantity', function() {
@@ -872,14 +1000,14 @@
 			$('.total-weight').text("");
 			$('.total-net_weight').text("");
 
-			$('.total-touch').text(Totaltouch);
-			$('.total-weight').text(Totalweight);
-			$('.total-qty').text(Totalqty);
+			$('.total-touch').text(formatNumber(Totaltouch));
+			$('.total-weight').text(formatNumber(Totalweight));
+			$('.total-qty').text(formatNumber(Totalqty));
 		}
 
-		$(document).on('focus', '.touch,.weight,.quantity,.Pcs,.receivedWeight,.touch2, .weight2, .quantity2,.given-qty,.labour', function() {
+		$(document).on('focus', '.touch,.weight,.quantity,.Pcs,.receivedWeight,.touch2, .weight2, .quantity2,.given-qty,.labour,.metalQuantity,.metalWeight,.metalTouch', function() {
 			handleInputFocusAndBlur(this, 'focus');
-		}).on('blur', '.touch,.weight,.quantity,.Pcs,.receivedWeight,.touch2, .weight2, .quantity2,.given-qty,.labour', function() {
+		}).on('blur', '.touch,.weight,.quantity,.Pcs,.receivedWeight,.touch2, .weight2, .quantity2,.given-qty,.labour,.metalQuantity,.metalWeight,.metalTouch', function() {
 			handleInputFocusAndBlur(this, 'blur');
 		});
 
@@ -891,6 +1019,147 @@
 				$element.val('0');
 			}
 		}
+
+		$(document).on('click', '.ProcessMetalType', function() {
+			var modal = $("#metalType-report");
+			var mainSection = modal.find(".metalRow");
+			modal.find("tbody").html("");
+			var string = $('.ProcessMetalType').parent().find(".metaldata").val();
+			var data = string?.split("|");
+			mainSectionLength = data?.length ?? 0;
+			if (mainSectionLength > 0) {
+				for (var i = 0; i < mainSectionLength; i++) {
+					modal.find("tbody").append(metalRow);
+					var row = modal.find(".metalRow").eq(i),
+						splitByHash = data[i]?.split(","),
+						metal_type = splitByHash[0] ?? 0,
+						touch = splitByHash[1] ?? garnuTouch,
+						weight = splitByHash[2] ?? 0;
+					quantity = splitByHash[3] ?? 0;
+					process_metal_type = splitByHash[4] ?? 0;
+					row.find(".metal_type ").val(metal_type).trigger("change");;
+					(row.find(".metalTouch").val(touch));
+					(row.find(".metalWeight").val(weight));
+					(row.find(".metalQuantity").val(quantity));
+					(row.find(".process_metal_type").val(process_metal_type));
+					Metalcalculate();
+				}
+			} else {
+				modal.find("tbody").append(metalRow);
+			}
+			modal.modal("show");
+		});
+
+		$('#metalType-report').on('shown.bs.modal', function(e) {
+			Metalcalculate();
+			var modal = this;
+			$('.metal_type').each(function() {
+				$(this).select2({
+					width: '250',
+					dropdownParent: $(modal)
+				});
+			});
+		});
+
+		function Metalcalculate() {
+			var metalTotalweight = 0;
+			var metalTotaltouch = 0;
+			var metalTotalqty = 0;
+
+			$('.metalWeight').each(function() {
+				metalTotalweight += parseFloat($(this).val() || 0);
+			});
+			$('.metalTouch').each(function() {
+				metalTotaltouch += parseFloat($(this).val() || 0);
+			});
+			$('.metalQuantity').each(function() {
+				metalTotalqty += parseFloat($(this).val() || 0);
+			});
+
+			$('.metal-total-touch').text("");
+			$('.metal-total-weight').text("");
+			$('.metal-total-net_weight').text("");
+
+			$('.metal-total-weight').text(formatNumber(metalTotalweight));
+			$('.metal-total-touch').text(formatNumber(metalTotaltouch));
+			$('.metal-total-qty').text(formatNumber(metalTotalqty));
+		}
+
+		$('.metalAddButton').click(function() {
+			var LastRm = $('.metal_type').last();
+			if (LastRm.val() == '') {
+				return LastRm.select2('open');
+			}
+			$('#MetalBody').append(metalRow);
+			const lastTr = $('#MetalBody tr').last();
+			lastTr.find('.metalTouch').val(garnuTouch);
+			lastTr.find('.metalWeight,.metalQuantity').val(0);
+			lastTr.find('.metal_type').select2({
+				width: '250',
+				dropdownParent: $('#metalType-report')
+			});
+			lastTr.find('.metal_type').last().select2('open');
+			var modalBody = $('#metalType-report .modal-body');
+			scrollEvent(modalBody, 550);
+			Metalcalculate();
+		});
+
+		$(document).on('click', '.metalDeleteRow', function() {
+			if ($('.metalDeleteRow').length > 1) {
+				$(this).parents('tr').remove();
+			}
+			Metalcalculate();
+		});
+
+		$(document).on('input', '.metalWeight,.metalTouch,.metalQuantity', function() {
+			Metalcalculate();
+		});
+
+		$(document).on('click', '.saveMetalData', function() {
+			var count = 0;
+			$('.metal_type').each(function() {
+				var metal_type = $(this).val();
+				if (metal_type == 0 || metal_type == "") {
+					count += 1;
+					SweetAlert('warning', 'Please Enter Metal Type and Touch.');
+				}
+			});
+
+			$('.metalTouch').each(function() {
+				var metalTouch = $(this).val();
+				if (metalTouch == 0 || metalTouch == "") {
+					count += 1;
+					SweetAlert('warning', 'Please Enter Metal Type and Touch.');
+				}
+			});
+			(count == 0) ? $("#metalType-report").modal('hide'): null;
+
+			var modal = $('#metalType-report');
+			var container = $('.ProcessMetalType').parent();
+			console.log(container);
+			var mainSection = modal.find(".metalRow");
+			var mainSectionLength = modal.find('tbody tr').length;
+			let FilterVar = (el) => {
+				if (el == "" || el == undefined || el == NaN) {
+					return 0;
+				}
+				return el;
+			};
+			var string = "";
+			var totalRmWeight = 0;
+			for (var i = 0; i < mainSectionLength; i++) {
+				var row = mainSection.eq(i);
+				var mt = row.find(".metal_type  option:selected").val();
+				var metalTouch = FilterVar(row.find(".metalTouch").val());
+				var metalWeight = FilterVar(row.find(".metalWeight").val());
+				var metalQuantity = FilterVar(row.find(".metalQuantity").val());
+				var process_metal_type = FilterVar(row.find(".process_metal_type").val());
+				string += [mt, metalTouch, metalWeight, metalQuantity, process_metal_type].join(",");
+				if (mainSectionLength > i + 1)
+					string += "|";
+			}
+			container.find(".metaldata").val(string);
+		});
 
 	});
 </script>

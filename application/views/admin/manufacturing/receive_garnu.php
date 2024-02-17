@@ -1,4 +1,4 @@
-<div class="modal-header row">
+<div class="modal-header">
 	<div class="col-md-3">
 		<p class="modal-title">Process:- <span class="process_name"><?= $givenData['process_name']; ?></span></p>
 	</div>
@@ -38,6 +38,7 @@
 				<th>Given Row Material Weight</th>
 				<th>Given Final Weight</th>
 				<th>Given Touch Group</th>
+				<th>Given Remark</th>
 				<th>Given Date</th>
 				<th>Given Created At</th>
 			</tr>
@@ -46,15 +47,37 @@
 			<tr>
 				<td><?= $givenData['given_weight']; ?></td>
 				<td><?= $givenData['row_material_weight']; ?></td>
-				<td><?= $givenData['total_weight']; ?></td>
+				<td id="givenTotal_weight"><?= $givenData['total_weight']; ?></td>
 				<td class="text-muted"><?= $garnuData['touch']; ?></td>
+				<td class="text-muted"><?= $givenData['remarks']; ?></td>
 				<td class="text-muted"><?= $givenData['creation_date']; ?></td>
-				<td class="text-muted"><?= $givenData['created_at']; ?></td>
+				<td class="text-muted"><?= ($givenData['created_at']) ? date('d-m-Y g:i A', strtotime($givenData['created_at'])) : ""; ?></td>
 			</tr>
 		</tbody>
 	</table>
 
-	<h3 class="pb-0 mb-2 mt-5 ps-2">Data Fetched From: <?= $garnuData['name']; ?></h3>
+	<div class="d-flex pt-3 justify-content-between">
+		<h3>Data Fetched From: <?= $garnuData['name']; ?></h3>
+		<div>
+			<?php
+			$rm_string_array = [];
+			foreach ($metalData as $rm) {
+				$rm_string_array[] = implode(',', [
+					$rm['metal_type_id'],
+					$rm['touch'],
+					$rm['weight'],
+					$rm['quantity'],
+					$rm['id']
+				]);
+			}
+			$row['metal_string'] = implode('|', $rm_string_array ?? []) ?? "";
+			?>
+
+			<input type="hidden" name="metalType-data" value="<?= $row['metal_string'] ?? null; ?>" class="form-control metaldata" autocomplete="off">
+			<button type="button" class="btn btn-primary btn-primary ProcessMetalType">process metal type receive</button>
+		</div>
+	</div>
+
 	<table class="table table-vcenter card-table table-striped" id="Received">
 		<thead>
 			<tr>
@@ -144,8 +167,8 @@
 				<td>
 					<h4><span class='text-end ms-3' id="totalFinalWeight"></span></h4>
 				</td>
-				<td></td>
-				<td></td>
+				<td colspan="2" id="jama_baki"></td>
+				<input type="hidden" name="jama_baki" value="" class="jama_baki">
 			</tr>
 		</tfoot>
 	</table>

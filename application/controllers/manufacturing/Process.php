@@ -20,6 +20,7 @@ class Process extends CI_Controller
 		$page_data['process_data'] = $this->db->select('*')->from('given')->where('id', $pid)->get()->row_array();
 		$page_data['given_row_material'] = $this->db->select('*')->from('given_row_material')->where(array('given_id' => $pid, 'garnu_id' => $id))->get()->result_array();
 		$page_data['row_material'] = $this->db->select('id,name')->from('row_material')->where('status', "ACTIVE")->get()->result_array();
+		$page_data['metal_type'] = $this->db->select('id,name')->from('metal_type')->get()->result_array();
 		$page_data['table'] = $this->db->select('given.*,customer.name AS customer_name, process.name AS process_name')->from('given')->where('garnu_id', $id)->join('process', 'given.process_id = process.id', 'left')->join('customer', 'given.worker_id = customer.id', 'left')->get()->result();
 		$page_data['page_title'] = 'Process';
 		$page_data['process'] = $this->modal->fetch_process();
@@ -28,8 +29,9 @@ class Process extends CI_Controller
 
 	public function getWorkers()
 	{
-		$workerdata = $this->modal->fetch_workers($this->input->post());
-		echo $workerdata;
+		$post = $this->input->post();
+		$data = $this->db->select('id,name')->from('customer')->where(array('process_id'=>$post['process_id'],'account_type_id'=>7))->get()->result_array();
+		echo json_encode($data);
 	}
 
 	public function add()
@@ -182,6 +184,7 @@ class Process extends CI_Controller
 		$page_data['garnuData'] = $this->dbh->getWhereRowArray('garnu', ['id' => $garnu_id]);
 		// $page_data['givenData'] = $this->dbh->getWhereRowArray('given', ['id' => $given_id]);
 		$page_data['receivedData'] = $this->dbh->getWhereResultArray('receive', ['given_id' => $given_id, 'garnu_id' => $garnu_id]);
+		$page_data['metalData'] = $this->dbh->getWhereResultArray('process_metal_type', ['given_id' => $given_id]);
 		$page_data['givenData']  = $this->db->select('given.*,process.name AS process_name')
 			->from('given')
 			->join('process', 'given.process_id = process.id', 'left')
@@ -199,6 +202,9 @@ class Process extends CI_Controller
 		$existingIds = isset($post['rcid']) ? $post['rcid'] : [];
 		$allids = isset($post['ids']) ? $post['ids'] : [];
 		$idsNotExisting = array_diff($allids, $existingIds);
+		$given_id = $post['given_id'];
+
+		$this->db->where('id', $given_id)->update('given', ['vadharo_dhatado'=>$post['jama_baki']]);
 
 		if (!empty($idsNotExisting)) {
 			$this->db->where_in('id', $idsNotExisting);
@@ -221,7 +227,7 @@ class Process extends CI_Controller
 					];
 
 					if ($rcid == 0) {
-						$receivedData['given_id'] = $post['given_id'];
+						$receivedData['given_id'] = $given_id;
 						$receivedData['garnu_id'] = $post['garnu_id'];
 						$receivedData['creation_date'] = date('Y-m-d');
 						$update = $this->db->insert('receive', $receivedData);
@@ -283,6 +289,52 @@ class Process extends CI_Controller
 					}
 				}
 			}
+
+			$metalType = $post['metalType-data'];
+			if (isset($metalType) && $metalType !== NULL) {
+				$rm_data = explode('|', $metalType);
+				$rmDelete = $this->db->select('id')->where('given_id', $given_id)->get('process_metal_type')->result();
+				foreach ($rm_data as $rcD) {
+					$rm = explode(',', $rcD);
+					$updateArray['pmtid'][] = $rm[4];
+					$updateData = [
+						'given_id'      => $given_id,
+						'metal_type_id'  => $rm[0],
+						'touch'            => $rm[1] ?? 0,
+						'weight'           => $rm[2] ?? 0,
+						'quantity'         => $rm[3] ?? 0,
+					];
+					if ($rm[4] > 0) {
+						$updateData['id'] = $rm[4];
+						$updateArray['mt']['update'][] = $updateData;
+					} else {
+						$updateData['creation_date'] = date('Y-m-d');
+						$updateArray['mt']['insert'][] = $updateData;
+					}
+				}
+
+				if (!empty($updateArray['mt']['insert'])) {
+					$this->db->insert_batch('process_metal_type', $updateArray['mt']['insert']);
+					$response = ['success' => true, 'message' => 'Data Add Successfully.'];
+				} else {
+					$response = ['success' => false, 'message' => 'Data Add Failed.'];
+				}
+				if (!empty($updateArray['mt']['update'])) {
+					$this->db->update_batch('process_metal_type', $updateArray['mt']['update'], 'id');
+					$response = ['success' => true, 'message' => 'Data Update Successfully.'];
+				}
+
+
+				if ($rmDelete) {
+					array_walk($rmDelete, function ($rmD) use (&$updateArray) {
+						if (!in_array($rmD->id, $updateArray['pmtid'])) {
+							$updateArray['mt']['delete'][] = $rmD->id;
+						}
+					});
+					($updateArray['mt']['delete'] && $this->db->where_in('id', $updateArray['mt']['delete'])->delete('process_metal_type'));
+				}
+			}
+			
 		} else {
 			$response = ['success' => false, 'message' => 'Please Fill Complate form.'];
 		}
