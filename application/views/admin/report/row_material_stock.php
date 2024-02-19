@@ -20,7 +20,7 @@
                             </div>
                             <div class="col-sm-2">
                                 <label>Row Material</label><br>
-                                <select class="form-select select2">
+                                <select class="form-select select2" id="row_material">
                                     <option value=''>Select Row Material</option>
                                     <?php
                                     foreach ($row_material as $r) {
@@ -33,7 +33,7 @@
                             </div>
                             <div class="col-sm-2">
                                 <label>Garnu Name</label><br>
-                                <select class="form-select select2">
+                                <select class="form-select select2" id="garnu">
                                     <option value=''>Select Garnu</option>
                                     <?php
                                     foreach ($garnu as $g) {
@@ -46,7 +46,7 @@
                             </div>
                             <div class="col-sm-2">
                                 <label>Process Name</label><br>
-                                <select class="form-select select2">
+                                <select class="form-select select2" id="process">
                                     <option value=''>Select Process</option>
                                     <?php
                                     foreach ($process as $p) {
@@ -59,7 +59,7 @@
                             </div>
                             <div class="col-sm-2">
                                 <label>Type</label><br>
-                                <select class="form-select select2">
+                                <select class="form-select select2" id="type">
                                     <option value=''>Select Type</option>
                                     <option value="credit">Credit</option>
                                     <option value="debit">Debit</option>
@@ -119,6 +119,10 @@
                 'data': function(data) {
                     data.todate = $('#todate').val();
                     data.fromdate = $('#fromdate').val();
+                    data.row_material_id = $('#row_material').val();
+                    data.garnu_id = $('#garnu').val();
+                    data.process_id = $('#process').val();
+                    data.types = $('#type').val();
                 }
             },
             "columns": [{
@@ -172,5 +176,13 @@
                 }
             }
         });
+        $('#todate').on('change', function() {
+			table.clear();
+			table.draw();
+		});
+		$('#fromdate,#row_material,#garnu,#process,#type').on('change', function() {
+			table.clear();
+			table.draw();
+		});
     });
 </script>
