@@ -57,14 +57,14 @@
                                     <?php } ?>
                                 </select>
                             </div>
-                            <div class="col-sm-2">
+                            <!-- <div class="col-sm-2">
                                 <label>Type</label><br>
                                 <select class="form-select select2" id="type">
                                     <option value=''>Select Type</option>
                                     <option value="credit">Credit</option>
                                     <option value="debit">Debit</option>
                                 </select>
-                            </div>
+                            </div> -->
                         </div><br>
                         <div class="mt-3">
                             <table id="stock" class="table table-vcenter card-table">
@@ -117,12 +117,12 @@
             "ajax": {
                 'url': "<?= base_url(); ?>report/Row_material_stock/fetchData",
                 'data': function(data) {
-                    data.todate = $('#todate').val();
-                    data.fromdate = $('#fromdate').val();
-                    data.row_material_id = $('#row_material').val();
-                    data.garnu_id = $('#garnu').val();
-                    data.process_id = $('#process').val();
-                    data.types = $('#type').val();
+                    data.todate = ($('#todate').val() ?? null);
+                    data.fromdate = ($('#fromdate').val() ?? null);
+                    data.row_material_id = ($('#row_material').val() ?? null);
+                    data.garnu_id = ($('#garnu').val() ?? null);
+                    data.process_id = ($('#process').val() ?? null);
+                    // data.types = ($('#type').val() ?? null);
                 }
             },
             "columns": [{

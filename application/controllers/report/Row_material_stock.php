@@ -35,18 +35,63 @@ class Row_material_stock extends CI_Controller
         // serching coding
         $columnIndex = $postData['order'][0]['column']; // Column index
         $searchValue = $postData['search']['value']; // Search value
-        $todate = $postData['todate'];
-        $fromdate = $postData['fromdate'];
-        $row_material_id = $postData['row_material_id'];
-        $garnu_id = $postData['garnu_id'];
-        $process_id = $postData['process_id'];
-        $types = $postData['types'];
+        $todate = $postData['todate'] ?? null;
+        $fromdate = $postData['fromdate'] ?? null;
+        $row_material_id = $postData['row_material_id'] ?? null;
+        $garnu_id = $postData['garnu_id'] ?? null;
+        $process_id = $postData['process_id'] ?? null;
+        // $types = $postData['types'] ?? null;
 
         # Search
         $searchQuery = "";
-		if ($searchValue != '') {
-			$searchQuery = " (row_material.name like '%" . $searchValue . "%'  or garnu.name like '%" . $searchValue . "%'  or process.name like '%" . $searchValue . "%' or given_row_material.touch like'%" . $searchValue . "%' or given_row_material.weight like'%" . $searchValue . "%' or given_row_material.quantity like'%" . $searchValue . "%'  or given_row_material.created_at like'%" . $searchValue . "%' or receive_row_material.touch like'%" . $searchValue . "%' or receive_row_material.weight like'%" . $searchValue . "%' or receive_row_material.quantity like'%" . $searchValue . "%'  or receive_row_material.created_at like'%" . $searchValue . "%') ";
-		}
+        if ($searchValue != '') {
+            $searchValue = $this->db->escape('%' . $searchValue . '%');
+            $searchQuery = " (row_material.name like '%" . $searchValue . "%'  OR
+            garnu.name like '%" . $searchValue . "%'  OR
+            process.name like '%" . $searchValue . "%' OR
+            given_row_material.touch like'%" . $searchValue . "%' OR 
+            given_row_material.weight like'%" . $searchValue . "%' OR 
+            given_row_material.quantity like'%" . $searchValue . "%'  OR
+            given_row_material.creation_date like'%" . $searchValue . "%' OR 
+            receive_row_material.touch like'%" . $searchValue . "%' OR 
+            receive_row_material.weight like'%" . $searchValue . "%' OR
+            receive_row_material.quantity like'%" . $searchValue . "%'  OR
+            receive_row_material.creation_date like'%" . $searchValue . "%') ";
+        } else {
+            $searchQuery = ' TRUE ';
+        }
+
+        $where = "";
+        if (!empty($fromdate)) {
+            $fromdate = $this->db->escape($fromdate);
+            $where .= "receive_row_material.creation_date >= " . $fromdate . " AND ";
+        }
+        if (!empty($todate)) {
+            $todate = $this->db->escape($todate);
+            $where .= "receive_row_material.creation_date <= " . $todate . " AND ";
+        }
+        if (!empty($row_material_id)) {
+            // $todate = $this->db->escape($row_material_id);
+            $where .= "row_material.id = " . $row_material_id . " AND ";
+        }
+        if (!empty($garnu_id)) {
+            // $todate = $this->db->escape($garnu_id);
+            $where .= "garnu.id = " . $garnu_id . " AND ";
+        }
+        if (!empty($process_id)) {
+            // $todate = $this->db->escape($process_id);
+            $where .= "process.id = " . $process_id . " AND ";
+        }
+        // if (!empty($types)) {
+        //     // $todate = $this->db->escape($types);
+        //     $where .= "process.id = " . $types . " AND ";
+        // }
+
+        $where = rtrim($where, ' AND ');
+
+        if (!empty($where)) {
+            $where = " AND ($where)";
+        }
 
         ## Total number of records without filtering
         $q = $this->db->query("
@@ -80,26 +125,28 @@ class Row_material_stock extends CI_Controller
                     FROM
                         receive_row_material
                     LEFT JOIN receive ON receive_row_material.received_id = receive.id
+                    LEFT JOIN row_material ON receive_row_material.row_material_id = row_material.id
                     LEFT JOIN garnu ON receive.garnu_id = garnu.id
                     LEFT JOIN given ON receive.given_id = given.id
                     LEFT JOIN process ON given.process_id = process.id
-                    WHERE 1=1 
+                    WHERE TRUE $where
                     UNION ALL
                     SELECT
                         given_row_material.id
                     FROM
                         given_row_material
+                    LEFT JOIN row_material ON given_row_material.row_material_id = row_material.id
                     LEFT JOIN garnu ON given_row_material.garnu_id = garnu.id
                     LEFT JOIN given ON given_row_material.given_id = given.id
                     LEFT JOIN process ON given.process_id = process.id
-                    WHERE 1=1 
+                    WHERE TRUE " . str_replace("receive_row_material.creation_date", "given_row_material.creation_date", $where) . "
         ) AS combined_results_filtered");
 
         $records = $filteredQuery->row_array();
         $totalRecordwithFilter = $records['total_count_filtered'];
 
         ## Fetch records
-                $fetchQuery = "
+        $fetchQuery = "
                     SELECT * FROM (
                     SELECT
                     receive_row_material.id as Id,
@@ -109,7 +156,7 @@ class Row_material_stock extends CI_Controller
                     receive_row_material.touch as Touch,
                     receive_row_material.weight as Weight,
                     receive_row_material.quantity as Quantity,
-                    receive_row_material.created_at as Date,
+                    receive_row_material.created_at as Date,               
                     'Credit' as Type   
                     FROM
                     receive_row_material
@@ -118,6 +165,7 @@ class Row_material_stock extends CI_Controller
                     LEFT JOIN garnu ON receive.garnu_id = garnu.id
                     LEFT JOIN given ON receive.given_id = given.id
                     LEFT JOIN process ON given.process_id = process.id
+                    WHERE $searchQuery " . (!empty($where) ? " $where" : '') . "
                     UNION ALL
                     SELECT
                     given_row_material.id as Id,
@@ -135,10 +183,10 @@ class Row_material_stock extends CI_Controller
                     LEFT JOIN garnu ON given_row_material.garnu_id = garnu.id
                     LEFT JOIN given ON given_row_material.given_id = given.id
                     LEFT JOIN process ON given.process_id = process.id
+                    WHERE $searchQuery " . (!empty($where) ? str_replace("receive_row_material", "given_row_material", $where) : '') . "
                     ) AS combined_results
-                WHERE 1=1
                 LIMIT $rowperpage OFFSET $start";
-        
+
         $query = $this->db->query($fetchQuery);
         $records = $query->result_array();
 
@@ -171,7 +219,7 @@ class Row_material_stock extends CI_Controller
             $i = $i + 1;
         }
 
-        
+
         $response = array(
             "draw" => intval($draw),
             "iTotalRecords" => $totalRecords,
