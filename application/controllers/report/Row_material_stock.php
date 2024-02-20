@@ -45,18 +45,10 @@ class Row_material_stock extends CI_Controller
         # Search
         $searchQuery = "";
         if ($searchValue != '') {
-            $searchValue = $this->db->escape('%' . $searchValue . '%');
-            $searchQuery = " (row_material.name like '%" . $searchValue . "%'  OR
-            garnu.name like '%" . $searchValue . "%'  OR
-            process.name like '%" . $searchValue . "%' OR
-            given_row_material.touch like'%" . $searchValue . "%' OR 
-            given_row_material.weight like'%" . $searchValue . "%' OR 
-            given_row_material.quantity like'%" . $searchValue . "%'  OR
-            given_row_material.creation_date like'%" . $searchValue . "%' OR 
-            receive_row_material.touch like'%" . $searchValue . "%' OR 
-            receive_row_material.weight like'%" . $searchValue . "%' OR
-            receive_row_material.quantity like'%" . $searchValue . "%'  OR
-            receive_row_material.creation_date like'%" . $searchValue . "%') ";
+            $searchValue = $this->db->escape_like_str($searchValue);
+            $searchQuery = " (garnu.name like '%" . $searchValue . "%' OR
+            row_material.name like '%" . $searchValue . "%' OR
+            process.name like '%" . $searchValue . "%') ";
         } else {
             $searchQuery = ' TRUE ';
         }
@@ -90,9 +82,12 @@ class Row_material_stock extends CI_Controller
         $where = rtrim($where, ' AND ');
 
         if (!empty($where)) {
-            $where = " AND ($where)";
+            $where = "($where)";
         }
 
+        if ($searchQuery != '') {
+            $where = $searchQuery . (empty($where) ? '' : ' AND ' . $where);
+        }
         ## Total number of records without filtering
         $q = $this->db->query("
                 SELECT COUNT(*) as total_count FROM (
@@ -118,10 +113,11 @@ class Row_material_stock extends CI_Controller
         $totalRecords = $records['total_count'];
 
         ## Total number of record with filtering
+        $filteredQueryCondition = !empty($where) ? $where : "TRUE";
         $filteredQuery = $this->db->query("
                     SELECT COUNT(*) as total_count_filtered FROM (
                     SELECT
-                        receive_row_material.id
+                        receive_row_material.id                                 
                     FROM
                         receive_row_material
                     LEFT JOIN receive ON receive_row_material.received_id = receive.id
@@ -129,23 +125,24 @@ class Row_material_stock extends CI_Controller
                     LEFT JOIN garnu ON receive.garnu_id = garnu.id
                     LEFT JOIN given ON receive.given_id = given.id
                     LEFT JOIN process ON given.process_id = process.id
-                    WHERE TRUE $where
+                    WHERE $filteredQueryCondition
                     UNION ALL
                     SELECT
-                        given_row_material.id
+                        given_row_material.id                        
                     FROM
                         given_row_material
                     LEFT JOIN row_material ON given_row_material.row_material_id = row_material.id
                     LEFT JOIN garnu ON given_row_material.garnu_id = garnu.id
                     LEFT JOIN given ON given_row_material.given_id = given.id
                     LEFT JOIN process ON given.process_id = process.id
-                    WHERE TRUE " . str_replace("receive_row_material.creation_date", "given_row_material.creation_date", $where) . "
+                    WHERE " . str_replace("receive_row_material.creation_date", "given_row_material.creation_date", $filteredQueryCondition) . "
         ) AS combined_results_filtered");
 
         $records = $filteredQuery->row_array();
         $totalRecordwithFilter = $records['total_count_filtered'];
 
         ## Fetch records
+        $fetchQueryCondition = !empty($where) ? $where : "TRUE";
         $fetchQuery = "
                     SELECT * FROM (
                     SELECT
@@ -165,7 +162,7 @@ class Row_material_stock extends CI_Controller
                     LEFT JOIN garnu ON receive.garnu_id = garnu.id
                     LEFT JOIN given ON receive.given_id = given.id
                     LEFT JOIN process ON given.process_id = process.id
-                    WHERE $searchQuery " . (!empty($where) ? " $where" : '') . "
+                    WHERE  $fetchQueryCondition
                     UNION ALL
                     SELECT
                     given_row_material.id as Id,
@@ -183,7 +180,7 @@ class Row_material_stock extends CI_Controller
                     LEFT JOIN garnu ON given_row_material.garnu_id = garnu.id
                     LEFT JOIN given ON given_row_material.given_id = given.id
                     LEFT JOIN process ON given.process_id = process.id
-                    WHERE $searchQuery " . (!empty($where) ? str_replace("receive_row_material", "given_row_material", $where) : '') . "
+                    WHERE " . str_replace("receive_row_material", "given_row_material", $fetchQueryCondition) . "
                     ) AS combined_results
                 LIMIT $rowperpage OFFSET $start";
 
