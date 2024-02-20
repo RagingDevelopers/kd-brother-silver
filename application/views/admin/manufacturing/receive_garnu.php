@@ -11,26 +11,36 @@
 	<div class="col-md-3">
 		<p class="modal-title">Garnu Touch:- <span class="garnu_touch"><?= $garnuData['touch']; ?></span></p>
 	</div>
-	<!-- <h5 class="modal-title">Received</h5> -->
 	<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <div class="modal-body">
-	<div class="col-md-2 col-sm-3 d-flex gap-2 mb-3">
-		<label class="form-label mt-2" for="customer">Worker: </label>
-		<select class="form-select select2 customer">
-			<option value="">Select Worker</option>
-			<?php
-			if (!empty($customer)) {
-				foreach ($customer as $row) { ?>
-					<option value="<?= $row['id']; ?>" <?php if (isset($givenData) && $row['id'] == $givenData['worker_id']) {
-															echo 'selected';
-														} ?>><?= $row['name']; ?></option>
-			<?php }
-			} ?>
-		</select>
-		<input type="hidden" name="given_id" id="" class="form-control" value="<?= $givenData['id'] ?? null ?>">
-		<input type="hidden" name="garnu_id" id="" class="form-control" value="<?= $garnuData['id'] ?? null ?>">
+	<div class="d-flex p-2 justify-content-between">
+		<div class="col-md-2 col-sm-3 d-flex gap-3">
+			<label class="form-label mt-2" for="customer">Worker: </label>
+			<select class="form-select select2 customer col-md-2 col-sm-3">
+				<option value="">Select Worker</option>
+				<?php
+				if (!empty($customer)) {
+					foreach ($customer as $row) { ?>
+						<option value="<?= $row['id']; ?>" <?php if (isset($givenData) && $row['id'] == $givenData['worker_id']) {
+																echo 'selected';
+															} ?>><?= $row['name']; ?></option>
+				<?php }
+				} ?>
+			</select>
+			<input type="hidden" name="given_id" id="" class="form-control" value="<?= $givenData['id'] ?? null ?>">
+			<input type="hidden" name="garnu_id" id="" class="form-control" value="<?= $garnuData['id'] ?? null ?>">
+		</div>
+		<div>
+			<label class="form-check">
+				<input class="form-check-input" id="is_completed" name="is_completed" <?php if (isset($givenData['is_completed']) && $givenData['is_completed'] == "YES") {
+																		echo 'checked';
+																	} ?> type="checkbox">
+				<h4 class="form-check-label is_completed">Is Complated</h4>
+			</label>
+		</div>
 	</div>
+
 	<table class="table table-vcenter card-table table-striped mb-4">
 		<thead>
 			<tr>
@@ -48,10 +58,10 @@
 				<td><?= $givenData['given_weight']; ?></td>
 				<td><?= $givenData['row_material_weight']; ?></td>
 				<td id="givenTotal_weight"><?= $givenData['total_weight']; ?></td>
-				<td class="text-muted"><?= $garnuData['touch']; ?></td>
-				<td class="text-muted"><?= $givenData['remarks']; ?></td>
-				<td class="text-muted"><?= $givenData['creation_date']; ?></td>
-				<td class="text-muted"><?= ($givenData['created_at']) ? date('d-m-Y g:i A', strtotime($givenData['created_at'])) : ""; ?></td>
+				<td><?= $garnuData['touch']; ?></td>
+				<td><?= $givenData['remarks']; ?></td>
+				<td><?= $givenData['creation_date']; ?></td>
+				<td><?= ($givenData['created_at']) ? date('d-m-Y g:i A', strtotime($givenData['created_at'])) : ""; ?></td>
 			</tr>
 		</tbody>
 	</table>
@@ -74,7 +84,7 @@
 			?>
 
 			<input type="hidden" name="metalType-data" value="<?= $row['metal_string'] ?? null; ?>" class="form-control metaldata" autocomplete="off">
-			<button type="button" class="btn btn-primary btn-primary ProcessMetalType">process metal type receive</button>
+			<button type="button" class="btn btn-primary btn-primary ProcessMetalType">metal type receive</button>
 		</div>
 	</div>
 
@@ -130,9 +140,6 @@
 						<div class='d-flex gap-2'>
 							<input type="number" name="weight[]" value="<?= $row['weight'] ?? "0"; ?>" class="form-control receivedWeight" placeholder="Enter Weight" autocomplete="off">
 							<a class="btn btn-action text-white bg-danger Receivedmaterial"><i class="fa-solid fa-circle-plus" aria-hidden="true"></i></a>
-							<!-- <a class="bg-danger btn btn-action text-danger-fg me-2 Receivedmaterial" data-demo-color data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Received" href="#">
-							<i class="far fa-edit" aria-hidden="true"></i>
-						</a> -->
 						</div>
 					</td>
 					<td class="text-muted">

@@ -30,6 +30,7 @@
 <script src="<?= base_url("assets") ?>/dist/libs/block-ui/block-ui.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.3/jquery.validate.min.js"></script>
 <script src="<?= base_url("assets") ?>/dist/js/common.js?v=<?= $time ?>"></script>
+<!-- <script src="<?= base_url("assets") ?>/dist/js/process.js?v=<?=$time?>"></script> -->
 
 
 
