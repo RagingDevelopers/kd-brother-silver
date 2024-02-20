@@ -240,6 +240,29 @@
 						</div>
 					</li>
 
+					<li class="nav-item dropdown <?= IsActive("report"); ?>">
+						<a class="nav-link dropdown-toggle" href="#navbar-third" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false">
+							<span class="nav-link-icon d-md-none d-lg-inline-block">
+								<i class="fa-solid fa-credit-card"></i>
+							</span>
+							<span class="nav-link-title">
+								Report
+							</span>
+						</a>
+						<div class="dropdown-menu" data-bs-popper="static">
+							<div class="dropdown-menu-columns">
+								<div class="dropdown-menu-column">
+									<a class="dropdown-item" href="<?= base_url("report/Row_material_stock") ?>">
+										<span class="nav-link-icon d-md-none d-lg-inline-block">
+											<i class="fa-solid fa-user-plus"></i>
+										</span>
+										Row Material Stock
+									</a>								
+								</div>
+							</div>
+						</div>
+					</li>
+
 				</ul>
 			</div>
 		</div>
