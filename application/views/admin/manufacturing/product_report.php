@@ -60,23 +60,23 @@
 								</select>
 							</div>
 							<div class="col-sm-2">
+								<label>Garnu :</label> <br>
+								<select class="form-select select2" id="product">
+									<option value="">Select Garnu</option>
+									<?php
+									if(!empty($product)){
+										foreach($product as $row){ ?>
+											<option value="<?=$row['id'];?>"><?=$row['name'];?></option>
+									<?php } } ?>
+								</select>
+							</div>
+							<div class="col-sm-2">
 								<label>Worker :</label> <br>
 								<select class="form-select select2" id="worker">
 									<option value="">Select Worker</option>
 									<?php
 									if(!empty($worker)){
 										foreach($worker as $row){ ?>
-											<option value="<?=$row['id'];?>"><?=$row['name'];?></option>
-									<?php } } ?>
-								</select>
-							</div>
-							<div class="col-sm-2">
-								<label>Product :</label> <br>
-								<select class="form-select select2" id="product">
-									<option value="">Select Product</option>
-									<?php
-									if(!empty($product)){
-										foreach($product as $row){ ?>
 											<option value="<?=$row['id'];?>"><?=$row['name'];?></option>
 									<?php } } ?>
 								</select>
@@ -103,7 +103,7 @@
 										<!-- <th scope="col">Used Weight</th>
 										<th scope="col">Used Silver</th>
 										<th scope="col">Used Copper</th> -->
-										<th scope="col">Process</th>
+										<th scope="col" class="text-center">Process</th>
 										<th scope="col">Received</th>
 										<th scope="col">Created At</th>
 									</tr>

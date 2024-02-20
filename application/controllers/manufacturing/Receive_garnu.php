@@ -211,7 +211,7 @@ class Receive_garnu extends CI_Controller
 		$searchValue = $postData['search']['value']; // Search value
 		$todate = $postData['todate'];
 		$fromdate = $postData['fromdate'];
-		$received = $postData['received'];
+		// $received = $postData['received'];
 
 		# Search 
 		$searchQuery = "";
