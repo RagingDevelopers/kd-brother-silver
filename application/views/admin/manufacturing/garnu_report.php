@@ -32,7 +32,7 @@
 										<p class="modal-title">Garnu Name:- <span class="garnu_name"></span></p>
 									</div>
 									<!-- <div class="col-md-1"> -->
-										<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+									<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 									<!-- </div> -->
 								</div>
 								<div class="modal-body">
@@ -103,12 +103,15 @@
 									</table>
 								</div>
 								<div class="modal-footer justify-content-between">
-									<button type="button" class="btn btn-outline-success btn-success" id="add">
+									<button type="button" class="btn btn-success btn-success" id="add">
 										<span class="mx-1">Add Row</span><i class="fa-solid fa-plus"></i>
 									</button>
 									<div>
-										<button type="button" class="btn btn-outline-secondary btn-secondary" data-bs-dismiss="modal">Close</button>
-										<button type="submit" class="btn btn-outline-primary btn-primary submitBtn" id="submitBtn">Submit</button>
+										<button type="button" class="btn btn-danger btn-danger" data-bs-dismiss="modal">Close</button>
+										<button type="submit" class="input-icon btn btn-primary btn-primary submitBtn" id="submitBtn">Save Changes
+											<span style="display: none;" class="spinner-border border-3 ms-2 spinner-border-sm text-white" role="status"></span>
+										</button>
+										<!-- <button type="submit" class="btn btn-primary btn-primary submitBtn" >Save Changes</button> -->
 									</div>
 								</div>
 							</div>
@@ -325,7 +328,7 @@
 							$(response.data).each(function(index, value) {
 								var net_weight = (value.net_weight != 0) ? value.net_weight : value.touch * value.weight / 100;
 								var metal_type_id = (value.metal_type_id) ? value.metal_type_id : "0";
-								var touch = (value.touch) ? value.touch : garnuTouch; 
+								var touch = (value.touch) ? value.touch : garnuTouch;
 
 								var $lastRow;
 								if (index == 0) {
@@ -472,14 +475,15 @@
 
 		$('#garnu_receive').on('submit', function(e) {
 			e.preventDefault();
-
 			var formData = $(this).serialize();
+			var self = $(this);
 			$.ajax({
 				url: '<?php echo base_url('manufacturing/garnu/receive'); ?>',
 				type: 'POST',
 				data: formData,
 				beforeSend: (data) => {
-					ShowBlockUi('#ReceivedModel');
+					self.find('.submitBtn span').show();
+					// ShowBlockUi('#ReceivedModel');
 				},
 				success: function(response) {
 					var response = JSON.parse(response);
@@ -489,7 +493,6 @@
 						tr.find('.d-flex a').removeClass("d-none");
 						tr.find('.badge').removeClass("bg-danger");
 						tr.find('.badge').addClass('bg-indigo');
-
 						$('#ReceivedModel').modal('hide');
 						SweetAlert('success', response.message);
 					} else {
@@ -499,6 +502,9 @@
 				},
 				error: function() {
 					SweetAlert('error', "Error submitting form");
+				},
+				complete: () => {
+					self.find('.submitBtn span').hide();
 				}
 			});
 		});

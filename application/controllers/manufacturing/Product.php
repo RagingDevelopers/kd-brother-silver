@@ -45,7 +45,7 @@ class Product extends CI_Controller
 		# Search 
 		$searchQuery = "";
 		if ($searchValue != '') {
-			$searchQuery = " (garnu.name like '%" . $searchValue . "%'  or given.given_qty like '%" . $searchValue . "%'  or given.row_material_weight like '%" . $searchValue . "%' or given.total_weight like'%" . $searchValue . "%' or garnu.garnu_weight like'%" . $searchValue . "%' or given.creation_date like'%" . $searchValue . "%'  or garnu.recieved like'%" . $searchValue . "%' ) ";
+			$searchQuery = " (garnu.name like '%" . $searchValue . "%' or garnu.copper like '%" . $searchValue . "%' or garnu.garnu_weight like '%" . $searchValue . "%' or garnu.touch like'%" . $searchValue . "%' or garnu.silver like'%" . $searchValue . "%' or garnu.creation_date like'%" . $searchValue . "%'  or garnu.recieved like'%" . $searchValue . "%' or garnu.recieved like '%" . $searchValue . "%') ";
 		}
 
 		$this->db->query("SET SESSION sql_mode=(SELECT REPLACE(@@sql_mode, 'ONLY_FULL_GROUP_BY', ''));");
