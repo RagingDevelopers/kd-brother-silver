@@ -29,7 +29,7 @@
 			<div class="card-body">
 				<div class="row">
 					<div class="col-md-4">
-						<input type="text" name="id" id="id" class="form-control" placeholder="13 And 13_11" autocomplete="off">
+						<input type="text" name="id" id="id" class="form-control" placeholder="Enter 13 And 13_11" autocomplete="off">
 					</div>
 					<div class="col-md-4">
 						<button type="button" class="btn btn-success btn-success openReceive">
@@ -694,11 +694,11 @@
 				return value.replace(/\D/g, '');
 			});
 			var enteredId = $('#id').val();
-			if(enteredId != "" && enteredId != " "){
+			if (enteredId != "" && enteredId != " ") {
 				var targetUrl = `${BaseUrl}manufacturing/process/manage/` + enteredId;
 				window.open(targetUrl, '_blank', 'noopener noreferrer');
 				$('#id').val("");
-			}else{
+			} else {
 				SweetAlert("warning", "ID is empty, Please Enter ID.");
 			}
 		});
@@ -708,6 +708,7 @@
 		event.preventDefault();
 		receiveBtn = $(this);
 		var enteredId = $('#id').val();
+		$("#receveData").html("");
 
 		if (enteredId && enteredId.includes("_")) {
 			var splitArray = enteredId.split("_");
@@ -724,13 +725,15 @@
 						garnu_id,
 						given_id,
 					},
-					success: function(response) {
+				}).then(function(response) {
+					var response = JSON.parse(response)
+					if (response.success) {
+						$("#receveData").html(response.data);
 						$('#id').val("");
-						$("#receveData").html(response);
-					},
-				}).done(function(response) {
-					$('#id').val("");
-					$("#received1-report").modal("show");
+						$("#received1-report").modal("show");
+					} else {
+						SweetAlert("warning", response.message);
+					}
 				});
 
 			} else {

@@ -1,5 +1,5 @@
 <style>
-	.silver-input {
+	.fine-input {
 		background-color: #ebebeb;
 		color: black;
 	}
@@ -8,9 +8,9 @@
 		background-color: #e6fdff;
 	}
 
-	.copper-input {
+	/* .copper-input {
 		background-color: #ffeeee;
-	}
+	} */
 </style>
 <div class="row">
 	<div class="col-sm-12">
@@ -29,30 +29,6 @@
 									<input class="form-control" type="text" name="name" placeholder="Enter Garnu Name" value="<?= $update['name'] ?? null ?>" id="name" required>
 								</div>
 							</div>
-							<div class="row mt-3">
-								<div class="col-sm-3">
-									<label class="form-label"> Garnu Weight(Gm): </label>
-									<input class="form-control weight-input mweight" type="number" name="garnu_weight" placeholder="Enter Garnu Weight(Gm)" value="<?= $update['garnu_weight'] ?? null ?>" required>
-								</div>
-								<div class="col-sm-3">
-									<label class="form-label">Touch (%): </label>
-									<div class="form-group input-icon">
-										<input class="form-control mtouch" type="number" name="touchs" placeholder="Enter Touch (%)" value="<?= $update['touch'] ?? 0 ?>" required>
-										<span class="input-icon-addon"><i class="fa-light fa-percent" aria-hidden="true"></i></span>
-									</div>
-
-								</div>
-
-								<div class="col-sm-3">
-									<label class="form-label"> Silver: </label>
-									<input class="form-control msilver silver-input" type="number" name="silvers" placeholder="Silver(Gm)" value="<?= $update['silver'] ?? null ?>" required readonly>
-								</div>
-								<div class="col-sm-3">
-									<label class="form-label"> Copper: </label>
-									<input class="form-control copper-input mcopper" type="number" name="coppers" placeholder="Copper(Gm)" value="<?= $update['copper'] ?? null ?>" required readonly>
-								</div>
-							</div>
-
 							<div class="card mt-5">
 								<div class="row">
 									<table class="table card-table table-vcenter text-center text-nowrap ">
@@ -60,8 +36,7 @@
 											<th>Metal Type</th>
 											<th scope="col">Weight(Gm)</th>
 											<th scope="col">Touch (%)</th>
-											<th scope="col">Silver(Gm)</th>
-											<th scope="col">Copper(Gm)</th>
+											<th scope="col">Fine</th>
 											<th scope="col"></th>
 										</thead>
 
@@ -72,8 +47,7 @@
 													'metal_type_id' => '',
 													'weight'        => '',
 													'touch'         => 0,
-													'silver'        => '',
-													'copper'        => '',
+													'fine'          => '',
 													'id'            => 0
 												];
 											}
@@ -103,11 +77,11 @@
 														</div>
 													</td>
 													<td>
-														<input class="form-control silver silver-input" type="number" name="silver[]" placeholder="Silver(Gm)" value="<?= $row['silver'] ?? null ?>" required readonly>
+														<input class="form-control fine fine-input" type="number" name="fine[]" placeholder="Fine" value="<?= $row['fine'] ?? null ?>" required>
 													</td>
-													<td>
+													<!-- <td>
 														<input class="form-control copper-input copper" type="number" name="copper[]" placeholder="Copper(Gm)" value="<?= $row['copper'] ?? null ?>" required readonly>
-													</td>
+													</td> -->
 													<td>
 														<button type="button" class="btn btn-danger remove-btn">X</button>
 													</td>
@@ -122,40 +96,23 @@
 													</button>
 												</td>
 												<td>
-													<div class="col-8">
-														<label class="form-label" for="prd">Total Used Weight: </label>
-														<input class="form-control weight-input total_used_weight" type="number" name="total_used_weight" placeholder="Weight(Gm)" value="<?= $update['total_used_weight'] ?? null ?>" required readonly>
-													</div>
-													<div class="col-8 mt-2">
-														<label class="form-label" for="prd">Total Un-Used Weight:
-														</label>
-														<input class="form-control weight-input total_unused_weight" type="number" name="total_unused_weight" placeholder="Weight(Gm)" value="<?= $update['total_unused_weight'] ?? null ?>" required readonly>
-													</div>
+													<label class="form-label"> Garnu Weight(Gm): </label>
+													<input class="form-control weight-input mweight" type="number" name="garnu_weight" placeholder="Enter Garnu Weight(Gm)" value="<?= $update['garnu_weight'] ?? null ?>" required>
 												</td>
-												<td></td>
 												<td>
-													<div class="col-8">
-														<label class="form-label" for="prd">Total Used Silver: </label>
-														<input class="form-control silver-input total_used_silver" type="number" name="total_used_silver" placeholder="Silver(Gm)" value="<?= $update['total_used_silver'] ?? null ?>" required readonly>
-													</div>
-													<div class="col-8 mt-2">
-														<label class="form-label" for="prd">Total Un-Used Silver:
-														</label>
-														<input class="form-control  silver-input total_unused_silver" type="number" name="remaining_silver" placeholder="Silver(Gm)" value="<?= $update['remaining_silver'] ?? null ?>" required readonly>
+													<label class="form-label">Garnu Touch (%): </label>
+													<div class="form-group input-icon">
+														<input class="form-control mtouch" type="number" name="touchs" placeholder="Enter Touch (%)" value="<?= $update['touch'] ?? 0 ?>" required>
+														<span class="input-icon-addon"><i class="fa-light fa-percent" aria-hidden="true"></i></span>
 													</div>
 												</td>
 												<td>
-													<div class="col-8 ">
-														<label class="form-label" for="prd">Total Used Copper: </label>
-														<input class="form-control copper-input total_used_copper" type="number" name="total_used_copper" placeholder="copper(Gm)" value="<?= $update['total_used_copper'] ?? null ?>" required readonly>
-													</div>
-													<div class='col-8 mt-2'>
-														<label class="form-label" for="prd">Total Un-Used Copper:
-														</label>
-														<input class="form-control copper-input total_unused_copper" type="number" name="remaining_copper" placeholder="Copper(Gm)" value="<?= $update['remaining_copper'] ?? null ?>" required readonly />
-													</div>
+													<label class="form-label"> Fine: </label>
+													<input class="form-control fine-input total_used_fine" type="number" name="mfine" placeholder="Fine(Gm)" value="<?= $update['fine'] ?? null ?>" required readonly>
 												</td>
 											</tr>
+											<!-- <tr>
+											</tr> -->
 										</tfoot>
 									</table>
 								</div>
@@ -172,7 +129,6 @@
 </div>
 
 <script class="javascript">
-	// var main_row = '';
 	var mainFunction = (function() {
 		let main = {
 			isInit: false,
@@ -207,32 +163,7 @@
 			calculateMain: function(ref) {
 				const row = $(ref).parents('.row');
 				const weight = parseF(row.find('.mweight').val());
-				const touch = parseF(row.find('.mtouch').val());
-				const silver = parseF(row.find('.msilver').val());
-				const copper = parseF(row.find('.mcopper').val());
-
-				if (touch > 100) {
-					SweetAlert('warning', 'Touch should be less than 100');
-					row.find('.mtouch').val(100)
-					return;
-				}
-				const fSilver = (weight * touch) / 100;
-				const fCopper = weight - fSilver;
-				let formattedCopper;
-
-				if (!Number.isInteger(fCopper)) {
-					const parts = fCopper.toString().split(".");
-					if (parts[1] && parseInt(parts[1].length) > 2) {
-						formattedCopper = fCopper.toFixed(4);
-					} else {
-						formattedCopper = fCopper.toString();
-					}
-				} else {
-					formattedCopper = fCopper.toString();
-				}
-				row.find('.mcopper').val(formattedCopper);
-				row.find('.msilver').val(fSilver);
-
+				const fine = parseF(row.find('.fine').val());
 			},
 			ready: function() {
 				main.mainRow = $(".main-row")[0].outerHTML;
@@ -248,7 +179,7 @@
 						$(".append-here").append(main.mainRow);
 						const lastTr = $('.append-here tr').last();
 						lastTr.find('.rowid,.touch').val(0);
-						lastTr.find('.weight,.silver,.copper').val('');
+						lastTr.find('.weight,.fine').val('');
 						main.select2(lastTr.find('.metal_type_id')).select2('open');
 					});
 					$(this).on('click', '.remove-btn', function(e) {
@@ -266,11 +197,11 @@
 						main.validateSubmit(this)
 					});
 
-					$(this).on('keyup', '.mweight,.mtouch,.msilver,.mcopper', function() {
+					$(this).on('keyup', '.fine,.weight,.touch', function() {
 						main.calculateMain(this)
 						main.calculation($('.append-here tr').eq(0).find('.touch'));
 					})
-					$(this).on('keyup', '.touch,.weight', function() {
+					$(this).on('keyup', '.fine,.weight,.touch', function() {
 						main.calculation(this);
 					});
 				});
@@ -278,70 +209,36 @@
 			calculation: function(ref) {
 				var valid = true;
 				const mainWeight = parseF($('.mweight').val()),
-					mainTouch = parseF($('.mtouch').val()),
-					mainSilver = parseF($('.msilver').val()),
-					mainCopper = parseF($('.mcopper').val()),
 					row = $(ref).parents('tr'),
 					weight = parseF(row.find('.weight').val()),
 					touch = parseF(row.find('.touch').val()),
-					silver = parseF(row.find('.silver').val()),
-					copper = parseF(row.find('.copper').val());
-
-				if (mainWeight == 0)
-					return SweetAlert('warning', 'Weight should not be empty'), $(ref).val(''), $('.mweight').focus();
+					fine = parseF(row.find('.fine').val());
 
 				if (touch > 100) {
 					return SweetAlert('warning', 'Touch should be less than equal to 100'), $(ref).val(0.00);
 				}
-
-				const fSilver = ((weight * touch) / 100);
-				const fCopper = weight - fSilver;
-				row.find('.silver').val(fSilver), row.find('.copper').val(fCopper);
-
 				var totalUsedWeight = 0,
-					totalUsedSilver = 0,
-					totalUsedCopper = 0
+					totalUsedFine = 0;
 
 				$('.append-here tr').each(function() {
 					var row = $(this),
 						rowWeight = parseF(row.find('.weight').val()),
-						rowSilver = parseF(row.find('.silver').val()),
-						rowCopper = parseF(row.find('.copper').val());
+						rowFine = parseF(row.find('.fine').val());
 
 					totalUsedWeight += rowWeight;
-					totalUsedSilver += rowSilver;
-					totalUsedCopper += rowCopper;
+					totalUsedFine += rowFine;
 				});
-				if (totalUsedWeight > mainWeight) {
-					SweetAlert('warning', 'Total Used Weight should not be equal to Main Weight');
-					row.find('.weight').val(0);
-					return;
-				} else if (totalUsedSilver > mainSilver) {
+				$('.mweight').val(formatNumber(totalUsedWeight));
+				$('.total_used_fine').val((totalUsedFine));
+				var mainTouch = (totalUsedFine / totalUsedWeight) * 100;
+				$('.mtouch').val(formatNumber(mainTouch));
 
-					SweetAlert('warning', 'Total Used Silver should not be greater than Main Silver'), valid = false
-					row.find('.silver').val(0);
-					return;
-				} else if (totalUsedCopper > mainCopper) {
-					SweetAlert('warning', 'Total Used Copper should not be greater than Main Copper'), valid = false
-					row.find('.copper').val(0);
-					return;
-				}
-
-				$('.total_used_weight').val(totalUsedWeight)
-				$('.total_used_silver').val(totalUsedSilver)
-				$('.total_used_copper').val(totalUsedCopper)
-
-				$('.total_unused_weight').val(mainWeight - totalUsedWeight)
-				$('.total_unused_silver').val(mainSilver - totalUsedSilver)
-				$('.total_unused_copper').val(mainCopper - totalUsedCopper)
 			},
 			validateSubmit: function(ref) {
 				var preventEnter = false;
 				const metal_type = $('.metal_type_id');
 				const form = $(ref);
-				var mainSilver = parseF($('.msilver').val()),
-					mainCopper = parseF($('.mcopper').val()),
-					mainWeight = parseF($('.mweight').val());
+				mainWeight = parseF($('.mweight').val());
 				if (mainWeight < 1) {
 					return SweetAlert('warning', 'Garnu Weight must be greater then: 1'), preventEnter = true;
 				}

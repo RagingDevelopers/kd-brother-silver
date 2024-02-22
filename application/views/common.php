@@ -170,6 +170,7 @@
             max-width: 100% !important;
         }
     </style>
+	<script>const BaseUrl = "<?=base_url()?>"</script>
     <script src="https://kit.fontawesome.com/62ef9efeca.js" crossorigin="anonymous"></script>
 </head>
 

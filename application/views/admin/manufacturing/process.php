@@ -22,7 +22,6 @@
 	.table td {
 		font-weight: bold;
 	}
-
 </style>
 <?php $time = time() ?>
 <div class="row">
@@ -53,24 +52,21 @@
 									<input type="text" name="weight" id="" class="form-control readonly" readonly placeholder="Enter Weight" value="<?= $data['garnu_weight'] ?? null ?>" autocomplete="off">
 									<input type="hidden" id="receiveCode" value="<?= $receiveCode[0]['code'] ?? null ?>" autocomplete="off">
 								</div>
-								<?php
-								if (!empty($receiveCode[0]['code'])) { ?>
-									<div class="col-md-4 col-sm-3">
-										<label class="form-label" for="process">Receive Code : </label>
-										<select class="form-select select2 receiveCode" name="receive_code">
-											<option value=''>Select Code</option>
-											<?php
-											foreach ($receiveCode as $value) {
-											?>
-												<option value="<?= $value['code'] ?? null ?>" <?php if (isset($process_data) && ($value['code'] == $process_data['receive_code'])) {
-																									echo 'selected';
-																								} ?>>
-													<?= $value['code']; ?>
-												</option>
-											<?php } ?>
-										</select>
-									</div>
-								<?php } ?>
+								<div class="col-md-4 col-sm-3 <?= (empty($receiveCode[0]['code'])) ? "d-none" : " "; ?>">
+									<label class="form-label" for="process">Receive Code : </label>
+									<select class="form-select select2 receiveCode" name="receive_code">
+										<option value=''>Select Code</option>
+										<?php
+										foreach ($receiveCode as $value) {
+										?>
+											<option value="<?= $value['code'] ?? null ?>" <?php if (isset($process_data) && ($value['code'] == $process_data['receive_code'])) {
+																								echo 'selected';
+																							} ?>>
+												<?= $value['code']; ?>
+											</option>
+										<?php } ?>
+									</select>
+								</div>
 							</div>
 							<div class="row mt-3">
 								<div class="col-md-4 col-sm-3">
@@ -519,6 +515,21 @@
 													<input class="form-check-input mt-2 is_completed" disabled <?php if (isset($result->is_completed) && $result->is_completed == "YES") {
 																													echo 'checked';
 																												} ?> type="checkbox" style="transform: scale(1.2);">
+													<?php
+													$metalData = $this->dbh->getWhereResultArray('process_metal_type', ['given_id' => $result->id]);
+													$rm_string_array = [];
+													foreach ($metalData as $rm) {
+														$rm_string_array[] = implode(',', [
+															$rm['metal_type_id'],
+															$rm['touch'],
+															$rm['weight'],
+															$rm['quantity'],
+															$rm['id']
+														]);
+													}
+													$row['metal_string'] = implode('|', $rm_string_array ?? []) ?? ""; ?>
+													<input type="hidden" value="<?= $row['metal_string'] ?? null; ?>" class="form-control rowMetalData" autocomplete="off">
+													<button type="button" class="btn btn-action text-white bg-primary total-metal-type" data-garnu_id="<?= $id; ?>" data-given_id="<?= $result->id; ?>" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Used Metal Type"><i class="fa-solid fa-info"></i></button>
 												</div>
 											</td>
 											<td class="given">
@@ -562,25 +573,7 @@
 												</div>
 											</td>
 											<td class="received ">
-												<div class="d-flex gap-3">
-													<?php
-													$metalData = $this->dbh->getWhereResultArray('process_metal_type', ['given_id' => $result->id]);
-													$rm_string_array = [];
-													foreach ($metalData as $rm) {
-														$rm_string_array[] = implode(',', [
-															$rm['metal_type_id'],
-															$rm['touch'],
-															$rm['weight'],
-															$rm['quantity'],
-															$rm['id']
-														]);
-													}
-													$row['metal_string'] = implode('|', $rm_string_array ?? []) ?? "";
-													?>
-													<input type="hidden" value="<?= $row['metal_string'] ?? null; ?>" class="form-control rowMetalData" autocomplete="off">
-													<button type="button" class="btn btn-action text-white bg-primary total-metal-type" data-garnu_id="<?= $id; ?>" data-given_id="<?= $result->id; ?>" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Used Metal Type"><i class="fa-solid fa-info"></i></button>
-													<span class="totalFinalWeight"><?= $finalWeight; ?></span>
-												</div>
+												<span class="totalFinalWeight"><?= $finalWeight; ?></span>
 											</td>
 										</tr>
 									<?php } ?>
@@ -681,4 +674,4 @@
 </div>
 
 <?php $time = time() ?>
-<script class="javascript" src="<?= base_url("assets") ?>/dist/js/process.js?v=<?=$time?>"></script>
+<script class="javascript" src="<?= base_url("assets") ?>/dist/js/process.js?v=<?= $time ?>"></script>
