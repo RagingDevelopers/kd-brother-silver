@@ -17,55 +17,72 @@ if (receiveCode == "" || receiveCode == null) {
 	// $('.receiveCode').prop('required', true);
 }
 
-$(document).on("submit", ".ManageProcess", function (e) {
+$(".ManageProcess").submit(function (e) { 
 	e.preventDefault();
 	var validator = new Validator();
 	validator
-		.addField(".process", "Please select process!", (el) => el.select2("open"))
-		.addField("#workers", "Please select Worker!", (el) => el.select2("open"))
-		.addField(".given-qty", "Please Enter Given Quantity!")
-		.addField(".given_weight", "Please Enter Given Weight!");
-	if (receiveCode != "" || receiveCode != null) {
+	.addField(".process", "Please select process!", (el) => el.select2("open"))
+	.addField("#workers", "Please select Worker!", (el) => el.select2("open"))
+	.addField(".given-qty", "Please Enter Given Quantity!")
+	.addField(".given_weight", "Please Enter Given Weight!");
+	if ($(".receiveCode").parent().hasClass('d-none') == 'false') {
+		console.log("Please");
 		validator.addField(".receiveCode", "Please select Receive Code!", (el) =>
 			el.select2("open")
 		);
 	}
 
 	if (!validator.validate()) return;
-	else $(this).off("submit").submit();
+	$(this).off("submit").submit();
 });
 
-$(document).on("change", ".process", function () {
+function WorkersData(process_id = null,selected_id = null){
+    var optionHTML = "";
+	var selected = "";
+	optionHTML += `<option value=""> Select <option>`;
+	$.ajax({
+		type: "POST",
+		dataType: "json",
+		url: `${BaseUrl}manufacturing/process/getWorkers`,
+		method: "POST",
+		data: {
+			process_id,
+			selected_id,
+		},
+		success: function (response) {
+			$.each(response, function (key, value) {
+				selected =
+					selected_id != null && selected_id == value.id ? "selected" : " ";
+				optionHTML += `<option value="${value["id"]}" ${selected}>${value["name"]}</option>`;
+			});
+			if (selected_id != null) {
+				$(".workers").html(optionHTML);
+			} else {
+				$(".workers").html(optionHTML).select2("open");
+			}
+		},
+	});
+}
+
+if($('.process').val() != ""){
+    var process_id = $('.process').val();
+	var selected_id = $('.process').find(":selected").data("workerid");
+	$(".workers").empty();
+	if (process_id) {
+		WorkersData(process_id,selected_id);
+	} else {
+		$(".workers").empty();
+		$(".workers").append('<option value="">Select</option>');
+	}
+}
+
+$(document)
+	.on("change", ".process", function () {
 		var process_id = $(this).val();
 		var selected_id = $(this).find(":selected").data("workerid");
 		$(".workers").empty();
 		if (process_id) {
-			var optionHTML = "";
-			var selected = "";
-			optionHTML += `<option value=""> Select <option>`;
-
-			$.ajax({
-				type: "POST",
-				dataType: "json",
-				url: `${BaseUrl}manufacturing/process/getWorkers`,
-				method: "POST",
-				data: {
-					process_id,
-					selected_id,
-				},
-				success: function (response) {
-					$.each(response, function (key, value) {
-						selected =
-							selected_id != null && selected_id == value.id ? "selected" : " ";
-						optionHTML += `<option value="${value["id"]}" ${selected}>${value["name"]}</option>`;
-					});
-					if (selected_id != null) {
-						$(".workers").html(optionHTML);
-					} else {
-						$(".workers").html(optionHTML).select2("open");
-					}
-				},
-			});
+			WorkersData(process_id);
 		} else {
 			$(".workers").empty();
 			$(".workers").append('<option value="">Select</option>');
@@ -130,6 +147,14 @@ function scrollEvent(target, pixel = 500) {
 		pixel
 	);
 }
+$(".rowMetalData").each(function () {
+	var rowMetalData = $(this).val();
+	if (rowMetalData == "") {
+		$(this).parent().find(".total-metal-type").hide();
+	} else {
+		$(this).parent().find(".total-metal-type").show();
+	}
+});
 
 $(document).on("click", ".save", function () {
 	var count = 0;
@@ -188,6 +213,7 @@ $(document).on("click", ".Received", function (event) {
 	receiveBtn = $(this);
 	var garnu_id = $(this).data("garnu_id");
 	var given_id = $(this).data("given_id");
+	$("#receveData").html("");
 
 	if (garnu_id != "" && given_id != "") {
 		$.ajax({
@@ -198,11 +224,15 @@ $(document).on("click", ".Received", function (event) {
 				garnu_id,
 				given_id,
 			},
-			success: function (response) {
-				$("#receveData").html(response);
-			},
-		}).done(function (response) {
-			$("#received1-report").modal("show");
+		}).then(function (response) {
+			var response = JSON.parse(response);
+			if (response.success) {
+				$("#receveData").html(response.data);
+				$("#id").val("");
+				$("#received1-report").modal("show");
+			} else {
+				SweetAlert("warning", response.message);
+			}
 		});
 	}
 });
@@ -468,6 +498,10 @@ $(document).on("submit", "#received-garnu", function (e) {
 					.parents("tr")
 					.find(".rowMetalData")
 					.val($(".metaldata").val());
+				if (receiveBtn.parents("tr").find(".rowMetalData").val() != "") {
+					receiveBtn.parents("tr").find(".total-metal-type").show();
+				}
+				$('.receiveCode ').parent().removeClass('d-none');
 				$("#received1-report").modal("hide");
 				SweetAlert("success", response.message);
 			} else {

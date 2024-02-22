@@ -184,7 +184,9 @@ class Process extends CI_Controller
 			->set_rules('given_id', 'Given Id', 'required');
 
 		if (!$validation->run()) {
-			return flash()->withError(validation_errors())->back();
+			$response = ['success' => false, 'message' => validation_errors()];
+			echo json_encode($response);
+			return;
 		}
 
 		$post = $this->input->post();
@@ -192,18 +194,31 @@ class Process extends CI_Controller
 		$given_id = $post['given_id'];
 
 		$page_data['garnuData'] = $this->dbh->getWhereRowArray('garnu', ['id' => $garnu_id]);
-		// $page_data['givenData'] = $this->dbh->getWhereRowArray('given', ['id' => $given_id]);
 		$page_data['receivedData'] = $this->dbh->getWhereResultArray('receive', ['given_id' => $given_id, 'garnu_id' => $garnu_id]);
-		$page_data['metalData'] = $this->dbh->getWhereResultArray('process_metal_type', ['given_id' => $given_id]);
-		$page_data['givenData']  = $this->db->select('given.*,process.name AS process_name')
+		if(!empty($page_data['receivedData']) || !empty($page_data['garnuData'])){
+			$page_data['metalData'] = $this->dbh->getWhereResultArray('process_metal_type', ['given_id' => $given_id]);
+			$page_data['givenData']  = $this->db->select('given.*,process.name AS process_name')
 			->from('given')
 			->join('process', 'given.process_id = process.id', 'left')
 			->where('given.id', $given_id)
 			->get()->row_array();
+			
+			$page_data['customer'] = $this->dbh->getWhereResultArray('customer', ['account_type_id' => 7, 'process_id' => $page_data['givenData']['process_id']]);
+			// echo "<pre>";
+			// print_r($page_data);
+			// exit;
+			if (!empty($page_data['receivedData']) || !empty($page_data['metalData']) || !empty($page_data['garnuData']) && !empty($page_data['customer']) && !empty($page_data['givenData'])) {
+				$view = $this->load->view(self::receiveGarnu, $page_data, true);
+				$response = ['success' => true, 'message' => 'Data Feched Successfully', 'data' => $view];
+			} else {
+				$response = ['success' => false, 'message' => 'Invalid Request'];
+			}
+		}else{
+			$response = ['success' => false, 'message' => 'Invalid Id'];
+		}
 
-		$page_data['customer'] = $this->dbh->getWhereResultArray('customer', ['account_type_id' => 7, 'process_id' => $page_data['givenData']['process_id']]);
-
-		echo $this->load->view(self::receiveGarnu, $page_data, true);
+		echo json_encode($response);
+		return;
 	}
 
 	public function receiveGarnuAdd()

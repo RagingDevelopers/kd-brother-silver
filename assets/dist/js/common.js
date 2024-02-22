@@ -1,4 +1,4 @@
-const BaseUrl = $("meta[name=baseurl]").attr("content");
+// const BaseUrl = $("meta[name=baseurl]").attr("content");
 const parseF = (str) => {
 	var f = parseFloat(str);
 	if (isNaN(f)) {
