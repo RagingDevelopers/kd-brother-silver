@@ -29,10 +29,10 @@ class Process_model extends CI_Model
 
 	function printGivenItemData($garnu_id = null, $given_id = null)
 	{
-		$data['givenData'] = $this->db->select('given.*,garnu.garnu_weight,garnu.name as garnu_name,garnu.touch as garnu_touch,customer.name AS worker_name')
+		$data['givenData'] = $this->db->select('given.*,garnu.garnu_weight,garnu.name as garnu_name,garnu.touch as garnu_touch,customer.name AS worker_name,process.name as process_name')
 			->from('given')
 			->join('garnu', 'given.garnu_id = garnu.id', 'left')
-			// ->join('customer', 'given.worker_id = customer.id', 'left')
+			->join('process', 'given.process_id = process.id', 'left')
 			->join('customer', 'given.worker_id = customer.id', 'left')
 			->where(['given.garnu_id' => $garnu_id, 'given.id' => $given_id])
 			->get()->row_array();

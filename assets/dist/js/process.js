@@ -188,7 +188,7 @@ $(document).on("click", ".save", function () {
 	autoValueEnter();
 });
 
-$(document).on("input", ".touch,.touch2,.metalTouch", function () {
+$(document).on("input", ".touch,.touch2,.metalTouch,.receivedTouch", function () {
 	var touch = $(this);
 	if (touch.val() > 100) {
 		SweetAlert("warning", "Touch should be less than equal to 100"),
@@ -274,7 +274,7 @@ $(document).on("click", ".receivedAddButton2", function () {
 	$("#ReceivedBody").append(ReceivedMainRow);
 	const lastTr = $("#ReceivedBody tr").last();
 	lastTr.find(".rcid").val("");
-	lastTr.find(".rcid,.Pcs, .receivedWeight").val(0);
+	lastTr.find(".rcid,.Pcs, .receivedWeight,.receivedTouch,.receivedFine").val(0);
 	lastTr.find(".receivedRemark,.rmdata").val("");
 	lastTr.find(".receivedRmWeight").val(0);
 	lastTr.find(".receivedfinalWeight").val(0);
@@ -384,18 +384,19 @@ function finalCalculation(i) {
 	var container = i.parents("tr");
 	var receivedWeight = container.find(".receivedWeight").val() || 0;
 	var receivedRmWeight = container.find(".receivedRmWeight").val() || 0;
-	container
-		.find(".receivedfinalWeight")
-		.val(
-			formatNumber(parseFloat(receivedWeight) + parseFloat(receivedRmWeight))
-		);
+	var receivedTouch = container.find(".receivedTouch").val() || 0;
+	var receivedRmfinalWeight = formatNumber(parseFloat(receivedWeight) + parseFloat(receivedRmWeight));
+	var receivedFine = formatNumber(receivedRmfinalWeight * parseFloat(receivedTouch) / 100);
+
+	container.find(".receivedfinalWeight").val(receivedRmfinalWeight);
+	container.find(".receivedFine").val(receivedFine);
 }
 
-$(document).on("input", ".receivedWeight", function () {
+$(document).on("input", ".receivedWeight,.receivedTouch", function () {
 	finalCalculation($(this));
 	TotalCalculation();
 });
-$(document).on("input", ".Pcs", function () {
+$(document).on("input", ".Pcs,.receivedTouch", function () {
 	TotalCalculation();
 });
 
@@ -512,6 +513,11 @@ $(document).on("submit", "#received-garnu", function (e) {
 				$("#received1-report").modal("hide");
 				SweetAlert("success", response.message);
 			} else {
+				if ($("#is_completed").is(":checked")) {
+					receiveBtn.parents("tr").find(".is_completed").prop("checked", true);
+				} else {
+					receiveBtn.parents("tr").find(".is_completed").prop("checked", false);
+				}
 				$("#received1-report").modal("hide");
 				SweetAlert("error", response.message);
 			}
@@ -530,6 +536,8 @@ function TotalCalculation() {
 	var receivedWeight = 0;
 	var receivedRmWeight = 0;
 	var receivedfinalWeight = 0;
+	var receivedTouch = 0;
+	var receivedFine = 0;
 
 	$(".Pcs").each(function () {
 		totalPcs += parseFloat($(this).val() || 0);
@@ -543,6 +551,12 @@ function TotalCalculation() {
 	$(".receivedfinalWeight").each(function () {
 		receivedfinalWeight += parseFloat($(this).val() || 0);
 	});
+	$(".receivedTouch").each(function () {
+		receivedTouch += parseFloat($(this).val() || 0);
+	});
+	$(".receivedFine").each(function () {
+		receivedFine += parseFloat($(this).val() || 0);
+	});
 
 	$("#totalPcs").text("");
 	$("#totalPcs").text(totalPcs);
@@ -552,6 +566,14 @@ function TotalCalculation() {
 	$("#rowMaterialWeight").text(formatNumber(receivedRmWeight));
 	$("#totalFinalWeight").text("");
 	$("#totalFinalWeight").text(formatNumber(receivedfinalWeight));
+	$("#totalFinalWeight").text("");
+	$("#totalFinalWeight").text(formatNumber(receivedfinalWeight));
+	$("#totalFinalWeight").text("");
+	$("#totalFinalWeight").text(formatNumber(receivedfinalWeight));
+	$("#totalTouch").text("");
+	$("#totalTouch").text(formatNumber(receivedTouch));
+	$("#totalFine").text("");
+	$("#totalFine").text(formatNumber(receivedFine));
 
 	var Total = $("#givenTotal_weight").text() - receivedfinalWeight;
 	let formattedTotal = formatNumber(Total);
@@ -599,14 +621,14 @@ function Rmcalculate() {
 $(document)
 	.on(
 		"focus",
-		".touch,.weight,.quantity,.Pcs,.receivedWeight,.touch2, .weight2, .quantity2,.given-qty,.labour,.metalQuantity,.metalWeight,.metalTouch",
+		".touch,.weight,.quantity,.Pcs,.receivedWeight,.touch2, .weight2, .quantity2,.given-qty,.labour,.metalQuantity,.metalWeight,.metalTouch,.receivedTouch,.receivedFine",
 		function () {
 			handleInputFocusAndBlur(this, "focus");
 		}
 	)
 	.on(
 		"blur",
-		".touch,.weight,.quantity,.Pcs,.receivedWeight,.touch2, .weight2, .quantity2,.given-qty,.labour,.metalQuantity,.metalWeight,.metalTouch",
+		".touch,.weight,.quantity,.Pcs,.receivedWeight,.touch2, .weight2, .quantity2,.given-qty,.labour,.metalQuantity,.metalWeight,.metalTouch,.receivedTouch,.receivedFine",
 		function () {
 			handleInputFocusAndBlur(this, "blur");
 		}
@@ -1006,7 +1028,7 @@ function formatNumber(number = null) {
 	if (!Number.isInteger(number)) {
 		const parts = number.toString().split(".");
 		if (parts[1] && parseInt(parts[1].length) > 2) {
-			formattedTotal = number.toFixed(4);
+			formattedTotal = number.toFixed(2);
 		} else {
 			formattedTotal = number.toString();
 		}

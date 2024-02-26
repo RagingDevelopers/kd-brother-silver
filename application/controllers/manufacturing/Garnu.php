@@ -102,6 +102,7 @@ class Garnu extends CI_Controller
 					$garnu_item['weight'] = $post['weight'][$i];
 					$garnu_item['touch'] = $post['touch'][$i];
 					$garnu_item['fine'] = $post['fine'][$i];
+					$garnu_item['creation_date'] = date('Y-m-d');
 					// $garnu_item['copper'] = $post['copper'][$i];
 					$garnu_item['garnu_id'] = $garnu_id;
 					$new[] = $garnu_item;
@@ -391,6 +392,7 @@ class Garnu extends CI_Controller
 
 			if ($sdid == 0) {
 				$rmData['garnu_id'] = $post['garnu_id'];
+				$rmData['creation_date'] = date('Y-m-d');
 				$insertBatch[] = $rmData;
 			} else if (in_array($sdid, $existingIds)) {
 				$rmData['id'] = $sdid;

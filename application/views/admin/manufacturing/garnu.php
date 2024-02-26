@@ -194,7 +194,13 @@
 					});
 					$('.main-form').submit(function(e) {
 						e.preventDefault();
+						var validator = new Validator();
+						validator
+							.addField("#name", "Please enter garnu name!");
+						if (!validator.validate()) return;
+
 						main.validateSubmit(this)
+						// $(this).off("submit").submit();
 					});
 
 					$(this).on('keyup', '.fine,.weight,.touch', function() {
@@ -204,29 +210,29 @@
 					$(this).on('keyup', '.fine,.weight,.touch', function() {
 						main.calculation(this);
 					});
-					
+
 					$(this).on(
-                		"focus",
-                		".touch",
-                		function () {
-                			main.handleInputFocusAndBlur(this, "focus");
-                		}).on(
-                		"blur",
-                		".touch",
-                		function () {
-                			main.handleInputFocusAndBlur(this, "blur");
-                		}
-                	);
+						"focus",
+						".touch",
+						function() {
+							main.handleInputFocusAndBlur(this, "focus");
+						}).on(
+						"blur",
+						".touch",
+						function() {
+							main.handleInputFocusAndBlur(this, "blur");
+						}
+					);
 				});
 			},
-			
-			handleInputFocusAndBlur: function(element, eventType){
-			    var $element = $(element);
-            	if (eventType === "focus" && $element.val() == "0") {
-            		$element.val("");
-            	} else if (eventType === "blur" && $element.val() == "") {
-            		$element.val("0");
-            	}
+
+			handleInputFocusAndBlur: function(element, eventType) {
+				var $element = $(element);
+				if (eventType === "focus" && $element.val() == "0") {
+					$element.val("");
+				} else if (eventType === "blur" && $element.val() == "") {
+					$element.val("0");
+				}
 			},
 			calculation: function(ref) {
 				var valid = true;
@@ -235,6 +241,7 @@
 					weight = parseF(row.find('.weight').val()),
 					touch = parseF(row.find('.touch').val()),
 					fine = parseF(row.find('.fine').val());
+				row.find('.fine').val(formatNumber((weight * touch) / 100));
 
 				if (touch > 100) {
 					return SweetAlert('warning', 'Touch should be less than equal to 100'), $(ref).val(0.00);
@@ -250,6 +257,7 @@
 					totalUsedWeight += rowWeight;
 					totalUsedFine += rowFine;
 				});
+
 				$('.mweight').val(formatNumber(totalUsedWeight));
 				$('.total_used_fine').val((totalUsedFine));
 				var mainTouch = (totalUsedFine / totalUsedWeight) * 100;

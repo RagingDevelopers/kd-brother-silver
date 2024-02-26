@@ -250,6 +250,8 @@ class Process extends CI_Controller
 						'weight' => isset($post['weight'][$key]) ? $post['weight'][$key] : 0,
 						'row_material_weight' => isset($post['rm_weight'][$key]) ? $post['rm_weight'][$key] : 0,
 						'total_weight' => isset($post['total_weight'][$key]) ? $post['total_weight'][$key] : 0,
+						'touch' => isset($post['touch'][$key]) ? $post['touch'][$key] : 0,
+						'fine' => isset($post['fine'][$key]) ? $post['fine'][$key] : 0,
 						'remark' => isset($post['remark'][$key]) ? $post['remark'][$key] : null,
 					];
 
@@ -452,6 +454,11 @@ class Process extends CI_Controller
 		$page_data['page_title'] = 'Print Given Filing Data';
 		$page_data['data'] = $this->modal->printGivenItemData($garnu_id, $given_id);
 		// echo "<pre>";print_r($page_data);exit;
-		$this->load->view("admin/manufacturing/print/print_given_data.php", $page_data);
+
+		if(!empty($page_data['data']['givenData']) || !empty($page_data['data']['givenRowMaterial'])){
+			$this->load->view("admin/manufacturing/print/print_given_data.php", $page_data);
+		}else{
+			flash()->withError("Data Not Found.")->to("manufacturing/process/manage/" . $garnu_id);
+		}
 	}
 }

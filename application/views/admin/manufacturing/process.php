@@ -130,6 +130,7 @@
 							<button type="submit" class="btn btn-primary ms-auto">
 								<?= (isset($process_data)) ? 'Update' : 'Submit' ?>
 							</button>
+							<!-- <a target="_blank" class="bg-warning btn text-warning-fg me-2">Submit & Print</a> -->
 						</div>
 
 						<div class="modal modal-blur fade modal-lg" data-bs-backdrop="static" data-bs-keyboard="false" id="modal-report" tabindex="-1" role="dialog" aria-hidden="true">

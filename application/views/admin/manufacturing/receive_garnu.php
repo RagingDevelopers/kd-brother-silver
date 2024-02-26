@@ -95,6 +95,8 @@
 				<th>Receiveid Weight</th>
 				<th>Row material Weight</th>
 				<th>Final Weight</th>
+				<th>Touch</th>
+				<th>Fine</th>
 				<th>Receiveid Remark</th>
 				<th>Created At</th>
 				<th></th>
@@ -108,6 +110,8 @@
 					'weight'         => 0,
 					'rm_weight'      => 0,
 					'total_weight'   => 0,
+					'touch'          => 0,
+					'fine'          => 0,
 					'remark'     	 => '',
 					'created_at'     => "",
 					'id'             => 0
@@ -149,6 +153,12 @@
 						<input type="number" name="total_weight[]" value="<?= $row['total_weight'] ?? "0"; ?>" class="form-control receivedfinalWeight readonly" value="0" readonly autocomplete="off">
 					</td>
 					<td class="text-muted">
+						<input type="number" name="touch[]" value="<?= $row['touch'] ?? "0"; ?>" class="form-control receivedTouch" value="0" autocomplete="off">
+					</td>
+					<td class="text-muted">
+						<input type="number" name="fine[]" value="<?= $row['fine'] ?? "0"; ?>" class="form-control receivedFine readonly" value="0" readonly autocomplete="off">
+					</td>
+					<td class="text-muted">
 						<input type="text" name="remark[]" value="<?= $row['remark'] ?? "0"; ?>" class="form-control receivedRemark" placeholder="Enter remark" autocomplete="off">
 					</td>
 					<td class="text-muted">
@@ -173,6 +183,12 @@
 				</td>
 				<td>
 					<h4><span class='text-end ms-3' id="totalFinalWeight"></span></h4>
+				</td>
+				<td>
+					<h4><span class='text-end ms-3' id="totalTouch"></span></h4>
+				</td>
+				<td>
+					<h4><span class='text-end ms-3' id="totalFine"></span></h4>
 				</td>
 				<td colspan="2" id="jama_baki"></td>
 				<input type="hidden" name="jama_baki" value="" class="jama_baki">

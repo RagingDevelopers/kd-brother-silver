@@ -158,7 +158,7 @@
 										<span class="nav-link-icon d-md-none d-lg-inline-block">
 											<i class="fa-solid fa-truck-fast"></i>
 										</span>
-										Product Report
+										Main Report
 									</a>
 								</div>
 							</div>
@@ -257,6 +257,12 @@
 											<i class="fa-solid fa-user-plus"></i>
 										</span>
 										Row Material Stock
+									</a>								
+									<a class="dropdown-item" href="<?= base_url("report/metal_type_stock") ?>">
+										<span class="nav-link-icon d-md-none d-lg-inline-block">
+										<i class="fa-brands fa-squarespace" aria-hidden="true"></i>
+										</span>
+										Metal type Stock
 									</a>								
 								</div>
 							</div>

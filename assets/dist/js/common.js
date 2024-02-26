@@ -78,7 +78,7 @@ function formatNumber(number = null) {
 	if (!Number.isInteger(number)) {
 		const parts = number.toString().split(".");
 		if (parts[1] && parseInt(parts[1].length) > 2) {
-			formattedTotal = number.toFixed(4);
+			formattedTotal = number.toFixed(2);
 		} else {
 			formattedTotal = number.toString();
 		}
