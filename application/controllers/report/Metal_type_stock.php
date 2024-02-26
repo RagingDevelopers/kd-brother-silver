@@ -14,7 +14,6 @@ class Metal_type_stock extends CI_Controller
 		check_login();
 		library("dbh");
 		$this->load->model('stock/Metal_type', "metal");
-		// library("Joinhelper");
 	}
 
 	public function index()
