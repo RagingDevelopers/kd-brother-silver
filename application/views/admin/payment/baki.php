@@ -59,7 +59,6 @@
 									</select>
 								</div>
 							</div>
-
 							<div class="col-md-2 allinone dfine dratecutfine dratecutrs">
 								<div class="form-group">
 									<label class="form-label">Mode<span class="text-danger">*</span></label>
@@ -561,7 +560,6 @@
 			});
 
 		});
-
 		$(document).on("click", ".delete_row", function() {
 			var baki_id = $(this).data('id');
 			$.ajax({

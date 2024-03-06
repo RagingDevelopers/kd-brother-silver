@@ -58,7 +58,6 @@
 									</select>
 								</div>
 							</div>
-
 							<div class="col-md-2 allinone dfine dratecutfine dratecutrs">
 								<div class="form-group">
 									<label class="form-label">Mode<span class="text-danger">*</span></label>

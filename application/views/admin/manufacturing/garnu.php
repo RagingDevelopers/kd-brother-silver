@@ -257,7 +257,6 @@
 					totalUsedWeight += rowWeight;
 					totalUsedFine += rowFine;
 				});
-
 				$('.mweight').val(formatNumber(totalUsedWeight));
 				$('.total_used_fine').val((totalUsedFine));
 				var mainTouch = (totalUsedFine / totalUsedWeight) * 100;
