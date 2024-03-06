@@ -51,9 +51,9 @@
                                                             <i class="far fa-edit" aria-hidden="true"></i>
                                                         </a>
 
-                                                        <a class="btn btn-danger btn-icon rounded-circle text-white me-2" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Delete bank" onclick="return confirm('Are you sure want to Delete.?');" href="<?= base_url('master/stamp/delete/') . $data['id'] ?>">
-                                                            <i class="fa-solid fa-trash"></i>
-                                                        </a>
+                                                        <!--<a class="btn btn-danger btn-icon rounded-circle text-white me-2" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Delete bank" onclick="return confirm('Are you sure want to Delete.?');" href="<?= base_url('master/stamp/delete/') . $data['id'] ?>">-->
+                                                        <!--    <i class="fa-solid fa-trash"></i>-->
+                                                        <!--</a>-->
                                                     </div>
                                                 </td>
                                                 <td>

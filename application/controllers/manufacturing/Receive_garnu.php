@@ -23,15 +23,18 @@ class Receive_garnu extends CI_Controller
 		$page_data['page_title'] = 'Received Garnu';
 		switch ($action) {
 			case "":
+				checkPrivilege(privilege["receive_garnu_view"]);
 				$page_data['data'] = $this->dbh->getResultArray('garnu');
 				$page_data['metal_type'] = $this->dbh->findAll('metal_type');
 
 				return view(self::View, $page_data);
 			case "add":
+				checkPrivilege(privilege["receive_garnu"]);
 				$page_data['data'] = $this->dbh->getResultArray('garnu');
 				return view(self::ADD, $page_data);
 
 			case "edit":
+				checkPrivilege(privilege["receive_garnu_edit"]);
 				$this->validateId($id);
 				$garnu = $this->dbh->find('garnu', $id);
 				if (!$garnu) {
@@ -120,7 +123,7 @@ class Receive_garnu extends CI_Controller
 				//     flash()->withSuccess("garnu type Deleted Successfully")->back();
 				//     break;
 			case "update":
-				// checkPrivilege(privilege["garnu_edit"]);
+				checkPrivilege(privilege["garnu_edit"]);
 				$validation = $this->form_validation;
 				$validation->set_rules('name', 'Name', 'required')
 					->set_rules('garnu_weight', 'garnu_weight', 'required')
@@ -300,10 +303,10 @@ class Receive_garnu extends CI_Controller
 
 
 			if (!empty($query2)) {
-				$processName = "<span>{$query2['process_name']}</span>";
+				$processName = "<span class='text-danger'>{$query2['process_name']}</span>";
 				$worker_name = "<span>{$query2['worker_name']}</span>";
 			} else {
-				$processName = "<span class='text-center'> -- </span>";
+				$processName = "<span class='text-center text-danger'> -- </span>";
 				$worker_name = "<span class='text-center'> -- </span>";
 			}
 

@@ -40,19 +40,24 @@
 								<input type="hidden" name="given_id" id="" class="form-control given_id" value="<?= $process_data['id'] ?? null ?>">
 								<input type="hidden" id="gatnuTouch" value="<?= $data['touch'] ?? null ?>">
 								<div class="col-md-4 col-sm-3">
-									<label class="form-label" for="">Garnu Name: </label>
-									<input type="text" name="name" id="" class="form-control readonly" placeholder="Enter Garnu Name" readonly value="<?= $data['name'] ?? null ?>" autocomplete="off">
+									<label class="form-label" for="">Dhal Name: </label>
+									<input type="text" name="name" id="" class="form-control readonly" placeholder="Enter Dhal Name" readonly value="<?= $data['name'] ?? null ?>" autocomplete="off">
 								</div>
 								<!-- <div class="col-md-4 col-sm-3">
 									<label class="form-label" for="">Received Quantity: </label>
 									<input type="text" name="rc_qty" id="" class="form-control" placeholder="Enter Quantity" autocomplete="off" value="<?= (isset($process_data)) ? $process_data['rc_qty'] : '' ?>">
 								</div> -->
 								<div class="col-md-4 col-sm-3">
-									<label class="form-label" for="">Garnu Weight: </label>
+									<label class="form-label" for="">Dhal Weight: </label>
 									<input type="text" name="weight" id="" class="form-control readonly" readonly placeholder="Enter Weight" value="<?= $data['garnu_weight'] ?? null ?>" autocomplete="off">
 									<input type="hidden" id="receiveCode" value="<?= $receiveCode[0]['code'] ?? null ?>" autocomplete="off">
 								</div>
-								<div class="col-md-4 col-sm-3 <?= (empty($receiveCode[0]['code'])) ? "d-none" : " "; ?>">
+								<div class="col-md-4 col-sm-3">
+									<label class="form-label" for="">Dhal Touch: </label>
+									<input type="text" name="touch" id="" class="form-control readonly" readonly placeholder="Enter Touch" step="any" value="<?= $data['touch'] ?? null ?>" autocomplete="off">
+								</div>
+								<!-- <div class="col-md-4 col-sm-3 <?php // echo (empty($receiveCode[0]['code']) || !empty($process_data) && empty($process_data['receive_code'])) ? "d-none" : " "; ?>"> -->
+								<div class="col-md-4 col-sm-3 d-none">
 									<label class="form-label" for="process">Receive Code : </label>
 									<select class="form-select select2 receiveCode" name="receive_code">
 										<option value=''>Select Code</option>
@@ -100,11 +105,11 @@
 							<div class="row mt-3">
 								<div class="col-md-4 col-sm-3">
 									<label class="form-label" for="">Given Quantity: </label>
-									<input type="text" name="given_qty" id="" class="form-control given-qty" placeholder="Enter Quantity" autocomplete="off" value="<?= (isset($process_data)) ? $process_data['given_qty'] : "" ?>">
+									<input type="text" name="given_qty" id="" class="form-control given-qty" placeholder="Enter Quantity" autocomplete="off" value="<?= (isset($process_data)) ? $process_data['given_qty'] : "0" ?>">
 								</div>
 								<div class="col-md-4 col-sm-3">
 									<label class="form-label" for="">Given Weight: </label>
-									<input type="text" name="given_weight" readonly class="form-control given_weight readonly" placeholder="Enter Weight" autocomplete="off" value="<?= (isset($process_data)) ? $process_data['given_weight'] : '0' ?>">
+									<input type="text" name="given_weight" class="form-control given_weight" placeholder="Enter Weight" autocomplete="off" value="<?= (isset($process_data)) ? $process_data['given_weight'] : '0' ?>">
 								</div>
 								<div class="col-md-4 col-sm-3">
 									<label class="form-label" for="">Labour: </label>
@@ -130,6 +135,7 @@
 							<button type="submit" class="btn btn-primary ms-auto">
 								<?= (isset($process_data)) ? 'Update' : 'Submit' ?>
 							</button>
+							<!-- <a target="_blank" class="bg-warning btn text-warning-fg me-2">Submit & Print</a> -->
 						</div>
 
 						<div class="modal modal-blur fade modal-lg" data-bs-backdrop="static" data-bs-keyboard="false" id="modal-report" tabindex="-1" role="dialog" aria-hidden="true">
@@ -180,7 +186,7 @@
 															</select>
 														</td>
 														<td class="text-muted">
-															<input type="number" name="rmTouch[]" value="<?= $row['touch'] ?? 0 ?>" required class="form-control touch" placeholder="Enter Touch" autocomplete="off">
+															<input type="number" name="rmTouch[]" value="<?= $row['touch'] ?? $data['touch'] ?? 0 ?>" step="any" required class="form-control touch" placeholder="Enter Touch" autocomplete="off">
 														</td>
 														<td class="text-muted">
 															<input type="number" name="rmWeight[]" value="<?= $row['weight'] ?? 0 ?>" class="form-control weight" placeholder="Enter Weight" autocomplete="off">
@@ -299,7 +305,7 @@
 														</select>
 													</td>
 													<td class="text-muted">
-														<input type="number" class="form-control touch2" value="0" placeholder="Enter Touch" autocomplete="off">
+														<input type="number" class="form-control touch2" value="0" placeholder="Enter Touch" step="any" autocomplete="off">
 													</td>
 													<td class="text-muted">
 														<input type="number" class="form-control weight2" value="0" placeholder="Enter Weight" autocomplete="off">
@@ -399,7 +405,7 @@
 														</select>
 													</td>
 													<td class="text-muted">
-														<input type="number" class="form-control metalTouch" value="0" placeholder="Enter Touch" autocomplete="off">
+														<input type="number" class="form-control metalTouch" step="any" value="0" placeholder="Enter Touch" autocomplete="off">
 													</td>
 													<td class="text-muted">
 														<input type="number" class="form-control metalWeight" value="0" placeholder="Enter Weight" autocomplete="off">
@@ -596,10 +602,10 @@
 					<p class="modal-title">Issue Weight </p>
 				</div>
 				<div class="col-md-4">
-					<p class="modal-title">Garnu Weight:- <span class="garnu_weight"></span></p>
+					<p class="modal-title">Dhal Weight:- <span class="garnu_weight"></span></p>
 				</div>
 				<div class="col-md-4 text-center">
-					<p class="modal-title">Garnu Name:- <span class="garnu_name"></span></p>
+					<p class="modal-title">Dhal Name:- <span class="garnu_name"></span></p>
 				</div>
 				<!-- <div class="col-md-1"> -->
 				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -630,7 +636,7 @@
 							</td>
 
 							<td>
-								<input class="form-control given-touch" type="number" disabled readonly placeholder="Enter touch(%)" value="0">
+								<input class="form-control given-touch" type="number" step="any" disabled readonly placeholder="Enter touch(%)" value="0">
 							</td>
 							<td>
 								<input class="form-control given-weight" type="number" disabled readonly placeholder="Enter Weight" value="0">

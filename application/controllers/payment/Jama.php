@@ -14,10 +14,11 @@ class Jama extends CI_Controller
 
 	public function index()
 	{
-		// checkPrivilege(privilege['jama_add']);
+		checkPrivilege(privilege['jama_add']);
 		$page_data['page_title'] = 'Jama';
 		$page_data['bank'] = $this->jama->bank();
 		$page_data['party'] = $this->jama->party();
+		$page_data['metal_type'] = $this->jama->metal_type();
 		// $page_data['page_name'] = 'payment/jama';
         return view(self::View,$page_data);
 	}
@@ -26,11 +27,12 @@ class Jama extends CI_Controller
 	    if($num_rows==0){
 			redirect(base_url('payment/jama_report'), 'refresh');
 	    }else{
-    		$page_data['page_title'] = 'Jama';
+    		$page_data['page_title'] = 'Jama'; 
     		$page_data['jama_code']= $param;
     		$page_data['party_id']= $param1;
     		$page_data['bank'] = $this->jama->bank();
     		$page_data['party'] = $this->jama->party();
+			$page_data['metal_type'] = $this->jama->metal_type();
     		return view(self::View,$page_data);
 	    }
 	}
@@ -52,7 +54,7 @@ class Jama extends CI_Controller
     	echo json_encode($res);
 	}
 	public function delete_jama_code($param){
-	    // checkPrivilege(privilege['jama_delete']);
+	    checkPrivilege(privilege['jama_delete']);
 	    $num_rows = $this->db->get_where('jama',array('jama_code'=>$param))->num_rows();
 	    if($num_rows==0){
 			redirect(base_url('payment/jama_report'), 'refresh');
@@ -67,7 +69,7 @@ class Jama extends CI_Controller
 			$this->db->where('id',$condata['jama_id']);
             $update = $this->db->update('jama',array('date'=>$condata['date'],'customer_id'=>$condata['party_id'],'type'=>$condata['type'],'mode'=>$condata['mode']
             ,'gross'=>$condata['gross'],'purity'=>$condata['purity'],'wb'=>$condata['wb'],'fine'=>$condata['fine'],'rate'=>$condata['rate'],
-            'amount'=>$condata['amount'],'remark'=>$condata['remark']));
+            'amount'=>$condata['amount'],'remark'=>$condata['remark'],'metal_type_id'=>$condata['metal_type_id']));
 			
 			if ($update == TRUE) {
 				$res = [
@@ -125,7 +127,7 @@ class Jama extends CI_Controller
 			}
             $insert = $this->db->insert('jama',array('date'=>$condata['date'],'customer_id'=>$condata['party_id'],'type'=>$condata['type'],'mode'=>$condata['mode']
             ,'gross'=>$condata['gross'],'purity'=>$condata['purity'],'wb'=>$condata['wb'],'fine'=>$condata['fine'],'rate'=>$condata['rate'],
-            'amount'=>$condata['amount'],'remark'=>$condata['remark'],'jama_code'=>$condata['jama_code']));
+            'amount'=>$condata['amount'],'remark'=>$condata['remark'],'jama_code'=>$condata['jama_code'],'metal_type_id'=>$condata['metal_type_id'],'creation_date'=>date('Y-m-d')));
 
 			if ($insert == TRUE) {
 				$res = [
@@ -271,9 +273,10 @@ class Jama extends CI_Controller
 		$totalRecordwithFilter = $records->num_rows();
 
 
-		$this->db->select('jama.*,customer.name as pname');
+		$this->db->select('jama.*,customer.name as pname,metal_type.name as metal_type');
 		$this->db->from('jama');
 		$this->db->join('customer', 'customer.id = jama.customer_id', 'left');
+		$this->db->join('metal_type', 'metal_type.id = jama.metal_type_id', 'left');
         if(!empty($jama_code)){
             $this->db->where('jama.jama_code',$jama_code);
         }else{
@@ -306,6 +309,7 @@ class Jama extends CI_Controller
 				"remark" => $record->remark,
 				"gross" => $record->gross,
 				"fine" => $record->fine,
+				"metal_type" => $record->metal_type,
 				"amount" => $record->amount,
 
 			);

@@ -19,7 +19,7 @@ class City extends CI_Controller
         $page_data['page_title'] = 'City';
         switch ($action) {
             case "":
-                // checkPrivilege(privilege["city_view"]);
+                checkPrivilege(privilege["city_view"]);
                 $page_data['data'] = $this->dbh->getResultArray('city');
                 return view(self::View, $page_data);
 
@@ -37,7 +37,7 @@ class City extends CI_Controller
                 return view(self::View, $page_data);
 
             case "store":
-                // checkPrivilege(privilege["city_add"]);
+                checkPrivilege(privilege["city_add"]);
                 $validation = $this->form_validation;
                 $validation->set_rules('name', 'Name', 'required');
                 if (!$validation->run()) {
@@ -55,7 +55,7 @@ class City extends CI_Controller
             //     flash()->withSuccess("City Deleted Successfully")->back();
             //     break;
             case "update":
-                // checkPrivilege(privilege["city_edit"]);
+                checkPrivilege(privilege["city_edit"]);
                 $validation = $this->form_validation;
                 $validation->set_rules('name', 'Name', 'required');
                 if ($validation->run() == false) {

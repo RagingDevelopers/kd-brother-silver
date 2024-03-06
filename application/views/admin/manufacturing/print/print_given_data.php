@@ -57,63 +57,63 @@
 				<thead>
 					<tr>
 						<th colspan="2" style="text-align:center;padding-top: 10px;padding-bottom: 10px;">
-							<img src="https://chart.googleapis.com/chart?chs=110x110&cht=qr&chl=<?= $data['givenData']['garnu_id'] . "_" . $data['givenData']['id'] ?>&choe=UTF-8" />
+							<img src="https://chart.googleapis.com/chart?chs=110x110&cht=qr&chl=<?= $data['givenData']['garnu_id'] ?? "" . "_" . $data['givenData']['id'] ?? "" ?>&choe=UTF-8" />
 							<br>
-							Issue Filing
+							<?= $data['givenData']['process_name'] ?? ""; ?>
 						</th>
 					</tr>
 					<tr>
-						<th>
-							Touch <?= $data['givenData']['garnu_touch'] ?>
-						</th>
-						<th>
-							Date :- <?= date('d-m-Y', strtotime($data['givenData']['creation_date'])); ?>
+						<th colspan="2" class="text-center">
+							Date :- <?= date('d-m-Y', strtotime($data['givenData']['creation_date'] ?? date('Y-m-d'))); ?>
 						</th>
 					</tr>
 					<tr style="background-color: #c8a5a3;">
 						<th>
-							Item Name :- <?= $data['givenData']['garnu_name'] ?>
+							Garnu Name :- <?= $data['givenData']['garnu_name'] ?? ""; ?>
 						</th>
 						<th>
-							Touch <?= $data['givenData']['garnu_touch'] ?>
+							Touch <?= $data['givenData']['garnu_touch'] ?? ""; ?>
 						</th>
 					</tr>
 					<tr>
 						<th>Karigar</th>
-						<th><?= $data['givenData']['worker_name'] ?></th>
+						<th><?= $data['givenData']['worker_name'] ?? "" ?></th>
 					</tr>
 				</thead>
 				<tbody>
 					<tr>
 						<th>Code</th>
-						<th><?= $data['givenData']['garnu_id'] . "_" . $data['givenData']['id'] ?></th>
+						<th><?= $garnu_id. "-" . $given_id ?></th>
 					</tr>
 					<tr>
 						<th>Item Weight</th>
-						<th><?= $data['givenData']['garnu_weight'] ?></th>
+						<th><?= $data['givenData']['garnu_weight'] ?? "" ?></th>
 					</tr>
 					<tr>
 						<th>Raw Material Weight</th>
-						<th><?= $data['givenData']['row_material_weight'] ?></th>
+						<th><?= $data['givenData']['row_material_weight'] ?? "" ?></th>
 					</tr>
 					<tr>
-						<th>Given Weight</th>
-						<th><?= $data['givenData']['given_weight'] ?></th>
+						<th>Given Total Weight</th>
+						<th><?= $data['givenData']['total_weight'] ?? "" ?></th>
 					</tr>
 					<tr>
 						<th>Given PCS</th>
-						<th><?= $data['givenData']['given_qty'] ?></th>
+						<th><?= $data['givenData']['given_qty'] ?? "" ?></th>
 					</tr>
 					<tr>
 						<th>Given Remark</th>
-						<th><?= $data['givenData']['remarks'] ?></th>
+						<th><?= $data['givenData']['remarks'] ?? "" ?></th>
 					</tr>
-					<?php foreach ($data['givenRowMaterial'] as $rmi => $rm) { ?>
-						<tr>
-							<th><?= $rm['row_material_name']; ?> (RM)</th>
-							<th><?= $rm['quantity'] ?> - <?= $rm['weight'] ?> - <?= $rm['touch'] ?> (PCS - Weight - Touch)</th>
-						</tr>
-					<?php } ?>
+					<?php
+					if (!empty($data['givenRowMaterial'])) {
+						foreach ($data['givenRowMaterial'] as $rmi => $rm) { ?>
+							<tr>
+								<th><?= $rm['row_material_name']; ?> (RM)</th>
+								<th><?= $rm['quantity'] ?> - <?= $rm['weight'] ?> - <?= $rm['touch'] ?> (PCS - Weight - Touch)</th>
+							</tr>
+					<?php }
+					} ?>
 				</tbody>
 			</table>
 		</div>
@@ -122,63 +122,63 @@
 				<thead>
 					<tr>
 						<th colspan="2" style="text-align:center;padding-top: 10px;padding-bottom: 10px;">
-							<img src="https://chart.googleapis.com/chart?chs=110x110&cht=qr&chl=<?= $data['givenData']['garnu_id'] . "_" . $data['givenData']['id'] ?>&choe=UTF-8" />
+							<img src="https://chart.googleapis.com/chart?chs=110x110&cht=qr&chl=<?= $data['givenData']['garnu_id'] ?? "" . "_" . $data['givenData']['id'] ?? "" ?>&choe=UTF-8" />
 							<br>
-							Issue Filing
+							<?= $data['givenData']['process_name'] ?? ""; ?>
 						</th>
 					</tr>
 					<tr>
-						<th>
-							Touch <?= $data['givenData']['garnu_touch'] ?>
-						</th>
-						<th>
-							Date :- <?= date('d-m-Y', strtotime($data['givenData']['creation_date'])); ?>
+						<th colspan="2" class="text-center">
+							Date :- <?= date('d-m-Y', strtotime($data['givenData']['creation_date'] ?? date('Y-m-d'))); ?>
 						</th>
 					</tr>
 					<tr style="background-color: #c8a5a3;">
 						<th>
-							Item Name :- <?= $data['givenData']['garnu_name'] ?>
+							Garnu Name :- <?= $data['givenData']['garnu_name'] ?? ""; ?>
 						</th>
 						<th>
-							Touch <?= $data['givenData']['garnu_touch'] ?>
+							Touch <?= $data['givenData']['garnu_touch'] ?? ""; ?>
 						</th>
 					</tr>
 					<tr>
 						<th>Karigar</th>
-						<th><?= $data['givenData']['worker_name'] ?></th>
+						<th><?= $data['givenData']['worker_name'] ?? "" ?></th>
 					</tr>
 				</thead>
 				<tbody>
 					<tr>
 						<th>Code</th>
-						<th><?= $data['givenData']['garnu_id'] . "_" . $data['givenData']['id'] ?></th>
+						<th><?= $garnu_id. "-" . $given_id ?></th>
 					</tr>
 					<tr>
 						<th>Item Weight</th>
-						<th><?= $data['givenData']['garnu_weight'] ?></th>
+						<th><?= $data['givenData']['garnu_weight'] ?? "" ?></th>
 					</tr>
 					<tr>
 						<th>Raw Material Weight</th>
-						<th><?= $data['givenData']['row_material_weight'] ?></th>
+						<th><?= $data['givenData']['row_material_weight'] ?? "" ?></th>
 					</tr>
 					<tr>
-						<th>Given Weight</th>
-						<th><?= $data['givenData']['given_weight'] ?></th>
+						<th>Given Total Weight</th>
+						<th><?= $data['givenData']['total_weight'] ?? "" ?></th>
 					</tr>
 					<tr>
 						<th>Given PCS</th>
-						<th><?= $data['givenData']['given_qty'] ?></th>
+						<th><?= $data['givenData']['given_qty'] ?? "" ?></th>
 					</tr>
 					<tr>
 						<th>Given Remark</th>
-						<th><?= $data['givenData']['remarks'] ?></th>
+						<th><?= $data['givenData']['remarks'] ?? "" ?></th>
 					</tr>
-					<?php foreach ($data['givenRowMaterial'] as $rmi => $rm) { ?>
-						<tr>
-							<th><?= $rm['row_material_name']; ?> (RM)</th>
-							<th><?= $rm['quantity'] ?> - <?= $rm['weight'] ?> - <?= $rm['touch'] ?> (PCS - Weight - Touch)</th>
-						</tr>
-					<?php } ?>
+					<?php
+					if (!empty($data['givenRowMaterial'])) {
+						foreach ($data['givenRowMaterial'] as $rmi => $rm) { ?>
+							<tr>
+								<th><?= $rm['row_material_name']; ?> (RM)</th>
+								<th><?= $rm['quantity'] ?> - <?= $rm['weight'] ?> - <?= $rm['touch'] ?> (PCS - Weight - Touch)</th>
+							</tr>
+					<?php }
+					} ?>
 				</tbody>
 			</table>
 		</div>

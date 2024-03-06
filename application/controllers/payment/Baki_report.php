@@ -13,7 +13,7 @@ class Baki_report extends CI_Controller
 
 	public function index()
 	{
-		// checkPrivilege(privilege['baki_view']);
+		checkPrivilege(privilege['baki_view']);
 		// $page_data['page_title'] = 'Baki Report';
 		// $page_data['page_name'] = 'baki/baki_report.php';
 		// $this->load->view('admin/common.php', $page_data);
@@ -45,7 +45,8 @@ class Baki_report extends CI_Controller
 
 		$this->db->select('baki.*');
 		$this->db->from('baki');
-		$this->db->group_by('baki.id');
+// 		$this->db->group_by('baki.id');
+		$this->db->group_by('baki.baki_code');
 		$this->db->order_by('baki.id', 'desc');
 		$records = $this->db->get();
 		$totalRecords = $records->num_rows();
@@ -69,16 +70,18 @@ class Baki_report extends CI_Controller
 			$this->db->where("baki.type", $group_by);
 		}
 
-		$this->db->group_by('baki.id');
+// 		$this->db->group_by('baki.id');
+		$this->db->group_by('baki.baki_code');
 		$this->db->order_by('baki.id', 'desc');
 		$records = $this->db->get();
 
 		$totalRecordwithFilter = $records->num_rows();
 
 
-		$this->db->select('baki.*,customer.name as pname');
+		$this->db->select('baki.*,customer.name as pname,metal_type.name as metal_type');
 		$this->db->from('baki');
 		$this->db->join('customer', 'customer.id = baki.customer_id', 'left');
+		$this->db->join('metal_type', 'metal_type.id = baki.metal_type_id', 'left');
 		if ($searchQuery != '')
 			$this->db->where($searchQuery);
 
@@ -104,11 +107,14 @@ class Baki_report extends CI_Controller
 		$i = $start + 1;
 		foreach ($records as $record) {
 
-			$this->db->select("baki.*,customer.name as pname");
+			$this->db->select("baki.*,customer.name as pname,metal_type.name as metal_type");
 			$this->db->from("baki");
 			$this->db->where('baki.baki_code', $record->baki_code);
+			if (!empty($group_by)) {
+    			$this->db->where("baki.type", $group_by);
+    		}
 			$this->db->join('customer', 'customer.id = baki.customer_id', 'left');
-
+			$this->db->join('metal_type', 'metal_type.id = baki.metal_type_id', 'left');
 
 			$query = $this->db->get();
 			$mk = $query->result_array();
@@ -122,6 +128,7 @@ class Baki_report extends CI_Controller
 			$remark = "";
 			$gross = "";
 			$fine = "";
+			$metal_type = "";
 			$amount = "";
 
 			foreach ($mk as $rm) {
@@ -143,6 +150,7 @@ class Baki_report extends CI_Controller
 				$remark .= "<span>" . $rm['remark'] . "</span></br>";
 				$gross .= "<span>" . $rm['gross'] . "</span></br>";
 				$fine .= "<span>" . $rm['fine'] . "</span></br>";
+				$metal_type .= "<span>" . $rm['metal_type'] . "</span></br>";
 				$amount .= "<span>" . $rm['amount'] . "</span></br>";
 			}
 
@@ -163,6 +171,7 @@ class Baki_report extends CI_Controller
 				"remark" => $remark,
 				"gross" => $gross,
 				"fine" => $fine,
+				"metal_type" => $metal_type,
 				"amount" => $amount,
 
 			);

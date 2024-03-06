@@ -6,38 +6,43 @@ var usedmetal = $(".sectiontocopy")[0].outerHTML;
 var ReceivedMainRow;
 var rmBtn = null;
 var receiveBtn = null;
-var receiveCode = $("#receiveCode").val();
-if (receiveCode == "" || receiveCode == null) {
-	$(".given_weight").removeClass("readonly");
-	$(".given_weight").prop("readonly", false);
-	// $('.receiveCode').prop('required', false);
-} else {
-	$(".given_weight").addClass("readonly");
-	$(".given_weight").prop("readonly", true);
-	// $('.receiveCode').prop('required', true);
-}
+// var receiveCode = $("#receiveCode").val();
+// if ($(".receiveCode").parent().hasClass('d-none')) {
+// 	$(".given_weight").removeClass("readonly");
+// 	$(".given_weight").prop("readonly", false);
+// } else {
+// 	$(".given_weight").addClass("readonly");
+// 	$(".given_weight").prop("readonly", true);
+// }
 
-$(".ManageProcess").submit(function (e) { 
+$(".ManageProcess").submit(function (e) {
 	e.preventDefault();
 	var validator = new Validator();
-	validator
-	.addField(".process", "Please select process!", (el) => el.select2("open"))
-	.addField("#workers", "Please select Worker!", (el) => el.select2("open"))
-	.addField(".given-qty", "Please Enter Given Quantity!")
-	.addField(".given_weight", "Please Enter Given Weight!");
-	if ($(".receiveCode").parent().hasClass('d-none') == 'false') {
-		console.log("Please");
+	if (!$(".receiveCode").parent().hasClass("d-none")) {
 		validator.addField(".receiveCode", "Please select Receive Code!", (el) =>
 			el.select2("open")
 		);
 	}
+	validator
+		.addField(".process", "Please select process!", (el) => el.select2("open"))
+		.addField("#workers", "Please select Worker!", (el) => el.select2("open"))
+		.addField(".given-qty", "Please Enter Given Quantity!")
+		.addField(".given_weight", "Please Enter Given Weight!");
 
 	if (!validator.validate()) return;
+
+	if ($(".given_weight").val() <= 0) {
+		$(".given_weight").val("");
+		$(".given_weight").focus();
+		SweetAlert("warning", "Touch should be greater than 0");
+		return;
+	}
+
 	$(this).off("submit").submit();
 });
 
-function WorkersData(process_id = null,selected_id = null){
-    var optionHTML = "";
+function WorkersData(process_id = null, selected_id = null) {
+	var optionHTML = "";
 	var selected = "";
 	optionHTML += `<option value=""> Select <option>`;
 	$.ajax({
@@ -64,12 +69,12 @@ function WorkersData(process_id = null,selected_id = null){
 	});
 }
 
-if($('.process').val() != ""){
-    var process_id = $('.process').val();
-	var selected_id = $('.process').find(":selected").data("workerid");
+if ($(".process").val() != "") {
+	var process_id = $(".process").val();
+	var selected_id = $(".process").find(":selected").data("workerid");
 	$(".workers").empty();
 	if (process_id) {
-		WorkersData(process_id,selected_id);
+		WorkersData(process_id, selected_id);
 	} else {
 		$(".workers").empty();
 		$(".workers").append('<option value="">Select</option>');
@@ -124,12 +129,15 @@ $(document).on("click", ".addButton", function () {
 	$("#TBody").append(mainRow);
 	const lastTr = $("#TBody tr").last();
 	lastTr.find(".rowid").val(0);
-	lastTr.find(".weight, .touch, .quantity").val(0);
+	lastTr.find(".row_material").val("");
+	lastTr.find(".touch").val(garnuTouch);
+	lastTr.find(".weight, .quantity").val(0);
 	lastTr.find(".row_material").select2({
 		width: "200",
 		dropdownParent: $("#modal-report"),
 	});
 	lastTr.find(".row_material").last().select2("open");
+	Rmcalculate();
 });
 
 $(document).on("click", ".deleteRow", function () {
@@ -181,13 +189,17 @@ $(document).on("click", ".save", function () {
 	autoValueEnter();
 });
 
-$(document).on("input", ".touch,.touch2,.metalTouch", function () {
-	var touch = $(this);
-	if (touch.val() > 100) {
-		SweetAlert("warning", "Touch should be less than equal to 100"),
-			touch.val("");
+$(document).on(
+	"input",
+	".touch,.touch2,.metalTouch,.receivedTouch",
+	function () {
+		var touch = $(this);
+		if (touch.val() > 100) {
+			SweetAlert("warning", "Touch should be less than equal to 100"),
+				touch.val("");
+		}
 	}
-});
+);
 
 $(document).on("input", ".totalRmWeight,.given_weight", function () {
 	autoValueEnter();
@@ -267,12 +279,16 @@ $(document).on("click", ".receivedAddButton2", function () {
 	$("#ReceivedBody").append(ReceivedMainRow);
 	const lastTr = $("#ReceivedBody tr").last();
 	lastTr.find(".rcid").val("");
-	lastTr.find(".rcid,.Pcs, .receivedWeight").val(0);
+	lastTr
+		.find(".rcid,.Pcs, .receivedWeight,.receivedFine")
+		.val(0);
 	lastTr.find(".receivedRemark,.rmdata").val("");
 	lastTr.find(".receivedRmWeight").val(0);
+	lastTr.find(".receivedTouch").val(garnuTouch);
 	lastTr.find(".receivedfinalWeight").val(0);
 	var modalBody = $("#received1-report .modal-body");
 	scrollEvent(modalBody, 550);
+	TotalCalculation();
 });
 
 $(document).on("click", ".receiveddeleteRow", function () {
@@ -304,7 +320,8 @@ $(document).on("click", ".addButton2", function () {
 	$("#JBody").append(mainRmRow);
 	const lastTr = $("#JBody tr").last();
 	lastTr.find(".rowid2").val(0);
-	lastTr.find(".weight2, .touch2, .quantity2").val(0);
+	lastTr.find(".touch2").val(garnuTouch);
+	lastTr.find(".weight2, .quantity2").val(0);
 	lastTr.find(".row_material2").select2({
 		width: "200",
 		dropdownParent: $("#received-report"),
@@ -312,6 +329,7 @@ $(document).on("click", ".addButton2", function () {
 	lastTr.find(".row_material2").last().select2("open");
 	var modalBody = $("#received-report .modal-body");
 	scrollEvent(modalBody, 550);
+	RmcalculateMain();
 });
 
 $(document).on("click", ".deleteRow2", function () {
@@ -377,22 +395,29 @@ function finalCalculation(i) {
 	var container = i.parents("tr");
 	var receivedWeight = container.find(".receivedWeight").val() || 0;
 	var receivedRmWeight = container.find(".receivedRmWeight").val() || 0;
-	container
-		.find(".receivedfinalWeight")
-		.val(
-			formatNumber(parseFloat(receivedWeight) + parseFloat(receivedRmWeight))
-		);
+	var receivedTouch = container.find(".receivedTouch").val() || 0;
+	var receivedRmfinalWeight = formatNumber(
+		parseFloat(receivedWeight) + parseFloat(receivedRmWeight)
+	);
+	var receivedFine = formatNumber(
+		(receivedRmfinalWeight * parseFloat(receivedTouch)) / 100
+	);
+
+	container.find(".receivedfinalWeight").val(receivedRmfinalWeight);
+	container.find(".receivedFine").val(receivedFine);
 }
 
-$(document).on("input", ".receivedWeight", function () {
+$(document).on("input", ".receivedWeight,.receivedTouch", function () {
 	finalCalculation($(this));
 	TotalCalculation();
 });
-$(document).on("input", ".Pcs", function () {
+$(document).on("input", ".Pcs,.receivedTouch", function () {
 	TotalCalculation();
 });
 
 $(document).on("click", ".Receivedmaterial", function () {
+	$(".addButton2").show();
+	$(".saveRmData").show();
 	rmBtn = $(this);
 	var modal = $("#received-report");
 	var givenContainer = rmBtn.parents("tr");
@@ -407,10 +432,11 @@ $(document).on("click", ".Receivedmaterial", function () {
 			var row = modal.find(".main-row").eq(i),
 				splitByHash = data[i]?.split(","),
 				row_material2 = splitByHash[0] ?? 0,
-				touch2 = splitByHash[1] ?? 0,
+				touch2 = splitByHash[1] ?? garnuTouch,
 				weight2 = splitByHash[2] ?? 0;
 			quantity2 = splitByHash[3] ?? 0;
 			received_detail_id = splitByHash[4] ?? 0;
+			row.find(".row_material2 ").prop("disabled", false);
 			row.find(".row_material2 ").val(row_material2).trigger("change");
 			row.find(".touch2").val(touch2);
 			row.find(".weight2").val(weight2);
@@ -455,6 +481,7 @@ $(document).on("submit", "#received-garnu", function (e) {
 		data: formData,
 		beforeSend: (data) => {
 			self.find(".submit-btn span").show();
+			self.find(".submit-btn").attr("disabled", true);
 			// ShowBlockUi('#received1-report');
 		},
 		success: function (response) {
@@ -488,7 +515,6 @@ $(document).on("submit", "#received-garnu", function (e) {
 					).val()} </h4>`;
 				}
 				receiveBtn.parents("tr").find(".vadharo_dhatado").html(jamaBaki);
-
 				if ($("#is_completed").is(":checked")) {
 					receiveBtn.parents("tr").find(".is_completed").prop("checked", true);
 				} else {
@@ -501,10 +527,16 @@ $(document).on("submit", "#received-garnu", function (e) {
 				if (receiveBtn.parents("tr").find(".rowMetalData").val() != "") {
 					receiveBtn.parents("tr").find(".total-metal-type").show();
 				}
-				$('.receiveCode ').parent().removeClass('d-none');
+				// window.location.href = window.location.href;
+				FetchCode();
 				$("#received1-report").modal("hide");
 				SweetAlert("success", response.message);
 			} else {
+				if ($("#is_completed").is(":checked")) {
+					receiveBtn.parents("tr").find(".is_completed").prop("checked", true);
+				} else {
+					receiveBtn.parents("tr").find(".is_completed").prop("checked", false);
+				}
 				$("#received1-report").modal("hide");
 				SweetAlert("error", response.message);
 			}
@@ -514,6 +546,7 @@ $(document).on("submit", "#received-garnu", function (e) {
 		},
 		complete: () => {
 			self.find(".submit-btn span").hide();
+			self.find(".submit-btn").attr("disabled", false);
 		},
 	});
 });
@@ -523,6 +556,8 @@ function TotalCalculation() {
 	var receivedWeight = 0;
 	var receivedRmWeight = 0;
 	var receivedfinalWeight = 0;
+	var receivedTouch = 0;
+	var receivedFine = 0;
 
 	$(".Pcs").each(function () {
 		totalPcs += parseFloat($(this).val() || 0);
@@ -536,6 +571,12 @@ function TotalCalculation() {
 	$(".receivedfinalWeight").each(function () {
 		receivedfinalWeight += parseFloat($(this).val() || 0);
 	});
+	$(".receivedTouch").each(function () {
+		receivedTouch += parseFloat($(this).val() || 0);
+	});
+	$(".receivedFine").each(function () {
+		receivedFine += parseFloat($(this).val() || 0);
+	});
 
 	$("#totalPcs").text("");
 	$("#totalPcs").text(totalPcs);
@@ -545,6 +586,14 @@ function TotalCalculation() {
 	$("#rowMaterialWeight").text(formatNumber(receivedRmWeight));
 	$("#totalFinalWeight").text("");
 	$("#totalFinalWeight").text(formatNumber(receivedfinalWeight));
+	$("#totalFinalWeight").text("");
+	$("#totalFinalWeight").text(formatNumber(receivedfinalWeight));
+	$("#totalFinalWeight").text("");
+	$("#totalFinalWeight").text(formatNumber(receivedfinalWeight));
+	$("#totalTouch").text("");
+	$("#totalTouch").text(formatNumber(receivedTouch));
+	$("#totalFine").text("");
+	$("#totalFine").text(formatNumber(receivedFine));
 
 	var Total = $("#givenTotal_weight").text() - receivedfinalWeight;
 	let formattedTotal = formatNumber(Total);
@@ -592,14 +641,14 @@ function Rmcalculate() {
 $(document)
 	.on(
 		"focus",
-		".touch,.weight,.quantity,.Pcs,.receivedWeight,.touch2, .weight2, .quantity2,.given-qty,.labour,.metalQuantity,.metalWeight,.metalTouch",
+		".touch,.weight,.quantity,.Pcs,.receivedWeight,.touch2, .weight2, .quantity2,.given-qty,.labour,.metalQuantity,.metalWeight,.metalTouch,.receivedTouch,.receivedFine",
 		function () {
 			handleInputFocusAndBlur(this, "focus");
 		}
 	)
 	.on(
 		"blur",
-		".touch,.weight,.quantity,.Pcs,.receivedWeight,.touch2, .weight2, .quantity2,.given-qty,.labour,.metalQuantity,.metalWeight,.metalTouch",
+		".touch,.weight,.quantity,.Pcs,.receivedWeight,.touch2, .weight2, .quantity2,.given-qty,.labour,.metalQuantity,.metalWeight,.metalTouch,.receivedTouch,.receivedFine",
 		function () {
 			handleInputFocusAndBlur(this, "blur");
 		}
@@ -789,7 +838,6 @@ $(document).on("click", ".given-row-material", function () {
 	});
 
 	givenRowMaterial(given_id, garnu_id).done(function () {
-		$("#givenRowMaterial").modal("show");
 		usedRowMaterialCalculation();
 	});
 });
@@ -860,7 +908,13 @@ function givenRowMaterial(given_id = null, garnu_id = null) {
 			garnu_id,
 		},
 		success: function (response) {
-			setAddRow(response);
+			if (response.data != "") {
+				setAddRow(response);
+				$("#givenRowMaterial").modal("show");
+			} else {
+				SweetAlert("warning", "Row Material was Not Found.");
+				return false;
+			}
 		},
 		error: function () {
 			alert("An error occurred.");
@@ -916,7 +970,6 @@ $(document).on("click", ".receive-row-material", function () {
 	});
 
 	receiveRowMaterial(given_id, garnu_id).done(function () {
-		$("#givenRowMaterial").modal("show");
 		usedRowMaterialCalculation();
 	});
 });
@@ -932,7 +985,13 @@ function receiveRowMaterial(given_id = null, garnu_id = null) {
 			garnu_id,
 		},
 		success: function (response) {
-			setAddRow(response);
+			if (response.data != "") {
+				setAddRow(response);
+				$("#givenRowMaterial").modal("show");
+			} else {
+				SweetAlert("warning", "Row Material was Not Found.");
+				return false;
+			}
 		},
 		error: function () {
 			alert("An error occurred.");
@@ -962,6 +1021,7 @@ $(document).on("click", ".total-metal-type", function () {
 			quantity = splitByHash[3] ?? 0;
 			process_metal_type = splitByHash[4] ?? 0;
 			row.find(".metal_type ").val(metal_type).trigger("change");
+			row.find(".metal_type ").prop("disabled", true);
 			row.find(".metalTouch").val(touch);
 			row.find(".metalWeight").val(weight);
 			row.find(".metalQuantity").val(quantity);
@@ -986,7 +1046,13 @@ $(document).on("change", ".receiveCode", function () {
 			code,
 		},
 		success: function (response) {
-			$(".given_weight").val(response.total_weight);
+			if (response.success) {
+				$(".given_weight").val(response.data.total_weight);
+			} else {
+				$(".given_weight").val(0);
+				SweetAlert("warning", response.message);
+			}
+			autoValueEnter();
 		},
 		error: function () {
 			alert("An error occurred.");
@@ -999,7 +1065,7 @@ function formatNumber(number = null) {
 	if (!Number.isInteger(number)) {
 		const parts = number.toString().split(".");
 		if (parts[1] && parseInt(parts[1].length) > 2) {
-			formattedTotal = number.toFixed(4);
+			formattedTotal = number.toFixed(2);
 		} else {
 			formattedTotal = number.toString();
 		}
@@ -1008,3 +1074,66 @@ function formatNumber(number = null) {
 	}
 	return formattedTotal;
 }
+
+function FetchCode() {
+	var garnu_id = $(".garnu_id").val();
+	$.ajax({
+		type: "POST",
+		url: `${BaseUrl}manufacturing/process/fechCode`,
+		data: { garnu_id: garnu_id },
+		dataType: "json",
+		success: function (response) {
+			if (response.success) {
+				$(".receiveCode ").parent().removeClass("d-none");
+				var option = '<option value=""> Select Code </option>';
+				if (response.data != "") {
+					$(".receiveCode").html("");
+					response.data.forEach((element) => {
+						option += `<option value="${element.code}"> ${element.code} </option>`;
+					});
+				}
+				$(".receiveCode").html(option);
+			} else {
+				$(".receiveCode ").parent().addClass("d-none");
+			}
+		},
+	});
+}
+
+$(document).on("click", ".givenMaterial", function () {
+	rmBtn = $(this);
+	var modal = $("#received-report");
+	var givenContainer = rmBtn.parents("tr");
+	var mainSection = modal.find(".main-row");
+	modal.find("tbody").html("");
+	var string = givenContainer.find(".givenRmdata").val();
+	var data = string?.split("|");
+	mainSectionLength = data?.length ?? 0;
+	if (mainSectionLength > 0) {
+		for (var i = 0; i < mainSectionLength; i++) {
+			modal.find("tbody").append(mainRmRow);
+			var row = modal.find(".main-row").eq(i),
+				splitByHash = data[i]?.split(","),
+				row_material2 = splitByHash[0] ?? 0,
+				touch2 = splitByHash[1] ?? 0,
+				weight2 = splitByHash[2] ?? 0;
+			quantity2 = splitByHash[3] ?? 0;
+			received_detail_id = splitByHash[4] ?? 0;
+			row.find(".row_material2 ").val(row_material2).trigger("change");
+			row.find(".touch2").val(touch2);
+			row.find(".weight2").val(weight2);
+			row.find(".quantity2").val(quantity2);
+			row.find(".received_detail_id").val(received_detail_id);
+			row.find(".deleteRow2").hide();
+			row.find(".row_material2 ").prop("disabled", true);
+
+			$(".addButton2").hide();
+			$(".saveRmData").hide();
+
+			RmcalculateMain();
+		}
+	} else {
+		modal.find("tbody").append(mainRmRow);
+	}
+	modal.modal("show");
+});

@@ -18,12 +18,20 @@ class Process extends CI_Controller
 	{
 		$page_data['id'] = $id;
 		$page_data['data'] = $this->db->select('*')->from('garnu')->where('id', $id)->get()->row_array();
+		if(empty($page_data['data'])){
+			$referrer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : base_url('dashboard');
+			flash()->withError("Data Not Found .")->to($referrer);
+		}
 		$page_data['process_data'] = $this->db->select('*')->from('given')->where('id', $pid)->get()->row_array();
 		$page_data['given_row_material'] = $this->db->select('*')->from('given_row_material')->where(array('given_id' => $pid, 'garnu_id' => $id))->get()->result_array();
 		$page_data['row_material'] = $this->db->select('id,name')->from('row_material')->where('status', "ACTIVE")->get()->result_array();
 		$page_data['metal_type'] = $this->db->select('id,name')->from('metal_type')->get()->result_array();
-		$page_data['receiveCode'] = $this->db->select('id, code')->from('receive')->where('garnu_id', $id)->order_by('code', 'DESC')->get()->result_array();
-		// echo "<pre>"; print_r($page_data);;exit;
+		if (!empty($pid)) {
+			$page_data['receiveCode'] = $this->db->select('id, code')->from('receive')->where(array('garnu_id' => $id))->order_by('code', 'DESC')->get()->result_array();
+		} else {
+			$page_data['receiveCode'] = $this->db->select('id, code')->from('receive')->where(array('garnu_id' => $id, 'is_full' => 'NO'))->order_by('code', 'DESC')->get()->result_array();
+		}
+		// echo "<pre>"; print_r($page_data);exit;
 		$page_data['table'] = $this->db->select('given.*,customer.name AS customer_name, process.name AS process_name')->from('given')->where('garnu_id', $id)->join('process', 'given.process_id = process.id', 'left')->join('customer', 'given.worker_id = customer.id', 'left')->get()->result();
 		$page_data['page_title'] = 'Process';
 		$page_data['process'] = $this->modal->fetch_process();
@@ -41,7 +49,30 @@ class Process extends CI_Controller
 	{
 		$post = $this->input->post();
 		$data = $this->db->select('total_weight')->get_where('receive', array('code' => $post['code']))->row_array();
-		echo json_encode($data);
+		if (!empty($data)) {
+			$response = ['success' => true, 'message' => 'Data Fetched successfully.', 'data' => $data];
+		} else {
+			$response = ['success' => false, 'message' => 'Data Fetched Failed.'];
+		}
+		echo json_encode($response);
+		return;
+	}
+
+	public function fechCode()
+	{
+		$post = $this->input->post();
+		$id = $post['garnu_id'];
+		if (!empty($pid)) {
+			$data = $this->db->select('id, code')->from('receive')->where(array('garnu_id' => $id))->order_by('code', 'DESC')->get()->result_array();
+		} else {
+			$data = $this->db->select('id, code')->from('receive')->where(array('garnu_id' => $id, 'is_full' => 'NO'))->order_by('code', 'DESC')->get()->result_array();
+		}
+		if (!empty($data)) {
+			$response = ['success' => true, 'message' => 'Data Fetched successfully.', 'data' => $data];
+		} else {
+			$response = ['success' => false, 'message' => 'Data Fetched Failed.'];
+		}
+		echo json_encode($response);
 	}
 
 	public function add()
@@ -63,8 +94,6 @@ class Process extends CI_Controller
 		}
 
 		$post = xss_clean($this->input->post());
-		// echo "<pre>";
-		// print_r($post);exit;
 
 		$data = array();
 		$data['garnu_id'] = $post['garnu_id'];
@@ -82,19 +111,37 @@ class Process extends CI_Controller
 		$this->db->insert('given', $data);
 		$given_id = $this->db->insert_id();
 
+		if (isset($post['receive_code'])) {
+			$totalWeight = $this->db->select('given_weight')->from('given')->where(array('receive_code' => $post['receive_code']))->get()->result_array();
+			$total_weight = 0;
+			foreach ($totalWeight as $weight) {
+				$total_weight += $weight['given_weight'];
+			}
+
+			$receiveWeight = $this->db->select('weight')->from('receive')->where('code', $post['receive_code'])->get()->row_array();
+
+			if ($total_weight >= $receiveWeight['weight']) {
+				$this->db->where('code', $post['receive_code'])->update('receive', ['is_full' => "YES"]);
+			}
+		}
+
 		$batchData = [];
 		foreach ($post['rowid'] as $key => $rowid) {
-			$rmData = [
-				'given_id' => $given_id,
-				'garnu_id' => isset($post['garnu_id']) ? $post['garnu_id'] : null,
-				'row_material_id' => isset($post['row_material'][$key]) ? $post['row_material'][$key] : null,
-				'touch' => isset($post['rmTouch'][$key]) ? $post['rmTouch'][$key] : null,
-				'weight' => isset($post['rmWeight'][$key]) ? $post['rmWeight'][$key] : null,
-				'quantity' => isset($post['rmQuantity'][$key]) ? $post['rmQuantity'][$key] : null,
-				'creation_date' => date('Y-m-d'),
-			];
-			$batchData[] = $rmData;
+			if (!empty($post['row_material'][$key]) || !empty($post['rmTouch'][$key]) ||  !empty($post['rmWeight'][$key]) ||  !empty($post['rmQuantity'][$key])) {
+				$rmData = [
+					'given_id' => $given_id,
+					'garnu_id' => isset($post['garnu_id']) ? $post['garnu_id'] : null,
+					'row_material_id' => isset($post['row_material'][$key]) ? $post['row_material'][$key] : null,
+					'touch' => isset($post['rmTouch'][$key]) ? $post['rmTouch'][$key] : null,
+					'weight' => isset($post['rmWeight'][$key]) ? $post['rmWeight'][$key] : null,
+					'quantity' => isset($post['rmQuantity'][$key]) ? $post['rmQuantity'][$key] : null,
+					'creation_date' => date('Y-m-d'),
+				];
+				$batchData[] = $rmData;
+			}
 		}
+		// echo "<pre>";
+		// print_r($batchData);exit;
 		if (!empty($batchData)) {
 			$this->db->insert_batch('given_row_material', $batchData);
 		}
@@ -138,6 +185,22 @@ class Process extends CI_Controller
 		$data['receive_code'] = $post['receive_code'];
 		$this->db->where('id', $id)->update('given', $data);
 
+		if (isset($post['receive_code'])) {
+			$totalWeight = $this->db->select('given_weight')->from('given')->where(array('receive_code' => $post['receive_code']))->get()->result_array();
+			$total_weight = 0;
+			foreach ($totalWeight as $weight) {
+				$total_weight += $weight['given_weight'];
+			}
+
+			$receiveWeight = $this->db->select('weight')->from('receive')->where('code', $post['receive_code'])->get()->row_array();
+
+			if ($total_weight >= $receiveWeight['weight']) {
+				$this->db->where('code', $post['receive_code'])->update('receive', ['is_full' => "YES"]);
+			} else {
+				$this->db->where('code', $post['receive_code'])->update('receive', ['is_full' => "NO"]);
+			}
+		}
+
 		$insertBatch = [];
 		$updateBatch = [];
 		$existingIds = isset($post['rowid']) ? $post['rowid'] : [];
@@ -149,21 +212,31 @@ class Process extends CI_Controller
 			$this->db->delete('given_row_material');
 		}
 
+		$rmData = [];
 		foreach ($post['rowid'] as $key => $rowid) {
-			$rmData = [
-				'row_material_id' => isset($post['row_material'][$key]) ? $post['row_material'][$key] : null,
-				'touch' => isset($post['rmTouch'][$key]) ? $post['rmTouch'][$key] : null,
-				'weight' => isset($post['rmWeight'][$key]) ? $post['rmWeight'][$key] : null,
-				'quantity' => isset($post['rmQuantity'][$key]) ? $post['rmQuantity'][$key] : null,
-			];
+
+			if (!empty($post['row_material'][$key]) || !empty($post['rmTouch'][$key]) || !empty($post['rmWeight'][$key]) || !empty($post['rmQuantity'][$key])) {
+				$rmData = [
+					'row_material_id' => isset($post['row_material'][$key]) ? $post['row_material'][$key] : null,
+					'touch' => isset($post['rmTouch'][$key]) ? $post['rmTouch'][$key] : null,
+					'weight' => isset($post['rmWeight'][$key]) ? $post['rmWeight'][$key] : null,
+					'quantity' => isset($post['rmQuantity'][$key]) ? $post['rmQuantity'][$key] : null,
+				];
+			}
 
 			if ($rowid == 0) {
-				$rmData['given_id'] = $post['given_id'];
-				$rmData['creation_date'] = date('Y-m-d');
-				$rmData['garnu_id'] = isset($post['garnu_id']) ? $post['garnu_id'] : null;
-				$insertBatch[] = $rmData;
+				if (!empty($post['row_material'][$key]) || !empty($post['rmTouch'][$key]) || !empty($post['rmWeight'][$key]) || !empty($post['rmQuantity'][$key])) {
+					$rmData['given_id'] = $post['given_id'];
+					$rmData['creation_date'] = date('Y-m-d');
+					$rmData['garnu_id'] = isset($post['garnu_id']) ? $post['garnu_id'] : null;
+					$insertBatch[] = $rmData;
+				} else {
+					$insertBatch = [];
+				}
 			} else if (in_array($rowid, $existingIds)) {
-				$rmData['id'] = $rowid;
+				if (!empty($post['row_material'][$key]) || !empty($post['rmTouch'][$key]) || !empty($post['rmWeight'][$key]) || !empty($post['rmQuantity'][$key])) {
+					$rmData['id'] = $rowid;
+				}
 				$updateBatch[] = $rmData;
 			}
 		}
@@ -195,25 +268,25 @@ class Process extends CI_Controller
 
 		$page_data['garnuData'] = $this->dbh->getWhereRowArray('garnu', ['id' => $garnu_id]);
 		$page_data['receivedData'] = $this->dbh->getWhereResultArray('receive', ['given_id' => $given_id, 'garnu_id' => $garnu_id]);
-		if(!empty($page_data['receivedData']) || !empty($page_data['garnuData'])){
+		if (!empty($page_data['receivedData']) || !empty($page_data['garnuData'])) {
 			$page_data['metalData'] = $this->dbh->getWhereResultArray('process_metal_type', ['given_id' => $given_id]);
 			$page_data['givenData']  = $this->db->select('given.*,process.name AS process_name')
-			->from('given')
-			->join('process', 'given.process_id = process.id', 'left')
-			->where('given.id', $given_id)
-			->get()->row_array();
-			
-			$page_data['customer'] = $this->dbh->getWhereResultArray('customer', ['account_type_id' => 7, 'process_id' => $page_data['givenData']['process_id']]);
+				->from('given')
+				->join('process', 'given.process_id = process.id', 'left')
+				->where('given.id', $given_id)
+				->get()->row_array();
+
 			// echo "<pre>";
 			// print_r($page_data);
 			// exit;
-			if (!empty($page_data['receivedData']) || !empty($page_data['metalData']) || !empty($page_data['garnuData']) && !empty($page_data['customer']) && !empty($page_data['givenData'])) {
+			if (!empty($page_data['receivedData']) || !empty($page_data['metalData']) || !empty($page_data['garnuData']) && !empty($page_data['givenData'])) {
+				$page_data['customer'] = $this->dbh->getWhereResultArray('customer', ['account_type_id' => 7, 'process_id' => $page_data['givenData']['process_id']]);
 				$view = $this->load->view(self::receiveGarnu, $page_data, true);
 				$response = ['success' => true, 'message' => 'Data Feched Successfully', 'data' => $view];
 			} else {
 				$response = ['success' => false, 'message' => 'Invalid Request'];
 			}
-		}else{
+		} else {
 			$response = ['success' => false, 'message' => 'Invalid Id'];
 		}
 
@@ -252,6 +325,8 @@ class Process extends CI_Controller
 						'weight' => isset($post['weight'][$key]) ? $post['weight'][$key] : 0,
 						'row_material_weight' => isset($post['rm_weight'][$key]) ? $post['rm_weight'][$key] : 0,
 						'total_weight' => isset($post['total_weight'][$key]) ? $post['total_weight'][$key] : 0,
+						'touch' => isset($post['touch'][$key]) ? $post['touch'][$key] : 0,
+						'fine' => isset($post['fine'][$key]) ? $post['fine'][$key] : 0,
 						'remark' => isset($post['remark'][$key]) ? $post['remark'][$key] : null,
 					];
 
@@ -324,7 +399,7 @@ class Process extends CI_Controller
 			}
 
 			$metalType = $post['metalType-data'];
-			if (isset($metalType) && $metalType !== NULL) {
+			if (!empty($metalType) && $metalType !== NULL) {
 				$rm_data = explode('|', $metalType);
 				$rmDelete = $this->db->select('id')->where('given_id', $given_id)->get('process_metal_type')->result();
 				foreach ($rm_data as $rcD) {
@@ -366,6 +441,8 @@ class Process extends CI_Controller
 					});
 					(isset($updateArray['mt']['delete']) && $this->db->where_in('id', $updateArray['mt']['delete'])->delete('process_metal_type'));
 				}
+			} else {
+				$response = ['success' => true, 'message' => 'Data Add Successfully.'];
 			}
 		} else {
 			$response = ['success' => false, 'message' => 'Please Fill Complate form.'];
@@ -451,7 +528,14 @@ class Process extends CI_Controller
 		$given_id = $this->security->xss_clean($given_id);
 		$page_data['page_title'] = 'Print Given Filing Data';
 		$page_data['data'] = $this->modal->printGivenItemData($garnu_id, $given_id);
+		$page_data['garnu_id'] = $garnu_id;
+		$page_data['given_id'] = $given_id;
 		// echo "<pre>";print_r($page_data);exit;
-		$this->load->view("admin/manufacturing/print/print_given_data.php", $page_data);
+
+		if (!empty($page_data['data']['givenData']) || !empty($page_data['data']['givenRowMaterial'])) {
+			$this->load->view("admin/manufacturing/print/print_given_data.php", $page_data);
+		} else {
+			flash()->withError("Data Not Found.")->to("manufacturing/process/manage/" . $garnu_id);
+		}
 	}
 }

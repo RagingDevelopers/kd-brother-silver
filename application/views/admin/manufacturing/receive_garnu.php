@@ -3,13 +3,13 @@
 		<p class="modal-title">Process:- <span class="process_name"><?= $givenData['process_name']; ?></span></p>
 	</div>
 	<div class="col-md-3">
-		<p class="modal-title">Garnu Name:- <span class="garnu_name"><?= $garnuData['name']; ?></span></p>
+		<p class="modal-title">Dhal Name:- <span class="garnu_name"><?= $garnuData['name']; ?></span></p>
 	</div>
 	<div class="col-md-3">
-		<p class="modal-title">Garnu Weight:- <span class="garnu_weight"><?= $garnuData['garnu_weight']; ?></span></p>
+		<p class="modal-title">Dhal Weight:- <span class="garnu_weight"><?= $garnuData['garnu_weight']; ?></span></p>
 	</div>
 	<div class="col-md-3">
-		<p class="modal-title">Garnu Touch:- <span class="garnu_touch"><?= $garnuData['touch']; ?></span></p>
+		<p class="modal-title">Dhal Touch:- <span class="garnu_touch"><?= $garnuData['touch']; ?></span></p>
 	</div>
 	<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
@@ -17,7 +17,7 @@
 	<div class="d-flex p-2 justify-content-between">
 		<div class="col-md-2 col-sm-3 d-flex gap-3">
 			<label class="form-label mt-2" for="customer">Worker: </label>
-			<select class="form-select select2 customer col-md-2 col-sm-3">
+			<select class="form-select select2 customer col-md-2 col-sm-3" disabled>
 				<option value="">Select Worker</option>
 				<?php
 				if (!empty($customer)) {
@@ -34,8 +34,8 @@
 		<div>
 			<label class="form-check">
 				<input class="form-check-input" id="is_completed" name="is_completed" <?php if (isset($givenData['is_completed']) && $givenData['is_completed'] == "YES") {
-																		echo 'checked';
-																	} ?> type="checkbox">
+																							echo 'checked';
+																						} ?> type="checkbox">
 				<h4 class="form-check-label is_completed">Is Complated</h4>
 			</label>
 		</div>
@@ -56,7 +56,29 @@
 		<tbody>
 			<tr>
 				<td><?= $givenData['given_weight']; ?></td>
-				<td><?= $givenData['row_material_weight']; ?></td>
+				<td>
+					<?php
+					if ($row['id'] > 0) {
+						$rawMaterial = $this->dbh->getWhereResultArray('given_row_material', ['given_id' => $givenData['id']]);
+						$rm_string_array = [];
+						foreach ($rawMaterial as $rm) {
+							$rm_string_array[] = implode(',', [
+								$rm['row_material_id'],
+								$rm['touch'],
+								$rm['weight'],
+								$rm['quantity'],
+								$rm['id']
+							]);
+						}
+						$row['given_raw_material'] = implode('|', $rm_string_array ?? []) ?? "";
+					}
+					?>
+					<input type="hidden" value="<?= $row['given_raw_material'] ?? null; ?>" class="form-control givenRmdata" placeholder="Enter Weight" autocomplete="off">
+					<div class='d-flex gap-5'>
+						<?= $givenData['row_material_weight']; ?>
+						<a class="btn btn-action text-white bg-primary givenMaterial"><i class="fa-solid fa-info"></i></a>
+					</div>
+				</td>
 				<td id="givenTotal_weight"><?= $givenData['total_weight']; ?></td>
 				<td><?= $garnuData['touch']; ?></td>
 				<td><?= $givenData['remarks']; ?></td>
@@ -95,6 +117,8 @@
 				<th>Receiveid Weight</th>
 				<th>Row material Weight</th>
 				<th>Final Weight</th>
+				<th>Touch</th>
+				<th>Fine</th>
 				<th>Receiveid Remark</th>
 				<th>Created At</th>
 				<th></th>
@@ -108,6 +132,8 @@
 					'weight'         => 0,
 					'rm_weight'      => 0,
 					'total_weight'   => 0,
+					'touch'          => $garnuData['touch'] ?? 0,
+					'fine'          => 0,
 					'remark'     	 => '',
 					'created_at'     => "",
 					'id'             => 0
@@ -149,6 +175,12 @@
 						<input type="number" name="total_weight[]" value="<?= $row['total_weight'] ?? "0"; ?>" class="form-control receivedfinalWeight readonly" value="0" readonly autocomplete="off">
 					</td>
 					<td class="text-muted">
+						<input type="number" name="touch[]" value="<?= $row['touch'] ?? $garnuData['touch'] ?? "0"; ?>" step="any" class="form-control receivedTouch" value="0" autocomplete="off">
+					</td>
+					<td class="text-muted">
+						<input type="number" name="fine[]" value="<?= $row['fine'] ?? "0"; ?>" class="form-control receivedFine readonly" value="0" readonly autocomplete="off">
+					</td>
+					<td class="text-muted">
 						<input type="text" name="remark[]" value="<?= $row['remark'] ?? "0"; ?>" class="form-control receivedRemark" placeholder="Enter remark" autocomplete="off">
 					</td>
 					<td class="text-muted">
@@ -173,6 +205,12 @@
 				</td>
 				<td>
 					<h4><span class='text-end ms-3' id="totalFinalWeight"></span></h4>
+				</td>
+				<td>
+					<h4><span class='text-end ms-3' id="totalTouch"></span></h4>
+				</td>
+				<td>
+					<h4><span class='text-end ms-3' id="totalFine"></span></h4>
 				</td>
 				<td colspan="2" id="jama_baki"></td>
 				<input type="hidden" name="jama_baki" value="" class="jama_baki">

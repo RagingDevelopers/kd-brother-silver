@@ -22,6 +22,13 @@ class Baki_model extends CI_model
 		return $this->db->get()->result_array();
 	}
 
+	public function metal_type()
+	{
+		$this->db->select('*');
+		$this->db->from('metal_type');
+		return $this->db->get()->result_array();
+	}
+
 	public function party()
 	{
 		$this->db->select('*');

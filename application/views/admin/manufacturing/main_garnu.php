@@ -7,18 +7,14 @@
 	.weight-input {
 		background-color: #e6fdff;
 	}
-
-	/* .copper-input {
-		background-color: #ffeeee;
-	} */
 </style>
 <div class="row">
 	<div class="col-sm-12">
 		<div class="card">
-			<form action="<?= (isset($update)) ? base_url("manufacturing/garnu/index/update/{$update['id']}") : base_url('manufacturing/garnu/index/store') ?>" method="post" class="main-form" novalidate>
+			<form action="<?= (isset($update)) ? base_url("manufacturing/main_garnu/index/update/{$update['id']}") : base_url('manufacturing/main_garnu/index/store') ?>" method="post" class="main-form" novalidate>
 				<div class="card-header">
 					<div class="card-status-top bg-blue"></div>
-					<h1 class="card-title"><b> Dhal </b></h1>
+					<h1 class="card-title"><b> Main Garnu </b></h1>
 				</div>
 				<div class="card-body border-bottom py-3">
 					<div class="col-md-12 mb-5 ">
@@ -26,7 +22,7 @@
 							<div class="row">
 								<div class="col-sm-3">
 									<label class="form-label" for="prd"> Name: </label>
-									<input class="form-control" type="text" name="name" placeholder="Enter Dhal Name" value="<?= $update['name'] ?? null ?>" id="name" required>
+									<input class="form-control" type="text" name="name" placeholder="Enter Garnu Name" value="<?= $update['name'] ?? null ?>" id="name" required>
 								</div>
 							</div>
 							<div class="card mt-5">
@@ -34,9 +30,11 @@
 									<table class="table card-table table-vcenter text-center text-nowrap ">
 										<thead class="thead-light">
 											<th>Metal Type</th>
-											<th scope="col">Weight(Gm)</th>
+											<th>Touch</th>
 											<th scope="col">Touch (%)</th>
+											<th scope="col">Weight(Gm)</th>
 											<th scope="col">Fine</th>
+											<th scope="col">Closing Stoke</th>
 											<th scope="col"></th>
 										</thead>
 
@@ -45,6 +43,7 @@
 											if (empty($items)) {
 												$items[] = [
 													'metal_type_id' => '',
+													'closingTouch' => '',
 													'weight'        => '',
 													'touch'         => 0,
 													'fine'          => '',
@@ -68,7 +67,9 @@
 														</select>
 													</td>
 													<td>
-														<input class="form-control weight-input weight" type="number" name="weight[]" placeholder="Enter Weight" value="<?= $row['weight'] ?? null ?>" required>
+														<select class="form-select select2 closingTouch" name="closingTouch[]">
+															<option value="">Select Touch</option>
+														</select>
 													</td>
 													<td>
 														<div class="form-group input-icon">
@@ -77,11 +78,14 @@
 														</div>
 													</td>
 													<td>
+														<input class="form-control weight-input weight" type="number" name="weight[]" placeholder="Enter Weight" value="<?= $row['weight'] ?? null ?>" required>
+													</td>
+													<td>
 														<input class="form-control fine fine-input" type="number" name="fine[]" placeholder="Fine" value="<?= $row['fine'] ?? null ?>" required>
 													</td>
-													<!-- <td>
-														<input class="form-control copper-input copper" type="number" name="copper[]" placeholder="Copper(Gm)" value="<?= $row['copper'] ?? null ?>" required readonly>
-													</td> -->
+													<td>
+														<input class="form-control weight-input closingStoke" placeholder="Enter closing Stoke" required>
+													</td>
 													<td>
 														<button type="button" class="btn btn-danger remove-btn">X</button>
 													</td>
@@ -96,15 +100,15 @@
 													</button>
 												</td>
 												<td>
-													<label class="form-label"> Dhal Weight(Gm): </label>
-													<input class="form-control weight-input mweight" type="number" name="garnu_weight" readonly placeholder="Enter Dhal Weight(Gm)" value="<?= $update['garnu_weight'] ?? null ?>" required>
-												</td>
-												<td>
-													<label class="form-label">Dhal Touch (%): </label>
+													<label class="form-label">Garnu Touch (%): </label>
 													<div class="form-group input-icon">
 														<input class="form-control mtouch" type="number" name="touchs" placeholder="Enter Touch (%)" value="<?= $update['touch'] ?? 0 ?>" required>
 														<span class="input-icon-addon"><i class="fa-light fa-percent" aria-hidden="true"></i></span>
 													</div>
+												</td>
+												<td>
+													<label class="form-label"> Garnu Weight(Gm): </label>
+													<input class="form-control weight-input mweight" type="number" name="garnu_weight" readonly placeholder="Enter Garnu Weight(Gm)" value="<?= $update['garnu_weight'] ?? null ?>" required>
 												</td>
 												<td>
 													<label class="form-label">Total Fine: </label>
@@ -203,12 +207,23 @@
 						// $(this).off("submit").submit();
 					});
 
-					$(this).on('keyup', '.fine,.weight,.touch', function() {
-						main.calculateMain(this)
+					$(this).on('input', '.fine,.weight,.touch', function() {
+						main.calculateMain(this);
 						main.calculation($('.append-here tr').eq(0).find('.touch'));
-					})
-					$(this).on('keyup', '.fine,.weight,.touch', function() {
-						main.calculation(this);
+					});
+
+					$(this).on('change', '.metal_type_id', function() {
+						var ref = $(this);
+						main.stockTouch(ref.val(), ref);
+					});
+
+					$(this).on('input', '.touch', function() {
+						var ref = $(this);
+						if (ref.val() == "0" || ref.val() == "") {
+							ref.parents('tr').find('.closingStoke').val(0);
+						} else {
+							main.findClosingStoke(ref.val(), ref);
+						}
 					});
 
 					$(this).on(
@@ -234,6 +249,47 @@
 					$element.val("0");
 				}
 			},
+
+			findClosingStoke: function(touch = null, ref) {
+				$.ajax({
+					type: "POST",
+					dataType: "json",
+					url: `${BaseUrl}manufacturing/main_garnu/getClosingstock`,
+					method: "POST",
+					data: {
+						touch,
+					},
+					success: function(response) {
+						if (response.success) {
+							ref.parents('tr').find(".closingStoke").val(response.data);
+						} else {
+							ref.find(".closingStoke").val(response.data);
+						}
+					},
+				});
+			},
+
+			stockTouch: function(metal_type_id = null, ref,selected_id = null) {
+				$.ajax({
+					type: "POST",
+					showloader: true,
+					dataType: "json",
+					url: `${BaseUrl}manufacturing/main_garnu/getStockTouch`,
+					method: "POST",
+					data: {
+						metal_type_id,
+					},
+					success: function(response) {
+						if (response.success) {
+							var getTouch = getOptions(response.data,selected_id);
+							// $().
+						} else {
+							SweetAlert('warning', response.message);
+						}
+					},
+				});
+			},
+
 			calculation: function(ref) {
 				var valid = true;
 				const mainWeight = parseF($('.mweight').val()),
@@ -244,7 +300,7 @@
 				row.find('.fine').val(formatNumber((weight * touch) / 100));
 
 				if (touch > 100) {
-					return SweetAlert('warning', 'Touch should be less than equal to 100'), $(ref).val(0.00);
+					return SweetAlert('warning', 'Touch should be less than equal to 100'), $(ref).val("");
 				}
 				var totalUsedWeight = 0,
 					totalUsedFine = 0;
@@ -257,6 +313,7 @@
 					totalUsedWeight += rowWeight;
 					totalUsedFine += rowFine;
 				});
+
 				$('.mweight').val(formatNumber(totalUsedWeight));
 				$('.total_used_fine').val((totalUsedFine));
 				var mainTouch = (totalUsedFine / totalUsedWeight) * 100;

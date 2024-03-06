@@ -16,7 +16,7 @@
 								</div>
 								<div class="col-sm-3">
 									<label class="form-label" for="prd"> Mobile Number: </label>
-									<input class="form-control" type="number" name="mobile" placeholder="Enter Mobile Number" value="<?= $update['mobile'] ?? null ?>" id="mobile" required>
+									<input class="form-control" type="number" name="mobile" placeholder="Enter Mobile Number" value="<?= $update['mobile'] ?? null ?>" id="mobile">
 								</div>
 								<div class="col-sm-3">
 									<label class="form-label" for="prd"> City: </label>
@@ -51,35 +51,39 @@
 							<div class="row mt-3">
 								<div class="col-sm-3">
 									<label class="form-label" for="prd"> Opening Amount: </label>
-									<input class="form-control" type="number" name="opening_amount" placeholder="Enter Opening Amount" value="<?= $update['opening_amount'] ?? null ?>" id="opening_amount" required>
+									<input class="form-control" type="number" name="opening_amount" placeholder="Enter Opening Amount" value="<?= $update['opening_amount'] ?? 0 ?>" id="opening_amount" required>
 								</div>
 								<div class="col-sm-3">
 									<label class="form-label" for="prd"> Opening Amount Type: </label>
 									<select class="form-select select2" id="opening_amount_type" required name="opening_amount_type">
 										<option selected value="">Select Opening Amount Type</option>
-										<option value="JAMA" <?php if (!empty($update) && $update['opening_amount_type'] == 'JAMA') {
-																	echo 'selected';
-																} ?>>Jama</option>
 										<option value="BAKI" <?php if (!empty($update) && $update['opening_amount_type'] == 'BAKI') {
 																	echo 'selected';
 																} ?>>Baki</option>
+										<option value="JAMA" <?php if (!empty($update) && $update['opening_amount_type'] == 'JAMA') {
+																	echo 'selected';
+																} else {
+																	echo "selected";
+																} ?>>Jama</option>
 									</select>
 								</div>
 
 								<div class="col-sm-3">
 									<label class="form-label" for="prd"> Opening Fine: </label>
-									<input class="form-control" type="number" name="opening_fine" placeholder="Enter Opening Fine" value="<?= $update['opening_fine'] ?? null ?>" id="opening_fine" required>
+									<input class="form-control" type="number" name="opening_fine" placeholder="Enter Opening Fine" value="<?= $update['opening_fine'] ?? 0 ?>" id="opening_fine" required>
 								</div>
 								<div class="col-sm-3">
 									<label class="form-label" for="prd"> Opening Fine Type: </label>
 									<select class="form-select select2" id="opening_fine_type" required name="opening_fine_type">
 										<option selected value="">Select Opening Fine Type</option>
-										<option value="JAMA" <?php if (!empty($update) && $update['opening_fine_type'] == 'JAMA') {
-																	echo 'selected';
-																} ?>>Jama</option>
 										<option value="BAKI" <?php if (!empty($update) && $update['opening_fine_type'] == 'BAKI') {
 																	echo 'selected';
 																} ?>>Baki</option>
+										<option value="JAMA" <?php if (!empty($update) && $update['opening_fine_type'] == 'JAMA') {
+																	echo 'selected';
+																} else {
+																	echo "selected";
+																} ?>>Jama</option>
 									</select>
 								</div>
 								<div class="col-sm-3 pt-3" id="processDropdown" style="display: none;">
@@ -97,9 +101,15 @@
 										<?php } ?>
 									</select>
 								</div>
+								<div class="col-sm-3 pt-3">
+									<label class="form-check">
+										<input class="form-check-input" name="addItem" value="true" id="addItem" <?php if(isset($items) && !empty($items)){ echo "checked";} ?> type="checkbox">
+										<span class="form-check-label">Add Items</span>
+									</label>
+								</div>
 							</div>
 
-							<div class="card mt-5">
+							<div class="card mt-5" id="isChecked">
 								<div class="card-header bg-light">
 								</div>
 								<div class="row">
@@ -114,16 +124,26 @@
 											<th scope="col"></th>
 										</thead>
 
-										<tbody class="paste append-here" >
+										<tbody class="paste append-here">
 											<?php
-											if (!empty($update)) {
+												if (empty($items)) {
+													$items[] = [
+														'item_id' => 0,
+														'extra_touch'        => 0,
+														'wastage'         => 0,
+														'label'      => "",
+														'rate'      => 0,
+														'sub_total'      => 0,
+														'id'              => 0
+													];
+												}
 												$j = 1;
 												foreach ($items as $row) { ?>
 													<tr class="sectiontocopy">
-														<input type="hidden" class="sdid" name="sdid[]" value="<?= $row['id'] ?? null; ?>" />
+														<input type="hidden" class="sdid" name="sdid[]" value="<?= $row['id'] ?? 0; ?>" />
 														<td>
 															<select class="form-select select2 item_id" name="item_id[]">
-																<option>Select Item</option>
+																<option value="">Select Item</option>
 																<?php
 																$item = $this->db->get('item')->result();
 																foreach ($item as $value) {
@@ -167,51 +187,7 @@
 															<button type="button" class="btn btn-danger del">X</button>
 														</td>
 													</tr>
-												<?php }
-											} else { ?>
-
-												<tr class="sectiontocopy">
-													<input type="hidden" class="sdid" name="sdid[]" value="0">
-													<td class="ITEM">
-														<select class="form-select select2 item_id" name="item_id[]">
-															<option value="">Select Item</option>
-															<?php
-															$item = $this->db->get('item')->result();
-															foreach ($item as $value) {
-															?>
-																<option value="<?= $value->id; ?>">
-																	<?= $value->name; ?>
-																</option>
-															<?php } ?>
-														</select>
-													</td>
-
-													<td>
-														<input class="form-control extra_touch" type="number" name="extra_touch[]" placeholder="Enter Extra touch  Name" value="">
-													</td>
-													<td>
-														<input class="form-control wastage" type="number" name="wastage[]" placeholder="Enter Wastage Amount" value="">
-													</td>
-													<td>
-														<select class="form-select select2 label" name="label[]">
-															<option selected value="">Select Label</option>
-															<option value="NET">NET</option>
-															<option value="PCS">PCS</option>
-															<option value="FIXED">FIXED</option>
-															<option value="GROSS">GROSS</option>
-														</select>
-													</td>
-													<td>
-														<input class="form-control rate" type="number" name="rate[]" placeholder="Enter Rate Amount" value="" id="rate">
-													</td>
-													<td>
-														<input class="form-control sub_total" type="number" name="sub_total" placeholder="Subtotal" id="sub_total" value="" readonly>
-													</td>
-													<td>
-														<button type="button" class="btn btn-danger del">X</button>
-													</td>
-												</tr>
-											<?php } ?>
+												<?php } ?>
 										</tbody>
 										<tfoot>
 											<tr>
@@ -266,6 +242,21 @@
 				$(this).parent().parent().remove();
 			}
 		});
+
+		if ($('#addItem').is(':checked')) {
+			$('#isChecked').show();
+		} else {
+			$('#isChecked').hide();
+		}
+
+		$(document).on("click", "#addItem", function() {
+			if (this.checked) {
+				$('#isChecked').show();
+			} else {
+				$('#isChecked').hide();
+			}
+		});
+
 		$(document).on('keyup', '.extra_touch,.wastage', function() {
 			var $row = $(this).closest('tr');
 			var extra_touch = parseFloat($row.find('.extra_touch').val()) || 0;

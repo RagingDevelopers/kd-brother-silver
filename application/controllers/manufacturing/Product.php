@@ -17,6 +17,7 @@ class Product extends CI_Controller
 
 	public function index($action = "", $id = null)
 	{
+		checkPrivilege(privilege["main_report"]);
 		$page_data['page_title'] = 'Product Report';
 		$page_data['process'] = $this->db->select('id,name')->get('process')->result_array();
 		$page_data['worker'] = $this->db->select('id,name')->get_where('customer', array('account_type_id' => 7))->result_array();
@@ -57,21 +58,27 @@ class Product extends CI_Controller
 
 		## Total number of record with filtering
 		$this->db->select('garnu.*')
-			->from('garnu');
-		// ->join('given', 'given.garnu_id = garnu.id', 'left');
+			->from('garnu')
+			->join('given', 'given.garnu_id = garnu.id', 'left');
 		if ($searchQuery != '')
 			$this->db->where($searchQuery);
 		if (!empty($fromdate)) {
-			$this->db->where('creation_date >=', $fromdate);
+			$this->db->where('garnu.creation_date >=', $fromdate);
 		}
 		if (!empty($todate)) {
-			$this->db->where('creation_date <=', $todate);
+			$this->db->where('garnu.creation_date <=', $todate);
 		}
 		if (!empty($product_id)) {
-			$this->db->where('id', $product_id);
+			$this->db->where('garnu.id', $product_id);
 		}
 		if (!empty($received)) {
-			$this->db->where('recieved', $received);
+			$this->db->where('garnu.recieved', $received);
+		}
+		if (!empty($process_id)) {
+			$this->db->where('given.process_id', $process_id);
+		}
+		if (!empty($worker_id)) {
+			$this->db->where('given.worker_id', $worker_id);
 		}
 		$this->db->group_by('id');
 		$totalRecordwithFilter = $this->db->get()->num_rows();
@@ -79,21 +86,28 @@ class Product extends CI_Controller
 
 		## Fetch records
 		$this->db->select('garnu.*')
-			->from('garnu');
+			->from('garnu')
+			->join('given', 'given.garnu_id = garnu.id', 'left');
 		if ($searchQuery != '') {
 			$this->db->where($searchQuery);
 		}
 		if (!empty($fromdate)) {
-			$this->db->where('creation_date >=', $fromdate);
+			$this->db->where('garnu.creation_date >=', $fromdate);
 		}
 		if (!empty($todate)) {
-			$this->db->where('creation_date <=', $todate);
+			$this->db->where('garnu.creation_date <=', $todate);
 		}
 		if (!empty($received)) {
-			$this->db->where('recieved', $received);
+			$this->db->where('garnu.recieved', $received);
 		}
 		if (!empty($product_id)) {
-			$this->db->where('id', $product_id);
+			$this->db->where('garnu.id', $product_id);
+		}
+		if (!empty($process_id)) {
+			$this->db->where('given.process_id', $process_id);
+		}
+		if (!empty($worker_id)) {
+			$this->db->where('given.worker_id', $worker_id);
 		}
 		$this->db->limit($rowperpage, $start);
 		$this->db->group_by('id');
@@ -105,8 +119,8 @@ class Product extends CI_Controller
 		foreach ($records as $record) {
 			$process = "";
 			$this->db->select('given.*,customer.name AS customer_name, process.name AS process_name')
-			->from('given')
-			->where('garnu_id', $record->id);
+				->from('given')
+				->where('garnu_id', $record->id);
 			if (!empty($process_id)) {
 				$this->db->where('given.process_id', $process_id);
 			}
@@ -114,7 +128,7 @@ class Product extends CI_Controller
 				$this->db->where('given.worker_id', $worker_id);
 			}
 			$this->db->join('process', 'given.process_id = process.id', 'left')
-			->join('customer', 'given.worker_id = customer.id', 'left');
+				->join('customer', 'given.worker_id = customer.id', 'left');
 			$given = $this->db->get()->result();
 			$process .= '<div class="table-responsive">
 			<table class="table table-bordered" style="width: 100%;">
@@ -152,17 +166,17 @@ class Product extends CI_Controller
 				}
 
 				$process .= '<tr>
-								<td class="given">'.$value->creation_date.'</td>
-								<td class="given">'.$value->process_name.'</td>
-								<td class="given">'.$value->customer_name.'</td>
-								<td class="given">'.$value->given_qty.'</td>
-								<td class="given">'.$value->given_weight.'</td>
-								<td class="given">'.$value->row_material_weight.'</td>
-								<td class="given">'.$value->total_weight.'</td>
-								<td class="received totalPcs">'.$totalPcs.'</td>
-								<td class="received totalWeight">'.$totalWeight.'</td>
-								<td class="received rowMaterialWeight">'.$totalRMWeight.'</td>
-								<td class="received totalFinalWeight">'.$finalWeight.'</td>
+								<td class="given">' . $value->creation_date . '</td>
+								<td class="given">' . $value->process_name . '</td>
+								<td class="given">' . $value->customer_name . '</td>
+								<td class="given">' . $value->given_qty . '</td>
+								<td class="given">' . $value->given_weight . '</td>
+								<td class="given">' . $value->row_material_weight . '</td>
+								<td class="given">' . $value->total_weight . '</td>
+								<td class="received totalPcs">' . $totalPcs . '</td>
+								<td class="received totalWeight">' . $totalWeight . '</td>
+								<td class="received rowMaterialWeight">' . $totalRMWeight . '</td>
+								<td class="received totalFinalWeight">' . $finalWeight . '</td>
 							</tr>';
 			}
 

@@ -13,10 +13,11 @@ class Baki extends CI_Controller
 
 	public function index()
 	{
-		// checkPrivilege(privilege['baki_add']);
+		checkPrivilege(privilege['baki_add']);
 		$page_data['page_title'] = 'Baki';
 		$page_data['bank'] = $this->baki->bank();
 		$page_data['party'] = $this->baki->party();
+		$page_data['metal_type'] = $this->baki->metal_type();
 		// $page_data['page_name'] = 'baki/baki.php';
 		// $this->load->view('admin/common.php', $page_data);
         return view(self::View,$page_data);
@@ -32,6 +33,7 @@ class Baki extends CI_Controller
 		$page_data['party_id']= $param1;
 		$page_data['bank'] = $this->baki->bank();
 		$page_data['party'] = $this->baki->party();
+		$page_data['metal_type'] = $this->baki->metal_type();
 		return view(self::View,$page_data);
 	    }
 	}
@@ -68,7 +70,7 @@ class Baki extends CI_Controller
 		$this->db->where('id',$condata['baki_id']);
         $update = $this->db->update('baki',array('date'=>$condata['date'],'customer_id'=>$condata['party_id'],'type'=>$condata['type'],'mode'=>$condata['mode']
         ,'gross'=>$condata['gross'],'purity'=>$condata['purity'],'wb'=>$condata['wb'],'fine'=>$condata['fine'],'rate'=>$condata['rate'],
-        'amount'=>$condata['amount'],'remark'=>$condata['remark']));
+        'amount'=>$condata['amount'],'remark'=>$condata['remark'],'metal_type_id'=>$condata['metal_type_id']));
 		
 		if ($update == TRUE) {
 			$res = [
@@ -126,7 +128,7 @@ class Baki extends CI_Controller
 			}
             $insert = $this->db->insert('baki',array('date'=>$condata['date'],'customer_id'=>$condata['party_id'],'type'=>$condata['type'],'mode'=>$condata['mode']
             ,'gross'=>$condata['gross'],'purity'=>$condata['purity'],'wb'=>$condata['wb'],'fine'=>$condata['fine'],'rate'=>$condata['rate'],
-            'amount'=>$condata['amount'],'remark'=>$condata['remark'],'baki_code'=>$condata['baki_code']));
+            'amount'=>$condata['amount'],'remark'=>$condata['remark'],'baki_code'=>$condata['baki_code'],'metal_type_id'=>$condata['metal_type_id'],'creation_date'=>date('Y-m-d')));
 			
 
 			if ($insert == TRUE) {
@@ -273,9 +275,10 @@ class Baki extends CI_Controller
 		$totalRecordwithFilter = $records->num_rows();
 
 
-		$this->db->select('baki.*,customer.name as pname');
+		$this->db->select('baki.*,customer.name as pname,metal_type.name as metal_type');
 		$this->db->from('baki');
 		$this->db->join('customer', 'customer.id = baki.customer_id', 'left');
+		$this->db->join('metal_type', 'metal_type.id = baki.metal_type_id', 'left');
         if(!empty($baki_code)){
             $this->db->where('baki.baki_code',$baki_code);
         }else{
@@ -308,6 +311,7 @@ class Baki extends CI_Controller
 				"remark" => $record->remark,
 				"gross" => $record->gross,
 				"fine" => $record->fine,
+				"metal_type" => $record->metal_type,
 				"amount" => $record->amount,
 
 			);

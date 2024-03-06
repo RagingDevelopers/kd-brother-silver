@@ -1,14 +1,14 @@
 <?php
-class Row_material extends CI_Model
+class Metal_type extends CI_Model
 {
     public function __construct(){
         parent::__construct();
         // library("dbh");
     }
-    function fetch_row_material()
+    function fetch_metal_type()
     {
-        $this->db->order_by("id", "ASC");
-        $query = $this->db->get("row_material");
+        $this->db->order_by("name", "DESC");
+        $query = $this->db->get("metal_type");
         return $query->result();
     }
 

@@ -13,7 +13,7 @@ class Jama_report extends CI_Controller
 
 	public function index()
 	{
-		// checkPrivilege(privilege['jama_view']);
+		checkPrivilege(privilege['jama_view']);
 		// $page_data['page_title'] = 'Jama Report';
 		// $page_data['page_name'] = 'admin/jama/jama_report.php';
 		// $this->load->view('admin/common.php', $page_data);
@@ -45,7 +45,8 @@ class Jama_report extends CI_Controller
 
 		$this->db->select('jama.*');
 		$this->db->from('jama');
-		$this->db->group_by('jama.id');
+// 		$this->db->group_by('jama.id');
+		$this->db->group_by('jama_code');
 		$this->db->order_by('jama.id', 'desc');
 		$records = $this->db->get();
 		$totalRecords = $records->num_rows();
@@ -69,7 +70,8 @@ class Jama_report extends CI_Controller
 			$this->db->where("jama.type", $group_by);
 		}
 
-		$this->db->group_by('jama.id');
+// 		$this->db->group_by('jama.id');
+		$this->db->group_by('jama.jama_code');
 		$this->db->order_by('jama.id', 'desc');
 		$records = $this->db->get();
 
@@ -104,12 +106,21 @@ class Jama_report extends CI_Controller
 		$i = $start + 1;
 		foreach ($records as $record) {
 
-			$this->db->select("jama.*,customer.name as pname");
+			$this->db->select("jama.*,customer.name as pname,metal_type.name as metal_type");
 			$this->db->from("jama");
 			$this->db->where('jama.jama_code', $record->jama_code);
+			if (!empty($from)) {
+    			$this->db->where('jama.date >=', $from);
+    		}
+    
+    		if (!empty($to)) {
+    			$this->db->where('jama.date <=', $to);
+    		}
+			if (!empty($group_by)) {
+    			$this->db->where("jama.type", $group_by);
+    		}
             $this->db->join('customer', 'customer.id = jama.customer_id', 'left');
-
-
+			$this->db->join('metal_type', 'metal_type.id = jama.metal_type_id', 'left');
 			if (!isset($partyNames[$record->jama_code])) {
 				$partyNames[$record->jama_code] = $record->pname;
 			}
@@ -126,6 +137,7 @@ class Jama_report extends CI_Controller
 			$remark = "";
 			$gross = "";
 			$fine = "";
+			$metal_type = "";
 			$amount = "";
 
 			foreach ($mk as $rm) {
@@ -140,6 +152,7 @@ class Jama_report extends CI_Controller
 				$remark .= "<span>" . $rm['remark'] . "</span></br>";
 				$gross .= "<span>" . $rm['gross'] . "</span></br>";
 				$fine .= "<span>" . $rm['fine'] . "</span></br>";
+				$metal_type .= "<span>" . $rm['metal_type'] . "</span></br>";
 				$amount .= "<span>" . $rm['amount'] . "</span></br>";
 			}
 
@@ -160,6 +173,7 @@ class Jama_report extends CI_Controller
 				"remark" => $remark,
 				"gross" => $gross,
 				"fine" => $fine,
+				"metal_type" => $metal_type,
 				"amount" => $amount,
 
 			);

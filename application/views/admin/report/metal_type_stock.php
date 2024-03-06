@@ -8,7 +8,7 @@
 		<div class="card mt-3">
 			<div class="card-header">
 				<div class="col-sm-11">
-					<h1 class="card-title"><b> Row Material Stock Report </b></h1>
+					<h1 class="card-title"><b> Metal Type Report </b></h1>
 				</div>
 			</div>
 			<div class="card-body border-bottom py-3">
@@ -17,20 +17,20 @@
 						<div class="row">
 							<div class="col-sm-2">
 								<label>From date:</label> <br>
-								<input type="date" id="fromdate" value="<?= $from_date ?? ""?>" name="fromdddate" class="form-control">
+								<input type="date" id="fromdate" name="fromdddate" class="form-control">
 							</div>
 							<div class="col-sm-2">
 								<label>To date:</label> <br>
 								<input type="date" id="todate" name="todate" class="form-control">
 							</div>
 							<div class="col-sm-2">
-								<label>Row Material</label><br>
-								<select class="form-select select2" id="row_material">
-									<option value=''>Select Row Material</option>
+								<label>Metal Type</label><br>
+								<select class="form-select select2" id="metal_type">
+									<option value=''>Select Metal Type</option>
 									<?php
-									foreach ($row_material as $r) {
+									foreach ($metal_type as $r) {
 									?>
-										<option value="<?= $r->id ?>" <?php if(!empty($row_material_id) && $row_material_id == $r->id){ echo "selected";} ?>>
+										<option value="<?= $r->id ?>">
 											<?= $r->name; ?>
 										</option>
 									<?php } ?>
@@ -50,17 +50,8 @@
 								</select>
 							</div>
 							<div class="col-sm-2">
-								<label>Process Name</label><br>
-								<select class="form-select select2" id="process">
-									<option value=''>Select Process</option>
-									<?php
-									foreach ($process as $p) {
-									?>
-										<option value="<?= $p->id ?>">
-											<?= $p->name; ?>
-										</option>
-									<?php } ?>
-								</select>
+								<label>Touch</label> <br>
+								<input type="number" id="touch" name="todate" class="form-control">
 							</div>
 						</div><br>
 						<div class="mt-3">
@@ -68,22 +59,22 @@
 								<thead>
 									<tr>
 										<th scope="col">Serial No </th>
-										<th scope="col">Row Material Name</th>
+										<th scope="col">Metal Name</th>
 										<th scope="col">Garnu Name</th>
 										<th scope="col">Process Name</th>
-										<th scope="col">Touch</th>
-										<th scope="col">Quantity</th>
-										<th scope="col">Credit</th>
-										<th scope="col">Debit</th>
+										<th>Touch</th>
+										<th>Credit</th>
+										<th>Debit</th>
 										<th scope="col">Closing Weight</th>
 										<th scope="col">Date</th>
 									</tr>
 								</thead>
+								<tbody>
+								</tbody>
 								<tfoot>
 									<tr id="openingRow">
 									</tr>
 									<tr>
-										<td></td>
 										<td></td>
 										<td></td>
 										<td></td>
@@ -118,14 +109,13 @@
 			'serverMethod': 'post',
 			'searching': true,
 			"ajax": {
-				'url': "<?= base_url(); ?>report/Row_material_stock/fetchData",
+				'url': "<?= base_url(); ?>report/metal_type_stock/getData",
 				'data': function(data) {
 					data.todate = ($('#todate').val() ?? null);
 					data.fromdate = ($('#fromdate').val() ?? null);
-					data.row_material_id = ($('#row_material').val() ?? null);
+					data.metal_type_id = ($('#metal_type').val() ?? null);
 					data.garnu_id = ($('#garnu').val() ?? null);
-					data.process_id = ($('#process').val() ?? null);
-					// data.types = ($('#type').val() ?? null);
+					data.touch = ($('#touch').val() ?? null);
 				}
 			},
 			"columns": [{
@@ -144,13 +134,10 @@
 					data: 'touch'
 				},
 				{
-					data: 'quantity'
+					data: 'cweight'
 				},
 				{
-					data: 'credit'
-				},
-				{
-					data: 'debit'
+					data: 'dweight'
 				},
 				{
 					data: 'closingWeight',
@@ -178,15 +165,15 @@
 						$('#closingWeight').html(weight);
 					}
 
-					if (jsonResponse.openingTouch != undefined || jsonResponse.openingWeight != undefined) {
+					if (jsonResponse.openingWeight != undefined) {
 						$('#openingRow').remove();
 						if (jsonResponse.openingWeight > 0) {
 							var weight = `${jsonResponse.openingWeight} <b class="text-success"> -/ CR</b>`;
 							var color = `style="background-color: #d9ffd9"`;
-						} else if (jsonResponse.openingWeight < 0) {
+						}else if(jsonResponse.openingWeight < 0){
 							var weight = `${jsonResponse.openingWeight} <b class="text-danger"> -/ DR</b>`;
 							var color = `style="background-color: #ffe1e1"`;
-						} else {
+						}else{
 							var weight = `${jsonResponse.openingWeight} <b> -/ </b>`;
 							var color = `style="background-color: #ffffff"`;
 						}
@@ -202,13 +189,21 @@
 				}
 			}
 		});
-		$('#todate').on('change', function() {
-			table.clear();
-			table.draw();
+
+		$(document).ready(function() {
+			$('#stock tbody').on('draw.dt', function() {
+				$(this).find('tr').each(function() {
+					$(this).find('td:eq(3), td:eq(4), td:eq(5)').css('background-color', '#d0f2d0');
+					$(this).find('td:eq(6), td:eq(7), td:eq(8)').css('background-color', '#fecece');
+				});
+			});
 		});
-		$('#fromdate,#row_material,#garnu,#process,#type').on('change', function() {
-			table.clear();
-			table.draw();
+
+		$('#fromdate, #todate,#metal_type,#garnu,#process').on('change', function() {
+			table.ajax.reload();
+		});
+		$('#touch').on('input', function() {
+			table.ajax.reload();
 		});
 	});
 </script>

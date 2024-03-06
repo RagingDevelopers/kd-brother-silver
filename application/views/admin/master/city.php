@@ -51,9 +51,9 @@
                                                             <i class="far fa-edit" aria-hidden="true"></i>
                                                         </a>
 
-                                                        <a class="btn btn-danger btn-icon rounded-circle text-white me-2" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Delete City" onclick="return confirm('Are you sure want to Delete.?');" href="<?= base_url('master/city/delete/') . $data['id'] ?>">
-                                                            <i class="fa-solid fa-trash"></i>
-                                                        </a>
+                                                        <!--<a class="btn btn-danger btn-icon rounded-circle text-white me-2" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Delete City" onclick="return confirm('Are you sure want to Delete.?');" href="<?= base_url('master/city/delete/') . $data['id'] ?>">-->
+                                                        <!--    <i class="fa-solid fa-trash"></i>-->
+                                                        <!--</a>-->
                                                     </div>
                                                 </td>
                                                 <td>
@@ -81,10 +81,9 @@
 
 
     // $(document).ready(function() {
-        $('form').on("submit", function(e) {
-            e.preventDefault();
-            console.log("clicked")
-            $(this).find('.submit-btn').attr('disabled', true).wrapInner(`<div class="spinner-border"></div>`)
-        })
+        // $('form').on("submit", function(e) {
+        //     e.preventDefault();
+        //     $(this).find('.submit-btn').attr('disabled', true).wrapInner(`<div class="spinner-border"></div>`)
+        // })
     // });
 </script>

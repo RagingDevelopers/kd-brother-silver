@@ -26,10 +26,10 @@
 										<p class="modal-title">Issue Weight </p>
 									</div>
 									<div class="col-md-4">
-										<p class="modal-title">Dhal Weight:- <span class="garnu_weight"></span></p>
+										<p class="modal-title">Garnu Weight:- <span class="garnu_weight"></span></p>
 									</div>
 									<div class="col-md-4 text-center">
-										<p class="modal-title">Dhal Name:- <span class="garnu_name"></span></p>
+										<p class="modal-title">Garnu Name:- <span class="garnu_name"></span></p>
 									</div>
 									<!-- <div class="col-md-1"> -->
 									<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -120,10 +120,10 @@
 				</form>
 
 				<div class="col-sm-11">
-					<h1 class="card-title"><b> Dhal Report </b></h1>
+					<h1 class="card-title"><b>Main Garnu Report </b></h1>
 				</div>
 				<div class="col-sm-1 ms-5 ps-5">
-					<a class="btn btn-action bg-primary text-white" href="<?= base_url('manufacturing/garnu/index/add') ?>">
+					<a class="btn btn-action bg-primary text-white" href="<?= base_url('manufacturing/main_garnu/index/add') ?>">
 						<i class="far fa-plus card-title" aria-hidden="true">
 						</i>
 					</a>
@@ -213,7 +213,7 @@
 			'serverMethod': 'post',
 			'searching': true,
 			"ajax": {
-				'url': "<?= base_url(); ?>manufacturing/garnu/getlist",
+				'url': "<?= base_url(); ?>manufacturing/main_garnu/getlist",
 				'data': function(data) {
 					data.todate = $('#todate').val();
 					data.fromdate = $('#fromdate').val();
@@ -305,7 +305,7 @@
 		function receiveGarnu(id = null) {
 			return $.ajax({
 				showLoader: true,
-				url: '<?= base_url("manufacturing/garnu/checkReceive"); ?>',
+				url: '<?= base_url("manufacturing/main_garnu/checkReceive"); ?>',
 				type: 'POST',
 				dataType: 'json',
 				data: {
@@ -478,7 +478,7 @@
 			var formData = $(this).serialize();
 			var self = $(this);
 			$.ajax({
-				url: '<?php echo base_url('manufacturing/garnu/receive'); ?>',
+				url: '<?php echo base_url('manufacturing/main_garnu/receive'); ?>',
 				type: 'POST',
 				data: formData,
 				beforeSend: (data) => {
@@ -515,7 +515,7 @@
 			var id = $(this).data('garnu_id');
 			alert_if("Do you want to update the Receive Garnu?", function() {
 				$.ajax({
-					url: "<?php echo base_url('manufacturing/garnu/updateStatus'); ?>",
+					url: "<?php echo base_url('manufacturing/main_garnu/updateStatus'); ?>",
 					type: 'POST',
 					showLoader: true,
 					data: {id},

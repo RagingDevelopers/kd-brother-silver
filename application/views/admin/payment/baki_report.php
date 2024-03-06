@@ -82,6 +82,7 @@
 										<th>Purity</th>
 										<th>W/B</th>
 										<th>Fine</th>
+										<th>Metal Type</th>
 										<th>Rate</th>
 										<th>Amount</th>
 										<th>Remark</th>
@@ -159,6 +160,9 @@
 				},
 				{
 					data: 'fine'
+				},
+				{
+					data: 'metal_type'
 				},
 				{
 					data: 'rate'
