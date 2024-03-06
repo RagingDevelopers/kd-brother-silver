@@ -165,7 +165,7 @@
 						$('#closingWeight').html(weight);
 					}
 
-					if (jsonResponse.openingTouch != undefined || jsonResponse.openingWeight != undefined) {
+					if (jsonResponse.openingWeight != undefined) {
 						$('#openingRow').remove();
 						if (jsonResponse.openingWeight > 0) {
 							var weight = `${jsonResponse.openingWeight} <b class="text-success"> -/ CR</b>`;
@@ -178,13 +178,13 @@
 							var color = `style="background-color: #ffffff"`;
 						}
 
-						var openingTouchHtml = `<tr id="openingRow" ${color}>
+						var openingWeightHtml = `<tr id="openingRow" ${color}>
 													<td colspan="4" class="text-center fs-2">Opening Weight</td>
 													<td colspan="2" class="text-center fs-2"></td>
 													<td colspan="2" class='text-center fs-3 pe-3'> ${weight}</td>
 													<td colspan="3"></td>
 												</tr>`;
-						$('#stock thead').append(openingTouchHtml);
+						$('#stock thead').append(openingWeightHtml);
 					}
 				}
 			}

@@ -43,4 +43,21 @@ class Process_model extends CI_Model
 		
 		return $data;
 	}
+
+	function mainPrintGivenItemData($garnu_id = null, $given_id = null)
+	{
+		$data['givenData'] = $this->db->select('given.*,main_garnu.garnu_weight,main_garnu.name as garnu_name,main_garnu.touch as garnu_touch,customer.name AS worker_name,process.name as process_name')
+			->from('given')
+			->join('main_garnu', 'given.garnu_id = main_garnu.id', 'left')
+			->join('process', 'given.process_id = process.id', 'left')
+			->join('customer', 'given.worker_id = customer.id', 'left')
+			->where(['given.garnu_id' => $garnu_id, 'given.id' => $given_id])
+			->get()->row_array();
+		$data['givenRowMaterial'] = $this->db->select('given_row_material.*,row_material.name AS row_material_name')
+			->from('given_row_material')->where(['garnu_id' => $garnu_id, 'given_id' => $given_id])
+			->join('row_material', 'given_row_material.row_material_id = row_material.id', 'left')
+			->get()->result_array();
+		
+		return $data;
+	}
 }

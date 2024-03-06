@@ -29,7 +29,7 @@
 			<div class="card-body">
 				<div class="row">
 					<div class="col-md-4">
-						<input type="text" name="id" id="id" class="form-control" placeholder="Enter 13 And 13_11" autocomplete="off">
+						<input type="text" name="id" id="id" class="form-control" placeholder="Enter 13 And 13-11" autocomplete="off">
 					</div>
 					<div class="col-md-4">
 						<button type="button" class="btn btn-success btn-success openReceive">
@@ -710,8 +710,8 @@
 		var enteredId = $('#id').val();
 		$("#receveData").html("");
 
-		if (enteredId && enteredId.includes("_")) {
-			var splitArray = enteredId.split("_");
+		if (enteredId && enteredId.includes("-")) {
+			var splitArray = enteredId.split("-");
 
 			if (splitArray.length === 2 && !isNaN(splitArray[0]) && !isNaN(splitArray[1])) {
 				var garnu_id = splitArray[0];
@@ -740,7 +740,7 @@
 				SweetAlert("warning", "Invalid ID: ID does not split into two numeric parts.");
 			}
 		} else {
-			SweetAlert("warning", "Invalid ID: No underscore present or ID is empty.");
+			SweetAlert("warning", "Invalid ID: No Desh present or ID is empty.");
 		}
 	});
 </script>

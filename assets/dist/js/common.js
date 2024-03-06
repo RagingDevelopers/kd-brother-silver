@@ -11,36 +11,36 @@ const { format: formatCurrency } = new Intl.NumberFormat("hi-in", {
 	currency: "INR",
 });
 
-const getOptions = function (response, props) {
+const getOptions = function (response, selected_id = null) {
 	var options = "";
 	var selected = "";
-	if (props.default) {
-		if (props.default_html !== undefined) {
-			options += `<option value=""> ${props.default_html}</option>`;
-		} else {
+	// if (props.default) {
+	// 	if (props.default_html !== undefined) {
+	// 		options += `<option value=""> ${props.default_html}</option>`;
+		// } else {
 			options += `<option value=""> Select <option>`;
-		}
-	}
+	// 	}
+	// }
 	$.each(response, function (key, value) {
 		selected =
-			props.selected_id != null && props.selected_id == value.id
+			selected_id != null && selected_id == value
 				? "selected"
 				: " ";
-		if (props.format) {
-			const parts = props.format.split("-");
-			let label = "";
-			$.each(parts, function (i, part) {
-				if ($.inArray(part, value)) {
-					label +=
-						part == "user_type" ? `( ${value[part]} )` : value[part] + " ";
-				} else {
-					label += value.name;
-				}
-			});
-			options += `<option value="${value.id}" ${selected}>${label}</option>`;
-		} else {
-			options += `<option value="${value["id"]}" ${selected}>${value["name"]}</option>`;
-		}
+		// if (props.format) {
+		// 	const parts = props.format.split("-");
+		// 	let label = "";
+		// 	$.each(parts, function (i, part) {
+		// 		if ($.inArray(part, value)) {
+		// 			label +=
+		// 				part == "user_type" ? `( ${value[part]} )` : value[part] + " ";
+		// 		} else {
+		// 			label += value.name;
+		// 		}
+		// 	});
+		// 	options += `<option value="${value.id}" ${selected}>${label}</option>`;
+		// } else {
+			options += `<option value="${value}" ${selected}>${value}</option>`;
+		// }
 	});
 	return options;
 };

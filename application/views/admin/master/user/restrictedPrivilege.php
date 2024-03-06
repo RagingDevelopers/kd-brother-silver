@@ -350,6 +350,34 @@
                             <div>
                                 <label class="form-check">
                                     <input class="form-check-input" type="checkbox" name="privilege"
+                                        class="select_privilege" value="<?= privilege['main_garnu_add']; ?>" <?php if (isset($update) && in_array(privilege['main_garnu_add'], $permission)) {
+                                              echo "checked";
+                                          } else {
+                                          } ?>>
+                                    <span class="form-check-label">Main Garnu Add</span>
+                                </label>
+                                <label class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="privilege"
+                                        class="select_privilege" value="<?= privilege['main_garnu_view']; ?>" <?php if (isset($update) && in_array(privilege['main_garnu_view'], $permission)) {
+                                              echo "checked";
+                                          } else {
+                                          } ?>>
+                                    <span class="form-check-label">Main Garnu View</span>
+                                </label>
+                                <label class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="privilege"
+                                        class="select_privilege" value="<?= privilege['main_garnu_edit']; ?>" <?php if (isset($update) && in_array(privilege['main_garnu_edit'], $permission)) {
+                                              echo "checked";
+                                          } else {
+                                          } ?>>
+                                    <span class="form-check-label">Main Garnu Edit</span>
+                                </label><br>
+                            </div>
+                        </div>                                           
+                        <div class="col-md-2">
+                            <div>
+                                <label class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="privilege"
                                         class="select_privilege" value="<?= privilege['garnu_add']; ?>" <?php if (isset($update) && in_array(privilege['garnu_add'], $permission)) {
                                               echo "checked";
                                           } else {
@@ -371,6 +399,199 @@
                                           } else {
                                           } ?>>
                                     <span class="form-check-label">Garnu Edit</span>
+                                </label><br>
+                            </div>
+                        </div>                                           
+                        <div class="col-md-2">
+                            <div>
+                                <label class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="privilege"
+                                        class="select_privilege" value="<?= privilege['given_garnu']; ?>" <?php if (isset($update) && in_array(privilege['given_garnu'], $permission)) {
+                                              echo "checked";
+                                          } else {
+                                          } ?>>
+                                    <span class="form-check-label">Given Garnu</span>
+                                </label>
+                                <label class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="privilege"
+                                        class="select_privilege" value="<?= privilege['given_garnu_view']; ?>" <?php if (isset($update) && in_array(privilege['given_garnu_view'], $permission)) {
+                                              echo "checked";
+                                          } else {
+                                          } ?>>
+                                    <span class="form-check-label">Given Garnu View</span>
+                                </label>
+                                <label class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="privilege"
+                                        class="select_privilege" value="<?= privilege['given_garnu_edit']; ?>" <?php if (isset($update) && in_array(privilege['given_garnu_edit'], $permission)) {
+                                              echo "checked";
+                                          } else {
+                                          } ?>>
+                                    <span class="form-check-label">Given Garnu Edit</span>
+                                </label><br>
+                            </div>
+                        </div>                                           
+                        <div class="col-md-2">
+                            <div>
+                                <label class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="privilege"
+                                        class="select_privilege" value="<?= privilege['receive_garnu']; ?>" <?php if (isset($update) && in_array(privilege['receive_garnu'], $permission)) {
+                                              echo "checked";
+                                          } else {
+                                          } ?>>
+                                    <span class="form-check-label">Receive Garnu</span>
+                                </label>
+                                <label class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="privilege"
+                                        class="select_privilege" value="<?= privilege['receive_garnu_view']; ?>" <?php if (isset($update) && in_array(privilege['receive_garnu_view'], $permission)) {
+                                              echo "checked";
+                                          } else {
+                                          } ?>>
+                                    <span class="form-check-label">Receive Garnu View</span>
+                                </label>
+                                <label class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="privilege"
+                                        class="select_privilege" value="<?= privilege['receive_garnu_edit']; ?>" <?php if (isset($update) && in_array(privilege['receive_garnu_edit'], $permission)) {
+                                              echo "checked";
+                                          } else {
+                                          } ?>>
+                                    <span class="form-check-label">Receive Garnu Edit</span>
+                                </label><br>
+                            </div>
+                        </div>                                           
+                        <div class="col-md-2">
+                            <div>
+                                <label class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="privilege"
+                                        class="select_privilege" value="<?= privilege['main_report']; ?>" <?php if (isset($update) && in_array(privilege['main_report'], $permission)) {
+                                              echo "checked";
+                                          } else {
+                                          } ?>>
+                                    <span class="form-check-label">Main Report</span>
+                                </label><br>
+                            </div>
+                        </div>                                           
+                    </div><br>
+                </div>
+            </div>
+        </div>
+    </div>
+	
+    <div class="accordion mt-3" id="Payment_privilege ">
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="heading-2">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#collapse-3" aria-expanded="false">
+                    Payment
+                </button>
+            </h2>
+            <div id="collapse-3" class="accordion-collapse collapse" data-bs-parent="#Payment_privilege">
+                <div class="accordion-body pt-0">
+                    <div class="row">
+                        <div class="col-md-2">
+                            <div>
+                                <label class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="privilege"
+                                        class="select_privilege" value="<?= privilege['jama_add']; ?>" <?php if (isset($update) && in_array(privilege['jama_add'], $permission)) {
+                                              echo "checked";
+                                          } else {
+                                          } ?>>
+                                    <span class="form-check-label">Jama Add</span>
+                                </label>
+                                <label class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="privilege"
+                                        class="select_privilege" value="<?= privilege['jama_view']; ?>" <?php if (isset($update) && in_array(privilege['jama_view'], $permission)) {
+                                              echo "checked";
+                                          } else {
+                                          } ?>>
+                                    <span class="form-check-label">Jama View</span>
+                                </label>
+                                <label class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="privilege"
+                                        class="select_privilege" value="<?= privilege['jama_edit']; ?>" <?php if (isset($update) && in_array(privilege['jama_edit'], $permission)) {
+                                              echo "checked";
+                                          } else {
+                                          } ?>>
+                                    <span class="form-check-label">Jama Edit</span>
+                                </label><br>
+                            </div>
+                        </div>                                           
+                        <div class="col-md-2">
+                            <div>
+                                <label class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="privilege"
+                                        class="select_privilege" value="<?= privilege['baki_add']; ?>" <?php if (isset($update) && in_array(privilege['baki_add'], $permission)) {
+                                              echo "checked";
+                                          } else {
+                                          } ?>>
+                                    <span class="form-check-label">Baki Add</span>
+                                </label>
+                                <label class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="privilege"
+                                        class="select_privilege" value="<?= privilege['baki_view']; ?>" <?php if (isset($update) && in_array(privilege['baki_view'], $permission)) {
+                                              echo "checked";
+                                          } else {
+                                          } ?>>
+                                    <span class="form-check-label">Baki View</span>
+                                </label>
+                                <label class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="privilege"
+                                        class="select_privilege" value="<?= privilege['baki_edit']; ?>" <?php if (isset($update) && in_array(privilege['baki_edit'], $permission)) {
+                                              echo "checked";
+                                          } else {
+                                          } ?>>
+                                    <span class="form-check-label">Baki Edit</span>
+                                </label><br>
+                            </div>
+                        </div>                                           
+                    </div><br>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="accordion mt-3" id="Report_privilege ">
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="heading-2">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#collapse-4" aria-expanded="false">
+                    Report
+                </button>
+            </h2>
+            <div id="collapse-4" class="accordion-collapse collapse" data-bs-parent="#Report_privilege">
+                <div class="accordion-body pt-0">
+                    <div class="row">
+                        <div class="col-md-2">
+                            <div>
+                                <label class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="privilege"
+                                        class="select_privilege" value="<?= privilege['row_material_stock']; ?>" <?php if (isset($update) && in_array(privilege['row_material_stock'], $permission)) {
+                                              echo "checked";
+                                          } else {
+                                          } ?>>
+                                    <span class="form-check-label">Row Material Stock</span>
+                                </label><br>
+                            </div>
+                        </div>                                           
+                        <div class="col-md-2">
+                            <div>
+                                <label class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="privilege"
+                                        class="select_privilege" value="<?= privilege['metal_type_stock']; ?>" <?php if (isset($update) && in_array(privilege['metal_type_stock'], $permission)) {
+                                              echo "checked";
+                                          } else {
+                                          } ?>>
+                                    <span class="form-check-label">Metal Type Stock</span>
+                                </label><br>
+                            </div>
+                        </div>                                           
+                        <div class="col-md-2">
+                            <div>
+                                <label class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="privilege"
+                                        class="select_privilege" value="<?= privilege['row_material_closing_stock']; ?>" <?php if (isset($update) && in_array(privilege['row_material_closing_stock'], $permission)) {
+                                              echo "checked";
+                                          } else {
+                                          } ?>>
+                                    <span class="form-check-label">Row Material Closing Stock</span>
                                 </label><br>
                             </div>
                         </div>                                           

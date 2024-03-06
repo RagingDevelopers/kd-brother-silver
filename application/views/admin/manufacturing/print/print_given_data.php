@@ -83,7 +83,7 @@
 				<tbody>
 					<tr>
 						<th>Code</th>
-						<th><?= $data['givenData']['garnu_id'] ?? "" . "_" . $data['givenData']['id'] ?? "" ?></th>
+						<th><?= $garnu_id. "-" . $given_id ?></th>
 					</tr>
 					<tr>
 						<th>Item Weight</th>
@@ -148,7 +148,7 @@
 				<tbody>
 					<tr>
 						<th>Code</th>
-						<th><?= $data['givenData']['garnu_id'] ?? "" . "_" . $data['givenData']['id'] ?? "" ?></th>
+						<th><?= $garnu_id. "-" . $given_id ?></th>
 					</tr>
 					<tr>
 						<th>Item Weight</th>

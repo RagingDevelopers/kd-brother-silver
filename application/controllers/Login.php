@@ -33,12 +33,14 @@ class Login extends CI_Controller
                         'id' => $user['id'],
                         'mobile' => $user['mobile'],
                         'name' => $user['name'],
+                        'user_type' => $user['type'],
                         'login' => true
                     ); 
                     // $this->session->set_userdata('admin_login', $loged_user);
                     $this->session->set_userdata('id', $loged_user['id']);
                     setSession('admin_login', $loged_user);
-                    setSession('is_admin', ($user['type'] == 1));
+                    setSession('is_admin', $user['type']);
+                    setSession('is_admin', ($user['type'] != "ADMIN"));
                     setSession("admin_id", $user["id"]);
                     setSession('permission', explode(',', $user['permission']));
                     flash()->withSuccess("You are logged in successfully : {$user['name']}")->to("dashboard");

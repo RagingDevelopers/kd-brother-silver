@@ -51,7 +51,7 @@ const privilege = [
 	'item_add' => 37,
 	'item_view' => 38,
 	'item_edit' => 39,
-	'item_delete' => 40,
+	'item_delete' => 40, 
 
 	'garnu_add' => 41,
 	'garnu_view' => 42,
@@ -72,11 +72,46 @@ const privilege = [
 	'unit_view' => 54,
 	'unit_edit' => 55,
 	'unit_delete' => 56,
+
+	'given_garnu' => 57,
+	'given_garnu_view' => 58,
+	'given_garnu_edit' => 59,
+	
+	'receive_garnu' => 60,
+	'receive_garnu_view' => 61,
+	'receive_garnu_edit' => 62,
+	
+	'main_report' => 63,
+
+	'jama_add' => 64,
+	'jama_view' => 65,
+	'jama_edit' => 66,
+	'jama_delete' => 67,
+
+	'baki_add' => 68,
+	'baki_view' => 69,
+	'baki_edit' => 70,
+	'baki_delete' => 71,
+
+	'row_material_stock' => 72,
+	'metal_type_stock' => 73,
+	'row_material_closing_stock' => 74,
+
+	'main_garnu_add' => 75,
+	'main_garnu_view' => 76,
+	'main_garnu_edit' => 77,
 ];
 
 function checkPrivilege($privilegeCode)
 {
 	$ci = ci();
+	// if (!in_array($privilegeCode, $ci->session->userdata('permission'))) {
+	// 	flash()->withError('You dont have permission')->to("dashboard");
+	// 	exit();
+	// }
+	// pre($ci->session->userdata());
+	// pre(session('is_admin'));
+	// exit;
 	if (!in_array($privilegeCode, $ci->session->userdata('permission')) && session('is_admin')) {
 		flash()->withError('You dont have permission')->to("dashboard");
 		exit();

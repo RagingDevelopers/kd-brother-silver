@@ -7,7 +7,7 @@ class Row_material extends CI_Model
     }
     function fetch_row_material()
     {
-        $this->db->order_by("name", "DESC");
+        $this->db->order_by("id", "ASC");
         $query = $this->db->get("row_material");
         return $query->result();
     }

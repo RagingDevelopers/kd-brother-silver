@@ -22,16 +22,16 @@ class Customer extends CI_Controller
         $page_data['page_title'] = 'Customer Report';
         switch ($action) {
             case "":
-                // checkPrivilege(privilege["customer_view"]);
+                checkPrivilege(privilege["customer_view"]);
                 $page_data['data'] = $this->joinhelper->fetchJoinedTable('customer', ['city', 'account_type']);
                 return view(self::View, $page_data);
             case "add":
-                // checkPrivilege(privilege["customer_view"]);
+                checkPrivilege(privilege["customer_view"]);
                 $page_data['data'] = $this->joinhelper->fetchJoinedTable('customer', ['city', 'account_type']);
                 return view(self::ADD, $page_data);
 
             case "edit":
-                // checkPrivilege(privilege["customer_edit"]);
+                checkPrivilege(privilege["customer_edit"]);
                 $this->validateId($id);
                 $customer = $this->joinhelper->fetchJoinedTableRow('customer', ['city', 'account_type'], $id);
                 if (!$customer) {
@@ -45,7 +45,7 @@ class Customer extends CI_Controller
                 return view(self::ADD, $page_data);
 
             case "store":
-                // checkPrivilege(privilege["customer_add"]);
+                checkPrivilege(privilege["customer_add"]);
                 $validation = $this->form_validation;
                 $validation->set_rules('name', 'Name', 'required')
                     ->set_rules('mobile', 'mobile', 'required')
@@ -64,6 +64,8 @@ class Customer extends CI_Controller
                     return flash()->withError(validation_errors())->back();
                 }
                 $data = xss_clean($this->input->post());
+                // echo "<pre>";
+                // print_r($data);exit;
                 $customer = array();
                 $customer['name'] = $data['name'];
                 $customer['mobile'] = $data['mobile'];
@@ -80,17 +82,21 @@ class Customer extends CI_Controller
 
                 $customer_details = $new = array();
                 for ($i = 0; $i < count($data['item_id']); $i++) {
-                    $customer_details['item_id'] = $data['item_id'][$i];
-                    $customer_details['extra_touch'] = $data['extra_touch'][$i];
-                    $customer_details['wastage'] = $data['wastage'][$i];
-                    $customer_details['label'] = $data['label'][$i];
-                    $customer_details['rate'] = $data['rate'][$i];
-                    $customer_details['sub_total'] = $data['sub_total'][$i];
+                    $customer_details['item_id'] = $data['item_id'][$i] ?? "";
+                    $customer_details['extra_touch'] = $data['extra_touch'][$i] ?? "";
+                    $customer_details['wastage'] = $data['wastage'][$i] ?? "";
+                    $customer_details['label'] = $data['label'][$i] ?? "";
+                    $customer_details['rate'] = $data['rate'][$i] ?? "";
+                    $customer_details['sub_total'] = $data['sub_total'][$i] ?? "";
                     $customer_details['customer_id'] = $customer_id;
-                    $new[] = $customer_details;
+                    if(!empty($customer_details['item_id'])|| !empty($customer_details['extra_touch'])||!empty($customer_details['wastage'])||!empty($customer_details['label'])||!empty($customer_details['rate'])|| !empty($customer_details['sub_total'])){
+                        $new[] = $customer_details;
+                    }
                 }
 
-                $this->db->insert_batch('customer_item', $new);
+                if(!empty($new)){
+                    $this->db->insert_batch('customer_item', $new);
+                }
 
                 flash()->withSuccess("Customer type Added Successfully")->to("registration/customer");
                 break;
@@ -103,7 +109,7 @@ class Customer extends CI_Controller
             //     flash()->withSuccess("Customer type Deleted Successfully")->back();
             //     break;
             case "update":
-                // checkPrivilege(privilege["customer_edit"]);
+                checkPrivilege(privilege["customer_edit"]);
                 $validation = $this->form_validation;
                 $validation->set_rules('name', 'Name', 'required')
                     ->set_rules('mobile', 'mobile', 'required')
@@ -125,8 +131,6 @@ class Customer extends CI_Controller
                 }
                 $data = xss_clean($this->input->post());
 
-                // pre($data);
-                // die;
                 $customer = array();
                 $customer['name'] = $data['name'];
                 $customer['mobile'] = $data['mobile'];
@@ -148,12 +152,12 @@ class Customer extends CI_Controller
 
                 for ($i = 0; $i < count($data['item_id']); $i++) {
                     $customer_item = array();
-                    $customer_item['item_id'] = $data['item_id'][$i];
-                    $customer_item['extra_touch'] = $data['extra_touch'][$i];
-                    $customer_item['wastage'] = $data['wastage'][$i];
-                    $customer_item['label'] = $data['label'][$i];
-                    $customer_item['rate'] = $data['rate'][$i];
-                    $customer_item['sub_total'] = $data['sub_total'][$i];
+                    $customer_item['item_id'] = $data['item_id'][$i] ?? "";
+                    $customer_item['extra_touch'] = $data['extra_touch'][$i] ?? "";
+                    $customer_item['wastage'] = $data['wastage'][$i] ?? "";
+                    $customer_item['label'] = $data['label'][$i] ?? "";
+                    $customer_item['rate'] = $data['rate'][$i] ?? "";
+                    $customer_item['sub_total'] = $data['sub_total'][$i] ?? "";
                     if ($data['sdid'][$i] > 0) {
                         $query = $this->db->get_where('customer_item', ['id' => $data['sdid'][$i]]);
                         if ($query->num_rows() == 1) {
@@ -161,7 +165,9 @@ class Customer extends CI_Controller
                         }
                     } else if ($data['sdid'][$i] == 0) {
                         $customer_item['customer_id'] = $id;
-                        $this->db->insert('customer_item', $customer_item);
+                        if(!empty($customer_item['item_id']) || !empty($customer_item['extra_touch']) || !empty($customer_item['wastage']) || !empty($customer_item['label']) || !empty($customer_item['rate'])|| !empty($customer_item['sub_total'])){
+                            $this->db->insert('customer_item', $customer_item);
+                        }
                     }
                 }
                 flash()->withSuccess("Customer type Updated Successfully")->to("registration/customer");

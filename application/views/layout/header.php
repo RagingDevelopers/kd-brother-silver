@@ -142,11 +142,17 @@
 						<div class="dropdown-menu" data-bs-popper="static">
 							<div class="dropdown-menu-columns">
 								<div class="dropdown-menu-column">
+									<a class="dropdown-item" href="<?= base_url("manufacturing/main_garnu") ?>">
+										<span class="nav-link-icon d-md-none d-lg-inline-block">
+											<i class="fa-solid fa-filter-circle-dollar"></i>
+										</span>
+										Main Garnu
+									</a>
 									<a class="dropdown-item" href="<?= base_url("manufacturing/garnu") ?>">
 										<span class="nav-link-icon d-md-none d-lg-inline-block">
 											<i class="fa-solid fa-filter"></i>
 										</span>
-										Garnu
+										Dhal
 									</a>
 									<a class="dropdown-item" href="<?= base_url("manufacturing/receive_garnu") ?>">
 										<span class="nav-link-icon d-md-none d-lg-inline-block">
@@ -257,13 +263,19 @@
 											<i class="fa-solid fa-user-plus"></i>
 										</span>
 										Row Material Stock
-									</a>								
+									</a>
 									<a class="dropdown-item" href="<?= base_url("report/metal_type_stock") ?>">
 										<span class="nav-link-icon d-md-none d-lg-inline-block">
-										<i class="fa-brands fa-squarespace" aria-hidden="true"></i>
+											<i class="fa-brands fa-squarespace" aria-hidden="true"></i>
 										</span>
 										Metal type Stock
-									</a>								
+									</a>
+									<a class="dropdown-item" href="<?= base_url("report/row_material_closing") ?>">
+										<span class="nav-link-icon d-md-none d-lg-inline-block">
+											<i class="fa-brands fa-dropbox" aria-hidden="true"></i>
+										</span>
+										Row Material Closing
+									</a>
 								</div>
 							</div>
 						</div>
@@ -285,7 +297,7 @@
 						<div>
 							<?= ucfirst($this->session->userdata('admin_login')['name'] ?? "") ?>
 						</div>
-						<div class="mt-1 small text-muted">Admin</div>
+						<div class="mt-1 small text-muted"><?= ucfirst(strtolower($this->session->userdata('admin_login')['user_type'] ?? "")) ?></div>
 					</div>
 				</a>
 
