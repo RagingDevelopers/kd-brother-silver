@@ -28,7 +28,7 @@
 <div class="row">
 	<div class="col-sm-12">
 		<div class="card">
-			<form action="<?= (isset($update)) ? base_url("manufacturing/garnu/index/update/{$update['id']}") : base_url('manufacturing/garnu/index/store') ?>" method="post" class="main-form" novalidate>
+			<form action="<?= (isset($update)) ? base_url("sales/update/{$update['id']}") : base_url('sales/store') ?>" method="post" class="main-form" novalidate>
 				<div class="card-header">
 					<div class="card-status-top bg-blue"></div>
 					<h1 class="card-title"><b> Sale </b></h1>
@@ -132,24 +132,24 @@
 																										} ?>><?= $u['name']; ?></option>
 																<?php } ?>
 															</select></td>
-														<td><input type="text" class="form-control remark inputBox" placeholder="Remark" value="<?= $row['remark'] ?? null ?>"></td>
+														<td><input type="text" class="form-control remark inputBox" name="remark[]" placeholder="Remark" value="<?= $row['remark'] ?? null ?>"></td>
 														<td>
-															<input type="text" class="form-control gross_weight inputBox" placeholder="Gross Weight" value="<?= $row['gross_weight'] ?? null ?>">
+															<input type="text" class="form-control gross_weight inputBox" name="gross_weight[]" placeholder="Gross Weight" value="<?= $row['gross_weight'] ?? null ?>">
 														</td>
 														<td>
 															<input type="hidden" name="raw-material-data[]" value="<?= $row['raw_material_string'] ?? null; ?>" class="form-control rmdata" placeholder="Enter Weight" autocomplete="off">
 															<div class="d-flex gap-2">
-																<input type="text" class="form-control inputBox less_weight readonly" readonly placeholder="Less Weight" value="<?= $row['less_weight'] ?? null ?>">
-																<button class="bg-danger btn btn-action text-danger-fg me-2 Receivedmaterial" data-demo-color data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Received">
+																<input type="text" class="form-control inputBox less_weight readonly" name="less_weight[]" readonly placeholder="Less Weight" value="<?= $row['less_weight'] ?? null ?>">
+																<button type="button" class="bg-danger btn btn-action text-danger-fg me-2 Receivedmaterial" data-demo-color data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Received">
 																	<i class="fa-solid fa-hashtag"></i>
 																</button>
 															</div>
 														</td>
-														<td><input type="text" class="form-control inputBox net_weight readonly" readonly placeholder="Net Weight" value="<?= $row['net_weight'] ?? null ?>"></td>
-														<td><input type="text" class="form-control inputBox touchData" placeholder="Touch" value="<?= $row['touch'] ?? null ?>"></td>
-														<td><input type="text" class="form-control inputBox wastage" placeholder="Wastage" value="<?= $row['wastage'] ?? null ?>"></td>
-														<td><input type="text" class="form-control inputBox fine readonly" readonly placeholder="Fine" value="<?= $row['fine'] ?? null ?>"></td>
-														<td><input type="text" class="form-control inputBox piece" placeholder="Piece" value="<?= $row['piece'] ?? null ?>"></td>
+														<td><input type="text" class="form-control inputBox net_weight readonly" name="net_weight[]" readonly placeholder="Net Weight" value="<?= $row['net_weight'] ?? null ?>"></td>
+														<td><input type="text" class="form-control inputBox touchData" name="touch[]" placeholder="Touch" value="<?= $row['touch'] ?? null ?>"></td>
+														<td><input type="text" class="form-control inputBox wastage" name="wastage[]" placeholder="Wastage" value="<?= $row['wastage'] ?? null ?>"></td>
+														<td><input type="text" class="form-control inputBox fine readonly" name="fine[]" readonly placeholder="Fine" value="<?= $row['fine'] ?? null ?>"></td>
+														<td><input type="text" class="form-control inputBox piece" name="piece[]" placeholder="Piece" value="<?= $row['piece'] ?? null ?>"></td>
 														<td><select name="labour[]" id="" class="form-control select2 labour">
 																<option value="">Select Labour</option>
 																<option value="net">Net</option>
@@ -157,8 +157,8 @@
 																<option value="fixed">Fixed</option>
 																<option value="gross">Gross</option>
 															</select></td>
-														<td><input type="text" class="form-control rate inputBox" placeholder="Rate" value="<?= $row['rate'] ?? null ?>"></td>
-														<td><input type="text" class="form-control sub_total inputBox" placeholder="Sub Total" value="<?= $row['sub_total'] ?? null ?>"></td>
+														<td><input type="text" class="form-control rate inputBox" name="rate[]" placeholder="Rate" value="<?= $row['rate'] ?? null ?>"></td>
+														<td><input type="text" class="form-control sub_total inputBox" name="sub_total[]" placeholder="Sub Total" value="<?= $row['sub_total'] ?? null ?>"></td>
 														<td>
 															<button type="button" class="btn btn-danger remove-btn">X</button>
 														</td>
@@ -235,7 +235,7 @@
 						</div>
 					</div>
 				</div>
-				<div class="card-footer ">
+				<div class="card-footer">
 					<button type="submit" class="btn btn-primary ms-auto">Submit</button>
 				</div>
 			</form>
@@ -722,6 +722,9 @@
 				} else if (eventType === 'blur' && $element.val() == '') {
 					$element.val('0');
 				}
+			},
+			validateSubmit: function(ref) {
+				$(ref).off('submit').submit();
 			}
 
 		};
