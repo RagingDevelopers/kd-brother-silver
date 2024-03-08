@@ -28,7 +28,7 @@
 <div class="row">
 	<div class="col-sm-12">
 		<div class="card">
-			<form action="<?= (isset($update)) ? base_url("sales/update/{$update['id']}") : base_url('sales/store') ?>" method="post" class="main-form" novalidate>
+			<form action="<?= (isset($data)) ? base_url("sales/update/{$data['id']}") : base_url('sales/store') ?>" method="post" class="main-form" novalidate>
 				<div class="card-header">
 					<div class="card-status-top bg-blue"></div>
 					<h1 class="card-title"><b> Sale </b></h1>
@@ -39,7 +39,7 @@
 							<div class="col-md-2">
 								<div class="form-group">
 									<label class="form-label">Date <span class="text-danger">*</span></label>
-									<input type="date" name="date" class="form-control" id="date" value="<?php echo date('Y-m-d'); ?>" />
+									<input type="date" name="date" class="form-control" id="date" value="<?php if(isset($data['date'])){ echo $data['date']; }else{ echo date('Y-m-d'); } ?>" />
 								</div>
 							</div>
 							<div class="col-md-2">
@@ -48,7 +48,7 @@
 									<select name="party_id" class="form-select select2" id="party_id">
 										<option value="">Select Customer</option>
 										<?php foreach ($party as $c) { ?>
-											<option value="<?= $c['id']; ?>">
+											<option value="<?= $c['id'];?>" <?php if(isset($data['party_id']) && $data['party_id'] == $c['id']){ echo "selected"; } ?>>
 												<?= $c['name']; ?>
 											</option>
 										<?php } ?>
@@ -82,8 +82,8 @@
 
 											<tbody class="paste append-here">
 												<?php
-												if (empty($items)) {
-													$items[] = [
+												if (empty($data['sale_detail'])) {
+													$data['sale_detail'][] = [
 														'item'               => 0,
 														'stamp'              => 0,
 														'unit'               => 0,
@@ -101,15 +101,15 @@
 														'id'          		 => 0
 													];
 												}
-												foreach ($items as $row) { ?>
-													<input type="hidden" class="ids" name="ids[]" value="<?= $row['id'] ?? "0"; ?>" />
+												foreach ($data['sale_detail'] as $row) { ?>
+													<input type="hidden" class="ids" name="ids[]" value="<?php $data['id'] ?? "0"; ?>" />
 													<tr class="main-row">
 														<input type="hidden" class="rowid" name="rowid[]" value="<?= $row['id'] ?? null; ?>" />
 														<td>
 															<select class="form-select select2 item" required name="item[]">
 																<option value="">Select Item</option>
 																<?php foreach ($item as $i) { ?>
-																	<option value="<?= $i['id']; ?>" <?php if (isset($row) && $i['id'] == $row['item']) {
+																	<option value="<?= $i['id']; ?>" <?php if (isset($row['item_id']) && $i['id'] == $row['item_id']) {
 																											echo 'selected';
 																										} ?>> <?= $i['name']; ?>
 																	</option>
@@ -119,7 +119,7 @@
 														<td><select name="stamp[]" id="" class="form-control select2 stamp">
 																<option value="">Select Stamp</option>
 																<?php foreach ($stamp as $s) { ?>
-																	<option value="<?= $s['id']; ?>" <?php if (isset($row) && $s['id'] == $row['stamp']) {
+																	<option value="<?= $s['id']; ?>" <?php if (isset($row['stamp_id']) && $s['id'] == $row['stamp_id']) {
 																											echo 'selected';
 																										} ?>> <?= $s['name']; ?> </option>
 																<?php } ?>
@@ -127,7 +127,7 @@
 														<td><select name="unit[]" id="" class="form-control select2 unit">
 																<option value="">Select Unit</option>
 																<?php foreach ($unit as $u) { ?>
-																	<option value="<?= $u['id']; ?>" <?php if (isset($row) && $u['id'] == $row['unit']) {
+																	<option value="<?= $u['id']; ?>" <?php if (isset($row['unit_id']) && $u['id'] == $row['unit_id']) {
 																											echo 'selected';
 																										} ?>><?= $u['name']; ?></option>
 																<?php } ?>
@@ -137,7 +137,7 @@
 															<input type="text" class="form-control gross_weight inputBox" name="gross_weight[]" placeholder="Gross Weight" value="<?= $row['gross_weight'] ?? null ?>">
 														</td>
 														<td>
-															<input type="hidden" name="raw-material-data[]" value="<?= $row['raw_material_string'] ?? null; ?>" class="form-control rmdata" placeholder="Enter Weight" autocomplete="off">
+															<input type="hidden" name="raw-material-data[]" value="<?= $row['raw_material_data'] ?? null; ?>" class="form-control rmdata" placeholder="Enter Weight" autocomplete="off">
 															<div class="d-flex gap-2">
 																<input type="text" class="form-control inputBox less_weight readonly" name="less_weight[]" readonly placeholder="Less Weight" value="<?= $row['less_weight'] ?? null ?>">
 																<button type="button" class="bg-danger btn btn-action text-danger-fg me-2 Receivedmaterial" data-demo-color data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Received">
@@ -152,10 +152,10 @@
 														<td><input type="text" class="form-control inputBox piece" name="piece[]" placeholder="Piece" value="<?= $row['piece'] ?? null ?>"></td>
 														<td><select name="labour[]" id="" class="form-control select2 labour">
 																<option value="">Select Labour</option>
-																<option value="net">Net</option>
-																<option value="pcs">Pcs</option>
-																<option value="fixed">Fixed</option>
-																<option value="gross">Gross</option>
+																<option value="net" <?php if ($row['labour'] == 'net') { echo 'selected'; } ?>>Net</option>
+																<option value="pcs" <?php if ($row['labour'] == 'pcs') { echo 'selected'; } ?>>Pcs</option>
+																<option value="fixed" <?php if ($row['labour'] == 'fixed') { echo 'selected'; } ?>>Fixed</option>
+																<option value="gross" <?php if ($row['labour'] == 'gross') { echo 'selected'; } ?>>Gross</option>
 															</select></td>
 														<td><input type="text" class="form-control rate inputBox" name="rate[]" placeholder="Rate" value="<?= $row['rate'] ?? null ?>"></td>
 														<td><input type="text" class="form-control sub_total inputBox" name="sub_total[]" placeholder="Sub Total" value="<?= $row['sub_total'] ?? null ?>"></td>
