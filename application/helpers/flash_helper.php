@@ -1,0 +1,80 @@
+<?php if (!defined('BASEPATH')) exit('No direct script access allowed');
+
+class FlashRedirect
+{
+
+    protected $CI;
+    protected $message;
+    protected $url;
+    protected $type;
+    protected $session;
+
+    public function __construct()
+    {
+        $this->CI = &get_instance();
+    }
+
+    public function withSuccess($message)
+    {
+        $this->message = $message;
+        $this->type = "success";
+        return $this;
+    }
+    public function withError($message)
+    {
+        $this->message = $message;
+        $this->type = "danger";
+        return $this;
+    }
+
+    public function with($class, $message)
+    {
+        $this->message = $message;
+        $this->type = $class;
+        return $this;
+    }
+
+    public function to($url)
+    {
+        $this->url = ($url);
+
+        $this->CI->session->set_flashdata('flash', array('class' => $this->type, "message" => $this->message));
+        if (!empty($this->url)) {
+            redirect($this->url);
+        }
+        return $this;
+    }
+
+    public function back()
+    {
+        $this->url = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : base_url('dashboard');
+
+        $this->CI->session->set_flashdata('flash', array('class' => $this->type, "message" => $this->message));
+        if (!empty($this->url)) {
+            redirect($this->url);
+        }
+        return $this;
+    }
+    public function dashboard()
+    {
+        $this->url = base_url('dashboard');
+        $this->CI->session->set_flashdata('flash', array('class' => $this->type, "message" => $this->message));
+        if (!empty($this->url)) {
+            redirect($this->url);
+        }
+        return $this;
+    }
+    
+    public function go()
+    {
+        $this->CI->session->set_flashdata('flash', array('class' => $this->type, "message" => $this->message));
+        if (!empty($this->url)) {
+            redirect($this->url);
+        }
+    }
+}
+
+function flash()
+{
+    return new FlashRedirect();
+}
