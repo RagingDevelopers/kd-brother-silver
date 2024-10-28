@@ -16,7 +16,7 @@ class Purchase extends CI_Controller
 
 	public function index()
 	{
-	    checkPrivilege(privilege['purchase_view']);
+		checkPrivilege(privilege['purchase_view']);
 		$page_data['page_title'] = 'Purchase Report';
 		$page_data['party'] = $this->purchase->fetch_party();
 		$page_data['items'] = $this->purchase->fetch_item();
@@ -25,7 +25,7 @@ class Purchase extends CI_Controller
 
 	public function create()
 	{
-	    checkPrivilege(privilege['purchase_add']);
+		checkPrivilege(privilege['purchase_add']);
 		$page_data['page_title'] = 'Purchase';
 		$page_data['row_material'] = $this->db->select('id,name')->from('row_material')->where('status', "ACTIVE")->get()->result_array();
 		$page_data['party'] = $this->purchase->fetch_party();
@@ -49,7 +49,7 @@ class Purchase extends CI_Controller
 		// print_r($data);exit;
 		$insert['date'] = $data['date'];
 		$insert['party_id'] = $data['party_id'];
-		$insert['code'] = 'P'.$this->generate_unique_code();
+		$insert['code'] = 'P' . $this->generate_unique_code();
 		$insert['sequence_code'] = $this->seq->getNextSequence('purchase');
 		$insert['user_id'] = session('id');
 		$insert['product_type'] = $data['product_type'];
@@ -61,21 +61,21 @@ class Purchase extends CI_Controller
 		}
 
 		for ($i = 0; $i < count($data['item']); $i++) {
-		    
-	        $customer = $this->db->where(['customer_id' => $data['party_id'], 'item_id' => $data['item'][$i]])->get('customer_item')->num_rows();
-		    $customer_details = $new = array();
-		    if($customer==0 && $data['product_type']=='item'){
-		        $customer_details['item_id'] = $data['item'][$i] ?? "";
-                $customer_details['extra_touch'] = $data['touch'][$i] ?? "";
-                $customer_details['wastage'] = $data['wastage'][$i] ?? "";
-                $customer_details['label'] = $data['labour_type'][$i] ?? "";
-                $customer_details['rate'] = $data['labour'][$i] ?? "";
-                $customer_details['sub_total'] = $data['touch'][$i] ?? "" + $data['wastage'][$i] ?? "";
-                $customer_details['customer_id'] = $data['party_id'];
-                $batchData[] = $customer_details;
-		        $this->db->insert_batch('customer_item', $batchData);
-		    }
-		    
+
+			$customer = $this->db->where(['customer_id' => $data['party_id'], 'item_id' => $data['item'][$i]])->get('customer_item')->num_rows();
+			$customer_details = $new = array();
+			if ($customer == 0 && $data['product_type'] == 'item') {
+				$customer_details['item_id'] = $data['item'][$i] ?? "";
+				$customer_details['extra_touch'] = $data['touch'][$i] ?? "";
+				$customer_details['wastage'] = $data['wastage'][$i] ?? "";
+				$customer_details['label'] = $data['labour_type'][$i] ?? "";
+				$customer_details['rate'] = $data['labour'][$i] ?? "";
+				$customer_details['sub_total'] = $data['touch'][$i] ?? "" + $data['wastage'][$i] ?? "";
+				$customer_details['customer_id'] = $data['party_id'];
+				$batchData[] = $customer_details;
+				$this->db->insert_batch('customer_item', $batchData);
+			}
+
 			$purchaseDetail['purchase_id'] = $id;
 			$purchaseDetail['user_id'] = $lot_wise_rm['user_id'] = session('id');
 			$purchaseDetail['product_type'] = $data['product_type'];
@@ -132,7 +132,7 @@ class Purchase extends CI_Controller
 
 	public function edit($id)
 	{
-	    checkPrivilege(privilege['purchase_edit']);
+		checkPrivilege(privilege['purchase_edit']);
 		$data = $this->db->select('purchase.*')->from('purchase')->where('id', $id)->get()->row_array();
 		if (empty($data)) {
 			flash()->withError("Data Not Found")->to("purchase/index");
@@ -158,7 +158,10 @@ class Purchase extends CI_Controller
 					$array1 = explode(",", $array[$a]);
 					$material = $this->db->select('*')->from('purchase_material')->where([
 						'purchase_detail_id' => $data['purchase_detail'][$i]['id'],
-						'row_material_id' => $array1[0], 'quantity' => $array1[1], 'rate' => $array1[2], 'sub_total' => $array1[3]
+						'row_material_id' => $array1[0],
+						'quantity' => $array1[1],
+						'rate' => $array1[2],
+						'sub_total' => $array1[3]
 					])->get()->row_array();
 					$array1[4] = isset($material['id']) ? $material['id'] : 0;
 					$array2[] = implode(",", $array1);
@@ -204,21 +207,21 @@ class Purchase extends CI_Controller
 		}
 
 		for ($i = 0; $i < count($data['item']); $i++) {
-		    
-		    $customer = $this->db->where(['customer_id' => $data['party_id'], 'item_id' => $data['item'][$i]])->get('customer_item')->num_rows();
-		    $customer_details = $new = array();
-		    if($customer==0 && $data['product_type']=='item'){
-		        $customer_details['item_id'] = $data['item'][$i] ?? "";
-                $customer_details['extra_touch'] = $data['touch'][$i] ?? "";
-                $customer_details['wastage'] = $data['wastage'][$i] ?? "";
-                $customer_details['label'] = $data['labour_type'][$i] ?? "";
-                $customer_details['rate'] = $data['labour'][$i] ?? "";
-                $customer_details['sub_total'] = $data['touch'][$i] ?? "" + $data['wastage'][$i] ?? "";
-                $customer_details['customer_id'] = $data['party_id'];
-                $batchData[] = $customer_details;
-		        $this->db->insert_batch('customer_item', $batchData);
-		    }
-		    
+
+			$customer = $this->db->where(['customer_id' => $data['party_id'], 'item_id' => $data['item'][$i]])->get('customer_item')->num_rows();
+			$customer_details = $new = array();
+			if ($customer == 0 && $data['product_type'] == 'item') {
+				$customer_details['item_id'] = $data['item'][$i] ?? "";
+				$customer_details['extra_touch'] = $data['touch'][$i] ?? "";
+				$customer_details['wastage'] = $data['wastage'][$i] ?? "";
+				$customer_details['label'] = $data['labour_type'][$i] ?? "";
+				$customer_details['rate'] = $data['labour'][$i] ?? "";
+				$customer_details['sub_total'] = $data['touch'][$i] ?? "" + $data['wastage'][$i] ?? "";
+				$customer_details['customer_id'] = $data['party_id'];
+				$batchData[] = $customer_details;
+				$this->db->insert_batch('customer_item', $batchData);
+			}
+
 			$purchaseDetail['product_type'] = $data['product_type'];
 			$purchaseDetail['item_id'] = $lot_wise_rm['row_material_id'] =  $data['item'][$i];
 			$purchaseDetail['stamp_id'] = $data['stamp'][$i];
@@ -257,14 +260,14 @@ class Purchase extends CI_Controller
 					$weight = $purchaseDetail['net_weight'] - $purchaseData['net_weight'];
 					$quantity = $purchaseDetail['piece'] - $purchaseData['piece'];
 					if ($data['net_weight'][$i] != $purchaseData['net_weight']) {
-							$this->db->where(array('purchase_detail_id' => $purchaseDetailId,'type' => 'PURCHASE'))
-								->set('weight', $purchaseDetail['net_weight'])
-								->set('quantity', $purchaseDetail['piece'])
-								->set('rem_weight', 'rem_weight +' . $weight, false);
-							$this->db->update('lot_wise_rm');
-						}
-						if ($data['piece'][$i] != $purchaseData['piece']) {
-						$this->db->where(array('purchase_detail_id' => $purchaseDetailId,'type' => 'PURCHASE'))
+						$this->db->where(array('purchase_detail_id' => $purchaseDetailId, 'type' => 'PURCHASE'))
+							->set('weight', $purchaseDetail['net_weight'])
+							->set('quantity', $purchaseDetail['piece'])
+							->set('rem_weight', 'rem_weight +' . $weight, false);
+						$this->db->update('lot_wise_rm');
+					}
+					if ($data['piece'][$i] != $purchaseData['piece']) {
+						$this->db->where(array('purchase_detail_id' => $purchaseDetailId, 'type' => 'PURCHASE'))
 							->set('weight', $purchaseDetail['net_weight'])
 							->set('quantity', $purchaseDetail['piece'])
 							->set('rem_quantity', 'rem_quantity +' . $quantity, false);
@@ -353,55 +356,57 @@ class Purchase extends CI_Controller
 		echo json_encode($response);
 		return;
 	}
-	
-	public function delete($id) {
-        checkPrivilege(privilege['purchase_delete']);
-        $this->db->trans_start();
-        $this->db->where('id', $id);
-        $this->db->delete('purchase');
-    
-        if ($this->db->affected_rows() > 0) {
-            $purchase_detail_ids = $this->db->select('id')->from('purchase_detail')->where('purchase_id', $id)->get()->result_array();
-            if (!empty($purchase_detail_ids)) {
-                $ids = array_map(function($item) {
-                    return $item['id'];
-                }, $purchase_detail_ids);
-    
-                $this->db->where_in('purchase_detail_id', $ids);
-                $this->db->delete('purchase_material');
-    
-                $this->db->where_in('id', $ids);
-                $this->db->delete('purchase_detail');
-            }
-    
-            $this->db->trans_complete();
-            if ($this->db->trans_status() === FALSE) {
-                flash()->withError("Deletion failed.")->to("purchase");
-                return FALSE;
-            } else {
-                flash()->withSuccess("Deleted successfully.")->to("purchase");
-                return TRUE;
-            }
-        } else {
-            $this->db->trans_complete();
-            flash()->withError("Deletion failed.")->to("purchase");
-            return FALSE;
-        }
-    }
-    
-    function generate_unique_code() {
-        $unique_code = '';
-        do {
-            $unique_code = sprintf('%05d', mt_rand(0, 99999));
-            $this->db->where('code', $unique_code);
-            $count = $this->db->count_all_results('purchase');
-        } while ($count > 0);
-        return $unique_code;
-    }
-    
-    function bill($purchase_id = 0)
+
+	public function delete($id)
 	{
-	    $this->db->query("SET SESSION sql_mode=(SELECT REPLACE(@@sql_mode, 'ONLY_FULL_GROUP_BY', ''));");
+		checkPrivilege(privilege['purchase_delete']);
+		$this->db->trans_start();
+		$this->db->where('id', $id);
+		$this->db->delete('purchase');
+
+		if ($this->db->affected_rows() > 0) {
+			$purchase_detail_ids = $this->db->select('id')->from('purchase_detail')->where('purchase_id', $id)->get()->result_array();
+			if (!empty($purchase_detail_ids)) {
+				$ids = array_map(function ($item) {
+					return $item['id'];
+				}, $purchase_detail_ids);
+
+				$this->db->where_in('purchase_detail_id', $ids);
+				$this->db->delete('purchase_material');
+
+				$this->db->where_in('id', $ids);
+				$this->db->delete('purchase_detail');
+			}
+
+			$this->db->trans_complete();
+			if ($this->db->trans_status() === FALSE) {
+				flash()->withError("Deletion failed.")->to("purchase");
+				return FALSE;
+			} else {
+				flash()->withSuccess("Deleted successfully.")->to("purchase");
+				return TRUE;
+			}
+		} else {
+			$this->db->trans_complete();
+			flash()->withError("Deletion failed.")->to("purchase");
+			return FALSE;
+		}
+	}
+
+	function generate_unique_code()
+	{
+		$unique_code = '';
+		do {
+			$unique_code = sprintf('%05d', mt_rand(0, 99999));
+			$this->db->where('code', $unique_code);
+			$count = $this->db->count_all_results('purchase');
+		} while ($count > 0);
+		return $unique_code;
+	}
+
+	function bill($purchase_id = 0)
+	{
+		$this->db->query("SET SESSION sql_mode=(SELECT REPLACE(@@sql_mode, 'ONLY_FULL_GROUP_BY', ''));");
 		$purchase_id = $this->security->xss_clean($purchase_id);
 		$purchase_id = $this->db->escape($purchase_id);
 		$q = "SELECT 
@@ -445,7 +450,7 @@ class Purchase extends CI_Controller
         		LEFT JOIN city ON city.id = C.city_id 
         		WHERE S.id = $purchase_id";
 		$customer = $this->db->query($customerQ)->row_array();
-        $page_data['url'] = 'purchase';
+		$page_data['url'] = 'purchase';
 		$page_data['page_name'] = 'admin/print/purchase_bill';
 		$page_data['page_title'] = 'Purchase Bill';
 		$page_data['bill_data'] = $res;
