@@ -16,6 +16,7 @@ class Sequence extends CI_Controller
 			'purchase' => 'Purchase',
 			'purchase_return' => 'Purchase Return',
 			'jama' => 'Payment',
+			'ready_for_sale' => 'Ready For Sale',
 		);
 	}
 
@@ -39,7 +40,7 @@ class Sequence extends CI_Controller
 		} else {
 			$data = $this->security->xss_clean($this->input->post());
 			$data['increment'] = $data['number'];
-			$data['admin_id'] = session()->userdata('admin_id');
+			$data['admin_id'] = session('admin_id');
 			$padding = '';
 			$number_length = strlen($data['number'] . '');
 			if ($number_length >= 1 && $data['padding'] >= $number_length) {
@@ -47,7 +48,7 @@ class Sequence extends CI_Controller
 					$padding .= '0';
 				}
 			}
-			$data['sequence']  = $data['prefix'] . $padding . $data['number'] . $data['suffix'];
+			$data['sequence']  = $data['prefix'] . $padding . $data['number'] . ($data['suffix'] ?? "");
 			if ($this->db->insert('sequence', $data)) {
 				return flash()->withSuccess("Sequence Added Successfully.")->to("setting/sequence");
 			} else {

@@ -59,7 +59,8 @@
 										<th scope="col">Serial No </th>
 										<th scope="col">Barcode</th>
 										<th scope="col">Item Name</th>
-										<th scope="col">Quantity</th>
+										<th scope="col">Pcs</th>
+										<th scope="col">Complated Pcs</th>
 										<th scope="col">Weight</th>
 										<th scope="col">Labour Type</th>
 										<th scope="col">labour</th>
@@ -75,6 +76,7 @@
 								<tfoot>
 								    <tr>
 								        <td class="text-center text-primary" colspan="3"><h3 class="blinking-text">Totals ==></h3></td>
+								        <td></td>
 								        <td></td>
 								        <td></td>
 								        <td> -- </td>
@@ -140,6 +142,9 @@
 					data: 'pcs'
 				},
 				{
+					data: 'complated_pcs'
+				},
+				{
 					data: 'weight'
 				},
 				{
@@ -173,10 +178,15 @@
 			drawCallback: function(settings) {
 				$('[data-bs-toggle="tooltip"]').tooltip();
 			},
+			"columnDefs": [{
+					"className": "text-success",
+					"targets": [4]
+				},
+			],
 			footerCallback: function(row, data, start, end, display) {
                 handelFooterTotal(
                     this.api(),
-                    [3,4,6,7,8,9,10,11]
+                    [3,4,5,7,8,9,10,11,12]
                 );
             },
 		});
@@ -187,22 +197,6 @@
 		$('#fromdate,#item_id').on('change', function() {
 			table.clear()
 			table.draw()
-		});
-
-		$(document).on("click", ".codeCopy", function() {
-			var textToCopy = $(this).text();
-			var $temp = $("<textarea>");
-			$("body").append($temp);
-			$temp.val(textToCopy).select();
-			document.execCommand("copy");
-			$temp.remove();
-			Swal.fire({
-				icon: 'success',
-				title: 'Copied!',
-				text: `Copy Code: ${textToCopy}`,
-				showConfirmButton: false,
-				timer: 1500
-			});
 		});
 	});
 </script>

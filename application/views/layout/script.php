@@ -52,13 +52,22 @@
 
 <script>
 	$(function() {
+	    
+	    	
+$('.dropdown').hover(
+    function () {
+      $(this).find('.dropdown-menu').addClass('show');
+    },
+    function () {
+      $(this).find('.dropdown-menu').removeClass('show');
+    }
+);
 		$("#example_table").DataTable({
-				"responsive": false,
-				"lengthChange": true,
-				"autoWidth": false,
-				"buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
-			})
-			.buttons().container().appendTo('#example_table_wrapper .col-md-6:eq(0)');
+			"responsive": false,
+			"lengthChange": true,
+			"autoWidth": false,
+			"buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
+		}).buttons().container().appendTo('#example_table_wrapper .col-md-6:eq(0)');
 		$("#example_tablepataprint").DataTable({
 				"responsive": false,
 				"lengthChange": false,

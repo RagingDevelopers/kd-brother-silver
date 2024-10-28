@@ -73,8 +73,6 @@ class Account_ledger extends CI_Controller
 		// $ig_id       = $this->security->xss_clean($ig_id ?? "");
 		$master_type = $this->security->xss_clean($master_type ?? "");
 
-		// $this->load->model('Account_ledger_model', 'alm');
-		$this->load->model('AccountLedger', 'alm');
 		$data        = [];
 		$data['dbh'] = $this->dbh;
 
@@ -104,7 +102,6 @@ class Account_ledger extends CI_Controller
 		// if (!empty ($ac_cat) && $ac_cat > 0) {
 		// 	$this->session->set_userdata('items_group_id', $ig_id);
 		// }
-		// pre($data);die;
 		return $this->load->view('admin/report/tnx/ajax_account_ledger_report', $data);
 	}
 
@@ -115,7 +112,6 @@ class Account_ledger extends CI_Controller
 		$isBank = $this->security->xss_clean($isBank);
 
 		// $this->load->model('Account_ledger_model', 'alm');
-		$this->load->model('AccountLedger', 'alm');
 		$page_data['isBank'] = $isBank;
 		$fromDate            = ($this->session->userdata('ledger_from_date')) ? $this->session->userdata('ledger_from_date') : NULL;
 		$toDate              = ($this->session->userdata('ledger_to_date')) ? $this->session->userdata('ledger_to_date') : NULL;
@@ -139,9 +135,8 @@ class Account_ledger extends CI_Controller
 		$other             = [
 			'master_type' => $master_type
 		];
+		
 		$page_data['data'] = $this->alm->getLedgerReprot($fromDate, $toDate, $cid, $ac_cat, $other);
-		// echo count($page_data['data']['data']);
-		// pre($page_data['data']);
 		$page_data['dbh'] = $this->dbh;
 		if ($master_type == "bank") {
 			$cust = $this->dbh->getWhereRowArray('bank', ['id' => $cid]);
@@ -186,7 +181,6 @@ class Account_ledger extends CI_Controller
 		// $run_time_loss = $this->security->xss_clean($run_time_loss);
 		$ig_id         = $this->input->post('items_group_id');
 		// pre($ig_id);
-		$this->load->model('AccountLedger', 'alm');
 		// $this->load->model('Account_ledger_model', 'alm');
 		$data        = [];
 		$data['dbh'] = $this->dbh;
@@ -201,8 +195,8 @@ class Account_ledger extends CI_Controller
 		];
 		$data['isBank'] = $isBank;
 		$data['data']   = $this->alm->getLedgerReprot($fromDate, $toDate, $customer_id, 0, $other);
-		// pre($data['data']);die;
-		$cust             = $this->dbh->getWhereRowArray('customer', [
+// 		pre($data['data']);die;
+		$cust = $this->dbh->getWhereRowArray('customer', [
 			'id' => $customer_id
 		]);
 		$page_data['cid'] = $customer_id;
@@ -231,7 +225,7 @@ class Account_ledger extends CI_Controller
 		if (!empty($toDate)) {
 			$this->session->set_userdata('ledger_to_date', $toDate);
 		}
-
+		
 		return $this->load->view('admin/report/tnx/ajax_account_ledger_customer_report', $data);
 	}
 
@@ -465,7 +459,7 @@ class Account_ledger extends CI_Controller
 	function balanceSheetReport()
 	{
 		checkPrivilege(privilege["balance_sheet_report"]);
-		$fromDate    = '';
+		$fromDate    = date('Y-m-d');
 		$toDate      = date('Y-m-d');
 		$customer_id = 0;
 		$ac_cat      = 0;
@@ -492,7 +486,6 @@ class Account_ledger extends CI_Controller
 		$ac_cat               = 'bank';
 		$other['master_type'] = 'bank';
 		$data['bankdata']     = $this->alm->getLedgerReprot($fromDate, $toDate, $customer_id, $ac_cat, $other);
-
 		foreach ($data['bankdata']['data'] as $k => $v) {
 			$v['customer_id']            = 0 - $v['party_id'];
 			$v['account_category']       = 'bank';
@@ -523,6 +516,14 @@ class Account_ledger extends CI_Controller
 			$id = $postRequest['id'];
 
 			switch ($postRequest['type']) {
+			    case 'garnu':
+					$update = $this->db->where(['id' => $id, 'worker_id' => $customer_id])->update('garnu', array('verification' => $status));
+					if ($update) {
+						$response = ['success' => true, 'message' => "Verification successful"];
+					} else {
+						$response = ['success' => false, 'message' => "Verification failed"];
+					}
+					break;
 				case 'given':
 					$update = $this->db->where(['id' => $id, 'worker_id' => $customer_id])->update('given', array('verification' => $status));
 					if ($update) {
@@ -532,7 +533,7 @@ class Account_ledger extends CI_Controller
 					}
 					break;
 				case 'receive':
-					$update = $this->db->where(['given_id' => $id])->update('receive', array('verification' => $status));
+					$update = $this->db->where(['id' => $id])->update('receive', array('verification' => $status));
 					if ($update) {
 						$response = ['success' => true, 'message' => "Verification successful"];
 					} else {
@@ -601,19 +602,10 @@ class Account_ledger extends CI_Controller
 				$fine = 0;
 				$amount = 0;
 			}
-			$response = array(
-				'status'  => true,
-				'message' => '',
-				'fine'    => $fine,
-				'amount'  => $amount
-			);
+
+			$response = array('status'  => true,'message' => '','fine'    => $fine,'amount'  => $amount, 'data' => $customerLedgerData);
 		} else {
-			$response = array(
-				'status'  => false,
-				'message' => 'Something went wrong!',
-				'fine'    => 0,
-				'amount'  => 0
-			);
+			$response = array('status'  => false,'message' => 'Something went wrong!','fine'    => 0,'amount'  => 0);
 		}
 		echo json_encode($response);
 	}

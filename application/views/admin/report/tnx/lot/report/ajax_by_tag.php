@@ -29,7 +29,8 @@
 		$tn +=$v['net_weight'];
 		$tam +=$v['amt'];
 		?>
-			<tr class="<?= ($v['status'] == 1) ? 'text-success' : 'text-danger' ?>">
+			<tr class="
+			<?php if($v['status'] == 0){ echo 'text-danger'; }else if($v['status'] == 1){ echo 'text-primary'; }else if($v['status'] == 2){ echo 'text-success'; } ?>">
 				<td><?= $i++ ?></td>
 				<td>
 					<a href="<?= site_url('manufacturing/lot/index/' . $v['barcode']) ?>" target="_blank">
@@ -43,7 +44,16 @@
 				<td><?= $v['l_weight'] ?></td>
 				<td><?= $v['net_weight'] ?></td>
 				<td><?= $v['amt'] ?></td>
-				<td><?= ($v['status'] == 1) ? 'Yes' : 'No'; ?></td>
+				<td>
+				<?php
+				if($v['status'] == 0){
+				    echo "Pending";
+				}else if($v['status'] == 1){
+				    echo "Ready For Sale";
+				}else if($v['status'] == 2){
+				    echo "Sale";
+				} ?>
+				</td>
 				<td><?= date('d-m-Y', strtotime($v['created_at'])) ?></td>
 			</tr>
 		<?php endforeach; ?>

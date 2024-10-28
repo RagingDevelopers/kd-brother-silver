@@ -349,6 +349,7 @@
 				$('.mtouch').val(formatNumber(mainTouch));
 
 			},
+			
 			validateSubmit: function(ref) {
 				var preventEnter = false;
 				const metal_type = $('.metal_type_id');

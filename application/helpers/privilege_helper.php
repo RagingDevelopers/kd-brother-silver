@@ -141,19 +141,28 @@ const privilege = [
 	
 	'lot_wise_rm_report' =>108,
 	
+	'sub_item_add' => 109,
+	'sub_item_view' => 110,
+	'sub_item_edit' => 111,
+	'sub_item_delete' => 112,
+	
+	'main_given_report' => 113,
+
+	'ready_for_sale_add' => 114,
+	'ready_for_sale_view' => 115,
+	'ready_for_sale_edit' => 116,
+	'ready_for_sale_delete' => 117,
+	
+	'given_testing_add' => 118,
+	'given_testing_view' => 119,
+	'given_testing_edit' => 120,
+	'given_testing_delete' => 121,
 ];
 
 function checkPrivilege($privilegeCode)
 {
 	$ci = ci();
-	// if (!in_array($privilegeCode, $ci->session->userdata('permission'))) {
-	// 	flash()->withError('You dont have permission')->to("dashboard");
-	// 	exit();
-	// }
-	// pre($ci->session->userdata());
-	// pre(session('is_admin'));
-	// exit;
-	if (!in_array($privilegeCode, $ci->session->userdata('permission')) && session('is_admin')) {
+	if (in_array($privilegeCode, $ci->session->userdata('permission'))) {
 		flash()->withError('You dont have permission')->to("dashboard");
 		exit();
 	}

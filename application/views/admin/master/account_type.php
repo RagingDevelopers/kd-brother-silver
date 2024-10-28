@@ -18,13 +18,6 @@
                                         placeholder="Enter Account  Name" value="<?= $update['name'] ?? null ?>"
                                         id="name" required>
                                 </div>
-                                <div class="col-sm-3">
-                                    <label class="form-label" for="prd"> Opening Amount: </label>
-                                    <input class="form-control" type="number" name="opening_amount"
-                                        placeholder="Enter Opening Amount"
-                                        value="<?= $update['opening_amount'] ?? null ?>" id="opening_amount" required>
-                                </div>
-
                                 <div class="row">
                                     <div class="col-md-5 md-ms-4">
                                         <label class="form-label" for="prd"> &nbsp </label>
@@ -44,7 +37,6 @@
                                     <th>Serial No </th>
                                     <th>Action</th>
                                     <th>Name</th>
-                                    <th>Opening Amount</th>
                                     <th>Created At</th>
                                 </tr>
                             </thead>
@@ -68,9 +60,6 @@
 
                                             <td>
                                                 <?= $data['name']; ?>
-                                            </td>
-                                            <td>
-                                                <?= $data['opening_amount']; ?>
                                             </td>
                                             <td>
                                                 <?= $data['created_at']; ?>

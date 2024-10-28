@@ -327,7 +327,7 @@ var mainFunction = (function () {
 
 				$(this).on(
 					"input",
-					".gross_weight,.touchData,.wastage,.less_weight,.piece,.rate,.sub_total,.labour, .gross_weight, .piece, .other_amount",
+					".gross_weight,.touchPreData,.touchData,.wastage,.less_weight,.piece,.rate,.sub_total,.labour, .gross_weight, .piece, .other_amount",
 					function () {
 						main.calculateMain($(this));
 						main.Totalcalculate();
@@ -491,6 +491,7 @@ var mainFunction = (function () {
 			var less_weight = 0;
 			var net_weight = 0;
 			var touchData = 0;
+			var touchPreData = 0;
 			var wastage = 0;
 			var Fine = 0;
 			var piece = 0;
@@ -510,6 +511,9 @@ var mainFunction = (function () {
 			});
 			$(".touchData").each(function () {
 				touchData += parseFloat($(this).val() || 0);
+			});
+			$(".touchPreData").each(function () {
+				touchPreData += parseFloat($(this).val() || 0);
 			});
 			$(".wastage").each(function () {
 				wastage += parseFloat($(this).val() || 0);
@@ -541,6 +545,8 @@ var mainFunction = (function () {
 			$(".TotalNet_weight").text(net_weight.toFixed(2));
 			$(".TotalTouchData").text("");
 			$(".TotalTouchData").text(touchData.toFixed(2));
+			$(".TotalPreTouchData").text("");
+			$(".TotalPreTouchData").text(touchPreData.toFixed(2));
 			$(".TotalWastage").text("");
 			$(".TotalWastage").text(wastage.toFixed(2));
 			$(".TotalFine").text("");

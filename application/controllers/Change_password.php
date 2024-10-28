@@ -17,7 +17,7 @@ class Change_password extends CI_Controller
 		$validation->set_rules('new_password', 'New Password', 'trim|required');
 		$validation->set_rules('confirm_password', 'Confirm Password', 'trim|required|matches[new_password]');
 		if ($this->form_validation->run() == FALSE) {
-			$response = ['success' => false, 'message' => validation_errors()];
+			$response = ['success' => false, 'message' => strip_tags(validation_errors())];
 			echo json_encode($response);
 			return;
 		} else {

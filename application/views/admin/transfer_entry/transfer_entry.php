@@ -20,19 +20,6 @@ if (isset($row_data)) {
         width: 100%;
     }
 </style>
-<?php
-if ($this->session->flashdata('flash_message') != "") {
-    $message = $this->session->flashdata('flash_message'); ?>
-
-    <div class="alert alert-<?= $message['class']; ?> alert-dismissible">
-        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-        <h4><i class="icon fa fa-circle"></i> Message:</h4>
-        <?php echo $message['message']; ?>
-    </div>
-<?php
-    $this->session->set_flashdata('flash_message', "");
-}
-?>
 <div class="row">
     <!-- left column -->
     <div class="col-md-12">

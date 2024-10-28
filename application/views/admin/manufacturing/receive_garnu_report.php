@@ -34,7 +34,7 @@
 							</div>
 						</div>
 						<div class="mt-3">
-							<table id="garnu" class="table table-vcenter card-table">
+							<table id="garnu" class="table table-vcenter card-table" style="width:100% !important;">
 								<thead>
 									<tr>
 										<th scope="col">Serial No </th>
@@ -52,9 +52,9 @@
 								        <td class="text-center text-primary" colspan="3"><h3 class="blinking-text">Totals ==></h3></td>
 								        <td></td>
 								        <td></td>
-								        <td></td>
-								        <td></td>
-								        <td></td>
+								        <td>--</td>
+								        <td>--</td>
+								        <td>---</td>
 								    </tr>
 								</tfoot>
 							</table>

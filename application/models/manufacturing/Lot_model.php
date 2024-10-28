@@ -23,12 +23,15 @@ class Lot_model extends CI_Model
 			$receive_id = $this->db->get_where('receive',array('code'=>$data['tag']))->row_array();
 
 			$insertLotData = [
-				'barcode'              => $data['tag'],
+				'barcode'          => $data['tag'],
 				'receive_id'       => $receive_id['id'],
-				'tag'          => $uniqueCode,
-				'piece'              => $data['pcs'],
+				'tag'              => $uniqueCode,
+				'piece'            => $data['pcs'],
+				'touch'            => $data['touch'],
 				'item_id'          => $data['item_id'],
+				'sub_item_id'      => $data['sub_item'],
 				'gross_weight'     => $data['gross_weight'],
+				'stamp_id'         => $data['stamp'],
 				'l_weight'         => $data['l_weight'],
 				'net_weight'       => $data['net_weight'],
 				'amt'              => $data['amt'],
@@ -66,7 +69,10 @@ class Lot_model extends CI_Model
 		$adminId = session('id');
 		$updateLotData = [
 			'piece'              => $data['pcs'],
+			'touch'              => $data['touch'],
 			'item_id'          => $data['item_id'],
+			'sub_item_id'      => $data['sub_item'],
+			'stamp_id'         => $data['stamp'],
 			'gross_weight'     => $data['gross_weight'],
 			'l_weight'         => $data['l_weight'],
 			'net_weight'       => $data['net_weight'],

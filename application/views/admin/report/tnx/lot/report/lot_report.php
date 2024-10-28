@@ -57,13 +57,15 @@
 						<label>Tag No.</label>
 						<input type="text" class="form-control" id="tag_no" value="" />
 					</div>
-					<!-- <div class="col-md-2">
+					 <div class="col-md-2">
 						<label>Is Sold:</label>
-						<select class="form-control" id="is_sold">
+						<select class="form-control select2" id="is_sold">
+							<option value=" ">Select</option>
 							<option value="0">No</option>
-							<option value="1">Yes</option>
+							<option value="2">Yes</option>
+							<option value="1">Ready For Sale</option>
 						</select>
-					</div> -->
+					</div>
 					<div class="col-md-2">
 						<label>Group By:</label>
 						<select class="form-control select2" id="group_by">
@@ -117,7 +119,7 @@
 			var itemId = $('#item').val();
 			var fromDate = $('#from_date').val();
 			var toDate = $('#to_date').val();
-			// var isSold = $('#is_sold').val();
+			var isSold = $('#is_sold').val();
 			// var userId = $('#user').val();
 			var groupBy = $('#group_by').val();
 			var tagNo = $('#tag_no').val();
@@ -130,7 +132,7 @@
 				toDate: toDate,
 				// userId: userId,
 				groupBy: groupBy,
-				// isSold: isSold,
+				isSold: isSold,
 				tagNo: tagNo,
 				grossWeight: grossWeight,
 				netWeight: netWeight

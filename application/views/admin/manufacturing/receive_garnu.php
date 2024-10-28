@@ -1,7 +1,7 @@
 <div class="table-responsive">
 	<div class="modal-header">
 		<div class="col-md-3">
-			<p class="modal-title">Process:- <span class="process_name"><?= $givenData['process_name']; ?></span></p>
+			<p class="modal-title ProcessName" data-labour_type="<?= $givenData['labour_type']; ?>">Process:- <span class="process_name"><?= $givenData['process_name']; ?></span></p>
 		</div>
 		<div class="col-md-3">
 			<p class="modal-title">Dhal Name:- <span class="garnu_name"><?= $garnuData['name']; ?></span></p>
@@ -16,7 +16,8 @@
 	</div>
 	<div class="modal-body">
 		<div class="d-flex p-2 justify-content-between">
-			<div class="col-md-2 col-sm-3 d-flex gap-3">
+		    <div class="col-md-2 col-sm-3 d-flex gap-3"></div>
+			<div class="col-md-2 col-sm-3 d-flex gap-3" style="display:none !important;">
 				<label class="form-label mt-2" for="customer">Worker: </label>
 				<select class="form-select select2 customer col-md-2 col-sm-3" disabled>
 					<option value="">Select Worker</option>
@@ -29,8 +30,8 @@
 					<?php }
 					} ?>
 				</select>
-				<input type="hidden" name="given_id" class="form-control" value="<?= $givenData['id'] ?? null ?>">
-				<input type="hidden" name="garnu_id" class="form-control" value="<?= $garnuData['id'] ?? null ?>">
+				<input type="hidden" name="given_id" class="form-control" id="given_id" value="<?= $givenData['id'] ?? null ?>">
+				<input type="hidden" name="garnu_id" class="form-control" id="garnu_id" value="<?= $garnuData['id'] ?? null ?>">
 			</div>
 			<div>
 				<label class="form-check">
@@ -45,6 +46,7 @@
 		<table class="table table-vcenter card-table table-striped mb-4">
 			<thead>
 				<tr>
+				    <th>Worker Name</th>
 					<th>Given Weight</th>
 					<th>Given Row Material Weight</th>
 					<th>Given Final Weight</th>
@@ -56,13 +58,13 @@
 			</thead>
 			<tbody>
 				<tr>
+				    <td><?php $customernamed=$this->db->get_where('customer',array('id'=>$givenData['worker_id']))->row_array(); echo $customernamed['name'];?></td>
 					<td><?= $givenData['given_weight']; ?></td>
 					<td>
 						<?php
-						if ($row['id'] > 0) {
-							$rawMaterial = $this->dbh->getWhereResultArray('given_row_material', ['given_id' => $givenData['id']]);
+						if (!empty($GivenRMData)) {
 							$rm_string_array = [];
-							foreach ($rawMaterial as $rm) {
+							foreach ($GivenRMData as $rm) {
 								$rm_string_array[] = implode(',', [
 									$rm['row_material_id'],
 									$rm['lot_wise_rm_id'],
@@ -78,11 +80,11 @@
 						<input type="hidden" value="<?= $row['given_raw_material'] ?? null; ?>" class="form-control givenRmdata" placeholder="Enter Weight" autocomplete="off">
 						<div class='d-flex gap-5'>
 							<?= $givenData['row_material_weight']; ?>
-							<a class="btn btn-action text-white bg-primary givenMaterial"><i class="fa-solid fa-info"></i></a>
+							<!--<a class="btn btn-action text-white bg-primary givenMaterial"><i class="fa-solid fa-info"></i></a>-->
 						</div>
 					</td>
 					<td id="givenTotal_weight"><?= $givenData['total_weight']; ?></td>
-					<td><?= $garnuData['touch']; ?></td>
+					<td><?= $givenData['given_touch']; ?></td>
 					<td><?= $givenData['remarks']; ?></td>
 					<td><?= $givenData['creation_date']; ?></td>
 					<td><?= ($givenData['created_at']) ? date('d-m-Y g:i A', strtotime($givenData['created_at'])) : ""; ?></td>
@@ -149,7 +151,7 @@
 						'total_labour'   => 0,
 						'rm_weight'      => 0,
 						'total_weight'   => 0,
-						'touch'          => $garnuData['touch'] ?? 0,
+						'touch'          => $givenData['given_touch'] ?? 0,
 						'fine'           => 0,
 						'remark'     	 => '',
 						'created_at'     => "",
@@ -239,7 +241,7 @@
 							<input type="number" name="total_weight[]" step="any" value="<?= $row['total_weight'] ?? "0"; ?>" class="form-control receivedfinalWeight readonly" readonly autocomplete="off">
 						</td>
 						<td class="text-muted">
-							<input type="number" name="touch[]" step="any" value="<?= $row['touch'] ?? $garnuData['touch'] ?? "0"; ?>" step="any" class="form-control receivedTouch" autocomplete="off">
+							<input type="number" name="touch[]" step="any" value="<?= $row['touch'] ?? $givenData['given_touch'] ?? "0"; ?>" step="any" class="form-control receivedTouch" autocomplete="off">
 						</td>
 						<td class="text-muted">
 							<input type="number" name="fine[]" step="any" value="<?= $row['fine'] ?? "0"; ?>" class="form-control receivedFine readonly" value="0" readonly autocomplete="off">
@@ -297,7 +299,7 @@
 							<div class=" parent-div-party" style="display:none">
             				<?php 	$this->db->select('*'); $this->db->from('customer');
 		                    $party =  $this->db->get()->result_array();  ?>
-            				<select name="transfer_account" class="form-select  transfer-account col-md-2 col-sm-3">
+            				<select name="transfer_account" class="form-select transfer-account col-md-2 col-sm-3">
             					<option value="">Select Worker</option>
             					<?php
             					if (!empty($party)) {

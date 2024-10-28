@@ -31,6 +31,8 @@ class Garnu extends CI_Controller
 			case "add":
 				checkPrivilege(privilege["garnu_add"]);
 				$page_data['data'] = $this->dbh->getResultArray('garnu');
+				$page_data['metal_type'] = $this->dbh->findAll('metal_type');
+				$page_data['workers'] = $this->db->where('account_type_id', 2)->get('customer')->result();
 				return view(self::ADD, $page_data);
 
 			case "edit":
@@ -40,17 +42,15 @@ class Garnu extends CI_Controller
 				if (!$garnu) {
 					flash()->withError("Garnu type Not Found")->to('manufacturing/garnu');
 				}
-				// $page_data['data'] = $this->joinhelper->fetchJoinedTable('customer', ['city', 'account_type']);
-				// $page_data['items'] = $this->dbh->getWhereResultArray('garnu_item', ['garnu_id' => $id]);
 
 				$this->db->select('*');
 				$this->db->from('garnu_item');
 				$this->db->where('garnu_id', $id);
 				$page_data['items'] = $this->db->get()->result_array();
-
+				$page_data['metal_type'] = $this->dbh->findAll('metal_type');
+				$page_data['workers'] = $this->db->where('account_type_id', 2)->get('customer')->result();
 				$page_data['update'] = $garnu;
 
-				// pre($page_data, true);
 				return view(self::ADD, $page_data);
 
 			case "store":
@@ -59,21 +59,14 @@ class Garnu extends CI_Controller
 				// die;
 				$validation = $this->form_validation;
 				$validation->set_rules('name', 'Name', 'required')
+					->set_rules('worker_id', 'Worker', 'required')
 					->set_rules('garnu_weight', 'garnu_weight', 'required')
 					->set_rules('touchs', 'touch', 'required')
 					->set_rules('mfine', 'Total Fine', 'required')
-					// ->set_rules('coppers', 'copper', 'required')
-					// ->set_rules('total_used_weight', 'total_used_weight', 'required')
-					// ->set_rules('total_unused_weight', 'total_unused_weight', 'required')
-					// ->set_rules('total_used_silver', 'total_used_silver', 'required')
-					// ->set_rules('remaining_silver', 'remaining_silver', 'required')
-					// ->set_rules('total_used_copper', 'total_used_copper', 'required')
-					// ->set_rules('remaining_copper', 'remaining_copper', 'required')
 					->set_rules('metal_type_id[]', 'metal_type_id', 'required')
 					->set_rules('closing_touch[]', 'closing touch', 'required')
 					->set_rules('weight[]', 'weight', 'required')
 					->set_rules('touch[]', 'touch', 'required')
-					// ->set_rules('copper[]', 'copper', 'required')
 					->set_rules('fine[]', 'Fine', 'required');
 
 				if (!$validation->run()) {
@@ -86,11 +79,11 @@ class Garnu extends CI_Controller
 				$garnu['garnu_weight'] = $post['garnu_weight'];
 				$garnu['touch'] = $post['touchs'];
 				$garnu['fine'] = $post['mfine'];
+				$garnu['worker_id'] = $post['worker_id'];
 				$garnu['creation_date'] = date('Y-m-d');
 
 				$this->db->insert('garnu', $garnu);
 				$garnu_id = $this->db->insert_id();
-
 
 				$length = count($post['metal_type_id']);
 
@@ -103,7 +96,6 @@ class Garnu extends CI_Controller
 					$garnu_item['touch'] = $post['touch'][$i];
 					$garnu_item['fine'] = $post['fine'][$i];
 					$garnu_item['creation_date'] = date('Y-m-d');
-					// $garnu_item['copper'] = $post['copper'][$i];
 					$garnu_item['garnu_id'] = $garnu_id;
 					$new[] = $garnu_item;
 				}
@@ -124,13 +116,13 @@ class Garnu extends CI_Controller
 				checkPrivilege(privilege["garnu_edit"]);
 				$validation = $this->form_validation;
 				$validation->set_rules('name', 'Name', 'required')
+					->set_rules('worker_id', 'Worker', 'required')
 					->set_rules('garnu_weight', 'garnu_weight', 'required')
 					->set_rules('touchs', 'touch', 'required')
 					->set_rules('mfine', 'Total Fine', 'required')
 					->set_rules('metal_type_id[]', 'metal_type_id', 'required')
 					->set_rules('weight[]', 'weight', 'required')
 					->set_rules('touch[]', 'touch', 'required')
-					// ->set_rules('copper[]', 'copper', 'required')
 					->set_rules('fine[]', 'Fine', 'required');
 
 
@@ -139,10 +131,9 @@ class Garnu extends CI_Controller
 				}
 				$post = xss_clean($this->input->post());
 
-				// pre($post);
-				// die;
 				$update = array();
 				$update['name'] = $post['name'];
+				$update['worker_id'] = $post['worker_id'];
 				$update['garnu_weight'] = $post['garnu_weight'];
 				$update['touch'] = $post['touchs'];
 				$update['fine'] = $post['mfine'];
@@ -168,7 +159,6 @@ class Garnu extends CI_Controller
 					$garnu_item['weight'] = $post['weight'][$i];
 					$garnu_item['touch'] = $post['touch'][$i];
 					$garnu_item['fine'] = $post['fine'][$i];
-					// $garnu_item['copper'] = $post['copper'][$i];
 					if ($post['rowid'][$i] > 0) {
 						if ($this->dbh->isDataExists('garnu_item', ['id' => $post['rowid'][$i], 'garnu_id' => $id])) {
 							$this->db->where(['garnu_id' => $id, 'id' => $post['rowid'][$i]])->update('garnu_item', $garnu_item);
@@ -185,14 +175,12 @@ class Garnu extends CI_Controller
 		}
 	}
 
-
 	public function getlist()
 	{
 		$postData = $this->security->xss_clean($this->input->post());
 		$draw = $postData['draw'];
 		$start = $postData['start'];
 		$rowperpage = $postData['length'];
-		// serching coding
 		$columnIndex = $postData['order'][0]['column']; // Column index
 		$searchValue = $postData['search']['value']; // Search value
 		$todate = $postData['todate'];
@@ -211,22 +199,16 @@ class Garnu extends CI_Controller
 
 
 		## Total number of record with filtering
-
 		$this->db->select('*');
 		$this->db->from('garnu');
-
 		if ($searchQuery != '')
 			$this->db->where($searchQuery);
-		if (!empty($fromdate)) {
+		if (!empty($fromdate))
 			$this->db->where('DATE(garnu.creation_date) >=', $fromdate);
-		}
-		if (!empty($todate)) {
+		if (!empty($todate))
 			$this->db->where('DATE(garnu.creation_date) <=', $todate);
-		}
-		if (!empty($received)) {
+		if (!empty($received))
 			$this->db->where('garnu.recieved', $received);
-		}
-
 		$records = $this->db->get();
 		$totalRecordwithFilter = $records->num_rows();
 
@@ -238,16 +220,12 @@ class Garnu extends CI_Controller
 
 		if ($searchQuery != '')
 			$this->db->where($searchQuery);
-		if (!empty($fromdate)) {
+		if (!empty($fromdate))
 			$this->db->where('DATE(garnu.creation_date) >=', $fromdate);
-		}
-		if (!empty($todate)) {
+		if (!empty($todate))
 			$this->db->where('DATE(garnu.creation_date) <=', $todate);
-		}
-		if (!empty($received)) {
+		if (!empty($received))
 			$this->db->where('garnu.recieved', $received);
-		}
-
 		$this->db->limit($rowperpage, $start);
 		$this->db->order_by('id', "desc");
 		$records = $this->db->get()->result();
@@ -323,7 +301,6 @@ class Garnu extends CI_Controller
 		exit();
 	}
 
-
 	public function checkReceive()
 	{
 		try {
@@ -335,7 +312,7 @@ class Garnu extends CI_Controller
 			} else {
 				$postData = $this->input->post();
 				$id = $postData['id'];
-				$data = $this->dbh->getWhereResultArray('receive_garnu', ['garnu_id' => $id]);
+				$data = $this->dbh->getWhereResultArray('receive_garnu_dhal', ['garnu_id' => $id]);
 				$garnuData = $this->db->select('*')->from('garnu')->where('id', $id)->get()->row_array();
 				if (!empty($data) || !empty($garnuData)) {
 					$response = ['success' => true, 'message' => 'Data Fetched successfully.', 'data' => $data, 'garnuData' => $garnuData];
@@ -365,18 +342,18 @@ class Garnu extends CI_Controller
 		$idsNotExisting = array_diff($allids, $existingIds);
 		if (!empty($idsNotExisting)) {
 			$this->db->where_in('id', $idsNotExisting);
-			$this->db->delete('receive_garnu');
+			$this->db->delete('receive_garnu_dhal');
 		}
 
 		foreach ($post['sdid'] as $key => $sdid) {
-			if(!empty($post['metal_type_id'][$key]) && $post['touch'][$key] || $post['weight'][$key] || $post['net_weight'][$key]){
+			if (!empty($post['metal_type_id'][$key]) && $post['touch'][$key] || $post['weight'][$key] || $post['net_weight'][$key]) {
 				$rmData = [
 					'metal_type_id' => isset($post['metal_type_id'][$key]) ? $post['metal_type_id'][$key] : null,
 					'touch' => isset($post['touch'][$key]) ? $post['touch'][$key] : null,
 					'weight' => isset($post['weight'][$key]) ? $post['weight'][$key] : null,
 					'net_weight' => isset($post['net_weight'][$key]) ? $post['net_weight'][$key] : null,
 				];
-	
+
 				if ($sdid == 0) {
 					$rmData['user_id'] = session('id');
 					$rmData['garnu_id'] = $post['garnu_id'];
@@ -386,27 +363,34 @@ class Garnu extends CI_Controller
 					$rmData['id'] = $sdid;
 					$updateBatch[] = $rmData;
 				}
-
 			}
 		}
 
+		$is_kasar = isset($post['is_kasar']) && $post['is_kasar'] == 'on' ? "YES" : "NO";
+
+		$transfer_account = NULL;
+
+		if ($is_kasar == "YES") {
+			$transfer_account = ($post['transfer_account'] ?? NULL);
+		}
 		if (!empty($insertBatch)) {
-			$this->db->insert_batch('receive_garnu', $insertBatch);
-			$this->db->where('id', $post['garnu_id'])->update('garnu', ['recieved' => 'YES']);
+			$this->db->insert_batch('receive_garnu_dhal', $insertBatch);
+			$this->db->where('id', $post['garnu_id'])->update('garnu', ['recieved' => 'YES', 'is_kasar' => $is_kasar, 'transfer_account' => $transfer_account]);
 			$response = ['success' => true, 'message' => 'Data Add Successfully.'];
 		} else {
 			$response = ['success' => false, 'message' => 'Please Fill Complate form..'];
 		}
 		if (!empty($updateBatch)) {
-			$this->db->update_batch('receive_garnu', $updateBatch, 'id');
-			$this->db->where('id', $post['garnu_id'])->update('garnu', ['recieved' => 'YES']);
+			$this->db->update_batch('receive_garnu_dhal', $updateBatch, 'id');
+			$this->db->where('id', $post['garnu_id'])->update('garnu', ['recieved' => 'YES', 'is_kasar' => $is_kasar,'vadharo_garnu'=>$post['jama_baki'], 'transfer_account' => $transfer_account]);
 			$response = ['success' => true, 'message' => 'Data Update Successfully.'];
 		}
 		echo json_encode($response);
 		return;
 	}
 
-	public function updateStatus(){
+	public function updateStatus()
+	{
 		try {
 			$this->form_validation->set_rules('id', 'Garnu Id', 'trim|required|numeric');
 			if ($this->form_validation->run() == FALSE) {

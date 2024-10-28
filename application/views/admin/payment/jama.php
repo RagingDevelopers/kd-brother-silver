@@ -48,10 +48,10 @@
 										<option value="">Select</option>
 										<option value="CREDIT" <?php if (isset($payment_type) && !empty($payment_type) && $payment_type == "CREDIT") {
 																	echo 'selected';
-																} ?>>CREDIT</option>
+																} ?>>CREDIT / PURCHASE / RECEIPT</option>
 										<option value="DEBIT" <?php if (isset($payment_type) && !empty($payment_type) && $payment_type == "DEBIT") {
 																	echo 'selected';
-																} ?>>DEBIT</option>
+																} ?>>DEBIT / SALE / PAYMENT</option>
 									</select>
 								</div>
 							</div>
@@ -66,13 +66,13 @@
 										<option value="fine" data-mode="Chorsa,Silli">Fine</option>
 										<!-- <option value="cash" data-mode="">Cash</option> -->
 										<option value="bank" data-mode="bank">Bank</option>
-										<option value="ratecutfine" data-mode="Cash Chorsha,RTGS Chorsa,Cash Silli,RTGS Silli">Rate Cut - Fine</option>
-										<option value="ratecutrs" data-mode="Cash Chorsha,RTGS Chorsa,Cash Silli,RTGS Silli">Rate Cut - Rs</option>
+										<option value="ratecutfine" data-mode="Cash,RTGS">Rate Cut - Fine</option>
+										<option value="ratecutrs" data-mode="Cash,RTGS">Rate Cut - Rs</option>
 										<option value="roopu" data-mode="">Roopu</option>
 									</select>
 								</div>
 							</div>
-							<div class="col-md-2 allinone dfine dratecutfine dratecutrs">
+							<div class="col-md-1 allinone dfine dratecutfine dratecutrs">
 								<div class="form-group">
 									<label class="form-label">Mode<span class="text-danger">*</span></label>
 									<select name="mode" id="mode" class="form-select">
@@ -132,13 +132,7 @@
 									<input type="text" name="amount" class="form-control" id="amount" value="" placeholder="amount" />
 								</div>
 							</div>
-							<div class="col-md-2">
-								<div class="form-group">
-									<label class="form-label">Remark<span class="text-danger">*</span></label>
-									<input type="text" name="remark" class="form-control" id="remark" value="" placeholder="remark" />
-								</div>
-							</div>
-							<div class="col-md-2  allinone dfine">
+							<div class="col-md-1  allinone dfine dratecutfine dratecutrs">
 								<div class="form-group">
 									<label class="form-label">Metal Type<span class="text-danger">*</span></label>
 									<select name="metal_type_id" id="metal_type_id" class="form-select select2">
@@ -147,6 +141,12 @@
 											<option value="<?= $r['id']; ?>"><?= $r['name']; ?></option>
 										<?php } ?>
 									</select>
+								</div>
+							</div>
+							<div class="col-md-2">
+								<div class="form-group">
+									<label class="form-label">Remark<span class="text-danger">*</span></label>
+									<input type="text" name="remark" class="form-control" id="remark" value="" placeholder="remark" />
 								</div>
 							</div>
 						</div>
@@ -194,10 +194,16 @@
 </div>
 <script>
 	$(document).ready(function() {
-		$('.select2').select2({
-			placeholder: "-- Select --",
-			allowClear: true,
-		});
+	$('.select2').select2({
+		placeholder: "-- Select --",
+		allowClear: true,
+	});
+		
+        if ($("#party_id").val()) {
+            setTimeout(() => {
+                $("#party_id").trigger('change');
+    		}, 300);
+        }
 		$('#jama_data_ajax_update').hide();
 		var example_table_billing = $('#table-jama').DataTable({
 			'paging': false,
@@ -422,31 +428,20 @@
 								$("#amount2").val()
 								$('#rate').val('');
 								$('#remark').val('');
-								$('#payment_type').val('');
+								// $('#payment_type').val('');
 								$('#bank').val('');
+								$('#metal_type_id').val('').trigger('change');
+								$("#party_id").trigger('change');
+								SweetAlert('success',res.message);
 							} else {
-								swal({
-									icon: 'error',
-									title: 'Error 500',
-									text: res.message
-								})
+								SweetAlert('error',error.message);
 							}
 						} catch (error) {
-							console.log(error);
-							swal({
-								icon: 'error',
-								title: 'Something went wrong',
-								text: error.message
-							})
+							SweetAlert('error',error.message);
 						}
 					},
 					error: function(error) {
-						console.log(error);
-						swal({
-							icon: 'error',
-							title: 'Something went wrong. Please try again.',
-							text: error.message
-						});
+						SweetAlert('error',error.message);
 					}
 				});
 			}
@@ -524,30 +519,19 @@
 								$('#payment_type').val("").trigger('change');
 								$('#remark').val('');
 								$('#jama_data').show();
+								$('#metal_type_id').val('').trigger('change');
 								$('#jama_data_ajax_update').hide();
+								$("#party_id").trigger('change');
+								SweetAlert('success',res.message);
 							} else {
-								swal({
-									icon: 'error',
-									title: 'Error 500',
-									text: res.message
-								})
+								SweetAlert('error',error.message);
 							}
 						} catch (error) {
-							console.log(error);
-							swal({
-								icon: 'error',
-								title: 'Something went wrong',
-								text: error.message
-							})
+							SweetAlert('error',error.message);
 						}
 					},
 					error: function(error) {
-						console.log(error);
-						swal({
-							icon: 'error',
-							title: 'Something went wrong. Please try again.',
-							text: error.message
-						});
+						SweetAlert('error',error.message);
 					}
 				});
 			}
@@ -589,28 +573,16 @@
 							$('#jama_data').hide();
 							$('#jama_data_ajax_update').show();
 
+							// SweetAlert('success',res.message);
 						} else {
-							swal({
-								icon: 'error',
-								title: 'Error 500',
-								text: res.message
-							})
+							SweetAlert('error',error.message);
 						}
 					} catch (error) {
-						swal({
-							icon: 'error',
-							title: 'Something went wrong',
-							text: error.message
-						})
+						SweetAlert('error',error.message);
 					}
 				},
 				error: function(error) {
-					console.log(error);
-					swal({
-						icon: 'error',
-						title: 'Something went wrong. Please try again.',
-						text: error.message
-					});
+					SweetAlert('error',error.message);
 				}
 			});
 
@@ -626,23 +598,15 @@
 				success: function(res) {
 					res = JSON.parse(res);
 					if (res.status) {
+						$("#party_id").trigger('change');
 						example_table_billing.clear();
 						example_table_billing.draw();
 					} else {
-						swal({
-							icon: 'error',
-							title: 'Error 500',
-							text: res.message
-						})
+						SweetAlert('error',res.message);
 					}
 				},
 				error: function(error) {
-					console.log(error);
-					swal({
-						icon: 'error',
-						title: 'Something went wrong. Please try again.',
-						text: error.message
-					});
+					SweetAlert('error',error.message);
 				}
 			});
 
@@ -660,21 +624,27 @@
 					var fine = data.fine;
 					var amount = data.amount;
 
+                    var color = "";
 					if (fine < 0) {
 						fineStr = 'Dr: ' + Math.abs(fine);
+						colorF = "<span style='color: red;'>" + fineStr + "</span>";
 					} else {
 						fineStr = 'Cr: ' + fine;
+						colorF = "<span style='color: green;'>" + fineStr + "</span>";
 					}
 
 					if (amount < 0) {
 						amountStr = 'Dr: ' + Math.abs(amount);
+						colorA = "<span style='color: read;'>" + amountStr + "</span>";
 					} else {
 						amountStr = 'Cr: ' + amount;
+						colorA = "<span style='color: green;'>" + amountStr + "</span>";
 					}
 
-					$('#closing-label').html('Fine ' + fineStr + ' &amp; Amt ' + amountStr);
+					$('#closing-label').html('Fine ' + colorF + '</span> &amp; Amt ' + colorA);
 				} catch (e) {
-					console.log(e);
+					SweetAlert('error',e);
+					// console.log(e);
 				}
 			}
 		});

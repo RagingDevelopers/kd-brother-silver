@@ -22,6 +22,85 @@
 		padding: 10px 15px;
 	}
 </style>
+<style>
+    .billing_edit_tooltip {
+        position: relative;
+    }
+
+    .billing_edit_tooltip .billing_edit_tooltip_text {
+        visibility: hidden;
+        width: 120px;
+        background-color: #555555;
+        color: #fff;
+        text-align: center;
+        margin-bottom: 5px;
+        border-radius: 6px;
+        padding: 5px 0;
+
+        /* Position the tooltip */
+        position: absolute;
+        z-index: 1;
+        bottom: 100%;
+        left: 50%;
+        margin-left: -60px;
+    }
+
+    .billing_edit_tooltip:hover .billing_edit_tooltip_text {
+        visibility: visible;
+    }
+
+    .billing_delete_tooltip {
+        position: relative;
+    }
+
+    .billing_delete_tooltip .billing_delete_tooltip_text {
+        visibility: hidden;
+        width: 120px;
+        background-color: #555555;
+        color: #fff;
+        text-align: center;
+        margin-bottom: 5px;
+        border-radius: 6px;
+        padding: 5px 0;
+
+        /* Position the tooltip */
+        position: absolute;
+        z-index: 1;
+        bottom: 100%;
+        left: 50%;
+        margin-left: -60px;
+    }
+
+    .billing_delete_tooltip:hover .billing_delete_tooltip_text {
+        visibility: visible;
+    }
+
+    .bill_print_tooltip {
+        position: relative;
+    }
+
+    .bill_print_tooltip .bill_print_tooltip_text {
+        visibility: hidden;
+        width: 120px;
+        background-color: #555555;
+        color: #fff;
+        text-align: center;
+        margin-bottom: 5px;
+        border-radius: 6px;
+        padding: 5px 0;
+
+        /* Position the tooltip */
+        position: absolute;
+        z-index: 1;
+        bottom: 100%;
+        left: 50%;
+        margin-left: -60px;
+    }
+
+    .bill_print_tooltip:hover .bill_print_tooltip_text {
+        visibility: visible;
+    }
+</style>
 <div class="page-body">
 	<div class="container-xl">
 		<div class="row row-cards">
@@ -188,13 +267,13 @@
 		});
     		
     	$(this).on('change', '.from,.to,.customer_id,.payment_type', function() {
-            report.clear().draw();
+            datatable.clear().draw();
         });
 
 
 		$("#from,#to,#group_by").change(function() {
-			report.clear();
-			report.draw();
+			datatable.clear();
+			datatable.draw();
 		});
 	});
 </script>

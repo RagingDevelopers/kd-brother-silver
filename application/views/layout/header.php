@@ -27,7 +27,7 @@
 								Master
 							</span>
 						</a>
-						<div class="dropdown-menu" data-bs-popper="static">
+						<div class="dropdown-menu dropdown-menu-arrow" data-bs-popper="static">
 							<div class="dropdown-menu-columns">
 								<div class="dropdown-menu-column">
 									<a class="dropdown-item" href="<?= base_url("master/process") ?>">
@@ -59,6 +59,12 @@
 											<i class="fa-solid fa-layer-group" aria-hidden="true"></i>
 										</span>
 										Item
+									</a>
+									<a class="dropdown-item" href="<?= base_url("master/sub_item") ?>">
+										<span class="nav-link-icon d-md-none d-lg-inline-block">
+											<i class="fa-solid fa-diagram-next" aria-hidden="true"></i>
+										</span>
+										Sub Item
 									</a>
 									<a class="dropdown-item" href="<?= base_url("master/row_material_type") ?>">
 										<span class="nav-link-icon d-md-none d-lg-inline-block">
@@ -110,7 +116,7 @@
 								Registration
 							</span>
 						</a>
-						<div class="dropdown-menu" data-bs-popper="static">
+						<div class="dropdown-menu dropdown-menu-arrow" data-bs-popper="static">
 							<div class="dropdown-menu-columns">
 								<div class="dropdown-menu-column">
 									<a class="dropdown-item" href="<?= base_url("registration/customer") ?>">
@@ -139,20 +145,20 @@
 								Manufacturing
 							</span>
 						</a>
-						<div class="dropdown-menu" data-bs-popper="static">
+						<div class="dropdown-menu dropdown-menu-arrow" data-bs-popper="static">
 							<div class="dropdown-menu-columns">
 								<div class="dropdown-menu-column">
-									<a class="dropdown-item" href="<?= base_url("manufacturing/main_garnu") ?>">
-										<span class="nav-link-icon d-md-none d-lg-inline-block">
-											<i class="fa-solid fa-filter-circle-dollar"></i>
-										</span>
-										Main Garnu
-									</a>
+									<!--<a class="dropdown-item" href="<?= base_url("manufacturing/main_garnu") ?>">-->
+									<!--	<span class="nav-link-icon d-md-none d-lg-inline-block">-->
+									<!--		<i class="fa-solid fa-filter-circle-dollar"></i>-->
+									<!--	</span>-->
+									<!--	Main Garnu-->
+									<!--</a>-->
 									<a class="dropdown-item" href="<?= base_url("manufacturing/garnu") ?>">
 										<span class="nav-link-icon d-md-none d-lg-inline-block">
 											<i class="fa-solid fa-filter"></i>
 										</span>
-										Dhal
+										Garnu
 									</a>
 									<a class="dropdown-item" href="<?= base_url("manufacturing/receive_garnu") ?>">
 										<span class="nav-link-icon d-md-none d-lg-inline-block">
@@ -164,7 +170,13 @@
 										<span class="nav-link-icon d-md-none d-lg-inline-block">
 											<i class="fa-solid fa-truck-fast"></i>
 										</span>
-										Main Report
+										Main Dhal Report
+									</a>
+									<a class="dropdown-item" href="<?= base_url("manufacturing/product/main_given_report") ?>">
+										<span class="nav-link-icon d-md-none d-lg-inline-block">
+											<i class="fa fa-line-chart" aria-hidden="true"></i>
+										</span>
+										Main Given Report
 									</a>
 									<a class="dropdown-item" href="<?= base_url("manufacturing/receive_garnu/lot_creation") ?>">
 										<span class="nav-link-icon d-md-none d-lg-inline-block">
@@ -174,10 +186,21 @@
 									</a>
 									<a class="dropdown-item" href="<?= base_url("manufacturing/lot") ?>">
 										<span class="nav-link-icon d-md-none d-lg-inline-block">
-											<!--<i class="fa-solid fa-boxes-packing"></i>-->
 											<i class="fa fa-random" aria-hidden="true"></i>
 										</span>
 										Lot Creation
+									</a>
+									<a class="dropdown-item" href="<?= base_url("manufacturing/ready_for_sale") ?>">
+										<span class="nav-link-icon d-md-none d-lg-inline-block">
+											<i class="fa-solid fa-diagram-next" aria-hidden="true"></i>
+										</span>
+										Ready For Sale
+									</a>
+									<a class="dropdown-item" href="<?= base_url("manufacturing/given_testing") ?>">
+										<span class="nav-link-icon d-md-none d-lg-inline-block">
+											<i class="fa-solid fa-filter"></i>
+										</span>
+										Given Testing
 									</a>
 								</div>
 							</div>
@@ -193,7 +216,7 @@
 								Purchase
 							</span>
 						</a>
-						<div class="dropdown-menu" data-bs-popper="static">
+						<div class="dropdown-menu dropdown-menu-arrow" data-bs-popper="static">
 							<div class="dropdown-menu-columns">
 								<div class="dropdown-menu-column">
 									<a class="dropdown-item" href="<?= base_url("purchase") ?>">
@@ -202,10 +225,6 @@
 										</span>
 										Purchase Item
 									</a>
-								</div>
-							</div>
-							<div class="dropdown-menu-columns">
-								<div class="dropdown-menu-column">
 									<a class="dropdown-item" href="<?= base_url("purchase_return") ?>">
 										<span class="nav-link-icon d-md-none d-lg-inline-block">
 											<i class="fa-solid fa-money-bill-transfer"></i>
@@ -214,6 +233,7 @@
 									</a>
 								</div>
 							</div>
+							
 						</div>
 					</li>
 
@@ -226,7 +246,7 @@
 								Sales
 							</span>
 						</a>
-						<div class="dropdown-menu" data-bs-popper="static">
+						<div class="dropdown-menu dropdown-menu-arrow" data-bs-popper="static">
 							<div class="dropdown-menu-columns">
 								<div class="dropdown-menu-column">
 									<a class="dropdown-item" href="<?= base_url("sales") ?>">
@@ -235,11 +255,7 @@
 										</span>
 										Sales Report
 									</a>
-								</div>
-							</div>
-							<div class="dropdown-menu-columns">
-								<div class="dropdown-menu-column">
-									<a class="dropdown-item" href="<?= base_url("sales_return") ?>">
+										<a class="dropdown-item" href="<?= base_url("sales_return") ?>">
 										<span class="nav-link-icon d-md-none d-lg-inline-block">
 											<i class="fa-solid fa-money-bill-transfer"></i>
 										</span>
@@ -247,10 +263,11 @@
 									</a>
 								</div>
 							</div>
+							
 						</div>
 					</li>
-					
-					
+
+
 					<li class="nav-item dropdown <?= IsActive("payment"); ?>">
 						<a class="nav-link dropdown-toggle" href="#navbar-payment" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false">
 							<span class="nav-link-icon d-md-none d-lg-inline-block">
@@ -260,7 +277,7 @@
 								Payment
 							</span>
 						</a>
-						<div class="dropdown-menu" data-bs-popper="static">
+						<div class="dropdown-menu dropdown-menu-arrow" data-bs-popper="static">
 							<div class="dropdown-menu-columns">
 								<div class="dropdown-menu-column">
 									<a class="dropdown-item" href="<?= base_url("payment/jama_report") ?>">
@@ -269,18 +286,15 @@
 										</span>
 										Payment Report
 									</a>
-								</div>
-							</div>
-							<div class="dropdown-menu-columns">
-								<div class="dropdown-menu-column">
 									<a class="dropdown-item" href="<?= base_url("payment/transfer_entry") ?>">
 										<span class="nav-link-icon d-md-none d-lg-inline-block">
 											<i class="fa-solid fa-money-bill-transfer"></i>
 										</span>
-									    Trasnfer Entry
+										Trasnfer Entry
 									</a>
 								</div>
 							</div>
+
 						</div>
 					</li>
 
@@ -304,7 +318,7 @@
 								Report
 							</span>
 						</a>
-						<div class="dropdown-menu" data-bs-popper="static">
+						<div class="dropdown-menu dropdown-menu-arrow" data-bs-popper="static">
 							<div class="dropdown-menu-columns">
 								<div class="dropdown-menu-column">
 									<a class="dropdown-item" href="<?= base_url("report/lot") ?>">
@@ -367,11 +381,17 @@
 										</span>
 										Lot Wise Row Material
 									</a>
+									<a class="dropdown-item" href="<?= base_url("report/profit_loss_report") ?>">
+										<span class="nav-link-icon d-md-none d-lg-inline-block">
+											<i class="fa fa-random" aria-hidden="true"></i>
+										</span>
+										Profit And Loss report
+									</a>
 								</div>
 							</div>
 						</div>
 					</li>
-					
+
 					<li class="nav-item dropdown <?= IsActive("setting"); ?>">
 						<a class="nav-link dropdown-toggle" href="#navbar-third" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false">
 							<span class="nav-link-icon d-md-none d-lg-inline-block">
@@ -381,7 +401,7 @@
 								Setting
 							</span>
 						</a>
-						<div class="dropdown-menu" data-bs-popper="static">
+						<div class="dropdown-menu dropdown-menu-arrow" data-bs-popper="static">
 							<div class="dropdown-menu-columns">
 								<div class="dropdown-menu-column">
 									<a class="dropdown-item" href="<?= base_url("setting/sequence") ?>">
@@ -464,12 +484,8 @@
 					<div class="row">
 						<div class="col-lg-12">
 							<div class="mb-2">
-								<label class="form-label">
-									Old Password
-									<span class="form-label-description">
-									</span>
-								</label>
-								<div class="input-group input-group-flat">
+								<label class="form-label" for=""> Old Password</label>
+								<div class="input-group">
 									<input type="password" name="old_password" class="form-control" placeholder="Your Old password" autocomplete="off">
 									<span class="input-group-text">
 										<a href="#" class="link-secondary" data-bs-toggle="tooltip" aria-label="Show password" data-bs-original-title="Show password"><!-- Download SVG icon from http://tabler-icons.io/i/eye -->
@@ -481,15 +497,11 @@
 						</div>
 						<div class="col-lg-12">
 							<div class="mb-2">
-								<label class="form-label">
-									New Password
-									<span class="form-label-description">
-									</span>
-								</label>
-								<div class="input-group input-group-flat">
+								<label class="form-label" for="">New Password</label>
+								<div class="input-group">
 									<input type="password" name="new_password" class="form-control" placeholder="Your New password" autocomplete="off">
 									<span class="input-group-text">
-										<a href="#" class="link-secondary" data-bs-toggle="tooltip" aria-label="Show password" data-bs-original-title="Show password"><!-- Download SVG icon from http://tabler-icons.io/i/eye -->
+										<a href="#" class="link-secondary" data-bs-toggle="tooltip" aria-label="Show password" data-bs-original-title="Show password">
 											<i class="fa-regular fa-eye"></i>
 										</a>
 									</span>
@@ -498,15 +510,11 @@
 						</div>
 						<div class="col-lg-12">
 							<div class="mb-2">
-								<label class="form-label">
-									Confirm Password
-									<span class="form-label-description">
-									</span>
-								</label>
-								<div class="input-group input-group-flat">
+								<label class="form-label" for="">Confirm Password</label>
+								<div class="input-group">
 									<input type="password" name="confirm_password" class="form-control" placeholder="Your Confirm password" autocomplete="off">
 									<span class="input-group-text">
-										<a href="#" class="link-secondary" data-bs-toggle="tooltip" aria-label="Show password" data-bs-original-title="Show password"><!-- Download SVG icon from http://tabler-icons.io/i/eye -->
+										<a href="#" class="link-secondary" data-bs-toggle="tooltip" aria-label="Show password" data-bs-original-title="Show password">
 											<i class="fa-regular fa-eye"></i>
 										</a>
 									</span>

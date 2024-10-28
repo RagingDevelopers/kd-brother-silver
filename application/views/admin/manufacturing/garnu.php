@@ -23,16 +23,30 @@
 			<form action="<?= (isset($update)) ? base_url("manufacturing/garnu/index/update/{$update['id']}") : base_url('manufacturing/garnu/index/store') ?>" method="post" class="main-form" novalidate>
 				<div class="card-header">
 					<div class="card-status-top bg-blue"></div>
-					<h1 class="card-title"><b> Dhal </b></h1>
+					<h1 class="card-title"><b> Garnu </b></h1>
 				</div>
 				<div class="card-body border-bottom py-3">
 					<div class="col-md-12 mb-5 ">
 						<div class="row ms-1">
-							<div class="row">
+							<div class="row" id="worker">
 								<div class="col-sm-3">
 									<label class="form-label" for="prd"> Name: </label>
-									<input class="form-control" type="text" name="name" placeholder="Enter Dhal Name" value="<?= $update['name'] ?? null ?>" id="name" required>
+									<input class="form-control" type="text" name="name" placeholder="Enter Garnu Name" value="<?= $update['name'] ?? null ?>" id="name" required>
 									<input class="form-control" type="hidden" placeholder="Enter Garnu Name" value="<?= (isset($update)) ? "update" : "insert"; ?>" id="type">
+									<input class="form-control" type="hidden" name="action" id="save_print">
+								</div>
+								<div class="col-sm-3">
+									<label class="form-label" for="prd"> Worker: </label>
+									<select class="form-select select2 worker_id" name="worker_id">
+										<option value="">Select Worker</option>
+										<?php
+										foreach ($workers as $value) {
+										?>
+											<option value="<?= $value->id; ?>" <?php if (isset($update) && $value->id == $update['worker_id']) {
+																					echo 'selected';
+																				} ?>><?= $value->name; ?></option>
+										<?php } ?>
+									</select>
 								</div>
 							</div>
 							<div class="card mt-5">
@@ -42,7 +56,7 @@
 											<th>Metal Type</th>
 											<th class="closing_touch_header">Closing Touch</th>
 											<th scope="col">Touch (%)</th>
-											<th scope="col">Weight(Gm)</th>
+											<th scope="col">Weight(kg)</th>
 											<th scope="col">Fine</th>
 											<th scope="col"></th>
 										</thead>
@@ -66,7 +80,6 @@
 														<select class="form-select select2 metal_type_id" name="metal_type_id[]">
 															<option value="">Select Metal</option>
 															<?php
-															$metal_type = $this->db->get('metal_type')->result();
 															foreach ($metal_type as $value) {
 															?>
 																<option value="<?= $value->id; ?>" <?php if (isset($row) && $value->id == $row['metal_type_id']) {
@@ -92,7 +105,7 @@
 														<input class="form-control fine fine-input" type="number" name="fine[]" placeholder="Fine" value="<?= $row['fine'] ?? null ?>" required>
 													</td>
 													<!-- <td>
-														<input class="form-control copper-input copper" type="number" name="copper[]" placeholder="Copper(Gm)" value="<?= $row['copper'] ?? null ?>" required readonly>
+														<input class="form-control copper-input copper" type="number" name="copper[]" placeholder="Copper(kg)" value="<?= $row['copper'] ?? null ?>" required readonly>
 													</td> -->
 													<td>
 														<button type="button" class="btn btn-danger remove-btn">X</button>
@@ -108,11 +121,11 @@
 													</button>
 												</td>
 												<td>
-													<label class="form-label"> Dhal Weight(Gm): </label>
-													<input class="form-control weight-input mweight" type="number" name="garnu_weight" readonly placeholder="Enter Dhal Weight(Gm)" value="<?= $update['garnu_weight'] ?? null ?>" required>
+													<label class="form-label"> Garnu Weight(KG): </label>
+													<input class="form-control weight-input mweight" type="number" name="garnu_weight" readonly placeholder="Enter Garnu Weight(Kg)" value="<?= $update['garnu_weight'] ?? null ?>" required>
 												</td>
 												<td>
-													<label class="form-label">Dhal Touch (%): </label>
+													<label class="form-label">Garnu Touch (%): </label>
 													<div class="form-group input-icon">
 														<input class="form-control mtouch" type="number" name="touchs" placeholder="Enter Touch (%)" value="<?= $update['touch'] ?? 0 ?>" required>
 														<span class="input-icon-addon"><i class="fa-light fa-percent" aria-hidden="true"></i></span>
@@ -120,7 +133,7 @@
 												</td>
 												<td>
 													<label class="form-label">Total Fine: </label>
-													<input class="form-control fine-input total_used_fine" type="number" name="mfine" placeholder="Fine(Gm)" value="<?= $update['fine'] ?? null ?>" required readonly>
+													<input class="form-control fine-input total_used_fine" type="number" name="mfine" placeholder="Fine(kg)" value="<?= $update['fine'] ?? null ?>" required readonly>
 												</td>
 											</tr>
 											<!-- <tr>
@@ -133,7 +146,8 @@
 					</div>
 				</div>
 				<div class="card-footer ">
-					<button type="submit" class="btn btn-primary ms-auto">Submit</button>
+					<button type="submit" class="btn btn-primary save ms-auto" value="save">Submit</button>
+                    <button type="submit" class="btn btn-success save ms-auto" value="save_and_print">Save & Print</button>
 				</div>
 			</form>
 		</div>
@@ -179,6 +193,7 @@
 			},
 			ready: function() {
 				main.mainRow = $(".main-row")[0].outerHTML;
+				main.submitBtn = null;
 				$(document).ready(function() {
 					$('.metal_type_id').each(function() {
 						main.select2(this);
@@ -191,6 +206,7 @@
 					$('.closingTouch').each(function() {
 						main.select2(this)
 					});
+					
 					$(this).on('click', "#add", function() {
 						var metal = $('.metal_type_id').last();
 						if (metal.val() == '') {
@@ -214,6 +230,7 @@
 							$('.closing_touch_header').hide();
 						}
 					});
+					
 					$(this).on('click', '.remove-btn', function(e) {
 						var $this = this;
 						var metal_type = $(".metal_type_id").length;
@@ -224,12 +241,19 @@
 							})
 						}
 					});
+					
+					$(this).on('click', '.save', function(e) {
+					    submitBtn = $(this).val();
+					});
+					
 					$('.main-form').submit(function(e) {
 						e.preventDefault();
 						var validator = new Validator();
 						validator
 							.addField("#name", "Please enter garnu name!");
 						if (!validator.validate()) return;
+
+                        $('#save_print').val(submitBtn);
 
 						main.validateSubmit(this)
 						// $(this).off("submit").submit();
@@ -239,6 +263,7 @@
 						main.calculateMain(this)
 						main.calculation($('.append-here tr').eq(0).find('.touch'));
 					})
+					
 					$(this).on('input', '.fine,.weight', function() {
 						main.calculation(this);
 					});
@@ -308,6 +333,7 @@
 					$element.val("0");
 				}
 			},
+			
 			calculation: function(ref) {
 				var valid = true;
 				const mainWeight = parseF($('.mweight').val()),
@@ -337,7 +363,7 @@
 					totalUsedFine += rowFine;
 				});
 				$('.mweight').val(formatNumber(totalUsedWeight));
-				$('.total_used_fine').val((totalUsedFine));
+				$('.total_used_fine').val(formatNumber(totalUsedFine));
 				var mainTouch = (totalUsedFine / totalUsedWeight) * 100;
 				$('.mtouch').val(formatNumber(mainTouch));
 
@@ -381,4 +407,7 @@
 		}
 	})();
 	mainFunction.init.call();
+	$(document).ready(function() {
+		$('.worker_id').select2();
+	})
 </script>

@@ -12,9 +12,9 @@
 		background-color: #ffeeee;
 	}
 
-	.select2 {
+	/* .select2 {
 		width: 140px !important;
-	}
+	} */
 
 	.inputBox {
 		width: 70px !important;
@@ -144,6 +144,7 @@
 													<th>Gross</th>
 													<th>Less</th>
 													<th>Net</th>
+													<th>Pre Touch</th>
 													<th>Touch</th>
 													<th>Wastage</th>
 													<th>Fine</th>
@@ -198,11 +199,8 @@
 																<?php } ?>
 															</select></td>
 														<td><select name="unit[]" id="" class="form-control w65 unit">
-
 																<?php foreach ($unit as $u) { ?>
-																	<option value="<?= $u['id']; ?>" <?php if (isset($row['unit_id']) && $u['id'] == $row['unit_id']) {
-																											echo 'selected';
-																										} ?>><?= $u['name']; ?></option>
+																	<option value="<?= $u['id']; ?>" <?php if (isset($row['unit_id']) && $u['id'] == $row['unit_id']) { echo 'selected'; } ?>><?= $u['name']; ?></option>
 																<?php } ?>
 															</select></td>
 														<td><input type="text" class="form-control remark inputBox" name="remark[]" placeholder="Remark" value="<?= $row['remark'] ?? null ?>"></td>
@@ -219,6 +217,7 @@
 															</div>
 														</td>
 														<td><input type="text" class="form-control inputBox net_weight readonly" name="net_weight[]" readonly placeholder="Net Weight" value="<?= $row['net_weight'] ?? null ?>"></td>
+														<td><input type="text" class="form-control inputBox touchPreData" name="pre_touch[]" placeholder="Pre Touch" value="<?= $row['pre_touch'] ?? null ?>"></td>
 														<td><input type="text" class="form-control inputBox touchData" name="touch[]" placeholder="Touch" value="<?= $row['touch'] ?? null ?>"></td>
 														<td><input type="text" class="form-control inputBox wastage" name="wastage[]" placeholder="Wastage" value="<?= $row['wastage'] ?? null ?>"></td>
 														<td><input type="text" class="form-control inputBox fine readonly" name="fine[]" readonly placeholder="Fine" value="<?= $row['fine'] ?? null ?>"></td>
@@ -270,6 +269,11 @@
 													<td>
 														<div class="d-flex">
 															<h4><span class='text-end ms-3 TotalNet_weight'>0</span></h4>
+														</div>
+													</td>
+													<td>
+														<div class="d-flex">
+															<h4><span class='text-end ms-3 TotalPreTouchData'>0</span></h4>
 														</div>
 													</td>
 													<td>

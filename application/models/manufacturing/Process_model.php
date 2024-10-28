@@ -9,7 +9,7 @@ class Process_model extends CI_Model
 
 	function fetch_process()
 	{
-		$this->db->order_by("name", "DESC");
+		$this->db->order_by("line_no","asc");
 		$query = $this->db->get("process");
 		return $query->result();
 	}

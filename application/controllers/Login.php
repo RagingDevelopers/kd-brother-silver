@@ -40,7 +40,7 @@ class Login extends CI_Controller
                     $this->session->set_userdata('id', $loged_user['id']);
                     setSession('admin_login', $loged_user);
                     setSession('is_admin', $user['type']);
-                    setSession('is_admin', ($user['type'] != "ADMIN"));
+                    // setSession('is_admin', ($user['type'] == "ADMIN"));
                     setSession("admin_id", $user["id"]);
                     setSession('permission', explode(',', $user['permission']));
                     flash()->withSuccess("You are logged in successfully : {$user['name']}")->to("dashboard");

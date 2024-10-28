@@ -24,7 +24,7 @@
     			</div>
 			</div>
 			<div class="card-body">
-				<form role="form" action="<?php if (!isset($row_data)) {echo site_url('setting/sequence/sequence/create');} else {echo site_url('setting/sequence/sequence/update/' . $row_data['id']);} ?>" method="post" enctype="multipart/form-data">
+				<form role="form" action="<?php if (!isset($row_data)) {echo site_url('setting/sequence/create');} else {echo site_url('setting/sequence/sequence/update/' . $row_data['id']);} ?>" method="post" enctype="multipart/form-data">
 					<!--<input type="hidden" name="<?php echo $this->security->get_csrf_token_name(); ?>" value="<?php echo $this->security->get_csrf_hash(); ?>">-->
 					<div class="col-md-12 p-2">
 						<label for="form-label" class="form-label">Prefix</label>

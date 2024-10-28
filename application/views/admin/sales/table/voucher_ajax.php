@@ -6,6 +6,7 @@
             <th>Customer</th>
             <th>City</th>
             <th>Date</th>
+            <th>Pre Touch</th>
             <th>Gross Weight</th>
             <th>Less Weight</th>
             <th>Net Weight</th>
@@ -19,12 +20,14 @@
         <?php $i = 1;  ?>
         <?php
         $gross_wt = 0;
+        $pre_touch = 0;
         $less_wt = 0;
         $net_wt = 0;
         $fine = 0;
         $net_amount = 0;
         foreach ($data as $v) :
             $gross_wt += $v['gross_wt'];
+            $pre_touch += $v['pre_touch'];
             $less_wt += $v['less_wt'];
             $net_wt += $v['net_wt'];
             $fine += $v['fine'];
@@ -36,6 +39,7 @@
                 <td><?= $v['customer'] ?></td>
                 <td><?= $v['city']; ?></td>
                 <td><?= $v['date']; ?></td>
+                <td><?= sprintf('%0.2f', $v['pre_touch']) ?></td>
                 <td><?= sprintf('%0.2f', $v['gross_wt']) ?></td>
                 <td><?= sprintf('%0.2f', $v['less_wt']) ?></td>
                 <td><?= sprintf('%0.2f', $v['net_wt']) ?></td>
@@ -49,16 +53,17 @@
     <tfoot>
         <thead>
             <tr>
-                <th><b>Total</b></th>
+                <th><b><h3 class="totalColor">Total</h3></b></th>
                 <th></th>
                 <th></th>
                 <th></th>
                 <th></th>
-                <th><b><?= $gross_wt ?></b></th>
-                <th><b><?= $less_wt ?></b></th>
-                <th><b><?= $net_wt ?></b></th>
-                <th><b><?= $fine ?></b></th>
-                <th><b><?= $net_amount ?></b></th>
+                <th><b><h3 class="totalColor"><?= $pre_touch ?></h3></b></th>
+                <th><b><h3 class="totalColor"><?= $gross_wt ?></h3></b></th>
+                <th><b><h3 class="totalColor"><?= $less_wt ?></h3></b></th>
+                <th><b><h3 class="totalColor"><?= $net_wt ?></h3></b></th>
+                <th><b><h3 class="totalColor"><?= $fine ?></h3></b></th>
+                <th><b><h3 class="totalColor"><?= $net_amount ?></h3></b></th>
                 <th></th>
             </tr>
         </thead>

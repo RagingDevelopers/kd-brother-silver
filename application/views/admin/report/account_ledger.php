@@ -3,61 +3,67 @@
 		font-weight: bold;
 	}
 </style>
-<div class="row">
-	<div class="col-sm-12">
-		<div class="card mt-3">
-			<div class="card-header">
-				<div class="col-sm-11">
-					<h1 class="card-title"><b> Account Ledger </b></h1>
-				</div>
-			</div>
-			<div class="card-body border-bottom py-3">
-				<div class="table-responsive">
-					<div class="col-md-12 mb-5 ">
-						<div class="row">
-							<div class="col-sm-2">
-								<label>From date:</label> <br>
-								<input type="date" id="fromdate" name="fromdddate" class="form-control from">
-							</div>
-							<div class="col-sm-2">
-								<label>To date:</label> <br>
-								<input type="date" id="todate" value="<?= date('Y-m-d') ?>" name="todate" class="form-control to">
-							</div>
-							<div class="col-md-2">
-								<label>Account Category:</label>
-								<select class="form-control select2" id="account_category">
-									<optgroup label="account category">
-										<?php
-										if (!empty($account_type)) {
-											foreach ($account_type as $row) { ?>
-												<option value="<?= $row['id'] ?>" data-master_type="account_category"><?= $row['name'] ?></option>
-
-										<?php }
-										} ?>
-									</optgroup>
-									<optgroup label="bank">
-										<option value="10" data-master_type="bank">Bank</option>
-									</optgroup>
-								</select>
-							</div>
-							<div class="col-sm-2">
-								<label>Customer</label><br>
-								<select class="form-select select2" id="customer">
-									<option value=''>Select Customer</option>
-								</select>
-							</div>
-							<div class="col-sm-2">
-								<label></label><br>
-								<input class="btn btn-primary button search_btn" id="search_btn" type="button" value="Submit">
-							</div>
-						</div><br>
-						<div class="mt-3">
-							<div class="table-responsive" id="set_table_here">
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
+<div class="container-xl">
+    <div class="row row-cards">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-status-top bg-primary"></div>
+                <div class="card-header justify-content-between">
+                    <h3 class="card-title"><b>Account Ledger </b></h3>
+                </div>
+    			<div class="mt-3 p-2">
+                    <div class="card-body">
+                        <div class="container-fluid">
+    						<div class="row row-cards">
+    							<div class="col-sm-2">
+    								<label>From date:</label> <br>
+    								<input type="date" id="fromdate" name="fromdddate" class="form-control from">
+    							</div>
+    							<div class="col-sm-2">
+    								<label>To date:</label> <br>
+    								<input type="date" id="todate" value="<?= date('Y-m-d') ?>" name="todate" class="form-control to">
+    							</div>
+    							<div class="col-md-2">
+    								<label>Account Category:</label>
+    								<select class="form-control select2" id="account_category">
+    									<optgroup label="account category">
+    										<?php
+    										if (!empty($account_type)) {
+    											foreach ($account_type as $row) { ?>
+    												<option value="<?= $row['id'] ?>" data-master_type="account_category"><?= $row['name'] ?></option>
+    
+    										<?php }
+    										} ?>
+    									</optgroup>
+    									<optgroup label="bank">
+    										<option value="10" data-master_type="bank">Bank</option>
+    									</optgroup>
+    								</select>
+    							</div>
+    							<div class="col-sm-2">
+    								<label>Customer</label><br>
+    								<select class="form-select select2" id="customer">
+    									<option value=''>Select Customer</option>
+    								</select>
+    							</div>
+    							<div class="col-sm-2">
+    								<label></label><br>
+    								<input class="btn btn-primary button search_btn" id="search_btn" type="button" value="Search">
+    							</div>
+    						</div><br>
+    					</div>
+    				</div>
+    			</div>
+    		</div>
+            <div class="card mt-2">
+                <div class="card-status-top bg-primary"></div>
+                <div class="card-header justify-content-between">
+                    <h3 class="card-title"><b>Account Ledger Report </b></h3>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive" id="report"></div>
+                </div>
+            </div>
 		</div>
 	</div>
 </div>
@@ -73,7 +79,7 @@
 
 			$.ajax({
 				beforeSend: function() {
-					$("#set_table_here").html("Please Wait...");
+					$("#report").html("Please Wait...");
 				},
 				showLoader: true,
 				url: "<?= base_url(); ?>report/account_ledger/getLedgerReport",
@@ -86,7 +92,7 @@
 					master_type: master_type
 				},
 				success: function(data) {
-					$("#set_table_here").html(data);
+					$("#report").html(data);
 				},
 				complete: function(data) {
 

@@ -52,8 +52,8 @@
 						</select>
 					</div>
 					<div class="col-md-2 mt-4" style="text-align:right">
-					    <a href="javascript:history.back()" class="btn btn-warning">Cancel</a>
 						<button class="btn btn-primary" id="search_btn" type="button">Search</button>
+					    <a href="javascript:history.back()" class="btn btn-warning">Cancel</a>
 						<!--<button class="btn btn-warning" id="download_btn" type="button">Down.load</button>-->
 					</div>
 				</div>

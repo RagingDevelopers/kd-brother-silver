@@ -29,267 +29,258 @@
 	.modal-xxl-content {
 		width: 100%;
 	}
+	
+	.modal-rm-xl {
+		max-width: 70%;
+	}
+	
+	.is_completed {
+	    background-color: #e5ffe5 !important; 
+	}
+	
+	td,
+	th {
+		white-space: nowrap;
+		padding: 10px !important;
+		align-items: center;
+	}
 </style>
 <div class="">
-	<div class="col-sm-6 col-lg-12 mb-3">
-		<div class="card">
-			<div class="card-body">
-				<div class="row">
-					<div class="col-md-4">
-						<input type="text" name="id" id="id" class="form-control" placeholder="Enter 13 And 13-11" autocomplete="off">
-					</div>
-					<div class="col-md-4 p-2 pt-1">
-						<button type="button" class="btn btn-success btn-success openReceive">
-							<span class="mx-1">Receive </span>
-						</button>
-						<button type="submit" class="input-icon btn btn-primary btn-primary openData">Open Data
-							<span style="display: none;" class="spinner-border border-3 ms-2 spinner-border-sm text-white" role="status"></span>
-						</button>
-						<audio id="audioPlayer" class="d-none">
-							<source src="<?= base_url("assets") ?>/message.mp3" type="audio/mpeg">
-						</audio>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-	<div class="row row-deck row-cards">
-		<div class="col-sm-6 col-lg-3">
-			<div class="card">
-				<div class="card-body">
-					<div class="d-flex align-items-center">
-						<div class="subheader">Revenue</div>
-						<div class="ms-auto lh-1">
-							<div class="dropdown">
-								<a class="dropdown-toggle text-muted" href="#" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Last 7 days</a>
-								<div class="dropdown-menu dropdown-menu-end">
-									<a class="dropdown-item active" href="#">Last 7 days</a>
-									<a class="dropdown-item" href="#">Last 30 days</a>
-									<a class="dropdown-item" href="#">Last 3 months</a>
-								</div>
-							</div>
+<!-- Include Font Awesome -->
+
+    <div class="col-sm-6 col-lg-12 mb-4">
+        <div class="card shadow-sm border-0">
+             	<div class="card-status-top bg-blue"></div>
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <!-- Input Field Section -->
+                    <div class="col-md-6 mb-2 mb-md-0">
+                        <label for="id" class="form-label fw-bold">Enter ID (Format: 13 or 13-11)</label>
+                        <input type="text" name="id" id="id" class="form-control form-control-lg" placeholder="Enter 13 And 13-11" autocomplete="off">
+                    </div>
+                    
+                    <!-- Button Section -->
+                    <div class="col-md-6 text-md-end d-flex align-items-center justify-content-end flex-column flex-md-row">
+                        <!-- Receive Button -->
+                        <button type="button" class="btn btn-success  me-3 openReceive">
+                            <i class="fas fa-inbox mx-1"></i> Receive
+                        </button>
+                        
+                        <!-- Open Data Button -->
+                        <button type="submit" class="btn btn-primary openData d-flex align-items-center">
+                            <i class="fas fa-folder-open mx-1"></i> Open Data
+                            <span class="spinner-border border-3 ms-2 spinner-border-sm text-white" style="display: none;" role="status"></span>
+                        </button>
+    
+                        <!-- Hidden Audio -->
+                        <audio id="audioPlayer" class="d-none">
+                            <source src="<?= base_url('assets') ?>/message.mp3" type="audio/mpeg">
+                        </audio>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+	
+	<!-- Process -->
+	<section class="content">
+		<div class="row">
+			<div class="col-md-12">
+				<div class="card">
+					<div class="card-header">
+					    	<div class="card-status-top bg-blue"></div>
+						<div class="col-md-3">
+							Process Garnu Overview Report
 						</div>
 					</div>
-					<div class="d-flex align-items-baseline">
-						<div class="h1 mb-0 me-2">$4,300</div>
-						<div class="me-auto">
-							<span class="text-green d-inline-flex align-items-center lh-1">
-								8% <!-- Download SVG icon from http://tabler-icons.io/i/trending-up -->
-								<svg xmlns="http://www.w3.org/2000/svg" class="icon ms-1" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-									<path stroke="none" d="M0 0h24v24H0z" fill="none" />
-									<path d="M3 17l6 -6l4 4l8 -8" />
-									<path d="M14 7l7 0l0 7" />
-								</svg>
-							</span>
-						</div>
-					</div>
-				</div>
-				<div id="chart-revenue-bg" class="chart-sm"></div>
-			</div>
-		</div>
-		<div class="col-sm-6 col-lg-3">
-			<div class="card">
-				<div class="card-body">
-					<div class="d-flex align-items-center">
-						<div class="subheader">Revenue</div>
-						<div class="ms-auto lh-1">
-							<div class="dropdown">
-								<a class="dropdown-toggle text-muted" href="#" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Last 7 days</a>
-								<div class="dropdown-menu dropdown-menu-end">
-									<a class="dropdown-item active" href="#">Last 7 days</a>
-									<a class="dropdown-item" href="#">Last 30 days</a>
-									<a class="dropdown-item" href="#">Last 3 months</a>
-								</div>
-							</div>
-						</div>
-					</div>
-					<div class="d-flex align-items-baseline">
-						<div class="h1 mb-0 me-2">$4,300</div>
-						<div class="me-auto">
-							<span class="text-green d-inline-flex align-items-center lh-1">
-								8% <!-- Download SVG icon from http://tabler-icons.io/i/trending-up -->
-								<svg xmlns="http://www.w3.org/2000/svg" class="icon ms-1" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-									<path stroke="none" d="M0 0h24v24H0z" fill="none" />
-									<path d="M3 17l6 -6l4 4l8 -8" />
-									<path d="M14 7l7 0l0 7" />
-								</svg>
-							</span>
-						</div>
-					</div>
-				</div>
-				<div id="chart-revenue-bg" class="chart-sm"></div>
-			</div>
-		</div>
-		<div class="col-sm-6 col-lg-3">
-			<div class="card">
-				<div class="card-body">
-					<div class="d-flex align-items-center">
-						<div class="subheader">New clients</div>
-						<div class="ms-auto lh-1">
-							<div class="dropdown">
-								<a class="dropdown-toggle text-muted" href="#" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Last 7 days</a>
-								<div class="dropdown-menu dropdown-menu-end">
-									<a class="dropdown-item active" href="#">Last 7 days</a>
-									<a class="dropdown-item" href="#">Last 30 days</a>
-									<a class="dropdown-item" href="#">Last 3 months</a>
-								</div>
-							</div>
-						</div>
-					</div>
-					<div class="d-flex align-items-baseline">
-						<div class="h1 mb-3 me-2">6,782</div>
-						<div class="me-auto">
-							<span class="text-yellow d-inline-flex align-items-center lh-1">
-								0% <!-- Download SVG icon from http://tabler-icons.io/i/minus -->
-								<svg xmlns="http://www.w3.org/2000/svg" class="icon ms-1" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-									<path stroke="none" d="M0 0h24v24H0z" fill="none" />
-									<path d="M5 12l14 0" />
-								</svg>
-							</span>
-						</div>
-					</div>
-					<div id="chart-new-clients" class="chart-sm"></div>
-				</div>
-			</div>
-		</div>
-		<div class="col-sm-6 col-lg-3">
-			<div class="card">
-				<div class="card-body">
-					<div class="d-flex align-items-center">
-						<div class="subheader">Active users</div>
-						<div class="ms-auto lh-1">
-							<div class="dropdown">
-								<a class="dropdown-toggle text-muted" href="#" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Last 7 days</a>
-								<div class="dropdown-menu dropdown-menu-end">
-									<a class="dropdown-item active" href="#">Last 7 days</a>
-									<a class="dropdown-item" href="#">Last 30 days</a>
-									<a class="dropdown-item" href="#">Last 3 months</a>
-								</div>
-							</div>
-						</div>
-					</div>
-					<div class="d-flex align-items-baseline">
-						<div class="h1 mb-3 me-2">2,986</div>
-						<div class="me-auto">
-							<span class="text-green d-inline-flex align-items-center lh-1">
-								4% <!-- Download SVG icon from http://tabler-icons.io/i/trending-up -->
-								<svg xmlns="http://www.w3.org/2000/svg" class="icon ms-1" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-									<path stroke="none" d="M0 0h24v24H0z" fill="none" />
-									<path d="M3 17l6 -6l4 4l8 -8" />
-									<path d="M14 7l7 0l0 7" />
-								</svg>
-							</span>
-						</div>
-					</div>
-					<div id="chart-active-users" class="chart-sm"></div>
-				</div>
-			</div>
-		</div>
-		<div class="col-12">
-			<div class="row row-cards">
-				<div class="col-sm-6 col-lg-3">
-					<div class="card card-sm">
-						<div class="card-body">
-							<div class="row align-items-center">
-								<div class="col-auto">
-									<span class="bg-primary text-white avatar"><!-- Download SVG icon from http://tabler-icons.io/i/currency-dollar -->
-										<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-											<path stroke="none" d="M0 0h24v24H0z" fill="none" />
-											<path d="M16.7 8a3 3 0 0 0 -2.7 -2h-4a3 3 0 0 0 0 6h4a3 3 0 0 1 0 6h-4a3 3 0 0 1 -2.7 -2" />
-											<path d="M12 3v3m0 12v3" />
-										</svg>
-									</span>
-								</div>
-								<div class="col">
-									<div class="font-weight-medium">
-										132 Sales
-									</div>
-									<div class="text-muted">
-										12 waiting payments
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-				<div class="col-sm-6 col-lg-3">
-					<div class="card card-sm">
-						<div class="card-body">
-							<div class="row align-items-center">
-								<div class="col-auto">
-									<span class="bg-green text-white avatar"><!-- Download SVG icon from http://tabler-icons.io/i/shopping-cart -->
-										<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-											<path stroke="none" d="M0 0h24v24H0z" fill="none" />
-											<path d="M6 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
-											<path d="M17 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
-											<path d="M17 17h-11v-14h-2" />
-											<path d="M6 5l14 1l-1 7h-13" />
-										</svg>
-									</span>
-								</div>
-								<div class="col">
-									<div class="font-weight-medium">
-										78 Orders
-									</div>
-									<div class="text-muted">
-										32 shipped
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-				<div class="col-sm-6 col-lg-3">
-					<div class="card card-sm">
-						<div class="card-body">
-							<div class="row align-items-center">
-								<div class="col-auto">
-									<span class="bg-twitter text-white avatar"><!-- Download SVG icon from http://tabler-icons.io/i/brand-twitter -->
-										<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-											<path stroke="none" d="M0 0h24v24H0z" fill="none" />
-											<path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c0 -.249 1.51 -2.772 1.818 -4.013z" />
-										</svg>
-									</span>
-								</div>
-								<div class="col">
-									<div class="font-weight-medium">
-										623 Shares
-									</div>
-									<div class="text-muted">
-										16 today
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-				<div class="col-sm-6 col-lg-3">
-					<div class="card card-sm">
-						<div class="card-body">
-							<div class="row align-items-center">
-								<div class="col-auto">
-									<span class="bg-facebook text-white avatar"><!-- Download SVG icon from http://tabler-icons.io/i/brand-facebook -->
-										<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-											<path stroke="none" d="M0 0h24v24H0z" fill="none" />
-											<path d="M7 10v4h3v7h4v-7h3l1 -4h-4v-2a1 1 0 0 1 1 -1h3v-4h-3a5 5 0 0 0 -5 5v2h-3" />
-										</svg>
-									</span>
-								</div>
-								<div class="col">
-									<div class="font-weight-medium">
-										132 Likes
-									</div>
-									<div class="text-muted">
-										21 today
-									</div>
-								</div>
-							</div>
+					<div class="card-body">
+						<div class="table-responsive">
+							<table id="dashboard_master_process_report" class="table table-bordered table-striped">
+								<thead>
+									<tr class="text-center">
+										<th>Sr no</th>
+										<th>Garnu</th>
+										<!--<th>Details</th>-->
+										<?php
+										$process      = $this->dbh->find("process", [ "status" => true ], false);
+										$processCount = count($process);
+										?>
+										<?php foreach ( $process as $p ): ?>
+											<th colspan="1">
+												<?= $p['name'] ?>
+											</th>
+										<?php endforeach; ?>
+									</tr>
+									<tr class="text-center">
+										<th colspan="3">---</th>
+										<?php foreach ( range(1, $processCount) as $p ): ?>
+											<th>Weight</th>
+											<th style="display:none;">Quantity</th>
+										<?php endforeach; ?>
+									</tr>
+								</thead>
+								<tbody>
+									<?php
+									
+									function AdClass($condtion , $class) {
+									    
+									    if($condtion) {
+									        return $class;
+									    }
+									    
+									    return "";
+									    
+									}
+									
+									$sqlQueryFn = function($params= null)  {
+									    return"SELECT
+											G.*,
+											G.creation_date as given_date,
+											R.creation_date as receive_date,
+											R.pcs as receive_pcs,
+											R.weight as receive_weight,
+											GR.name as garnuName
+										FROM given G
+											LEFT JOIN process P ON P.id = G.process_id
+											LEFT JOIN `receive` R ON  G.id  = R.given_id
+											LEFT JOIN `garnu` GR ON  GR.id  = G.garnu_id
+											" . ($params ? "GROUP BY $params" : "") . " 
+											ORDER BY G.id DESC";
+									} ;
+									$records     = $this->db->query($sqlQueryFn("GR.id"))->result_array();
+									$recordsWithGroupBy = (array) $this->db->query($sqlQueryFn("G.id"))->result_array();
+									$url         = base_url('admin/manufacturing/process/manage/');
+
+									$getProcessDetails  = function ($processId, $garnuId, $column) use ($recordsWithGroupBy) {
+										$filteredRecords = \array_filter($recordsWithGroupBy, function ($record) use ($processId, $garnuId) {
+											return $record["process_id"] == $processId && $record['garnu_id'] == $garnuId;
+										});
+										if (empty($filteredRecords)) return 0;
+										$result = \array_reduce(
+											$filteredRecords,
+											function($carry, $item) use($column) {
+											    return  $carry + (double) $item[$column];
+											},
+											0
+										);
+										return $result;
+									};
+									
+								$getDaysDifference = function ($processId, $garnuId) use ($recordsWithGroupBy): int {
+                                    $filteredRecords = \array_filter($recordsWithGroupBy, function ($record) use ($processId, $garnuId) {
+                                        return $record["process_id"] == $processId && $record['garnu_id'] == $garnuId;
+                                    });
+                                
+                                    if (empty($filteredRecords)) {
+                                        return 0;
+                                    }
+                                
+                                    $givenDates = \array_column($filteredRecords, 'given_date');
+                                    $receivedDates = \array_column($filteredRecords, 'received_date');
+                                    
+                                    if (empty($givenDates) || empty($receivedDates)) {
+                                        return 0;
+                                    }
+                                
+                                    $minCreationDate = \min($givenDates);
+                                    $maxReceivedDate = \max($receivedDates);
+                                
+                                    if (!$minCreationDate || !$maxReceivedDate) {
+                                        return 0;
+                                    }
+                                
+                                    return (new \DateTime($minCreationDate))->diff(new \DateTime($maxReceivedDate))->days ?: 0;
+                                };
+
+									?>
+									<?php foreach ( $records as $i => $row ) { ?>
+										<tr>
+											<td>
+												<?= ++$i; ?>
+											</td>
+											<td>
+												<button class="split_code btn btn-default btn-sm">
+													<b> <?= $row['garnuName'] ?></b>
+												</button>
+											</td>
+											<!--<td>-->
+											<!--	<cite>-->
+											<!--		<b>Touch Group : </b>-->
+											<!--		<span class='text-primary mt-1'><?= $row['group_name'] ?? "" ?></span>-->
+											<!--	</cite>-->
+											<!--	<br />-->
+											<!--	<cite>-->
+											<!--		<b>Item : </b>-->
+											<!--		<span class='text-primary mt-1'><?= $row['item_name'] ?? "" ?> </span>-->
+											<!--	</cite>-->
+											<!--	<br />-->
+											<!--</td>-->
+										
+											<?php foreach ( $process as $p ):
+												$givenWeight = $getProcessDetails($p['id'], $row["garnu_id"], "given_weight");
+												$givenPcs    = $getProcessDetails($p['id'], $row["garnu_id"], "given_qty");
+												$receivePcs  = 0;
+												$rejected_pcs = 0;
+
+												if ($givenPcs > 0) {
+													$receivePcs   = $getProcessDetails($p['id'], $row["garnu_id"], "receive_pcs");
+												}
+												?>
+												<td class="text-center p-3 <?php // echo AdClass($row['is_completed'], "is_completed")?>">
+													<?php if ($givenWeight > 0) { ?>
+														<div >
+															<span class="text-danger font-weight-bold">G - <?= $givenWeight ?></span>
+														</div>
+														<div >
+															<span class="text-success font-weight-bold">R -
+																<?= $getProcessDetails($p['id'], $row['garnu_id'], "receive_weight"); ?></span>
+														</div>
+														<div>
+															<span class="text-muted">Day -
+																<?= $getDaysDifference($p['id'], $row['garnu_id']); ?></span>
+														</div>
+													<?php } ?>
+												</td>
+
+												<td class="text-center p-3"  style="display:none;">
+													<?php if ($givenPcs > 0) {
+														$receivePcs = $getProcessDetails($p['id'], $row['garnu_id'], "receive_pcs"); 
+														?>
+														
+														<div >
+															<span class="text-danger font-weight-bold">G - <?= $givenPcs ?></span>
+														</div>
+
+														<div >
+															<span class="text-success font-weight-bold">R - <?= $receivePcs ?></span>
+															<?php if ($givenWeight > 0 && $rejected_pcs > 0) { ?>
+																+ <span class="badge bg-danger ms-2"      data-toggle="tooltip" data-placement="right" title="Rejected PCS in <?= $p['name'] ?> Receive" ><?= $rejected_pcs ?></span>
+															<?php } ?>
+														</div>
+
+														<?php if (($pending = $givenPcs - ($receivePcs + $rejected_pcs)) > 0) { ?>
+															<div>
+																<span class="text-warning fw-bold text-blink">Pending -
+																	<?= $pending ?></span>
+															</div>
+														<?php } ?>
+													<?php } ?>
+												</td>
+
+											<?php endforeach; ?>
+										</tr>
+									<?php } ?>
+								</tbody>
+							</table>
 						</div>
 					</div>
 				</div>
 			</div>
 		</div>
-	</div>
+	</section>
+	<!-- End Process -->
+
 </div>
 
 <form action="#" id="received-garnu">
@@ -410,100 +401,150 @@
 	</div>
 </div>
 
-<div class="modal modal-blur fade modal-lg" data-bs-backdrop="static" data-bs-keyboard="false" id="received-report" tabindex="-1" role="dialog" aria-hidden="true">
-	<div class="modal-dialog modal-dialog-scrollable" role="document">
-		<div class="modal-content">
+<div class="modal modal-blur fade" data-bs-backdrop="static" data-bs-keyboard="false" id="received-report" tabindex="-1" role="dialog" aria-hidden="true">
+	<div class="modal-dialog modal-rm-xl modal-dialog-scrollable" role="document">
+		<div class="modal-content modal-rm-content">
 			<div class="modal-header">
 				<h5 class="modal-title">Received Row Material</h5>
 				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 			</div>
 			<div class="modal-body">
-				<table class="table table-vcenter card-table table-striped">
-					<thead>
-						<tr>
-							<th>Row Material</th>
-							<th>Touch %</th>
-							<th>Weight</th>
-							<th>Quantity</th>
-							<th></th>
-						</tr>
-					</thead>
-					<tbody id="JBody">
-						<?php
-						if (empty($given_row_materials)) {
-							$given_row_materials[] = [
-								'row_material_id' => 0,
-								'rmWeight'        => 0,
-								'rmTouch'         => 0,
-								'rmQuantity'      => 0,
-								'id'              => 0
-							];
-						}
-						foreach ($given_row_materials as $row) { ?>
-							<input type="hidden" class="ids" value="0" />
-							<tr class="mainRow2 main-row">
+				<div class="row">
+					<div class="col-md-12 text-center">
+						<h3> Given Row Material</h3>
+					</div>
+					<div class="col-md-12">
+						<div class="row-material-section">
+
+						</div>
+					</div>
+				</div>
+				<div class="table-responsive">
+					<table class="table table-vcenter card-table table-striped receivedRmTable">
+						<thead>
+							<tr>
+								<th>Row Material</th>
+								<th>Lot Wise RM</th>
+								<th>Touch %</th>
+								<th>Weight</th>
+								<th>Pcs</th>
+								<th class="hide_labour">Labour</th>
+								<th class="hide_labour">Labour</th>
+								<th class="hide_labour">Total Labour</th>
+								<th></th>
+							</tr>
+						</thead>
+						<tbody id="JBody">
+							<?php
+							if (empty($given_row_materials)) {
+								$given_row_materials[] = [
+									'row_material_id' => 0,
+									'lot_wise_rm_id'  => 0,
+									'rmWeight'        => 0,
+									'rmTouch'         => 0,
+									'rmQuantity'      => 0,
+									'labour_type'     => "",
+									'labour'          => 0,
+									'total_labour'    => 0,
+									'id'              => 0
+								];
+							}
+							foreach ($given_row_materials as $row) { ?>
+								<input type="hidden" class="ids" value="0" />
+								<tr class="mainRow2 main-row">
+									<td>
+										<input type="hidden" class="received_detail_id" />
+										<select class="form-select select2 row_material2 rowMateralWiseLot2" data-given_id="<?= $process_data['id'] ?? null ?>" data-garnu_id="<?= $data['id'] ?? null ?>" data-lot_wise_rm_id="<?php if (isset($row) && $row['lot_wise_rm_id']) { echo $row['lot_wise_rm_id']; } ?>">
+											<option value="">Select RM</option>
+											<?php
+											if (!empty($row_material)) {
+												foreach ($row_material as $rm) { ?>
+													<option value="<?= $rm['id']; ?>" <?php if (isset($row) && $rm['id'] == $row['row_material_id']) {
+																							echo 'selected';
+																						} ?>><?= $rm['name']; ?>
+													</option>
+											<?php }
+											} ?>
+										</select>
+									</td>
+									<td>
+										<select class="form-select select2 lot_wise_rm_id2">
+											<option value="">Select LW RM</option>
+										</select>
+									</td>
+									<td class="text-muted">
+										<input type="number" class="form-control touch2" value="0" placeholder="Enter Touch" step="any" autocomplete="off">
+									</td>
+									<td class="text-muted">
+										<input type="number" class="form-control weight2" value="0" placeholder="Enter Weight" autocomplete="off">
+									</td>
+									<td class="text-muted">
+										<input type="number" class="form-control quantity2" value="0" placeholder="Enter Quantity" autocomplete="off">
+									</td>
+									<td class="text-muted hide_labour">
+										<select class="form-select select2 labour_type defualt_labour_type" name="labour_type">
+											<option value="">Select Labour</option>
+											<option value="PCS">PCS</option>
+											<option value="WEIGHT">WEIGHT</option>
+										</select>
+									</td>
+									<td class="text-muted hide_labour">
+										<input type="number" class="form-control labour" value="0" placeholder="Enter Labour" autocomplete="off">
+									</td>
+									<td class="text-muted hide_labour">
+										<input type="number" class="form-control total_labour readonly" value="0" readonly placeholder="Total Labour" autocomplete="off">
+									</td>
+									<td>
+										<button type="button" class="btn btn-danger deleteRow2">X</button>
+									</td>
+								</tr>
+							<?php } ?>
+						</tbody>
+						<tfoot>
+							<tr>
 								<td>
-									<input type="hidden" class="received_detail_id" />
-									<select class="form-select select2 row_material2">
-										<option value="">Select RM</option>
-										<?php
-										if (!empty($row_material)) {
-											foreach ($row_material as $rm) { ?>
-												<option value="<?= $rm['id']; ?>" <?php if (isset($row) && $rm['id'] == $row['row_material_id']) {
-																						echo 'selected';
-																					} ?>><?= $rm['name']; ?>
-												</option>
-										<?php }
-										} ?>
-									</select>
-								</td>
-								<td class="text-muted">
-									<input type="number" class="form-control touch2" value="0" placeholder="Enter Touch" autocomplete="off">
-								</td>
-								<td class="text-muted">
-									<input type="number" class="form-control weight2" value="0" placeholder="Enter Weight" autocomplete="off">
-								</td>
-								<td class="text-muted">
-									<input type="number" class="form-control quantity2" value="0" placeholder="Enter Quantity" autocomplete="off">
 								</td>
 								<td>
-									<button type="button" class="btn btn-danger deleteRow2">X</button>
+									<h3>Total :</h3>
+								</td>
+								<td>
+									<div class="d-flex">
+										<h4><span class='text-end ms-3 total-touch'>0</span></h4>
+									</div>
+								</td>
+								<td>
+									<div class="d-flex">
+										<h4><span class='text-end ms-3 total-weight'>0</span></h4>
+									</div>
+								</td>
+								<td>
+									<div class="d-flex">
+										<h4><span class='text-end ms-3 total-qty'>0</span></h4>
+									</div>
+								</td>
+								<td></td>
+								<td class="hide_labour">
+									<div class="d-flex">
+										<h4><span class='text-end ms-3 total-labour'>0</span></h4>
+									</div>
+								</td>
+								<td class="hide_labour">
+									<div class="d-flex">
+										<h4><span class='text-end ms-3 final-labour'>0</span></h4>
+									</div>
 								</td>
 							</tr>
-						<?php } ?>
-					</tbody>
-					<tfoot>
-						<tr>
-							<td>
-								<h3>Total :</h3>
-							</td>
-							<td>
-								<div class="d-flex">
-									<h4><span class='text-end ms-3 total-touch'>0</span></h4>
-								</div>
-							</td>
-							<td>
-								<div class="d-flex">
-									<h4><span class='text-end ms-3 total-weight'>0</span></h4>
-								</div>
-							</td>
-							<td>
-								<div class="d-flex">
-									<h4><span class='text-end ms-3 total-qty'>0</span></h4>
-								</div>
-							</td>
-							<td></td>
-						</tr>
-					</tfoot>
-				</table>
-			</div>
-			<div class="modal-footer justify-content-between">
-				<button type="button" class="btn btn-success btn-success addButton2">
-					<span class="mx-1">Add </span><i class="fa-solid fa-plus"></i>
-				</button>
-				<div>
-					<button type="button" class="btn btn-danger btn-danger" data-bs-dismiss="modal">Close</button>
-					<button type="button" class="btn btn-primary btn-primary saveRmData">Save Changes</button>
+						</tfoot>
+					</table>
+				</div>
+				<div class="modal-footer justify-content-between">
+					<button type="button" class="btn btn-success btn-success addButton2">
+						<span class="mx-1">Add </span><i class="fa-solid fa-plus"></i>
+					</button>
+					<div>
+						<button type="button" class="btn btn-danger btn-danger" data-bs-dismiss="modal">Close</button>
+						<button type="button" class="btn btn-primary btn-primary saveRmData">Save Changes</button>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -695,6 +736,79 @@
 	</div>
 </div>
 
+<div class="modal modal-blur fade" data-bs-backdrop="static" data-bs-keyboard="false" id="showDiffrence" tabindex="-1" role="dialog" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-scrollable modal-lgg" role="document">
+		<div class="modal-content modal-lgg-content">
+			<div class="modal-header">
+				<h5 class="modal-title">Given & Received Row Material Diffrence</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<div class="table-responsive">
+					<table class="table table-vcenter card-table table-striped rowMaterial">
+						<thead>
+							<tr>
+								<th>Row Material</th>
+								<th>Touch %</th>
+								<th>Weight</th>
+								<th>Quantity</th>
+								<th>Row Material</th>
+								<th>Touch %</th>
+								<th>Weight</th>
+								<th>Quantity</th>
+								<th>Touch Diff</th>
+								<th>Weight Diff</th>
+								<th>Quantity Diff</th>
+							</tr>
+						</thead>
+						<tbody id="diffTBody">
+							<tr class="diffmainRow">
+								<td class="given givenRmDiff"></td>
+								<td class="given givenTouchDiff"></td>
+								<td class="given givenWeightDiff"></td>
+								<td class="given givenQtyDiff"></td>
+								<td class="received receiveRmDiff"></td>
+								<td class="received receiveTouchDiff"></td>
+								<td class="received receiveWeightDiff"></td>
+								<td class="received receiveQtyDiff"></td>
+								<td class="diffrence TouchDiff"></td>
+								<td class="diffrence WeightDiff"></td>
+								<td class="diffrence QtyDiff"></td>
+							</tr>
+						</tbody>
+						<tfoot>
+							<tr>
+								<td class=""> Total  =></td>
+								<td class="givenTotaltouchDiff "></td>
+								<td class="givenTotalweightDiff "></td>
+								<td class="givenTotalqtyDiff "></td>
+								<td class=""></td>
+								<td class="receiveTotaltouchDiff"></td>
+								<td class="receiveTotalweightDiff"></td>
+								<td class="receiveTotalqtyDiff"></td>
+								<td colspan="3"></td>
+							</tr>
+							<tr>
+								<td colspan='2' class="diffrence"> Total Diffrence =></td>
+								<td colspan='2' class="diffrence TotaltouchDiff"></td>
+								<td colspan='2' class="diffrence TotalweightDiff"></td>
+								<td colspan='2' class="diffrence TotalqtyDiff"></td>
+								<td colspan='3' class="AverageTouch diffrence" style="color:red;"></td>
+							</tr>
+						</tfoot>
+					</table>
+				</div>
+				<div class="modal-footer justify-content-between">
+				    <div></div>
+					<div>
+						<button type="button" class="btn btn-danger btn-danger close" data-bs-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
 <?php $time = time() ?>
 <script src="<?= base_url("assets") ?>/dist/js/process.js?v=<?= $time ?>"></script>
 <script>
@@ -713,6 +827,8 @@
 			}
 		});
 	});
+	
+
 	
 	$(document).on("click", ".openReceive", function() {
 		event.preventDefault();

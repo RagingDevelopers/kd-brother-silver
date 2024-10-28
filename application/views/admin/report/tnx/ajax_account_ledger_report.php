@@ -45,6 +45,11 @@ foreach ($customers as $abc => $c) {
 	    if(!in_array($v['bank_name'],$bank['bank_name']) && $data['other']['master_type'] == "bank"){
     	    $bank['bank_name'][] = $v['bank_name'];
     	}
+//     	if($v['loss'] > 0){
+// 		    $v['total_fine_gold'] += abs($v['loss']);
+// 		}else if($v['loss'] < 0){
+// 		    $v['total_fine_gold'] += abs($v['loss']);
+// 		}
 	    $closingFine = number_format($closingFine, 3, '.', '');
 		$closingAmt  = number_format($closingAmt, 3, '.', '');
 
@@ -62,25 +67,30 @@ foreach ($customers as $abc => $c) {
 			$date          = $v['date'];
 			$customerName  = $v['customer_name'];
                 $typeDebitArr  = [
-                'PUR',
-                'FINE_CR',
-                'BANK_CR',
-                'SAL_RETURN',
-                'ROOPU_CR',
-                'TE_CR',
-                ];
-                $typeCreditArr = [
-                'SAL',
-                'FINE_DB',
-                'BANK_DB',
-                'PUR_RETURN',
-                'ROOPU_DB',
-                'TE_DB',
-                'receive'
-                ];
-                $typeFineArr   = [
-                    'IN_GIVEN_FINE'
-                ];
+										'PUR',
+										'SAL_RETURN',
+										'FINE_CR',
+										'BANK_CR',
+										'ROOPU_CR',
+										'TE_CR',
+                                        'receive',
+                                        'LABOUR'
+
+									];
+									$typeCreditArr = [
+										'SAL',
+										'PUR_RETURN',
+										'FINE_DB',
+										'BANK_DB',
+										'ROOPU_DB',
+										'TE_DB',
+										
+										
+									];
+									$typeFineArr   = [
+										'IN_GIVEN_FINE',
+										'KASAR'
+									];
 			if ($v['type'] == 'PAY_PAY' && !$isBank) {
 				// $closingAmt -= abs($v['total_net_amt']);
 				if ($v['total_fine_gold'] <= 0) {
@@ -176,53 +186,53 @@ foreach ($customers as $abc => $c) {
 			if ($v['type'] == 'PAY_PAY' && !$isBankO) {
 				// $openingAmt -= abs($v['total_net_amt']);
 				if ($v['total_fine_gold'] <= 0) {
-					$openingAmt -= abs($v['total_net_amt']);
-					$totalOpeningAmt -= abs($v['total_net_amt']);
+					$openingAmt -= (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
+					$totalOpeningAmt -= (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
 				}
-				$openingFine -= abs($v['total_fine_gold']);
+				$openingFine -= (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
 				// $totalOpeningAmt -= abs($v['total_net_amt']);
-				$totalOpeningFine -= abs($v['total_fine_gold']);
+				$totalOpeningFine -= (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
 			} else if ($v['type'] == 'PAY_REC' && !$isBankO) {
 				// $openingAmt += abs($v['total_net_amt']);
 				if ($v['total_fine_gold'] <= 0) {
-					$openingAmt += abs($v['total_net_amt']);
-					$totalOpeningAmt += abs($v['total_net_amt']);
+					$openingAmt += (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
+					$totalOpeningAmt += (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
 				}
-				$openingFine += abs($v['total_fine_gold']);
+				$openingFine += (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
 				// $totalOpeningAmt += abs($v['total_net_amt']);
-				$totalOpeningFine += abs($v['total_fine_gold']);
+				$totalOpeningFine += (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
 			} else if (in_array($v['type'], $typeCreditArr)) {
-				$openingAmt -= abs($v['total_net_amt']);
-				$openingFine -= abs($v['total_fine_gold']);
-				$totalOpeningAmt -= abs($v['total_net_amt']);
-				$totalOpeningFine -= abs($v['total_fine_gold']);
+				$openingAmt -= (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
+				$openingFine -= (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
+				$totalOpeningAmt -= (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
+				$totalOpeningFine -= (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
 			} else if (in_array($v['type'], $typeDebitArr)) {
-				$openingAmt += abs($v['total_net_amt']);
-				$openingFine += abs($v['total_fine_gold']);
-				$totalOpeningAmt += abs($v['total_net_amt']);
-				$totalOpeningFine += abs($v['total_fine_gold']);
+				$openingAmt += (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
+				$openingFine += (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
+				$totalOpeningAmt += (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
+				$totalOpeningFine += (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
 			} else if (in_array($v['type'], $typeFineArr)) {
 				if ($v['total_fine_gold'] < 0) {
-					$openingAmt += abs($v['total_net_amt']);
-					$openingFine += abs($v['total_fine_gold']);
-					$totalOpeningAmt += abs($v['total_net_amt']);
-					$totalOpeningFine += abs($v['total_fine_gold']);
+					$openingAmt += (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
+					$openingFine += (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
+					$totalOpeningAmt += (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
+					$totalOpeningFine += (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
 				} else {
-					$openingAmt -= abs($v['total_net_amt']);
-					$openingFine -= abs($v['total_fine_gold']);
-					$totalOpeningAmt -= abs($v['total_net_amt']);
-					$totalOpeningFine -= abs($v['total_fine_gold']);
+					$openingAmt -= (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
+					$openingFine -= (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
+					$totalOpeningAmt -= (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
+					$totalOpeningFine -= (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
 				}
 			} else if ($v['type'] == 'RATEFINE_DB' || $v['type'] == 'RATERS_DB') {
-				$openingAmt -= abs($v['total_net_amt']);
-				$openingFine += abs($v['total_fine_gold']);
-				$totalOpeningAmt -= abs($v['total_net_amt']);
-				$totalOpeningFine += abs($v['total_fine_gold']);
+				$openingAmt -= (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
+				$openingFine += (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
+				$totalOpeningAmt -= (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
+				$totalOpeningFine += (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
 			} else if ($v['type'] == 'RATEFINE_CR' || $v['type'] == 'RATERS_CR') {
-				$openingAmt += abs($v['total_net_amt']);
-				$openingFine -= abs($v['total_fine_gold']);
-				$totalOpeningAmt += abs($v['total_net_amt']);
-				$totalOpeningFine -= abs($v['total_fine_gold']);
+				$openingAmt += (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
+				$openingFine -= (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
+				$totalOpeningAmt += (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
+				$totalOpeningFine -= (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
 			}
 		}
 	}
@@ -236,20 +246,21 @@ foreach ($customers as $abc => $c) {
 		$cust = $dbh->getWhereRowArray('customer', [
 			'id' => $customerId
 		]);
-		if ($cust['opening_amount_type'] ?? "" == 'JAMA') {
-			$openingAmt -= $cust['opening_amount'];
-			$totalOpeningAmt -= $cust['opening_amount'];
-		} else {
-			$openingAmt += $cust['opening_amount'] ?? 0;
-			$totalOpeningAmt += $cust['opening_amount'] ?? 0;
-		}
-		if ($cust['opening_fine_type'] ?? "" == 'JAMA') {
-			$openingFine -= $cust['opening_fine'];
-			$totalOpeningFine -= $cust['opening_fine'];
-		} else {
-			$openingFine += $cust['opening_fine'] ?? 0;
-			$totalOpeningFine += $cust['opening_fine'] ?? 0;
-		}
+		if ($cust['opening_amount_type'] == 'JAMA') {
+            $openingAmt -= $cust['opening_amount'];
+            $totalOpeningAmt -= $cust['opening_amount'];
+        } else {
+            $openingAmt += $cust['opening_amount'];
+            $totalOpeningAmt += $cust['opening_amount'];
+        }
+
+        if ($cust['opening_fine_type'] == 'JAMA') {
+            $openingFine -= $cust['opening_fine'];
+            $totalOpeningFine -= $cust['opening_fine'];
+        } else {
+            $openingFine += $cust['opening_fine'];
+            $totalOpeningFine += $cust['opening_fine'];
+        }
 	}
 	
     $bank_name = "";
@@ -281,7 +292,7 @@ foreach ($customers as $abc => $c) {
 	<thead>
 		<tr>
 			<th></th>
-			<th></th>
+			<!--<th></th>-->
 			<th colspan="2" class="text-center">Opening</th>
 			<th colspan="2" class="text-center">Debit</th>
 			<th colspan="2" class="text-center">Credit</th>
@@ -289,7 +300,7 @@ foreach ($customers as $abc => $c) {
 		</tr>
 		<tr>
 			<th>Customer</th>
-			<th>Loss</th>
+			<!--<th>Loss</th>-->
 			<th>Fine</th>
 			<th>Amt.</th>
 			<th>Fine</th>
@@ -302,14 +313,14 @@ foreach ($customers as $abc => $c) {
 	</thead>
 	<tbody>
 		<?php
-// 		pre($data['filtered_data']);exit;
+		// pre($data['filtered_data']);exit;
 		foreach ($data['filtered_data'] as $fdi => $fdv) {
 			if ($fdv['isBank']) {
 				$bankname             = $this->db->get_where('bank', array('id' => $fdv['party_id']))->row_array()['name'];
 				$fdv['customer_name'] = $bankname;
 				$url                  = site_url('report/account_ledger/ledgerReportByCustomer/' . $fdv['party_id'] . '/bank');
 			} else if (!empty($fdv['party_id']) && isset($data['other']['master_type']) && $data['other']['master_type'] == 'bank') {
-				$bankname             = $this->db->get_where('bank', array('id' => $fdv['party_id']))->row_array()['name'];
+				// $bankname             = $this->db->get_where('bank', array('id' => $fdv['party_id']))->row_array()['name'];
 				$fdv['customer_name'] = $fdv['bank_name'];
 				$url                  = site_url('report/account_ledger/ledgerReportByCustomer/' . $fdv['party_id'] . '/bank');
 			} else {
@@ -321,9 +332,9 @@ foreach ($customers as $abc => $c) {
 				<td><a href="<?= $url ?>" target="_blank">
 						<?= isset($fdv['customer_name']) && !empty($fdv['customer_name']) ? $fdv['customer_name'] : ""; ?>
 					</a></td>
-				<td>
-					<?= $fdv['loss'] ?>
-				</td>
+				<!--<td>-->
+				<!--	<?= $fdv['loss'] ?>-->
+				<!--</td>-->
 				<td>
 					<?= $fdv['opening_fine'] ?>
 				</td>
@@ -343,10 +354,10 @@ foreach ($customers as $abc => $c) {
 					<?= abs($fdv['total_credit_amt']) ?>
 				</td>
 				<td>
-					<?= number_format($fdv['closing_fine'], 3, '.', '') + number_format($fdv['opening_fine'], 3, '.', '') ?>
+					<?= number_format($fdv['closing_fine'], 2, '.', '') + number_format($fdv['opening_fine'], 2, '.', '') ?>
 				</td>
 				<td>
-					<?= number_format($fdv['closing_amt'], 3, '.', '') + number_format($fdv['opening_amt'], 3, '.', '') ?>
+					<?= number_format($fdv['closing_amt'], 2, '.', '') + number_format($fdv['opening_amt'], 2, '.', '') ?>
 				</td>
 			</tr>
 		<?php } ?>
@@ -354,9 +365,9 @@ foreach ($customers as $abc => $c) {
 	<tfoot>
 		<tr>
 			<th>Summary</th>
-			<th>
-				<?= $totalLoss ?>
-			</th>
+			<!--<th>-->
+			<!--	<?= $totalLoss ?>-->
+			<!--</th>-->
 			<th>
 				<?= $totalOpeningFine ?>
 			</th>
@@ -376,10 +387,10 @@ foreach ($customers as $abc => $c) {
 				<?= $totalCreditAmt ?>
 			</th>
 			<th>
-				<?= number_format($totalClosingFine, 3, '.', '') + number_format($totalOpeningFine, 3, '.', '') ?>
+				<?= number_format($totalClosingFine, 2, '.', '') + number_format($totalOpeningFine, 2, '.', '') ?>
 			</th>
 			<th>
-				<?= number_format($totalClosingAmt, 3, '.', '') + number_format($totalOpeningAmt, 3, '.', '') ?>
+				<?= number_format($totalClosingAmt, 2, '.', '') + number_format($totalOpeningAmt, 2, '.', '') ?>
 			</th>
 		</tr>
 	</tfoot>

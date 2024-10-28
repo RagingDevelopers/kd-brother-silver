@@ -235,12 +235,11 @@ class Receive_garnu extends CI_Controller
 
 		if ($searchQuery != '')
 			$this->db->where($searchQuery);
-		if (!empty($fromdate)) {
+		if (!empty($fromdate))
 			$this->db->where('DATE(garnu.creation_date) >=', $fromdate);
-		}
-		if (!empty($todate)) {
+		if (!empty($todate))
 			$this->db->where('DATE(garnu.creation_date) <=', $todate);
-		}
+
 		$this->db->where('garnu.recieved', 'YES');
 		// if (!empty($received)) {
 		// }
@@ -256,12 +255,11 @@ class Receive_garnu extends CI_Controller
 
 		if ($searchQuery != '')
 			$this->db->where($searchQuery);
-		if (!empty($fromdate)) {
+		if (!empty($fromdate))
 			$this->db->where('DATE(garnu.creation_date) >=', $fromdate);
-		}
-		if (!empty($todate)) {
+		if (!empty($todate))
 			$this->db->where('DATE(garnu.creation_date) <=', $todate);
-		}
+		
 		$this->db->where('garnu.recieved', 'YES');
 		// if (!empty($received)) {
 		// 	$this->db->where('garnu.recieved', $received);
@@ -412,14 +410,21 @@ class Receive_garnu extends CI_Controller
 		$this->db->order_by('receive.id', "desc");
 		$records = $this->db->get()->result();
 
+		
 		$data = array();
 		$i = $start + 1;
 		foreach ($records as $record) {
+			$this->db->select_sum('piece');  // Sum up all the pieces
+			$this->db->from('lot_creation');  // From the lot_creation table
+			$this->db->where('barcode', $record->code);  // Condition: where barcode matches
+			$ComplatedPcs = $this->db->get()->row()->piece;
+
 			$data[] = array(
 				'id' => $i,
-				'code' => "<span class='text-danger codeCopy' data-bs-toggle='tooltip' data-bs-placement='top'  data-bs-original-title='Click To Copy'>".$record->code."</span>",
+				'code' => '<a href="' . base_url('manufacturing/lot/index/') . $record->code . '" class="text-danger">'.$record->code.'</a>',
 				'item_name' => $record->item_name,
 				'pcs' => $record->pcs,
+				'complated_pcs' => $ComplatedPcs,
 				'weight' => $record->weight,
 				'labour_type' => $record->labour_type,
 				'labour' => $record->labour,

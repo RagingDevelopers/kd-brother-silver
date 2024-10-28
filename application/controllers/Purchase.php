@@ -19,6 +19,7 @@ class Purchase extends CI_Controller
 	    checkPrivilege(privilege['purchase_view']);
 		$page_data['page_title'] = 'Purchase Report';
 		$page_data['party'] = $this->purchase->fetch_party();
+		$page_data['items'] = $this->purchase->fetch_item();
 		return view(self::View, $page_data);
 	}
 
@@ -60,6 +61,21 @@ class Purchase extends CI_Controller
 		}
 
 		for ($i = 0; $i < count($data['item']); $i++) {
+		    
+	        $customer = $this->db->where(['customer_id' => $data['party_id'], 'item_id' => $data['item'][$i]])->get('customer_item')->num_rows();
+		    $customer_details = $new = array();
+		    if($customer==0 && $data['product_type']=='item'){
+		        $customer_details['item_id'] = $data['item'][$i] ?? "";
+                $customer_details['extra_touch'] = $data['touch'][$i] ?? "";
+                $customer_details['wastage'] = $data['wastage'][$i] ?? "";
+                $customer_details['label'] = $data['labour_type'][$i] ?? "";
+                $customer_details['rate'] = $data['labour'][$i] ?? "";
+                $customer_details['sub_total'] = $data['touch'][$i] ?? "" + $data['wastage'][$i] ?? "";
+                $customer_details['customer_id'] = $data['party_id'];
+                $batchData[] = $customer_details;
+		        $this->db->insert_batch('customer_item', $batchData);
+		    }
+		    
 			$purchaseDetail['purchase_id'] = $id;
 			$purchaseDetail['user_id'] = $lot_wise_rm['user_id'] = session('id');
 			$purchaseDetail['product_type'] = $data['product_type'];
@@ -71,6 +87,7 @@ class Purchase extends CI_Controller
 			$purchaseDetail['less_weight'] = $data['less_weight'][$i];
 			$purchaseDetail['net_weight'] = $lot_wise_rm['rem_weight'] = $lot_wise_rm['weight'] = $data['net_weight'][$i];
 			$purchaseDetail['touch'] = $lot_wise_rm['touch'] = $data['touch'][$i];
+			$purchaseDetail['pre_touch'] = $data['pre_touch'][$i];
 			$purchaseDetail['wastage'] = $data['wastage'][$i];
 			$purchaseDetail['fine'] = $data['fine'][$i];
 			$purchaseDetail['piece'] = $lot_wise_rm['rem_quantity'] = $lot_wise_rm['quantity'] = $data['piece'][$i];
@@ -187,6 +204,21 @@ class Purchase extends CI_Controller
 		}
 
 		for ($i = 0; $i < count($data['item']); $i++) {
+		    
+		    $customer = $this->db->where(['customer_id' => $data['party_id'], 'item_id' => $data['item'][$i]])->get('customer_item')->num_rows();
+		    $customer_details = $new = array();
+		    if($customer==0 && $data['product_type']=='item'){
+		        $customer_details['item_id'] = $data['item'][$i] ?? "";
+                $customer_details['extra_touch'] = $data['touch'][$i] ?? "";
+                $customer_details['wastage'] = $data['wastage'][$i] ?? "";
+                $customer_details['label'] = $data['labour_type'][$i] ?? "";
+                $customer_details['rate'] = $data['labour'][$i] ?? "";
+                $customer_details['sub_total'] = $data['touch'][$i] ?? "" + $data['wastage'][$i] ?? "";
+                $customer_details['customer_id'] = $data['party_id'];
+                $batchData[] = $customer_details;
+		        $this->db->insert_batch('customer_item', $batchData);
+		    }
+		    
 			$purchaseDetail['product_type'] = $data['product_type'];
 			$purchaseDetail['item_id'] = $lot_wise_rm['row_material_id'] =  $data['item'][$i];
 			$purchaseDetail['stamp_id'] = $data['stamp'][$i];
@@ -196,6 +228,7 @@ class Purchase extends CI_Controller
 			$purchaseDetail['less_weight'] = $data['less_weight'][$i];
 			$purchaseDetail['net_weight'] = $lot_wise_rm['rem_weight'] = $lot_wise_rm['weight'] = $data['net_weight'][$i];
 			$purchaseDetail['touch'] = $lot_wise_rm['touch'] = $data['touch'][$i];
+			$purchaseDetail['pre_touch'] = $data['pre_touch'][$i];
 			$purchaseDetail['wastage'] = $data['wastage'][$i];
 			$purchaseDetail['fine'] = $data['fine'][$i];
 			$purchaseDetail['piece'] = $lot_wise_rm['rem_quantity'] = $lot_wise_rm['quantity'] = $data['piece'][$i];
@@ -385,7 +418,8 @@ class Purchase extends CI_Controller
 				SI.remark,
 				S.id AS purchase_id,
 				S.`created_at` AS created_at,
-				SI.touch AS touch,
+				SI.touch,
+				SI.pre_touch,
 				I.`name` AS item_name,
 				city.name AS city
 			FROM purchase_detail SI 

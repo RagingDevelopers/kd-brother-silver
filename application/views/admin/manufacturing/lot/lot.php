@@ -11,7 +11,7 @@
         <div class="col-md-12">
             <b>
             <div class="card-header">
-                <h3 class="card-title pt-2">Tag</h3>&nbsp;&nbsp;&nbsp;
+                <h3 class="card-title pt-2">Barcode</h3>&nbsp;&nbsp;&nbsp;
                 <input type="text" value="<?= (!empty($barcode)) ? $barcode : ''; ?>" id="barcode" class="form-control" placeholder="Right-click to paste (use Ctrl+V)" style="display:inline-block; width:250px">
                 <input type="hidden" id="csrf_token_name" />
                 <input type="hidden" id="csrf_hash" />
@@ -233,6 +233,7 @@
         if ($('#barcode').val().trim()) {
             $('#barcode').trigger('blur');
         }
+
         $(document).keydown(function(zEvent) {
             if (zEvent.which == "113") {
                 zEvent.preventDefault();
@@ -277,6 +278,7 @@
         		},
         	});
         });
+
         $(document).on("input", ".netWeight,.lessWeight", function() {
             var lessWeight = $('.lessWeight').val();
             var netWeight = $('.netWeight').val();
@@ -359,8 +361,11 @@
 
             var customer_id = $('select[name="m_customer"]').val();
             var item_id = $('select[name="m_item"]').val();
+            var sub_item = $('select[name="sub_item"]').val();
             var group_id = $('select[name="m_group"]').val();
+            var stamp = $('select[name="stamp"]').val();
             var gross_weight = $('#input-gross-weight').val();
+            var touch = $('.touch').val();
             var l_weight = $('#input-less-weight').val() || 0;
             var amt = $('#input-amt').val();
             var tag = $('#barcode').val();
@@ -378,6 +383,7 @@
             var term = $('#input-term').val();
             var order_no = $('#input-order-no').val();
             var client_logo_id = $('#select-logo').val();
+            var pendingPcs = $('.pending-pcs').text() || 0;
 
             var data = {
                 tag: tag,
@@ -386,7 +392,10 @@
                 update_id: update_id,
                 customer_id: customer_id,
                 item_id: item_id,
+                sub_item: sub_item,
                 group_id: group_id,
+                stamp: stamp,
+                touch: touch,
                 gross_weight: gross_weight,
                 l_weight: l_weight,
                 amt: amt,
@@ -405,87 +414,91 @@
             net_weight = parseF(net_weight);
             gross_weight = parseF(gross_weight);
 
-            if (net_weight > 0 && gross_weight > 0) {
-                // $(document).Toasts('create', {
-                // 	class: 'bg-warning',
-                // 	title: 'Please Wait...',
-                // 	subtitle: '',
-                // 	body: '<div class="text-center to-close">' + '<i class="fas fa-sync fa-2x fa-spin"></i></div>'
-                // });
-                $('#data_ad_table').children('tbody').children('tr').each(function(i, v) {
-                    var ad_id = $(v).children('.td-calc').children('input.data_ad_id').val();
-                    var actual_weight = $(v).children('.td-actual-weight').children('.input-actual-weight').val();
-                    var master_weight = $(v).children('.td-master-weight').children('.input-master-weight').val();
-                    var weight = $(v).children('.td-weight').children('.input-weight').val();
-                    var pcs = $(v).children('.td-pcs').children('.input-pcs').val();
-                    var rate = $(v).children('.td-rate').children('.input-sal-rate').val();
-                    var amt = $(v).children('.td-amt').children('.input-sal-amt').val();
-                    var per = $(v).children('.td-per').children('.input-sal-per').val();
-                    var wr = $(v).children('.td-wr').children('.input-sal-wr').val();
-                    var ad_rs = $(v).children('td.td-ad-rate').children('.input-ad-rate').val();
-                    var final_rate = $(v).children('td.td-final-rate').children('.input-final-rate').val();
-                    var calc = $(v).children('.td-calc').children('.form-group').children('.select-amt-calc-on').val();
-
-                    var obj = {
-                        ad_id: ad_id,
-                        actual_weight: actual_weight,
-                        weight: weight,
-                        master_weight: master_weight,
-                        pcs: pcs,
-                        rate: rate,
-                        amt: amt,
-                        per: per,
-                        wr: wr,
-                        calc: calc,
-                        ad_rs: ad_rs,
-                        final_rate: final_rate
-                    };
-
-                    data.ad_data.push(obj);
-                });
-                // console.log(data);
-                $.ajax({
-                    url: "<?= site_url('manufacturing/lot/saveLotCreation') ?>",
-                    type: "POST",
-                    data: data,
-                    success: function(data) {
-                        if (data == 'success') {
-                            SweetAlert("success", 'Save Successfully');
-                        } else {
-                            SweetAlert("error", 'Save Failed');
-                        }
-                    },
-                    complete: function(data) {
-                        $('.to-close').parent().prev().children('button').trigger('click');
-                        $('.close').trigger('click');
-                        $('#barcode').trigger('blur');
-                        $('#submit_type').val('insert');
-                        $('#submit_type').data('id', '0');
-                        // 		location.href = "<?= site_url('admin/lot/view/') ?>" + $('#barcode').val().trim();
-                        $('#input-gross-weight').val('');
-                        $('#input-net-weight').val('');
-                        $('#input-pcs').val('');
-                        $('#input-less-weight').val('');
-                        $('#input-amt').val('');
-                        // $("#isLWeight").trigger('click');
-                        if ($("#isLWeight").is(":checked")) {
-                            $("#isLWeight").trigger('click');
-                        }
-
-                    }
-                })
-            } else {
-                SweetAlert("error", 'Net Weight And Gross Weight Should be more than 0');
-            }
+			if($("#barcode").val() != "" && $("#barcode").val() != null){
+				if(pendingPcs > 0){
+					if (net_weight > 0 && gross_weight > 0) {
+						// $(document).Toasts('create', {
+						// 	class: 'bg-warning',
+						// 	title: 'Please Wait...',
+						// 	subtitle: '',
+						// 	body: '<div class="text-center to-close">' + '<i class="fas fa-sync fa-2x fa-spin"></i></div>'
+						// });
+						$('#data_ad_table').children('tbody').children('tr').each(function(i, v) {
+							var ad_id = $(v).children('.td-calc').children('input.data_ad_id').val();
+							var actual_weight = $(v).children('.td-actual-weight').children('.input-actual-weight').val();
+							var master_weight = $(v).children('.td-master-weight').children('.input-master-weight').val();
+							var weight = $(v).children('.td-weight').children('.input-weight').val();
+							var pcs = $(v).children('.td-pcs').children('.input-pcs').val();
+							var rate = $(v).children('.td-rate').children('.input-sal-rate').val();
+							var amt = $(v).children('.td-amt').children('.input-sal-amt').val();
+							var per = $(v).children('.td-per').children('.input-sal-per').val();
+							var wr = $(v).children('.td-wr').children('.input-sal-wr').val();
+							var ad_rs = $(v).children('td.td-ad-rate').children('.input-ad-rate').val();
+							var final_rate = $(v).children('td.td-final-rate').children('.input-final-rate').val();
+							var calc = $(v).children('.td-calc').children('.form-group').children('.select-amt-calc-on').val();
+		
+							var obj = {
+								ad_id: ad_id,
+								actual_weight: actual_weight,
+								weight: weight,
+								master_weight: master_weight,
+								pcs: pcs,
+								rate: rate,
+								amt: amt,
+								per: per,
+								wr: wr,
+								calc: calc,
+								ad_rs: ad_rs,
+								final_rate: final_rate
+							};
+		
+							data.ad_data.push(obj);
+						});
+						// console.log(data);
+						$.ajax({
+							url: "<?= site_url('manufacturing/lot/saveLotCreation') ?>",
+							type: "POST",
+							data: data,
+							success: function(data) {
+								if (data == 'success') {
+									SweetAlert("success", 'Save Successfully');
+								} else {
+									SweetAlert("error", 'Save Failed');
+								}
+							},
+							complete: function(data) {
+								$('.to-close').parent().prev().children('button').trigger('click');
+								$('.close').trigger('click');
+								$('#barcode').trigger('blur');
+								$('#submit_type').val('insert');
+								$('#submit_type').data('id', '0');
+								// 		location.href = "<?= site_url('admin/lot/view/') ?>" + $('#barcode').val().trim();
+								$('#input-gross-weight').val('');
+								$('#input-net-weight').val('');
+								$('#input-pcs').val(1);
+								$('#input-less-weight').val('');
+								$('#input-amt').val('');
+								// $("#isLWeight").trigger('click');
+								if ($("#isLWeight").is(":checked")) {
+									$("#isLWeight").trigger('click');
+								}
+		
+							}
+						})
+					} else {
+						SweetAlert("error", 'Net Weight And Gross Weight Should be more than 0');
+					}
+				}else{
+					SweetAlert("error", `Your Pending Pcs Is ${pendingPcs}`);
+				}
+			}else{
+				SweetAlert("error", `Please Enter Barcode`);
+			}
         });
-    });
-</script>
-<script>
-    $(document).ready(function() {
 
         $(document).on('click', '.report-delete-row-btn', function() {
+			var id = $(this).attr('data-id');
             alert_if("Do you want to Delete This Item ?", function() {
-                var id = $(this).parent().data('id');
                 $.ajax({
                     url: "<?= site_url('manufacturing/lot/delete/'); ?>" + id,
                     success: function(data) {
@@ -505,13 +518,9 @@
                 });
             });
         });
-    });
-</script>
 
-<script>
-    $(document).ready(function() {
         $(document).on('click', '.report-edit-row-btn', function() {
-            var id = $(this).parent().data('id');
+            var id = $(this).attr('data-id');
             $.ajax({
                 url: "<?= site_url('manufacturing/lot/edit/'); ?>" + id,
                 success: function(data) {
@@ -520,13 +529,22 @@
                         SweetAlert("success", 'You can edit this lot now!');
                         setDataEveryWhere(data);
                         calculateGrossWeight();
+						// var selected_id = $('.item').attr('data-sub_item');
+						// setSubItem($('.item').val(),$('.item'),selected_id);
                         $('#submit_type').val('update');
                         $('#submit_type').data('id', data.data.id);
+
+						setTimeout(() => {
+							var selected_id = $('.item').attr('data-sub_item');
+							setSubItem($('.item').val(),$('.item'),selected_id);
+						}, 100);
                     } else {
                         SweetAlert("error", 'Failed to fetch data!');
                     }
                 },
                 complete: function(data) {
+					var selected_id = $('.item').attr('data-sub_item');
+					setSubItem($('.item').val(),$('.item'),selected_id);
                     $('.to-close').parent().prev().children('button').trigger('click');
                     $('.close').trigger('click');
                     if ($('#submit_type').val() == "insert" || $('#submit_type').val() != "update") {
@@ -535,16 +553,11 @@
                 }
             });
         });
-    });
-</script>
 
-<script>
-    $(document).ready(function() {
         $(document).on('click', '.report-print-row-btn', function() {
             var tagNo = $(this).parent().parent().children('td.report-td-tag-no').html();
             location.href = "<?= site_url('admin/lot/printTags/') ?>" + tagNo;
         });
-
 
     });
 </script>

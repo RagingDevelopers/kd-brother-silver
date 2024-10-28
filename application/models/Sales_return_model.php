@@ -65,6 +65,7 @@ class Sales_return_model extends CI_Model
 						SUM(sd.net_weight) AS net_wt,
 						SUM(sd.sub_total) AS amount,
 						SUM(sd.fine) AS fine,
+						SUM(sd.pre_touch) AS pre_touch,
 						SI.name AS item,
                         MAX(sd.created_at) as createdAt
 					FROM sale_return_detail sd
@@ -107,6 +108,7 @@ class Sales_return_model extends CI_Model
 						SUM(sd.net_weight) AS net_wt,
 						SUM(sd.sub_total) AS amount,
 						SUM(sd.fine) AS fine,
+						SUM(sd.pre_touch) AS pre_touch,
                         MAX(sd.created_at) as createdAt
 					FROM sale_return_detail sd
                     LEFT JOIN sale_return sl ON sl.id = sd.sale_id
@@ -153,6 +155,7 @@ class Sales_return_model extends CI_Model
 						SUM(sd.net_weight) AS net_wt,
 						SUM(sd.sub_total) AS amount,
 						SUM(sd.fine) AS fine,
+						SUM(sd.pre_touch) AS pre_touch,
                         MAX(sd.remark) as remark,
                         MAX(sd.created_at) as createdAt
 					FROM sale_return_detail sd
@@ -205,6 +208,7 @@ class Sales_return_model extends CI_Model
 						SUM(sd.net_weight) AS net_wt,
 						SUM(sd.sub_total) AS amount,
 						SUM(sd.fine) AS fine,
+						SUM(sd.pre_touch) AS pre_touch,
                         MAX(sd.remark) as remark,
                         MAX(sd.created_at) as createdAt
 					FROM sale_detail sd
@@ -247,6 +251,7 @@ class Sales_return_model extends CI_Model
 						SUM(sd.net_weight) AS net_wt,
 						SUM(sd.sub_total) AS amount,
 						SUM(sd.fine) AS fine,
+						SUM(sd.pre_touch) AS pre_touch,
                         MAX(sd.remark) as remark,
                         MAX(sd.created_at) as createdAt
 					FROM sale_return_detail sd

@@ -40,6 +40,7 @@ class Process extends CI_Controller
                 checkPrivilege(privilege["process_add"]);
                 $validation = $this->form_validation;
                 $validation->set_rules('name', 'Name', 'required');
+                $validation->set_rules('finished_good', 'Finished Good', 'required');
                 if (!$validation->run()) {
                     return flash()->withError(validation_errors())->back();
                 }
@@ -59,6 +60,7 @@ class Process extends CI_Controller
                 checkPrivilege(privilege["process_edit"]);
                 $validation = $this->form_validation;
                 $validation->set_rules('name', 'Name', 'required');
+                $validation->set_rules('finished_good', 'Finished Good', 'required');
                 if ($validation->run() == false) {
                     return flash()->withError(validation_errors())->back();
                 }

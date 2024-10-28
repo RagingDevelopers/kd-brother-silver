@@ -54,8 +54,19 @@ const setOptions = function (response, selected_id = null) {
 	var selected = "";
 	options += `<option value=""> Select <option>`;
 	$.each(response, function (key, value) {
-		selected = selected_id != null && selected_id == value ? "selected" : " ";
+		selected = selected_id != null && selected_id == value.id ? "selected" : " ";
 		options += `<option value="${value.id}" ${selected}>${value.name}</option>`;
+	});
+	return options;
+};
+
+const setLotWiseRmOptions = function (response, selected_id = null) {
+// 	var options = "";
+	var selected = "";
+	var options = `<option value=""> Select RM<option>`;
+	$.each(response, function (key, value) {
+		selected = selected_id != null && selected_id == value.id ? "selected" : " ";
+		options += `<option value="${value.id}" ${selected} data-weight="${value.rem_weight}" data-touchData="${value.touch}" data-quantity="${value.rem_quantity}" data-oldWeight="${value.weight || 0}" data-oldQuantity="${value.quantity || 0}" >${value.id} - ${value.code} &nbsp; Weight: ${value.rem_weight} Quantity :  ${value.rem_quantity}</option>`;
 	});
 	return options;
 };
@@ -209,7 +220,7 @@ const alert_if = (message, callBack) => {
 
 $("body").on(
 	"keydown change",
-	"input, select,textarea,.remove-btn",
+	"input, select,textarea,.remove-btn,.Receivedmaterial,.select2",
 	function (e) {
 		if (e.key !== "Enter") {
 			return;
@@ -222,6 +233,7 @@ $("body").on(
 			.find("input,a,select,button,textarea,.select2")
 			.filter(":visible");
 		next = focusable.eq(focusable.index(this) + 1);
+		
 		if (next.length) {
 			if ($(next[0]).data("select2") != undefined) {
 				$(next[0]).select2("open");
@@ -249,6 +261,33 @@ $("body").on(
 	}
 );
 
+$(document).on("change", "select", function (e) {
+    var temp = $(this);
+    
+    setTimeout(function () {
+        // Remove focus class from any Select2 container
+        $(".select2-container--focus").removeClass("select2-container--focus");
+
+        // Blur the currently focused element
+        $(":focus").select();
+
+        var nextElement = temp.parent().next().find("select");
+
+        if (nextElement.hasClass("select2-hidden-accessible")) {
+            // If the next input is a Select2 element, open the dropdown
+            nextElement.select2("open");
+        } else {
+            if (nextElement.attr("type") === "hidden") {
+                // If the next input is hidden, find the next visible input and focus on it
+                temp.parent().next().next().find("select").focus().select();
+            } else {
+                // Otherwise, focus and select the next input
+                nextElement.focus().select();
+            }
+        }
+    }, 50);
+});
+	
 /* common Jquery validation for all input just add */
 jQuery.validator.setDefaults({
 	debug: false,

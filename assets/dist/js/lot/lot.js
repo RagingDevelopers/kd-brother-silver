@@ -10,7 +10,7 @@ reportTable.children("tbody").html("");
 
 $(document).ready(function () {
 	// console.log(mainRow);
-
+	
 	$(document).on("click", ".close-btn-dada-row", function () {
 		$(this).parent().parent().remove();
 		calculateNetAmount();
@@ -27,6 +27,8 @@ $(document).ready(function () {
 	var donePcs = $(".done-pcs");
 	var selectCustomer = $('select[name="m_customer"]');
 	var selectItem = $('select[name="m_item"]');
+	var selectStamp = $('select[name="stamp"]');
+	var selectTouch = $('.touch');
 	var selectGroup = $('select[name="m_group"]');
 	var designCode = $("#input-design-code");
 	var designCodeImage = $(".design-code-image");
@@ -49,22 +51,45 @@ $(document).ready(function () {
 	});
 
 	$(document).on("blur", "#barcode", function () {
+		$('.stamp').val("").trigger('change');
 		var barcode = $(this).val().trim();
 		$(".autodatanotshown").hide();
 		if (barcode) {
 			$.ajax({
-				url: `${BaseUrl}manufacturing/lot/receiveBarcode/${barcode}`,
+				url: `${BaseUrl}manufacturing/lot/receiveBarcode`,
 				showLoader: true,
+				type : 'POST',
+				data : {
+					barcode : barcode
+				},
 				success: function (data) {
 					data = jQuery.parseJSON(data);
 					if (data.success) {
+						var last_lot_creation = data.data.last_lot_creation;
 						data = data.data;
 						SweetAlert("success", "Tag Data Fetched SuccessFully!");
 						setReport(data);
 						grossWeight.html(data.data.total_weight);
+						selectTouch.val(data.data.touch);
 						tLotPcs.html(data.data.pcs);
 						selectCustomer.val(data.data.customer_id).trigger("change");
-						selectItem.val(data.data.item_id).trigger("change");
+
+						if(last_lot_creation != "" && last_lot_creation != null){
+							selectItem.val(last_lot_creation.item_id).trigger("change");
+							selectItem.attr("data-sub_item", last_lot_creation.sub_item_id);
+							// setSubItem(selectItem.val(), selectItem,last_lot_creation.sub_item_id);
+							selectStamp.val(last_lot_creation.stamp_id).trigger('change');
+							
+						}else{
+							selectItem.val(data.data.item_id).trigger("change");
+							setSubItem(selectItem.val(),selectItem);
+						}
+						setTimeout(() => {
+							var selected_id = selectItem.attr('data-sub_item');
+							setSubItem(selectItem.val(),selectItem,selected_id);
+						}, 100);
+
+
 						selectGroup.val(data.data.group_id).trigger("change");
 						designCode.val(data.data.design_code);
 
@@ -95,7 +120,7 @@ $(document).ready(function () {
 						var nrg = cgwr + 0.1;
 						var npre = cgwr - 0.1;
 					} else {
-						SweetAlert("error","Something Went Wrong");
+						SweetAlert("error",data.message);
 					}
 				},
 				complete: function (data) {
@@ -104,6 +129,7 @@ $(document).ready(function () {
 				},
 			});
 		}
+		
 	});
 
 	$(document).on("keyup", ".input-actual-weight", function () {
@@ -322,7 +348,42 @@ $(document).ready(function () {
 			$("#form-print_anex_custom_tags").submit();
 		}
 	});
+
+	$(document).on("change", ".item", function () {
+		setSubItem($(this).val(),$(this));
+	});
 });
+
+function setSubItem(item_id = null, ref, selected_id = null) {
+	if(item_id != "" && item_id != null) {
+		ref.parents('.m_item').next().find('.sub_item').html("");
+		$.ajax({
+			type: "POST",
+			showloader: true,
+			dataType: "json",
+			url: `${BaseUrl}manufacturing/ready_for_sale/getSubItem`,
+			method: "POST",
+			data: {
+				item_id,
+			},
+			success: async function(response) {
+				if (response.success) {
+					var getSubItem = setOptions(response.data, selected_id);
+					if (selected_id != null && selected_id != "") {
+						ref.parents('.m_item').next().find('.sub_item').html(getSubItem);
+						ref.parents('.m_item').next().find('.sub_item').val(selected_id);
+					} else {
+						ref.parents('.m_item').next().find('.sub_item').html(getSubItem);
+					}
+				} else {
+					SweetAlert('error', response.message);
+				}
+			},
+		});
+	}else{
+		ref.parents('.m_item').next().find('.sub_item').html("");
+	}
+}
 
 function calculateAmtWr(row) {
 	var rate = row.children("td.td-rate").children(".input-sal-rate").val();
@@ -404,16 +465,21 @@ function setReport(data) {
 		var tdSrNo = row.children(".report-td-sr-no");
 		var tagNo = row.children(".report-td-tag-no");
 		var item = row.children(".report-td-item");
+		var sub_item = row.children(".report-td-sub_item");
+		var stamp = row.children(".report-td-stamp");
 		var gross_weight = row.children(".report-td-gross-weight");
 		var l_weight = row.children(".report-td-l-weight");
 		var pcs = row.children(".report-td-pcs");
+		var Touch = row.children(".report-td-nt-touch");
 		var nt_weight = row.children(".report-td-nt-weight");
 		var amount = row.children(".report-td-amount");
 		var crerated_at = row.children(".report-td-created-at");
 
 		var action = row.children(".report-td-lot-creation_id");
 		action.data("id", element.id);
-		if (element.status == "1") {
+		action.find('.report-edit-row-btn').attr("data-id", element.id);
+		action.find('.report-delete-row-btn').attr("data-id", element.id);
+		if (element.status == "1" || element.status == "2") {
 			row
 				.children(".report-td-lot-creation_id")
 				.children("button.tohide")
@@ -425,20 +491,32 @@ function setReport(data) {
 
 		tdSrNo.html(checkBoxWithSrNo);
 		srNo++;
-		tagNo.html(element.tag);
+
+		if(element.status == 0 ){
+			var tag = `<span class="text-warning">${element.tag}</span>`;
+		}else if(element.status == 1 ){
+			var tag = `<span class="text-primary">${element.tag}</span>`;
+		}else if(element.status == 2){
+			var tag = `<span class="text-success">${element.tag}</span>`;
+		}
+		tagNo.html(tag);
 		item.html(element.item_name);
+		sub_item.html(element.sub_item_name);
+		stamp.html(element.stamp_name);
 		pcs.html(element.piece);
 		gross_weight.html(element.gross_weight);
 		l_weight.html(element.l_weight);
 		nt_weight.html(element.net_weight);
 		amount.html(element.amt);
 		crerated_at.html(element.created_at);
+		Touch.html(element.touch);
 
 		totalGrossWeight += parseFloat(element.gross_weight);
 		totalLessWeight += parseFloat(element.l_weight);
 		totalNetWeight += parseFloat(element.net_weight);
 		totalAmount += parseFloat(element.amt);
 		totalPcs += parseFloat(element.piece);
+
 	});
 
 	$(".gr-weight").text(totalGrossWeight);

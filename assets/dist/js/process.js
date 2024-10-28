@@ -1,11 +1,13 @@
-var garnuTouch = $("#gatnuTouch").val();
-var mainRow = $(".mainRow")[0].outerHTML;
+var garnuTouch = $(".given_touch").val();
+var diffmainRow = $(".diffmainRow")[0]?.outerHTML;
+var mainRow = $(".mainRow")[0]?.outerHTML;
 var mainRmRow = $(".main-row")[0]?.outerHTML;
 var metalRow = $(".metalRow")[0]?.outerHTML;
-var usedmetal = $(".sectiontocopy")[0].outerHTML;
+var usedmetal = $(".sectiontocopy")[0]?.outerHTML;
 var ReceivedMainRow;
 var rmBtn = null;
 var receiveBtn = null;
+var receiveTable = null;
 
 // var receiveCode = $("#receiveCode").val();
 // if ($(".receiveCode").parent().hasClass('d-none')) {
@@ -21,7 +23,145 @@ $(document).ready(function () {
 		placeholder: "-- Select --",
 		allowClear: true,
 	});
+
+	$("#row_materialTable").DataTable({
+		iDisplayLength: 6,
+		lengthMenu: [
+			[6, 10, 25, 50, 100, 500, 1000, 5000],
+			[6, 10, 25, 50, 100, 500, 1000, 5000],
+		],
+		processing: true,
+		serverSide: true,
+		destroy: true,
+		serverMethod: "post",
+		searching: true,
+		ajax: {
+			url: `${BaseUrl}manufacturing/process/getRowMaterials`,
+			data: function (data) {
+				data.garnu_id = $(".garnu_id").val() ?? null;
+			},
+		},
+		columns: [
+			{
+				data: "id",
+			},
+			{
+				data: "row_material",
+			},
+			{
+				data: "process_name",
+			},
+			{
+				data: "type",
+				render: function (data, type, row) {
+					if (row["type"] == "Received") {
+						return `<span class='text-success'>Received</span>`;
+					} else if (row["type"] == "Given") {
+						return `<span class='text-danger'>Given</span>`;
+					}
+				},
+			},
+			{
+				data: "touch",
+			},
+			{
+				data: "weight",
+			},
+			{
+				data: "quantity",
+			},
+		],
+	});
+
+	receiveTable = $("#receiveTable").DataTable({
+		iDisplayLength: 5,
+		lengthMenu: [
+			[5, 10, 25, 50, 100, 500, 1000, 5000],
+			[5, 10, 25, 50, 100, 500, 1000, 5000],
+		],
+		processing: true,
+		serverSide: true,
+		destroy: true,
+		serverMethod: "post",
+		searching: true,
+		ajax: {
+			url: `${BaseUrl}manufacturing/process/getReceiveData`,
+			data: function (data) {
+				data.garnu_id = $(".garnu_id").val() ?? null;
+			},
+		},
+		columns: [
+			{
+				data: "id",
+			},
+			{
+				data: "item",
+			},
+			{
+				data: "process_name",
+			},
+			{
+				data: "touch",
+			},
+			{
+				data: "weight",
+			},
+			{
+				data: "row_material_weight",
+			},
+			{
+				data: "total_weight",
+			},
+			{
+				data: "quantity",
+			},
+		],
+	});
 });
+
+$(document).on("input", ".given_touch", function () {
+	var touch = $(this);
+	if (touch.val() > 100) {
+		SweetAlert("warning", "Touch should be less than equal to 100"),
+			touch.val("");
+	} else {
+		garnuTouch = touch.val();
+	}
+});
+
+$(document).on("change", ".isReceive", function () {
+	$('.isReceive').not(this).prop('checked', false);
+	isChecked($(this));
+});
+
+function isChecked(ref) {
+	if (ref.is(":checked")) {
+		var finished_good = ref.data('finished_good');
+		if (finished_good == 'Yes') {
+			$('.given-qty').val(ref.attr('data-pcs'));
+			$('.given_weight').val(ref.attr('data-total_weight'));
+			$('.item').val(ref.attr('data-item_id')).trigger('change');
+		}
+		$('.given_touch').val(ref.attr('data-touch'));
+		// $('.finalWeight').val(ref.attr('data-total_weight'));
+		// $('.totalRmWeight').val(ref.attr('data-rmweight'));
+		// 		$('.process').val(ref.attr('data-process_id')).trigger('change');
+		$('.receiveId').val(ref.attr('data-receiveid'));
+		// 		setTimeout(() => {
+		// 			$('.workers').val(ref.attr('data-worker')).trigger('change');
+		// 		}, 1000);
+	} else {
+		$('.given-qty').val(0);
+		$('.given_weight').val(0);
+		$('.given_touch').val(0);
+		// $('.finalWeight').val(ref.attr('data-total_weight'));
+		// $('.totalRmWeight').val(ref.attr('data-rmweight'));
+		// 		$('.process').val("").trigger('change');
+		$('.item').val("").trigger('change');
+		$('.receiveId').val("");
+	}
+	autoValueEnter();
+}
 
 $(".ManageProcess").submit(function (e) {
 	e.preventDefault();
@@ -37,16 +177,39 @@ $(".ManageProcess").submit(function (e) {
 		.addField(".given-qty", "Please Enter Given Quantity!")
 		.addField(".given_weight", "Please Enter Given Weight!");
 
+	if ($(".process").val() == 1) {
+		validator
+			.addField("#material-type", "Please select material Type!", (el) => el.select2("open"))
+			.addField(".closingTouch", "Please select Closing Touch!", (el) => el.select2("open"))
+	}
+
 	if (!validator.validate()) return;
 
 	if ($(".finalWeight").val() <= 0) {
 		$(".finalWeight").val("0");
 		// $(".finalWeight").focus();
-		SweetAlert("warning", "Final Weight should be greater than 0");
-		return;
+// 		SweetAlert("warning", "Final Weight should be greater than 0");
+// 		return;
 	}
 
-	$(this).off("submit").submit();
+	var action = $(this).attr('data-action');
+	var form = $(this);
+
+	if (action === 'save_and_print') {
+		// var width = 1200;
+		// var height = 600;
+		// var left = (screen.width - width) / 2;
+		// var top = (screen.height - height) / 2;
+		// var options = "width=" + width + ",height=" + height + ",top=" + top + ",left=" + left;
+
+		// // Assuming the form action is the URL to open in the new window
+		// var url = form.attr('action');
+		// window.open(url, '_blank', options);
+		form.off("submit").submit(); // Ensure the default form submit behavior
+	} else {
+		form.off("submit").submit(); // Ensure the default form submit behavior
+	}
+
 });
 
 function WorkersData(process_id = null, selected_id = null) {
@@ -71,7 +234,8 @@ function WorkersData(process_id = null, selected_id = null) {
 			if (selected_id != null) {
 				$(".workers").html(optionHTML);
 			} else {
-				$(".workers").html(optionHTML).select2("open");
+				$(".workers").html(optionHTML);
+				// $(".workers").html(optionHTML).select2("open");
 			}
 		},
 	});
@@ -89,19 +253,55 @@ if ($(".process").val() != "") {
 	}
 }
 
-$(document)
-	.on("change", ".process", function () {
-		var process_id = $(this).val();
-		var selected_id = $(this).find(":selected").data("workerid");
+$(document).on("change", ".process", function () {
+	var process_id = $(this).val();
+	var selected_id = $(this).find(":selected").data("workerid");
+	$(".workers").empty();
+	if (process_id) {
+		WorkersData(process_id);
+	} else {
 		$(".workers").empty();
-		if (process_id) {
-			WorkersData(process_id);
-		} else {
-			$(".workers").empty();
-			$(".workers").append('<option value="">Select</option>');
-		}
-	})
-	.trigger("change");
+		$(".workers").append('<option value="">Select</option>');
+	}
+	$(".material-type").toggle(process_id == 1);
+}).trigger("change");
+$(".material-type").toggle($(".process").val() == 1);
+
+$(document).on("select2:select", "#material-type", function () {
+	metal_type_id = $(this).val();
+	$.ajax({
+		type: "POST",
+		showloader: true,
+		dataType: "json",
+		url: `${BaseUrl}manufacturing/main_garnu/getStockTouch`,
+		method: "POST",
+		data: {
+			metal_type_id,
+		},
+		success: function (response) {
+			if (response.success) {
+				var getTouch = getOptions(response.data, selected_id);
+				if (selected_id != null) {
+					$(".closingTouch").html(getTouch);
+				} else {
+					$(".closingTouch").html(getTouch).select2("open");
+				}
+			} else {
+				SweetAlert('warning', response.message);
+			}
+		},
+	});
+});
+$(document).on("select2:select", ".closingTouch", function () {
+	let selectedValue = $(this).val();
+	let modifiedValue = selectedValue.replace(/KG|-/g, '').trim();
+	let valuesArray = modifiedValue.split(' ').filter(Boolean).map(item => item.trim());
+	// 	console.log(valuesArray);
+	$(".given_touch").val(valuesArray[0]);
+	$(".given_weight").val(valuesArray[1]);
+
+	autoValueEnter();
+});
 
 function autoValueEnter() {
 	var totalRmWeight = parseFloat($(".totalRmWeight").val()) || 0;
@@ -133,6 +333,31 @@ $("button[data-target='#exampleModal']").click(function (event) {
 	// 		$(this).val('NO');
 	// 	}
 	// });
+	$(".rowMateralWiseLot").each(function () {
+		var ref = $(this);
+		var row_material_id = $(this).val();
+		var lot_wise_rm_id = $(this).attr('data-lot_wise_rm_id');
+		$.ajax({
+			type: "POST",
+			showloader: true,
+			dataType: "json",
+			url: `${BaseUrl}manufacturing/process/getRMWiseLot`,
+			method: "POST",
+			data: {
+				row_material_id,
+				lot_wise_rm_id,
+			},
+			success: function (response) {
+				if (response.success) {
+					ref.parents('td').next().find(".lot_wise_rm_id ").html("");
+					var getRMWiseLot = setLotWiseRmOptions(response.data, lot_wise_rm_id);
+					ref.parents('td').next().find(".lot_wise_rm_id ").html(getRMWiseLot);
+				} else {
+					ref.parents('td').next().find(".lot_wise_rm_id ").html("");
+				}
+			},
+		});
+	});
 	Rmcalculate();
 });
 
@@ -156,6 +381,7 @@ $(document).on("click", ".addButton", function () {
 		dropdownParent: $("#modal-report"),
 	});
 	lastTr.find(".row_material").last().select2("open");
+	lastTr.find(".row_material").attr("data-lot_wise_rm_id", '');
 	Rmcalculate();
 });
 
@@ -219,6 +445,65 @@ $(document).on(
 		}
 	}
 );
+$(document).on("click", ".close,.save", function () {
+	var garnuTouch = parseFloat($('.garnuTouch').text()) || 0;
+	if (garnuTouch > 0 && $(".process").find(":selected").data("autofilltouch") == "YES") {
+		$('.given_touch').val(garnuTouch);
+	}
+
+});
+$(document).on("input", ".weight,.touch", function () {
+	var weight = $(this).parents('tr').find(".weight").val();
+	var touch = $(this).parents('tr').find(".touch").val();
+	var Total = touch * weight / 100;
+	$('.fineTotal').val(Total);
+
+	var totalUsedWeight = 0, totalUsedFine = 0;
+
+	$('.rowMaterial tbody tr').each(function () {
+		var row = $(this);
+		var rowWeight = (+row.find('.weight').val());
+		var rowFine = (+row.find('.fineTotal').val());
+
+		totalUsedWeight += rowWeight;
+		totalUsedFine += rowFine;
+	});
+
+	var mainTouch = (totalUsedFine / totalUsedWeight) * 100;
+	$('.garnuTouch').text(mainTouch.toFixed(2));
+});
+$(document).on("change", ".lot_wise_rm_id", function () {
+	var touch = $(this).find(":selected").data().touchdata;
+	var weight = $(this).find(":selected").data().weight;
+	$(this).parents('tr').find('.touch').val(touch);
+	$(this).parents('tr').find('.weight').val(weight);
+
+	var Total = touch * weight / 100;
+	$('.fineTotal').val(Total);
+
+	var totalUsedWeight = 0, totalUsedFine = 0;
+
+	$('.rowMaterial tbody tr').each(function () {
+		var row = $(this);
+		var rowWeight = (+row.find('.weight').val());
+		var rowFine = (+row.find('.fineTotal').val());
+
+		totalUsedWeight += rowWeight;
+		totalUsedFine += rowFine;
+	});
+
+	var mainTouch = (totalUsedFine / totalUsedWeight) * 100;
+	$('.garnuTouch').text(mainTouch.toFixed(2));
+
+});
+
+$(document).on("change", ".givenMaterial", function () {
+	var touch = $(this).find(":selected").data().touch;
+	var weight = $(this).find(":selected").data().weight;
+	$(this).parents('tr').find('.touch2').val(touch);
+	$(this).parents('tr').find('.weight2').val(weight);
+	RmcalculateMain($(this));
+});
 
 $(document).on("input", ".totalRmWeight,.given_weight", function () {
 	autoValueEnter();
@@ -238,6 +523,12 @@ $("#modal-report").on("shown.bs.modal", function (e) {
 			dropdownParent: $(modal),
 		});
 	});
+	$(".touch").each(function () {
+		if ($(this).val() != "" && $(this).val() != null && $(this).val() <= 0) {
+			$(this).val(garnuTouch);
+		}
+	});
+	Rmcalculate();
 	var LastRm = $(".row_material").last();
 	if (LastRm.val() == "" || LastRm.val() == 0 || LastRm.val() == null) {
 		return LastRm.select2("open");
@@ -248,6 +539,7 @@ $("#modal-report").on("shown.bs.modal", function (e) {
 $(document).on("click", ".Received", function (event) {
 	event.preventDefault();
 	receiveBtn = $(this);
+	// 	window.currentReceiveButtonDataSet = $(this).data();
 	var garnu_id = $(this).data("garnu_id");
 	var given_id = $(this).data("given_id");
 	$("#receveData").html("");
@@ -290,6 +582,11 @@ $("#received1-report").on("shown.bs.modal", function (e) {
 			dropdownParent: $(modal),
 		});
 	});
+
+	$('.given_id').val($('#given_id').val());
+	$('.garnu_id').val($('#garnu_id').val());
+
+	garnuTouch = $("#givenTotal_weight").next("td").text();
 	isCompleted($("#is_completed"));
 	isKasar($("#is_kasar"));
 	ProcessMetalType();
@@ -314,12 +611,14 @@ function isCompleted(ref) {
 function isKasar(ref) {
 	if (ref.is(":checked")) {
 		$(".is_kasar").css("color", "green");
-		
 	} else {
 		$(".is_kasar").css("color", "red");
 	}
 	$(".parent-div-party").toggle(ref.is(":checked"));
-	
+	$('.transfer-account').select2({
+		width: '100%',
+		dropdownParent: $('#received1-report')
+	});
 }
 
 $(document).on("click", ".receivedAddButton2", function () {
@@ -327,6 +626,8 @@ $(document).on("click", ".receivedAddButton2", function () {
 	// if (item .val() == "") {
 	// 	return item .select2("open");
 	// }
+
+	garnuTouch = $("#givenTotal_weight").next("td").text();
 
 	$("#ReceivedBody").append(ReceivedMainRow);
 	const lastTr = $("#ReceivedBody tr").last();
@@ -338,19 +639,27 @@ $(document).on("click", ".receivedAddButton2", function () {
 		.val(0);
 	lastTr
 		.find(
-			".receivedRemark,.rmdata,.item,.receiveLabour_type,.receiveLabour_type"
+			".receivedRemark,.rmdata,.item"
 		)
 		.val("");
 	lastTr.find(".item").select2({
 		width: "300",
 		dropdownParent: $("#received1-report"),
 	});
-	
-	lastTr.find(".receiveFinal_labour").attr('data-rmfinallabour', 0);
-	lastTr.find(".receiveFinal_labour").attr('data-final_labour', 0);
+
+	if ($('.ProcessName').attr('data-labour_type') == 'PCS') {
+		lastTr.find('.receiveLabour_type').val('PCS');
+	} else if ($('.ProcessName').attr('data-labour_type') == 'WEIGHT') {
+		lastTr.find('.receiveLabour_type').val('WEIGHT');
+	} else {
+		lastTr.find('.receiveLabour_type').val('');
+	}
+
+	lastTr.find(".receiveFinal_labour").attr("data-rmfinallabour", 0);
+	lastTr.find(".receiveFinal_labour").attr("data-final_labour", 0);
 	lastTr.find(".receiveFinal_labour").val(0);
 	lastTr.find(".receivedRmWeight").val(0);
-	lastTr.find(".receivedTouch").val(garnuTouch);
+	lastTr.find(".receivedTouch").val(parseFloat(garnuTouch));
 	lastTr.find(".receivedfinalWeight").val(0);
 	var modalBody = $("#received1-report .modal-body");
 	scrollEvent(modalBody, 550);
@@ -387,7 +696,7 @@ $("#received-report").on("shown.bs.modal", function (e) {
 	});
 	var LastRm = $(".row_material2").last();
 	if (LastRm.val() == "" || LastRm.val() == 0 || LastRm.val() == null) {
-		return LastRm.select2("open");
+		// 		return LastRm.select2("open");
 	}
 });
 
@@ -414,6 +723,19 @@ $(document).on("click", ".addButton2", function () {
 		// width: "300",
 		dropdownParent: $("#received-report"),
 	});
+
+	if ($('.ProcessName').attr('data-labour_type') == 'PCS') {
+		lastTr.find('.labour_type').val('PCS').trigger("change");;
+	} else if ($('.ProcessName').attr('data-labour_type') == 'WEIGHT') {
+		lastTr.find('.labour_type').val('WEIGHT').trigger("change");;
+	} else {
+		lastTr.find('.labour_type').val('').trigger("change");;
+	}
+	lastTr.find(".rowMateralWiseLot2").attr('data-given_id', $('#given_id').val());
+	lastTr.find(".rowMateralWiseLot2").attr('data-garnu_id', $('#garnu_id').val());
+	lastTr.find(".rowMateralWiseLot2").attr("data-lot_wise_rm_id", '');
+
+
 	lastTr.find(".row_material2").last().select2("open");
 	var modalBody = $("#received-report .modal-body");
 	scrollEvent(modalBody, 550);
@@ -430,7 +752,7 @@ $(document).on("click", ".deleteRow2", function () {
 $(document).on("input", ".touch2,.weight2,.quantity2,.labour", function () {
 	RmcalculateMain($(this));
 });
-$(document).on("change", ".labour_type ", function () {
+$(document).on("change", ".labour_type", function () {
 	RmcalculateMain($(this));
 });
 
@@ -453,7 +775,7 @@ $(document).on("click", ".saveRmData", function () {
 	});
 	count == 0 ? $("#received-report").modal("hide") : null;
 
-	var modal = $("#received-report");
+	var modal = $(".receivedRmTable");
 	var container = rmBtn.parents("tr");
 	var mainSection = modal.find(".main-row");
 	var mainSectionLength = modal.find("tbody tr").length;
@@ -495,10 +817,14 @@ $(document).on("click", ".saveRmData", function () {
 	}
 	container.find(".rmdata").val(string);
 	container.find(".receivedRmWeight").val(totalRmWeight);
-	
-	container.find(".receiveFinal_labour").attr('data-rmfinallabour', RMtotalLabour);
+
+	container
+		.find(".receiveFinal_labour")
+		.attr("data-rmfinallabour", RMtotalLabour);
 	var receiveTotal_labour = container.find(".receiveTotal_labour").val();
-    container.find(".receiveFinal_labour").val(parseFloat(RMtotalLabour) + parseFloat(receiveTotal_labour));
+	container
+		.find(".receiveFinal_labour")
+		.val(parseFloat(RMtotalLabour) + parseFloat(receiveTotal_labour));
 	finalCalculation(rmBtn);
 	TotalCalculation();
 });
@@ -521,7 +847,7 @@ function finalCalculation(i) {
 
 	container.find(".receivedfinalWeight").val(receivedRmfinalWeight);
 	container.find(".receivedFine").val(receivedFine);
-	
+
 	var labour_type = container.find(".receiveLabour_type");
 	if (labour_type.val() == "PCS") {
 		container.find(".receiveTotal_labour").val(formatNumber(Pcs * labourdata));
@@ -542,10 +868,14 @@ function finalCalculation(i) {
 
 	$("#labour").text(formatNumber(receiveLabour));
 	$("#labourTotal").text(formatNumber(receiveTotal_labour));
-	
+
 	var receiveTotal_labour = container.find(".receiveTotal_labour").val();
-	var RMtotalLabour = container.find(".receiveFinal_labour").attr('data-rmfinallabour');
-    container.find(".receiveFinal_labour").val(parseFloat(RMtotalLabour) + parseFloat(receiveTotal_labour));
+	var RMtotalLabour = container
+		.find(".receiveFinal_labour")
+		.attr("data-rmfinallabour");
+	container
+		.find(".receiveFinal_labour")
+		.val(parseFloat(RMtotalLabour) + parseFloat(receiveTotal_labour));
 }
 
 $(document).on(
@@ -565,13 +895,37 @@ $(document).on("change", ".receiveLabour_type", function () {
 // 	TotalCalculation();
 // });
 
-$(document).on("click", ".Receivedmaterial", function () {
+$(document).on("click", ".Receivedmaterial", async function () {
+	rmBtn = $(this);
+	var modal = $("#received-report");
+
+	modal.find(".modal-lg").removeClass("modal-lg").addClass("modal-xl");
+	const garnu_id = $("input[name=garnu_id]", $("#received1-report")).val();
+	const given_id = $("input[name=given_id]", $("#received1-report")).val();
+	$.ajax({
+		showLoader: true,
+		url: `${BaseUrl}manufacturing/process/givenRowMaterialView`,
+		type: "POST",
+		dataType: "json",
+		data: {
+			given_id,
+			garnu_id,
+		},
+		beforeSend: function () {
+			$(".row-material-section").html(`div class='text-center h2 mb-5'> Loading... <i class="fa-solid fa-spinner fa-spin"></i></div>`);
+		}, error: function () { },
+	}).then(res => {
+		if (res.success) {
+			// setTimeout(()=> {
+			$(".row-material-section").html(res.view);
+			// },500);
+		}
+	});
+
+
 	$(".addButton2").show();
 	$(".saveRmData").show();
 	$(".hide_labour").show();
-
-	rmBtn = $(this);
-	var modal = $("#received-report");
 	var givenContainer = rmBtn.parents("tr");
 	var mainSection = modal.find(".main-row");
 	modal.find("tbody").html("");
@@ -579,6 +933,7 @@ $(document).on("click", ".Receivedmaterial", function () {
 	var data = string?.split("|");
 	mainSectionLength = data?.length ?? 0;
 	if (mainSectionLength > 0) {
+		modal.find("tbody").html("");
 		for (var i = 0; i < mainSectionLength; i++) {
 			modal.find("tbody").append(mainRmRow);
 			var row = modal.find(".main-row").eq(i),
@@ -592,15 +947,25 @@ $(document).on("click", ".Receivedmaterial", function () {
 			labour = splitByHash[6] ?? 0;
 			total_labour = splitByHash[7] ?? 0;
 			received_detail_id = splitByHash[8] ?? 0;
+
+			row.find(".row_material2").attr('data-lot_wise_rm_id', lot_wise_rm_id2);
+			row.find(".rowMateralWiseLot2 ").attr('data-given_id', $('#given_id').val());
+			row.find(".rowMateralWiseLot2 ").attr('data-garnu_id', $('#garnu_id').val());
 			row.find(".row_material2").prop("disabled", false);
-			row.find(".row_material2").val(row_material2).trigger("change");
+			row.find(".row_material2").val(row_material2);
 			if (!isNaN(lot_wise_rm_id2) && Number.isInteger(parseFloat(lot_wise_rm_id2))) {
 				row.find(".lot_wise_rm_id2").val(lot_wise_rm_id2);
+				row.find(".row_material2").trigger("change");
 			} else {
-				var newOption = new Option(lot_wise_rm_id2, lot_wise_rm_id2, true, true);
-				row.find(".lot_wise_rm_id2").append(newOption).trigger('change');
+				var newOption = new Option(
+					lot_wise_rm_id2,
+					lot_wise_rm_id2,
+					true,
+					true
+				);
+				row.find(".lot_wise_rm_id2").append(newOption).trigger("change");
 			}
-			
+
 			row.find(".touch2").val(touch2);
 			row.find(".weight2").val(weight2);
 			row.find(".quantity2").val(quantity2);
@@ -611,11 +976,18 @@ $(document).on("click", ".Receivedmaterial", function () {
 
 			RmcalculateMain(row);
 		}
+		$(".lot_wise_rm_id2").each(function () {
+			$(this).select2({
+				width: "200",
+				tags: true,
+				dropdownParent: $(modal),
+			});
+		});
 	} else {
 		modal.find("tbody").append(mainRmRow);
 	}
-	modal.find(".modal-lg").removeClass("modal-lg").addClass("modal-xl");
 	modal.modal("show");
+
 });
 
 function RmcalculateMain(ref) {
@@ -668,7 +1040,7 @@ function RmcalculateMain(ref) {
 
 $(document).on("submit", "#received-garnu", function (e) {
 	e.preventDefault();
-	$('.lot_creation').each(function(index) {
+	$(".lot_creation").each(function (index) {
 		var hiddenInput = $('input[name="lot_creation_value[]"]').eq(index);
 		hiddenInput.val(this.checked ? "YES" : "NO");
 	});
@@ -689,7 +1061,14 @@ $(document).on("submit", "#received-garnu", function (e) {
 			var response = JSON.parse(response);
 			var row = receiveBtn.parents("tr");
 			if (response.success === true) {
-				location.reload();
+				receiveTable.clear().draw(); // Clear current data
+				receiveTable.ajax.reload(null, false);
+				var currentUrl = getBaseUrlWithTwoParams();
+				var requiredUrlPart = "https://rd.ragingdevelopers.com/silver/manufacturing/process";
+				if (currentUrl == requiredUrlPart) {
+					location.reload();
+				}
+
 				row.find(".totalPcs").text($("#totalPcs").text());
 				row.find(".totalWeight").text($("#TotalWeight").text());
 				row.find(".rowMaterialWeight").text($("#rowMaterialWeight").text());
@@ -741,6 +1120,31 @@ $(document).on("submit", "#received-garnu", function (e) {
 	});
 });
 
+function getBaseUrlWithTwoParams() {
+	var protocol = window.location.protocol; // 'http:' or 'https:'
+	var host = window.location.host; // 'example.com' (includes port if there is one)
+	var pathname = window.location.pathname; // '/param1/param2/param3'
+
+	var pathParts = pathname.split("/").filter(function (el) {
+		return el.length != 0;
+	}); // Filters out any empty results due to leading slashes
+	if (pathParts.length >= 2) {
+		var urlWithTwoParams =
+			protocol +
+			"//" +
+			host +
+			"/" +
+			pathParts[0] +
+			"/" +
+			pathParts[1] +
+			"/" +
+			pathParts[2];
+		return urlWithTwoParams;
+	} else {
+		return protocol + "//" + host;
+	}
+}
+
 function TotalCalculation() {
 	var totalPcs = 0;
 	var receivedWeight = 0;
@@ -774,12 +1178,15 @@ function TotalCalculation() {
 		receiveLabour += parseFloat($(this).val() || 0);
 	});
 	$(".receiveTotal_labour").each(function () {
-	    var row = $(this);
+		var row = $(this);
 		receiveTotal_labour += parseFloat($(this).val() || 0);
-	    var RMtotalLabour = row.next().data('rmfinallabour');
-    	if(row.parent().find(".receiveFinal_labour").val() < 0){
-    	    row.parent().find(".receiveFinal_labour").val(parseFloat(RMtotalLabour) + parseFloat($(this).val() || 0));
-    	}
+		var RMtotalLabour = row.next().data("rmfinallabour");
+		if (row.parent().find(".receiveFinal_labour").val() < 0) {
+			row
+				.parent()
+				.find(".receiveFinal_labour")
+				.val(parseFloat(RMtotalLabour) + parseFloat($(this).val() || 0));
+		}
 	});
 
 	$("#totalPcs").text("");
@@ -824,7 +1231,7 @@ function TotalCalculation() {
 // 	Rmcalculate();
 // });
 
-$(document).on("input", ".weight, .quantity", function () {
+$(document).on("input change", ".weight, .quantity,.touch,.lot_wise_rm_id", function () {
 	var ref = $(this).closest("tr");
 	var lot_wise_rm_id = ref.find(".lot_wise_rm_id");
 	var weight = lot_wise_rm_id.find("option:selected").data("weight");
@@ -832,31 +1239,39 @@ $(document).on("input", ".weight, .quantity", function () {
 	var oldweight = lot_wise_rm_id.find("option:selected").data("oldweight");
 	var oldquantity = lot_wise_rm_id.find("option:selected").data("oldquantity");
 
-	
 	if (lot_wise_rm_id.find("option").length > 1 && lot_wise_rm_id.val() === "") {
 		ref.find(".weight").val("0");
 		ref.find(".quantity").val("0");
 		lot_wise_rm_id.select2("open");
 	}
-	if($('.given_id').val() != ""){
-		var  totalWeight = parseFloat(weight) + parseFloat(oldweight);
-		var  totalquantity = parseFloat(quantity) + parseFloat(oldquantity);
+	if ($(".given_id").val() != "") {
+		var totalWeight = parseFloat(weight) + parseFloat(oldweight);
+		var totalquantity = parseFloat(quantity) + parseFloat(oldquantity);
 		if (totalWeight < parseFloat(ref.find(".weight").val())) {
 			ref.find(".weight").val("");
-			SweetAlert("warning", `weight should be less than equal to ${totalWeight}`);
+			SweetAlert(
+				"warning",
+				`weight should be less than equal to ${totalWeight}`
+			);
 		}
 		if (totalquantity < parseFloat(ref.find(".quantity").val())) {
 			ref.find(".quantity").val("");
-			SweetAlert("warning", `quantity should be less than equal to ${totalquantity}`);
+			SweetAlert(
+				"warning",
+				`quantity should be less than equal to ${totalquantity}`
+			);
 		}
-	}else{
+	} else {
 		if (weight < parseFloat(ref.find(".weight").val())) {
 			ref.find(".weight").val("");
 			SweetAlert("warning", `weight should be less than equal to ${weight}`);
 		}
 		if (quantity < parseFloat(ref.find(".quantity").val())) {
 			ref.find(".quantity").val("");
-			SweetAlert("warning", `quantity should be less than equal to ${quantity}`);
+			SweetAlert(
+				"warning",
+				`quantity should be less than equal to ${quantity}`
+			);
 		}
 	}
 	Rmcalculate();
@@ -889,14 +1304,14 @@ function Rmcalculate() {
 $(document)
 	.on(
 		"focus",
-		".touch,.weight,.quantity,.Pcs,.receivedWeight,.receiveLabour,.touch2, .weight2, .quantity2,.given-qty,.labour,.metalQuantity,.metalWeight,.metalTouch,.receivedTouch,.receivedFine,.given_weight",
+		".touch,.weight,.quantity,.Pcs,.receivedWeight,.receiveLabour,.touch2, .weight2, .quantity2,.given-qty,.labour,.metalQuantity,.metalWeight,.metalTouch,.receivedTouch,.receivedFine,.given_weight,.given_touch",
 		function () {
 			handleInputFocusAndBlur(this, "focus");
 		}
 	)
 	.on(
 		"blur",
-		".touch,.weight,.quantity,.Pcs,.receivedWeight,.receiveLabour,.touch2, .weight2, .quantity2,.given-qty,.labour,.metalQuantity,.metalWeight,.metalTouch,.receivedTouch,.receivedFine,.given_weight",
+		".touch,.weight,.quantity,.Pcs,.receivedWeight,.receiveLabour,.touch2, .weight2, .quantity2,.given-qty,.labour,.metalQuantity,.metalWeight,.metalTouch,.receivedTouch,.receivedFine,.given_weight,.given_touch",
 		function () {
 			handleInputFocusAndBlur(this, "blur");
 		}
@@ -1110,9 +1525,9 @@ function setAddRow(response) {
 		$(".append-here").not(":first").remove();
 		// var $lastRow;
 		var $lastRow = $(".append-here tr").last();
-		$lastRow.find(".given-touch").val("0").trigger("change");
-		$lastRow.find(".given-weight").val("0").trigger("change");
-		$lastRow.find(".given-quantity").val("0").trigger("change");
+		$lastRow.find(".given-touch").val("0");
+		$lastRow.find(".given-weight").val("0");
+		$lastRow.find(".given-quantity").val("0");
 		$lastRow.find(".given-row_material_id").val("0");
 
 		if (response.data != "") {
@@ -1125,9 +1540,9 @@ function setAddRow(response) {
 					$lastRow = $(".append-here tr").last();
 				}
 
-				$lastRow.find(".given-touch").val(value.touch).trigger("change");
-				$lastRow.find(".given-weight").val(value.weight).trigger("change");
-				$lastRow.find(".given-quantity").val(value.quantity).trigger("change");
+				$lastRow.find(".given-touch").val(value.touch);
+				$lastRow.find(".given-weight").val(value.weight);
+				$lastRow.find(".given-quantity").val(value.quantity);
 				$lastRow
 					.find(".given-row_material_id")
 					.val(value.row_material_id)
@@ -1375,8 +1790,9 @@ $(document).on("click", ".givenMaterial", function () {
 				weight2 = splitByHash[3] ?? 0;
 			quantity2 = splitByHash[4] ?? 0;
 			received_detail_id = splitByHash[5] ?? 0;
-			row.find(".row_material2 ").val(row_material2).trigger("change");
-			row.find(".lot_wise_rm_id2 ").val(lot_wise_rm_id2).trigger("change");
+			row.find('.rowMateralWiseLot2').attr('data-lot_wise_rm_id', lot_wise_rm_id2);
+			row.find(".row_material2").val(row_material2).trigger("change");
+			row.find(".lot_wise_rm_id2").val(lot_wise_rm_id2).trigger("change");
 			row.find(".touch2").val(touch2);
 			row.find(".weight2").val(weight2);
 			row.find(".quantity2").val(quantity2);
@@ -1409,53 +1825,298 @@ $(".given_print").click(function (event) {
 		"width=" + width + ",height=" + height + ",top=" + top + ",left=" + left;
 	window.open($(this).attr("href"), "_blank", options);
 });
-$(document).ready(function () {
-	var table = $("#row_materialTable").DataTable({
-		iDisplayLength: 6,
-		lengthMenu: [
-			[6,10, 25, 50, 100, 500, 1000, 5000],
-			[6,10, 25, 50, 100, 500, 1000, 5000],
-		],
-		processing: true,
-		serverSide: true,
-		destroy: true,
-		serverMethod: "post",
-		searching: true,
-		ajax: {
-			url: `${BaseUrl}manufacturing/process/getRowMaterials`,
-			data: function (data) {
-				data.garnu_id = $(".garnu_id").val() ?? null;
-			},
+
+$(".printButton").click(function (event) {
+	event.preventDefault();
+	var width = 1200;
+	var height = 600;
+	var left = (screen.width - width) / 2;
+	var top = (screen.height - height) / 2;
+	var options =
+		"width=" + width + ",height=" + height + ",top=" + top + ",left=" + left;
+	window.open($(this).attr("href"), "_blank", options);
+});
+
+$(document).on("change", ".rowMateralWiseLot", function () {
+	var ref = $(this);
+	var modal = $("#modal-report");
+	var row_material_id = $(this).val();
+	var lot_wise_rm_id = $(this).attr('data-lot_wise_rm_id');
+	// 	var lot_wise_rm_id = null;
+	$.ajax({
+		type: "POST",
+		showloader: true,
+		dataType: "json",
+		url: `${BaseUrl}manufacturing/process/getRMWiseLot`,
+		method: "POST",
+		data: {
+			row_material_id,
+			lot_wise_rm_id,
 		},
-		columns: [
-			{
-				data: "id",
-			},
-			{
-				data: "row_material",
-			},
-			{
-				data: "process_name",
-			},
-			{
-				data: "type",
-				render: function (data, type, row) {
-					if (row["type"] == "Received") {
-						return `<span class='text-success'>Received</span>`;
-					} else if (row["type"] == "Given") {
-						return `<span class='text-danger'>Given</span>`;
-					}
-				},
-			},
-			{
-				data: "touch",
-			},
-			{
-				data: "weight",
-			},
-			{
-				data: "quantity",
-			},
-		],
+		success: function (response) {
+			if (response.success) {
+				ref.parents('td').next().find(".lot_wise_rm_id").html("");
+				var getRMWiseLot = setLotWiseRmOptions(response.data, lot_wise_rm_id);
+				ref.parents('td').next().find(".lot_wise_rm_id").html(getRMWiseLot);
+				$(".lot_wise_rm_id").each(function () {
+					$(this).select2({
+						dropdownParent: $(modal),
+					});
+				});
+			} else {
+				ref.parents('td').next().find(".lot_wise_rm_id").html("");
+				SweetAlert('warning', response.message);
+			}
+		},
 	});
 });
+$(document).on("change", ".rowMateralWiseLot2", function () {
+	var ref = $(this);
+	var row_material_id = $(this).val();
+	var given_id = $(this).attr('data-given_id');
+	var garnu_id = $(this).attr('data-garnu_id');
+
+	if (row_material_id) {
+		var lot_wise_rm_id = $(this).attr('data-lot_wise_rm_id');
+		var modal = $("#received-report");
+		$.ajax({
+			type: "POST",
+			showloader: true,
+			dataType: "json",
+			url: `${BaseUrl}manufacturing/process/getRMWiseLot`,
+			method: "POST",
+			data: {
+				row_material_id,
+				lot_wise_rm_id,
+				given_id,
+				garnu_id
+			},
+			success: function (response) {
+				if (response.success) {
+					ref.parents('td').next().find(".lot_wise_rm_id2").html("");
+					var getRMWiseLot = setLotWiseRmOptions(response.data, lot_wise_rm_id);
+					ref.parents('td').next().find(".lot_wise_rm_id2").html(getRMWiseLot);
+					$(".lot_wise_rm_id2").each(function () {
+						$(this).select2({
+							tags: true,
+							dropdownParent: $(modal),
+						});
+					});
+				} else {
+					ref.parents('td').next().find(".lot_wise_rm_id2").html("");
+					SweetAlert('warning', response.message);
+				}
+			},
+		});
+	}
+});
+
+$(document).on("click", ".update_to_after_all", function () {
+	// var AverageTouch = $('.AverageTouch').text();
+	var numericValue = $('.AverageTouch').text().match(/[\d.]+/)[0];
+
+	// Convert the extracted value to a float
+	var AverageTouch = parseFloat(numericValue);
+
+	if (AverageTouch === 0) {
+		SweetAlert('error', 'Average Touch is 0');
+		return false;
+	} else {
+		var modal = $("#showDiffrence");
+		var given_id = $(this).attr('data-given_id');
+		var garnu_id = $(this).attr('data-garnu_id');
+		var process_id = $(this).attr('data-process_id');
+
+		$.ajax({
+			type: "POST",
+			showloader: true,
+			dataType: "json",
+			url: `${BaseUrl}manufacturing/process/updateToAfterAll`,
+			method: "POST",
+			data: {
+				garnu_id,
+				given_id,
+				AverageTouch,
+				process_id
+			},
+			success: function (response) {
+				if (response.success) {
+					SweetAlert('success', response.message);
+				} else {
+					SweetAlert('warning', response.message);
+				}
+
+			},
+		});
+		modal.modal("hide");
+	}
+});
+
+$(document).on("click", ".showDiffrence", function () {
+	var modal = $("#showDiffrence");
+	var given_id = $(this).attr('data-given_id');
+	var garnu_id = $(this).attr('data-garnu_id');
+	var process_id = $(this).attr('data-process_id');
+	var show_or_not = $(this).attr('data-show_or_not');
+	if (show_or_not == "YES") {
+		$('.update_to_after_all').show();
+	} else if (show_or_not == "NO") {
+		$('.update_to_after_all').hide();
+	}
+
+	$.ajax({
+		type: "POST",
+		showloader: true,
+		dataType: "json",
+		url: `${BaseUrl}manufacturing/process/getGRDiffrence`,
+		method: "POST",
+		data: {
+			garnu_id,
+			given_id,
+
+		},
+		success: function (response) {
+			if (response.success) {
+				$("#diffTBody").html("");
+				var receiveData = response.data.receiveData;
+				var givenData = response.data.givenData;
+				$('.update_to_after_all').attr('data-given_id', given_id);
+				$('.update_to_after_all').attr('data-garnu_id', garnu_id);
+				$('.update_to_after_all').attr('data-process_id', process_id);
+
+				var maxData = (response.data.maxData === "receiveData") ? receiveData : givenData;
+				var otherData = (response.data.maxData === "receiveData") ? givenData : receiveData;
+				var maxDataKey = (response.data.maxData === "receiveData") ? 'receiveData' : 'givenData';
+
+				$.each(maxData, function (index, value) {
+					$("#diffTBody").append(diffmainRow);
+					var lastTr = $("#diffTBody tr").last();
+
+					if (maxDataKey === 'givenData') {
+						lastTr.find(".givenRmDiff").html(value.row_material_name);
+						lastTr.find(".givenLotRmDiff").html(value.lot_wise);
+						lastTr.find(".givenTouchDiff").html(value.touch);
+						lastTr.find(".givenWeightDiff").html(value.weight);
+						lastTr.find(".givenQtyDiff").html(value.quantity);
+						
+						lastTr.find(".FineDiff").html((value.touch*value.weight)/100)
+					} else {
+						lastTr.find(".receiveRmDiff").html(value.row_material_name);
+						lastTr.find(".receiveLotRmDiff").html(value.lot_wise);
+						lastTr.find(".receiveTouchDiff").html(value.touch);
+						lastTr.find(".receiveWeightDiff").html(value.weight);
+						lastTr.find(".receiveQtyDiff").html(value.quantity);
+					}
+				});
+
+				$.each(otherData, function (index, value) {
+					var lastTr = $("#diffTBody tr").eq(index);
+					if (maxDataKey === 'receiveData') {
+						lastTr.find(".givenRmDiff").html(value.row_material_name);
+						lastTr.find(".givenLotRmDiff").html(value.lot_wise);
+						lastTr.find(".givenTouchDiff").html(value.touch);
+						lastTr.find(".givenWeightDiff").html(value.weight);
+						lastTr.find(".givenQtyDiff").html(value.quantity);
+					} else {
+						lastTr.find(".receiveRmDiff").html(value.row_material_name);
+						lastTr.find(".receiveLotRmDiff").html(value.lot_wise);
+						lastTr.find(".receiveTouchDiff").html(value.touch);
+						lastTr.find(".receiveWeightDiff").html(value.weight);
+						lastTr.find(".receiveQtyDiff").html(value.quantity);
+					}
+				});
+				
+				$.each()
+				
+				RMdifferenceCalculator();
+			} else {
+				SweetAlert('warning', response.message);
+			}
+
+		},
+	});
+
+	modal.modal("show");
+});
+
+function setActionType(type) {
+	$('.ManageProcess').attr('data-action', type);
+	document.getElementById('save_print').value = type;
+}
+
+function RMdifferenceCalculator() {
+	var TotalGiventouch = 0;
+	var TotalGivenweight = 0;
+	var TotalGivenQty = 0;
+	var TotalReceivetouch = 0;
+	var TotalReceiveweight = 0;
+	var TotalReceiveQty = 0;
+	var TotalWeightDiff = 0;
+	var TotalFineDiff = 0;
+
+	$(".givenTouchDiff").each(function () {
+		TotalGiventouch += parseFloat($(this).text() || 0);
+	});
+	$(".givenWeightDiff").each(function () {
+		TotalGivenweight += parseFloat($(this).text() || 0);
+	});
+	$(".givenQtyDiff").each(function () {
+		TotalGivenQty += parseFloat($(this).text() || 0);
+	});
+	$(".receiveTouchDiff").each(function () {
+		TotalReceivetouch += parseFloat($(this).text() || 0);
+	});
+	$(".receiveWeightDiff").each(function () {
+		TotalReceiveweight += parseFloat($(this).text() || 0);
+	});
+	$(".receiveQtyDiff").each(function () {
+		TotalReceiveQty += parseFloat($(this).text() || 0);
+	});
+
+	$(".diffmainRow").each(function () {
+		var ref = $(this);
+		ref.find('.TouchDiff').html("");
+		ref.find('.WeightDiff').html("");
+		ref.find('.QtyDiff').html("");
+
+		// ref.find('.TouchDiff').html((ref.find('.givenTouchDiff').text()) - (ref.find('.receiveTouchDiff').text()));
+		ref.find('.WeightDiff').html((ref.find('.givenWeightDiff').text()) - (ref.find('.receiveWeightDiff').text()));
+		ref.find('.QtyDiff').html((ref.find('.givenQtyDiff').text()) - (ref.find('.receiveQtyDiff').text()));
+		ref.find('.FineDiff').html(((ref.find('.givenTouchDiff').text() * ref.find('.WeightDiff').text()) / 100).toFixed(2));
+	});
+
+    $(".FineDiff").each(function () {
+		TotalFineDiff += parseFloat($(this).text() || 0);
+	});
+
+	// 	$(".givenTotaltouchDiff").text("");
+	$(".givenTotalweightDiff").text("");
+	$(".givenTotalqtyDiff").text("");
+	$(".receiveTotaltouchDiff").text("");
+	$(".receiveTotalweightDiff").text("");
+	$(".receiveTotalqtyDiff").text("");
+	// 	$(".TotaltouchDiff").html("");
+	$(".TotalweightDiff").html("");
+	$(".TotalqtyDiff").html("");
+	$(".AverageTouch").html("");
+
+	// 	$(".givenTotaltouchDiff").text(formatNumber(TotalGiventouch || 0));
+	$(".givenTotalweightDiff").text(formatNumber(TotalGivenweight || 0));
+	$(".givenTotalqtyDiff").text(formatNumber(TotalGivenQty || 0));
+	// 	$(".receiveTotaltouchDiff").text(formatNumber(TotalReceivetouch || 0));
+	$(".receiveTotalweightDiff").text(formatNumber(TotalReceiveweight || 0));
+	$(".receiveTotalqtyDiff").text(formatNumber(TotalReceiveQty || 0));
+
+	// 	$(".TotaltouchDiff").html(`Touch : ${formatNumber(TotalGiventouch) - formatNumber(TotalReceivetouch)}`);
+	$(".TotalweightDiff").html(`Weight : ${formatNumber(TotalGivenweight) - formatNumber(TotalReceiveweight)}`);
+	$(".TotalFineDiff").html(`Fine : ${TotalFineDiff.toFixed(2)}`);
+	$(".TotalqtyDiff").html(`Qty : ${formatNumber(TotalGivenQty) - formatNumber(TotalReceiveQty)}`);
+
+	var totalUsedWeight = formatNumber(TotalGivenweight) / formatNumber(TotalReceiveweight);
+	if (totalUsedWeight === 0) {
+		$(".AverageTouch").html("Average Touch: 0%");
+	} else {
+		var AverageTouch = (TotalFineDiff / (formatNumber(TotalGivenweight) - formatNumber(TotalReceiveweight)))*100;
+		$(".AverageTouch").html(`Average Touch: ${formatNumber(AverageTouch)}%`);
+	}
+}

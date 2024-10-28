@@ -24,28 +24,50 @@ class Lot extends CI_Controller
 		$page_data['page_title']  = "Lot";
 		$page_data['customer']    = $this->dbh->getResultArray('customer');
 		$page_data['item']        = $this->dbh->getResultArray('item');
+		$page_data['stamp']        = $this->dbh->getResultArray('stamp');
 		$page_data['barcode'] = $barcode;
 		view(self::View, $page_data);
 	}
 
-	public function receiveBarcode($barcode = 0)
+	public function receiveBarcode()
 	{
+		$validation = $this->form_validation;
+        $validation->set_rules('barcode', 'Barcode', 'trim|required');
+
+        if (!$validation->run()) {
+            $response = [ 'success' => false, 'message' => validation_errors()];
+            echo json_encode($response);
+            return;
+        }
+        
+        $barcode = $this->input->post('barcode');
+
 		if ($this->dbh->isDataExists('receive', ['code' => $barcode])) {
-			$this->db->select('receive.*,item.name as item_name');
+			$this->db->select('*');
 			$this->db->from('receive');
-			$this->db->join('item', 'receive.item_id = item.id', 'left');
-			$this->db->where(array('receive.lot_creation' => 'YES', 'receive.code' => $barcode));
+			$this->db->where(array('lot_creation' => 'YES', 'code' => $barcode));
 			$responce = $this->db->get()->row_array();
 
-			$this->db->select('lot_creation.*,item.name as item_name');
+			$this->db->select('lot_creation.*,item.name as item_name,sub_item.name as sub_item_name,stamp.name as stamp_name');
 			$this->db->from('lot_creation');
 			$this->db->join('item', 'lot_creation.item_id = item.id', 'left');
+			$this->db->join('sub_item', 'lot_creation.sub_item_id = sub_item.id', 'left');
+			$this->db->join('stamp', 'lot_creation.stamp_id = stamp.id', 'left');
 			$this->db->where(array('lot_creation.barcode' => $barcode));
+			$this->db->order_by('lot_creation.id', 'DESC');
 			$lot_creation = $this->db->get()->result_array();
+			
+			$this->db->select('item_id,sub_item_id,stamp_id');
+			$this->db->from('lot_creation');
+			$this->db->where('barcode', $barcode);
+			$this->db->order_by('id', 'DESC');
+			$this->db->limit(1);
+			$lastLotCreation = $this->db->get()->row();
 
 			$data = [
 				'data' => $responce,
-				'lot_creation' => $lot_creation
+				'lot_creation' => $lot_creation,
+				'last_lot_creation' => $lastLotCreation
 			];
 
 			if (!empty($data['data']) || !empty($data['lot_creation'])) {
@@ -54,7 +76,7 @@ class Lot extends CI_Controller
 				$response = ['success' => false, 'message' => 'Data Not Found.', 'data' => []];
 			}
 		} else {
-			$response = ['success' => false, 'message' => 'Data Not Found.', 'data' => []];
+			$response = ['success' => false, 'message' => 'Invalid Barcode.', 'data' => []];
 		}
 		echo json_encode($response);
 		return;
@@ -94,7 +116,8 @@ class Lot extends CI_Controller
 		checkPrivilege(privilege['lot_creation_delete']);
 		$id = $this->security->xss_clean($id);
 			$this->db->where('id', $id);
-		if ($this->db->delete('lot_creation')) {
+		$delete = $this->db->delete('lot_creation');
+		if ($delete) {
 			echo 'success';
 		} else {
 			echo 'failed';

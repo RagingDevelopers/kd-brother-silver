@@ -19,6 +19,7 @@ class Sales_return extends CI_Controller
 	    checkPrivilege(privilege['sale_return_view']);
 		$page_data['page_title'] = 'Sales Return Report';
 		$page_data['party'] = $this->sales_return->fetch_party();
+		$page_data['items'] = $this->sales_return->fetch_item();
 		return view(self::View, $page_data);
 	}
 
@@ -69,6 +70,7 @@ class Sales_return extends CI_Controller
 			$saleDetail['less_weight'] = $data['less_weight'][$i];
 			$saleDetail['net_weight'] = $data['net_weight'][$i];
 			$saleDetail['touch'] = $data['touch'][$i];
+			$saleDetail['pre_touch'] = $data['pre_touch'][$i];
 			$saleDetail['wastage'] = $data['wastage'][$i];
 			$saleDetail['fine'] = $data['fine'][$i];
 			$saleDetail['piece'] = $data['piece'][$i];
@@ -167,6 +169,7 @@ class Sales_return extends CI_Controller
 			$saleDetail['less_weight'] = $data['less_weight'][$i];
 			$saleDetail['net_weight'] = $data['net_weight'][$i];
 			$saleDetail['touch'] = $data['touch'][$i];
+			$saleDetail['pre_touch'] = $data['pre_touch'][$i];
 			$saleDetail['wastage'] = $data['wastage'][$i];
 			$saleDetail['fine'] = $data['fine'][$i];
 			$saleDetail['piece'] = $data['piece'][$i];
@@ -301,6 +304,7 @@ class Sales_return extends CI_Controller
 				S.id AS sales_id,
 				S.`created_at` AS created_at,
 				SI.touch,
+				SI.pre_touch,
 				I.name AS item_name,
 				city.name AS city
 			FROM sale_return_detail SI 

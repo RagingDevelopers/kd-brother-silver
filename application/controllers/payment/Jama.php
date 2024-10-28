@@ -23,6 +23,7 @@ class Jama extends CI_Controller
 		// $page_data['page_name'] = 'payment/jama';
         return view(self::View,$page_data);
 	}
+	
 	public function edit($param,$param1){
 	    $num_rows = $this->db->get_where('jama',array('jama_code'=>$param));
 	    if($num_rows->num_rows()==0){

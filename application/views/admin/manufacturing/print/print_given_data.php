@@ -72,7 +72,7 @@
 							Garnu Name :- <?= $data['givenData']['garnu_name'] ?? ""; ?>
 						</th>
 						<th>
-							Touch <?= $data['givenData']['garnu_touch'] ?? ""; ?>
+							Touch <?= $data['givenData']['given_touch'] ?? ""; ?>
 						</th>
 					</tr>
 					<tr>
@@ -137,7 +137,7 @@
 							Garnu Name :- <?= $data['givenData']['garnu_name'] ?? ""; ?>
 						</th>
 						<th>
-							Touch <?= $data['givenData']['garnu_touch'] ?? ""; ?>
+							Touch <?= $data['givenData']['given_touch'] ?? ""; ?>
 						</th>
 					</tr>
 					<tr>

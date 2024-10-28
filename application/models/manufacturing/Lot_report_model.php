@@ -72,6 +72,7 @@ class Lot_report_model extends CI_Model
 		$tagNo       = $this->db->escape($this->security->xss_clean($data['tagNo']));
 		$grossWeight = $this->db->escape($this->security->xss_clean($data['grossWeight']));
 		$netWeight   = $this->db->escape($this->security->xss_clean($data['netWeight']));
+		$isSold   = $this->security->xss_clean($data['isSold']);
 
 		$searchQuery = " TRUE AND ";
 		if (!empty($data['grossWeight']) && $data['grossWeight'] !== NULL)
@@ -86,11 +87,15 @@ class Lot_report_model extends CI_Model
 			$searchQuery .= "LC.creation_date <= DATE($toDate) AND ";
 		if (!empty($data['itemId']) && $data['itemId'] !== "0")
 			$searchQuery .= " LC.item_id = $itemId AND ";
+		if (isset($isSold) && trim($isSold) !== "") {
+            $searchQuery .= " LC.status = '$isSold' AND ";
+        }
+
 		$searchQuery .= " TRUE ";
 		$this->db->query("SET SESSION sql_mode=(SELECT REPLACE(@@sql_mode, 'ONLY_FULL_GROUP_BY', ''));");
 
 		$q = "SELECT 
-				LC.item_id,
+				LC.item_id,+
 				LC.id AS lot_creation_id,
 				LC.piece,
 				LC.net_weight,

@@ -19,6 +19,7 @@ class Purchase_return extends CI_Controller
 	    checkPrivilege(privilege['purchase_return_view']);
 		$page_data['page_title'] = 'Purchase Return Report';
 		$page_data['party'] = $this->purchase->fetch_party();
+		$page_data['items'] = $this->purchase->fetch_item();
 		return view(self::View, $page_data);
 	}
 
@@ -71,6 +72,7 @@ class Purchase_return extends CI_Controller
 			$purchaseDetail['less_weight'] = $data['less_weight'][$i];
 			$purchaseDetail['net_weight'] = $data['net_weight'][$i];
 			$purchaseDetail['touch'] = $data['touch'][$i];
+			$purchaseDetail['pre_touch'] = $data['pre_touch'][$i];
 			$purchaseDetail['wastage'] = $data['wastage'][$i];
 			$purchaseDetail['fine'] = $data['fine'][$i];
 			$purchaseDetail['piece'] = $data['piece'][$i];
@@ -184,6 +186,7 @@ class Purchase_return extends CI_Controller
 			$purchaseDetail['gross_weight'] = $data['gross_weight'][$i];
 			$purchaseDetail['less_weight'] = $data['less_weight'][$i];
 			$purchaseDetail['net_weight'] = $data['net_weight'][$i];
+			$purchaseDetail['pre_touch'] = $data['pre_touch'][$i];
 			$purchaseDetail['touch'] = $data['touch'][$i];
 			$purchaseDetail['wastage'] = $data['wastage'][$i];
 			$purchaseDetail['fine'] = $data['fine'][$i];
@@ -304,15 +307,15 @@ class Purchase_return extends CI_Controller
     
             $this->db->trans_complete();
             if ($this->db->trans_status() === FALSE) {
-                flash()->withError("Deletion failed.")->to("purchase");
+                flash()->withError("Deletion failed.")->to("purchase_return");
                 return FALSE;
             } else {
-                flash()->withSuccess("Deleted successfully.")->to("purchase");
+                flash()->withSuccess("Deleted successfully.")->to("purchase_return");
                 return TRUE;
             }
         } else {
             $this->db->trans_complete();
-            flash()->withError("Deletion failed.")->to("purchase");
+            flash()->withError("Deletion failed.")->to("purchase_return");
             return FALSE;
         }
     }
@@ -346,7 +349,8 @@ class Purchase_return extends CI_Controller
 				SI.remark,
 				S.id AS purchase_id,
 				S.`created_at` AS created_at,
-				SI.touch AS touch,
+				SI.touch,
+				SI.pre_touch,
 				I.`name` AS item_name,
 				city.name AS city
 			FROM purchase_return_detail SI 

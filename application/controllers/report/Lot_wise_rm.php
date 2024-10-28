@@ -200,4 +200,54 @@ class Lot_wise_rm extends CI_Controller
         echo json_encode($response);
         return;
 	}
+	
+	public function getrmCode(){
+	    $this->db->query("SET SESSION sql_mode=''");
+	    $datas = $this->db->select('id,code')->where('is_complated','No')->group_by('code')->get('lot_wise_rm')->result();
+	    $output = '<option value="">Select Code</option>';
+        foreach($datas as $row)
+        {
+            $output .= '<option value="'.$row->id.'">'.$row->code.'</option>';
+        }
+        echo $output;
+	}
+	
+	public function getCodeDetail(){
+	    $id = $this->security->xss_clean($this->input->post('id'));
+	    echo json_encode($this->db->select('*')->where('id',$id)->get('lot_wise_rm')->row_array());
+	}
+	
+	public function addMergerData(){
+	    $data = $this->input->post();
+	    
+	    $code = $this->db->get_where('lot_wise_rm',['code'=>$data['code']])->num_rows();
+	    if($code > 0){
+	        echo json_encode([ 'success' => false, 'message' => 'Code Field Is unique.']);return; 
+	    }
+	    
+	    $insert['touch'] = $data['touch'];
+	    $insert['weight'] = $data['weight'];
+	    $insert['quantity'] = $data['qty'];
+	    $insert['given_weight'] = $data['givenWeight'];
+	    $insert['given_quantity'] = $data['givenQuantity'];
+	    $insert['receive_weight'] = $data['receiveWeight'];
+	    $insert['receive_quantity'] = $data['receiveQuantity'];
+	    $insert['rem_weight'] = $data['remWeight'];
+	    $insert['rem_quantity'] = $data['remQuantity'];
+	    $insert['code'] = $data['code'];
+	    $insert['row_material_id'] = $data['rmId'];
+	    $insert['type'] = 'RECEIVE';
+	    $insert['is_complated'] = 'NO';
+	    $insert['is_merger'] = 'YES';
+	    $this->db->insert('lot_wise_rm', $insert);
+	    $insertId = $this->db->insert_id();
+	    $records = $this->db->where_in('id', $data['id'])->update('lot_wise_rm',['is_complated'=>'YES','merger_id'=>$insertId]);
+	    
+	    if (!empty($records)) {
+            $response = [ 'success' => true, 'message' => 'Data Fetched successfully.'];
+        } else {
+            $response = [ 'success' => false, 'message' => 'Data Not Found.'];
+        }
+	    echo json_encode($response);
+	}
 }

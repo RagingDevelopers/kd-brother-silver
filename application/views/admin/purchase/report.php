@@ -76,6 +76,9 @@
     .bill_print_tooltip:hover .bill_print_tooltip_text {
         visibility: visible;
     }
+    .totalColor {
+        color:black;
+    }
 </style>
 <div class="container-xl">
     <div class="row row-cards">

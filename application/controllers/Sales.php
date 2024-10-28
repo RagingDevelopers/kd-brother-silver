@@ -12,6 +12,7 @@ class Sales extends CI_Controller
 		check_login();
 		$this->load->model('Sales_model', "sales");
 		$this->load->model('Sequence_model', 'seq');
+		$this->load->model('payment/Jama_model', 'jama');
 	}
 
 	public function index($date = "")
@@ -21,6 +22,9 @@ class Sales extends CI_Controller
 		$page_data['page_title'] = 'Sales Report';
 		$page_data['party'] = $this->sales->fetch_party();
 		$page_data['items'] = $this->sales->fetch_item();
+		$page_data['bank'] = $this->jama->bank();
+		$page_data['party'] = $this->jama->party();
+		$page_data['metal_type'] = $this->jama->metal_type();
 		return view(self::View, $page_data);
 	}
 
@@ -33,6 +37,9 @@ class Sales extends CI_Controller
 		$page_data['item'] = $this->sales->fetch_item();
 		$page_data['stamp'] = $this->sales->fetch_stamp();
 		$page_data['unit'] = $this->sales->fetch_unit();
+		$page_data['bank'] = $this->jama->bank();
+		$page_data['party'] = $this->jama->party();
+		$page_data['metal_type'] = $this->jama->metal_type();
 		return view(self::Create, $page_data);
 	}
 
@@ -44,32 +51,55 @@ class Sales extends CI_Controller
 			return flash()->withError(validation_errors())->back();
 		}
 
-		$batchData = [];
 		$data = xss_clean($this->input->post());
-		// echo "<pre>";
-		// print_r($data);exit;
 		$insert['date'] = $data['date'];
 		$insert['user_id'] = session('id');
 		$insert['code'] = 'S'.$this->generate_unique_code();
 		$insert['sequence_code'] = $this->seq->getNextSequence('sale');
 		$insert['party_id'] = $data['party_id'];
-		$batchData[] = $insert;
-		$this->db->insert_batch('sale', $batchData);
+		$insert['closing_fine'] = $data['closing_fine'];
+		$insert['closing_amount'] = $data['closing_amount'];
+		$insert['total_fine'] = $data['total_fine'];
+		$insert['total_amount'] = $data['total_amount'];
+		$insert['ready_for_sale_code'] = $data['RFSCode'];
+		$this->db->insert('sale', $insert);
 		$id = $this->db->insert_id();
+		$this->db->where('code', $data['RFSCode'])->update('ready_for_sale', ['isSale'=>"YES"]);
 		if (!$id) {
 			flash()->withError("Failed to insert sale record.")->to("sales/index");
 		}
 
 		for ($i = 0; $i < count($data['item']); $i++) {
+            
+            $customer = $this->db->where(['customer_id' => $data['party_id'], 'item_id' => $data['item'][$i]])->get('customer_item')->num_rows();
+		    $customer_details = $new = array();
+		    if($customer==0){
+		        $customer_details['item_id'] = $data['item'][$i] ?? "";
+                $customer_details['extra_touch'] = $data['touch'][$i] ?? "";
+                $customer_details['wastage'] = $data['wastage'][$i] ?? "";
+                $customer_details['label'] = $data['labour_type'][$i] ?? "";
+                $customer_details['rate'] = $data['labour'][$i] ?? "";
+                $customer_details['sub_total'] = $data['touch'][$i] ?? "" + $data['wastage'][$i] ?? "";
+                $customer_details['customer_id'] = $data['party_id'];
+                $batchData[] = $customer_details;
+		        $this->db->insert_batch('customer_item', $batchData);
+		    }
+
+			foreach(explode(',',$data['lot_creation_tag'][$i]) as $tag){
+				$this->db->where('tag', $tag)->update('lot_creation', ['status'=>2]);
+			}
 			$saleDetail['sale_id'] = $id;
 			$saleDetail['user_id'] = session('id');
 			$saleDetail['item_id'] = $data['item'][$i];
+			// $saleDetail['sub_item_id'] = $data['sub_item'][$i];
 			$saleDetail['stamp_id'] = $data['stamp'][$i];
 			$saleDetail['unit_id'] = $data['unit'][$i];
+			$saleDetail['lot_creation_tag'] = $data['lot_creation_tag'][$i];
 			$saleDetail['remark'] = $data['remark'][$i];
 			$saleDetail['gross_weight'] = $data['gross_weight'][$i];
 			$saleDetail['less_weight'] = $data['less_weight'][$i];
 			$saleDetail['net_weight'] = $data['net_weight'][$i];
+			$saleDetail['pre_touch'] = $data['pre_touch'][$i];
 			$saleDetail['touch'] = $data['touch'][$i];
 			$saleDetail['wastage'] = $data['wastage'][$i];
 			$saleDetail['fine'] = $data['fine'][$i];
@@ -102,6 +132,21 @@ class Sales extends CI_Controller
 				}
 			}
 		}
+		
+		$payment = json_decode($data['paymentArray']);
+        $jama_code = $this->db->get_where('setting',array('id'=>1))->row('jama_code');
+	    $jama = 'JAMA_'.$jama_code;
+		$this->db->where('id', 1);
+		$this->db->update('setting', array('jama_code' => $jama_code + 1));
+		for($a = 0; $a < count($payment); $a++){
+            $sequence_code = $this->seq->getNextSequence('jama');
+            if(isset($payment[$a]->type)){
+                $insert = $this->db->insert('jama',array('sale_id'=>$id,'date'=>$data['date'],'customer_id'=>$data['party_id'],'type'=>$payment[$a]->type,'mode'=>$payment[$a]->mode
+                ,'gross'=>$payment[$a]->gross,'purity'=>$payment[$a]->purity,'wb'=>$payment[$a]->wb,'fine'=>$payment[$a]->fine,'rate'=>$payment[$a]->rate,
+                'amount'=>$payment[$a]->amount,'remark'=>$payment[$a]->remark,'jama_code'=>'','metal_type_id'=>$payment[$a]->metal_type_id,
+                'creation_date'=>date('Y-m-d'),'payment_type'=>$payment[$a]->payment,'jama_code'=>$jama,'bank_id'=>$payment[$a]->bank,'sequence_code'=>$sequence_code));
+            }
+		}
 		flash()->withSuccess("Insert Successfully.")->to("sales/index");
 	}
 
@@ -132,12 +177,23 @@ class Sales extends CI_Controller
 				$data['sale_detail'][$i]['raw_material_data'] = "";
 			}
 		}
+		$this->db->select('jama.*, bank.name as bankname'); // Select all fields from both tables (you can specify fields if needed)
+        $this->db->from('jama');
+        $this->db->join('bank', 'bank.id = jama.bank_id'); // Joining the sale table based on sale_id
+        $this->db->where('jama.sale_id', $id); // Filtering by the sale_id
+        $query = $this->db->get(); // Running the query
+        
+        $result = $query->result();
 		$page_data['page_title'] = 'Sales';
 		$page_data['row_material'] = $this->db->select('id,name')->from('row_material')->where('status', "ACTIVE")->get()->result_array();
+		$page_data['payment'] = $result;
 		$page_data['party'] = $this->sales->fetch_party();
-		$page_data['items'] = $this->sales->fetch_item();
+		$page_data['item'] = $this->sales->fetch_item();
 		$page_data['stamp'] = $this->sales->fetch_stamp();
 		$page_data['unit'] = $this->sales->fetch_unit();
+		$page_data['bank'] = $this->jama->bank();
+		$page_data['party'] = $this->jama->party();
+		$page_data['metal_type'] = $this->jama->metal_type();
 		$page_data['data'] = $data;
 		return view(self::Create, $page_data);
 	}
@@ -147,6 +203,8 @@ class Sales extends CI_Controller
 		$data = xss_clean($this->input->post());
 		$update['date'] = $data['date'];
 		$update['party_id'] = $data['party_id'];
+		$update['total_fine'] = $data['total_fine'];
+		$update['total_amount'] = $data['total_amount'];
 		$this->db->where('id', $id)->update('sale', $update);
 
 		$existingIds = isset($data['rowid']) ? $data['rowid'] : [];
@@ -162,13 +220,30 @@ class Sales extends CI_Controller
 		}
 
 		for ($i = 0; $i < count($data['item']); $i++) {
+		    
+	        $customer = $this->db->where(['customer_id' => $data['party_id'], 'item_id' => $data['item'][$i]])->get('customer_item')->num_rows();
+		    $customer_details = $new = array();
+		    if($customer==0){
+		        $customer_details['item_id'] = $data['item'][$i] ?? "";
+                $customer_details['extra_touch'] = $data['touch'][$i] ?? "";
+                $customer_details['wastage'] = $data['wastage'][$i] ?? "";
+                $customer_details['label'] = $data['labour_type'][$i] ?? "";
+                $customer_details['rate'] = $data['labour'][$i] ?? "";
+                $customer_details['sub_total'] = $data['touch'][$i] ?? "" + $data['wastage'][$i] ?? "";
+                $customer_details['customer_id'] = $data['party_id'];
+                $batchData[] = $customer_details;
+		        $this->db->insert_batch('customer_item', $batchData);
+		    }
+		    
 			$saleDetail['item_id'] = $data['item'][$i];
+			// $saleDetail['sub_item_id'] = $data['sub_item'][$i];
 			$saleDetail['stamp_id'] = $data['stamp'][$i];
 			$saleDetail['unit_id'] = $data['unit'][$i];
 			$saleDetail['remark'] = $data['remark'][$i];
 			$saleDetail['gross_weight'] = $data['gross_weight'][$i];
 			$saleDetail['less_weight'] = $data['less_weight'][$i];
 			$saleDetail['net_weight'] = $data['net_weight'][$i];
+			$saleDetail['pre_touch'] = $data['pre_touch'][$i];
 			$saleDetail['touch'] = $data['touch'][$i];
 			$saleDetail['wastage'] = $data['wastage'][$i];
 			$saleDetail['fine'] = $data['fine'][$i];
@@ -181,8 +256,14 @@ class Sales extends CI_Controller
 			$saleDetail['raw_material_data'] = $data['raw-material-data'][$i];
 			if ($data['rowid'][$i] == 0) {
 				$saleDetail['sale_id'] = $id;
+				$saleDetail['lot_creation_tag'] = $data['lot_creation_tag'][$i];
 				$this->db->insert('sale_detail', $saleDetail);
 				$saleDetailId = $this->db->insert_id();
+
+				foreach(explode(',',$data['lot_creation_tag'][$i]) as $tag){
+					$this->db->where('tag', $tag)->update('lot_creation', ['status'=>2]);
+				}
+				// $this->db->where('tag', $data['lot_creation_tag'][$i])->update('lot_creation', ['status'=>2]);
 			} else {
 				$this->db->where(['id' => $data['rowid'][$i], 'sale_id' => $id])->update('sale_detail', $saleDetail);
 			}
@@ -203,6 +284,48 @@ class Sales extends CI_Controller
 				}
 			}
 		}
+		
+		$payment = json_decode($data['paymentArray']);
+		$jama = $this->db->get_where('jama',['sale_id'=>$id])->row('jama_code');
+        if($jama == ''){
+            $jama_code = $this->db->get_where('setting',array('id'=>1))->row('jama_code');
+            $jama = 'JAMA_'.$jama_code;
+        	$this->db->where('id', 1);
+        	$this->db->update('setting', array('jama_code' => $jama_code + 1));
+        }
+        $saleId = [];
+        for($b = 0; $b < count($payment); $b++){
+		    if(isset($payment[$b]->saleid)){
+                $saleId[] = $payment[$b]->saleid;
+		    }
+		}
+        // Deletion logic
+        $deleteQ = $this->db->get_where('jama', ['sale_id' => $id])->result_array();
+        foreach ($deleteQ as $deleteR) {
+            // Check if the saleid from the current payment is in the deleteQ results
+            if (!in_array($deleteR['id'], $saleId)) {
+                $this->db->where('id', $deleteR['id'])->delete('jama');
+            }
+        }
+		for($a = 0; $a < count($payment); $a++){
+		    if(isset($payment[$a]->type)){
+                $sequence_code = $this->seq->getNextSequence('jama');
+                if($payment[$a]->saleid == ''){
+                    $insert = $this->db->insert('jama',array('sale_id'=>$id,'date'=>$data['date'],'customer_id'=>$data['party_id'],'type'=>$payment[$a]->type,'mode'=>$payment[$a]->mode
+                    ,'gross'=>$payment[$a]->gross,'purity'=>$payment[$a]->purity,'wb'=>$payment[$a]->wb,'fine'=>$payment[$a]->fine,'rate'=>$payment[$a]->rate,
+                    'amount'=>$payment[$a]->amount,'remark'=>$payment[$a]->remark,'jama_code'=>'','metal_type_id'=>$payment[$a]->metal_type_id,
+                    'creation_date'=>date('Y-m-d'),'payment_type'=>$payment[$a]->payment,'jama_code'=>$jama,'bank_id'=>$payment[$a]->bank,'sequence_code'=>$sequence_code));
+                }else{
+                    $saleId[] = $payment[$a]->saleid;
+                    $this->db->where(['id' => $payment[$a]->saleid,'sale_id' => $id]);
+                    $this->db->update('jama',array('date'=>$data['date'],'customer_id'=>$data['party_id'],'type'=>$payment[$a]->type,'mode'=>$payment[$a]->mode
+                    ,'gross'=>$payment[$a]->gross,'purity'=>$payment[$a]->purity,'wb'=>$payment[$a]->wb,'fine'=>$payment[$a]->fine,'rate'=>$payment[$a]->rate,
+                    'amount'=>$payment[$a]->amount,'remark'=>$payment[$a]->remark,'metal_type_id'=>$payment[$a]->metal_type_id,
+                    'payment_type'=>$payment[$a]->payment,'bank_id'=>$payment[$a]->bank));
+                }
+		    }
+		}
+		
 		flash()->withSuccess("Update Successfully.")->to("sales/index");
 	}
 
@@ -242,6 +365,15 @@ class Sales extends CI_Controller
 	public function delete($id) {
         checkPrivilege(privilege['sale_delete']);
         $this->db->trans_start();
+
+		$ready_for_sale_code = $this->db->select('id,ready_for_sale_code')->from('sale')->where(array('id' => $id))->get()->row_array();
+		$ready_for_sale = $this->db->select('id')->from('ready_for_sale')->where(array('code' => $ready_for_sale_code['ready_for_sale_code']))->get()->row_array();
+		$this->db->where('code', $ready_for_sale_code['ready_for_sale_code'])->update('ready_for_sale', ['isSale'=>'NO']);
+		$lot_creation_tag = $this->db->select('lot_creation_tag')->from('ready_for_sale_detail')->where(array('sale_id' => $ready_for_sale['id']))->get()->result_array();
+
+		foreach($lot_creation_tag as $tag){
+			$this->db->where('tag', $tag['lot_creation_tag'])->update('lot_creation', ['status'=>1]);
+		}
         $this->db->where('id', $id);
         $this->db->delete('sale');
     
@@ -261,15 +393,15 @@ class Sales extends CI_Controller
     
             $this->db->trans_complete();
             if ($this->db->trans_status() === FALSE) {
-                flash()->withError("Deletion failed.")->to("sale");
+                flash()->withError("Deletion failed.")->to("sales");
                 return FALSE;
             } else {
-                flash()->withSuccess("Deleted successfully.")->to("sale");
+                flash()->withSuccess("Deleted successfully.")->to("sales");
                 return TRUE;
             }
         } else {
             $this->db->trans_complete();
-            flash()->withError("Deletion failed.")->to("sale");
+            flash()->withError("Deletion failed.")->to("sales");
             return FALSE;
         }
     }
@@ -304,6 +436,7 @@ class Sales extends CI_Controller
 				S.id AS sales_id,
 				S.`created_at` AS created_at,
 				SI.touch,
+				SI.pre_touch,
 				I.name AS item_name,
 				city.name AS city
 			FROM sale_detail SI 
@@ -341,12 +474,17 @@ class Sales extends CI_Controller
 	
     public function receiveTag($tag)
     {
-        $lot_creation = $this->db->select('*')->from('lot_creation')->where('tag', $tag)->get()->row_array();
-        
+        $lot_creation = $this->db->select('*')->from('lot_creation')->where(array('tag' => $tag))->get()->row_array();
         if(!empty($lot_creation)){
-            $response = [ 'success' => true, 'message' => 'Data Fetch SuccessFully..', 'lot_creation'=>$lot_creation ];
+			if($lot_creation['status'] == "0"){
+				$response = [ 'success' => false, 'message' => "$tag Is Not Ready For Sale", 'lot_creation'=>[]];
+			}else if($lot_creation['status'] == "2"){
+				$response = [ 'success' => false, 'message' => "$tag Is Already Sale", 'lot_creation'=>[]];
+			}else{
+				$response = [ 'success' => true, 'message' => 'Data Fetch SuccessFully..', 'lot_creation'=>$lot_creation ];
+			}
         } else {
-            $response = [ 'success' => false, 'message' => 'Invalid Tag No.', 'lot_creation'=>[]];
+            $response = [ 'success' => false, 'message' => 'Invalid Tag.', 'lot_creation'=>[]];
         }
 
         echo json_encode($response);
@@ -355,7 +493,7 @@ class Sales extends CI_Controller
     
 	public function customerData($customer_id,$item_id)
     {
-        $customer = $this->db->select('wastage,label,rate')->from('customer_item')->where(array('customer_id'=>$customer_id,'item_id'=>$item_id))->get()->result_array();
+		$customer = $this->db->select('wastage,label,rate')->from('customer_item')->where(array('customer_id'=>$customer_id,'item_id'=>$item_id))->get()->row_array();
         
         if(!empty($customer)){
             $response = [ 'success' => true, 'message' => 'Data Fetch SuccessFully..','data' => $customer ];
@@ -366,4 +504,33 @@ class Sales extends CI_Controller
         echo json_encode($response);
         return;
     }
+		public function receiveRFSCode($code)
+		{
+			$ready_for_sale = $this->db->select('id,isSale')->from('ready_for_sale')->where(array('code' => $code))->get()->row_array();
+			if(!empty($ready_for_sale)){
+				if($ready_for_sale['isSale'] == "NO"){
+					$data = $this->db->select('*')->from('ready_for_sale_detail')->where(array('sale_id' => $ready_for_sale['id']))->get()->result_array();
+					if(!empty($data)){
+						$response = [ 'success' => true, 'message' => 'Data Fetch SuccessFully..', 'data'=> $data];
+					}else{
+						$response = [ 'success' => false, 'message' => 'Data Not Found', 'data'=>[]];
+					}
+				}else{
+					$response = [ 'success' => false, 'message' => "$code Is Already Sale", 'data'=>[]];
+				}
+				
+				// if($ready_for_sale['id']){
+				// 	$response = [ 'success' => false, 'message' => "$code Is Not Ready For Sale", 'lot_creation'=>[]];
+				// }else if($ready_for_sale['status'] == "2"){
+				// 	$response = [ 'success' => false, 'message' => "$code Is Already Sale", 'lot_creation'=>[]];
+				// }else{
+				// 	$response = [ 'success' => true, 'message' => 'Data Fetch SuccessFully..', 'lot_creation'=>$ready_for_sale ];
+				// }
+			} else {
+				$response = [ 'success' => false, 'message' => 'Invalid Code.', 'data'=>[]];
+			}
+		
+			echo json_encode($response);
+			return;
+		}
 }

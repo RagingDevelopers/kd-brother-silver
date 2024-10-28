@@ -66,6 +66,7 @@ class Purchase_return_model extends CI_Model
 						SUM(pd.net_weight) AS net_wt,
 						SUM(pd.sub_total) AS amount,
 						SUM(pd.fine) AS fine,
+						SUM(pd.pre_touch) AS pre_touch,
 						SI.name AS item,
                         MAX(pd.created_at) as createdAt
 					FROM purchase_return_detail pd
@@ -109,6 +110,7 @@ class Purchase_return_model extends CI_Model
 						SUM(pd.net_weight) AS net_wt,
 						SUM(pd.sub_total) AS amount,
 						SUM(pd.fine) AS fine,
+						SUM(pd.pre_touch) AS pre_touch,
                         MAX(pd.created_at) as createdAt
 					FROM purchase_return_detail pd
                     LEFT JOIN purchase_return pl ON pl.id = pd.purchase_id
@@ -156,6 +158,7 @@ class Purchase_return_model extends CI_Model
 						SUM(pd.net_weight) AS net_wt,
 						SUM(pd.sub_total) AS amount,
 						SUM(pd.fine) AS fine,
+						SUM(pd.pre_touch) AS pre_touch,
                         MAX(pd.remark) as remark,
                         MAX(pd.created_at) as createdAt
 					FROM purchase_return_detail pd
@@ -208,6 +211,7 @@ class Purchase_return_model extends CI_Model
 						SUM(pd.net_weight) AS net_wt,
 						SUM(pd.sub_total) AS amount,
 						SUM(pd.fine) AS fine,
+						SUM(pd.pre_touch) AS pre_touch,
 						DATE_FORMAT(pl.created_at, '%Y-%M') AS year,
                         MAX(pd.created_at) as createdAt
 					FROM purchase_return_detail pd
@@ -251,6 +255,7 @@ class Purchase_return_model extends CI_Model
 						SUM(pd.net_weight) AS net_wt,
 						SUM(pd.sub_total) AS amount,
 						SUM(pd.fine) AS fine,
+						SUM(pd.pre_touch) AS pre_touch,
                         MAX(pd.remark) as remark,
                         MAX(pd.created_at) as createdAt
 					FROM purchase_return_detail pd
