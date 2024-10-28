@@ -16,7 +16,7 @@ class Sales_return extends CI_Controller
 
 	public function index()
 	{
-	    checkPrivilege(privilege['sale_return_view']);
+		checkPrivilege(privilege['sale_return_view']);
 		$page_data['page_title'] = 'Sales Return Report';
 		$page_data['party'] = $this->sales_return->fetch_party();
 		$page_data['items'] = $this->sales_return->fetch_item();
@@ -25,7 +25,7 @@ class Sales_return extends CI_Controller
 
 	public function create()
 	{
-	    checkPrivilege(privilege['sale_return_add']);
+		checkPrivilege(privilege['sale_return_add']);
 		$page_data['page_title'] = 'Sales Return';
 		$page_data['row_material'] = $this->db->select('id,name')->from('row_material')->where('status', "ACTIVE")->get()->result_array();
 		$page_data['party'] = $this->sales_return->fetch_party();
@@ -49,7 +49,7 @@ class Sales_return extends CI_Controller
 		// print_r($data);exit;
 		$insert['date'] = $data['date'];
 		$insert['party_id'] = $data['party_id'];
-		$insert['code'] = 'SR'.$this->generate_unique_code();
+		$insert['code'] = 'SR' . $this->generate_unique_code();
 		$insert['sequence_code'] = $this->seq->getNextSequence('sale_return');
 		$insert['user_id'] = session('id');
 		$batchData[] = $insert;
@@ -107,7 +107,7 @@ class Sales_return extends CI_Controller
 
 	public function edit($id)
 	{
-	    checkPrivilege(privilege['sale_return_edit']);
+		checkPrivilege(privilege['sale_return_edit']);
 		$data = $this->db->select('sale_return.*')->from('sale_return')->where('id', $id)->get()->row_array();
 		if (empty($data)) {
 			flash()->withError("Data Not Found")->to("sales_return/index");
@@ -121,7 +121,10 @@ class Sales_return extends CI_Controller
 					$array1 = explode(",", $array[$a]);
 					$material = $this->db->select('*')->from('sale_return_material')->where([
 						'sale_detail_id' => $data['sale_detail'][$i]['id'],
-						'row_material_id' => $array1[0], 'quantity' => $array1[1], 'rate' => $array1[2], 'sub_total' => $array1[3]
+						'row_material_id' => $array1[0],
+						'quantity' => $array1[1],
+						'rate' => $array1[2],
+						'sub_total' => $array1[3]
 					])->get()->row_array();
 					$array1[4] = isset($material['id']) ? $material['id'] : 0;
 					$array2[] = implode(",", $array1);
@@ -238,55 +241,57 @@ class Sales_return extends CI_Controller
 
 		$this->load->view("admin/sales/table/{$report}_ajax", $table);
 	}
-	
-	public function delete($id) {
-        checkPrivilege(privilege['sale_return_delete']);
-        $this->db->trans_start();
-        $this->db->where('id', $id);
-        $this->db->delete('sale_return');
-    
-        if ($this->db->affected_rows() > 0) {
-            $sale_detail_ids = $this->db->select('id')->from('sale_return_detail')->where('sale_id', $id)->get()->result_array();
-            if (!empty($sale_detail_ids)) {
-                $ids = array_map(function($item) {
-                    return $item['id'];
-                }, $sale_detail_ids);
-    
-                $this->db->where_in('sale_detail_id', $ids);
-                $this->db->delete('sale_return_material');
-    
-                $this->db->where_in('id', $ids);
-                $this->db->delete('sale_return_detail');
-            }
-    
-            $this->db->trans_complete();
-            if ($this->db->trans_status() === FALSE) {
-                flash()->withError("Deletion failed.")->to("sales_return");
-                return FALSE;
-            } else {
-                flash()->withSuccess("Deleted successfully.")->to("sales_return");
-                return TRUE;
-            }
-        } else {
-            $this->db->trans_complete();
-            flash()->withError("Deletion failed.")->to("sales_return");
-            return FALSE;
-        }
-    }
-    
-    function generate_unique_code() {
-        $unique_code = '';
-        do {
-            $unique_code = sprintf('%05d', mt_rand(0, 99999));
-            $this->db->where('code', $unique_code);
-            $count = $this->db->count_all_results('sale_return');
-        } while ($count > 0);
-        return $unique_code;
-    }
-    
-    function bill($sales_id = 0)
+
+	public function delete($id)
 	{
-	    $this->db->query("SET SESSION sql_mode=(SELECT REPLACE(@@sql_mode, 'ONLY_FULL_GROUP_BY', ''));");
+		checkPrivilege(privilege['sale_return_delete']);
+		$this->db->trans_start();
+		$this->db->where('id', $id);
+		$this->db->delete('sale_return');
+
+		if ($this->db->affected_rows() > 0) {
+			$sale_detail_ids = $this->db->select('id')->from('sale_return_detail')->where('sale_id', $id)->get()->result_array();
+			if (!empty($sale_detail_ids)) {
+				$ids = array_map(function ($item) {
+					return $item['id'];
+				}, $sale_detail_ids);
+
+				$this->db->where_in('sale_detail_id', $ids);
+				$this->db->delete('sale_return_material');
+
+				$this->db->where_in('id', $ids);
+				$this->db->delete('sale_return_detail');
+			}
+
+			$this->db->trans_complete();
+			if ($this->db->trans_status() === FALSE) {
+				flash()->withError("Deletion failed.")->to("sales_return");
+				return FALSE;
+			} else {
+				flash()->withSuccess("Deleted successfully.")->to("sales_return");
+				return TRUE;
+			}
+		} else {
+			$this->db->trans_complete();
+			flash()->withError("Deletion failed.")->to("sales_return");
+			return FALSE;
+		}
+	}
+
+	function generate_unique_code()
+	{
+		$unique_code = '';
+		do {
+			$unique_code = sprintf('%05d', mt_rand(0, 99999));
+			$this->db->where('code', $unique_code);
+			$count = $this->db->count_all_results('sale_return');
+		} while ($count > 0);
+		return $unique_code;
+	}
+
+	function bill($sales_id = 0)
+	{
+		$this->db->query("SET SESSION sql_mode=(SELECT REPLACE(@@sql_mode, 'ONLY_FULL_GROUP_BY', ''));");
 		$sales_id = $this->security->xss_clean($sales_id);
 		$sales_id = $this->db->escape($sales_id);
 		$q = "SELECT 
@@ -335,7 +340,7 @@ class Sales_return extends CI_Controller
 		$page_data['page_title'] = 'Sales Bill';
 		$page_data['bill_data'] = $res;
 		$page_data['url'] = 'sales_return';
-		$page_data['payments'] = $this->sales_return->getRelatedPayments($sales_id,$customer['customer_id']);
+		$page_data['payments'] = $this->sales_return->getRelatedPayments($sales_id, $customer['customer_id']);
 		$page_data['customer'] = $customer;
 		$this->load->view('common', $page_data);
 	}
