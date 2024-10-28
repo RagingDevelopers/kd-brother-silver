@@ -55,7 +55,7 @@ class Dbh extends CI_Model
 		if (is_array($id)) {
 			$this->db->where_in('id', $id);
 		} else {
-			$this->db->where('is', $id);
+			$this->db->where('id', $id);
 		}
 		if ($this->db->delete($table)) {
 			return true;
@@ -103,10 +103,19 @@ class Dbh extends CI_Model
 		return $this->db->where('id', $id)->update($table, $data);
 	}
 
-	public function find($table, $id)
+
+	public function find($table, $args, $isRow = true)
 	{
-		$query = $this->db->get_where($table, ['id' => $id]);
-		return $query->num_rows() > 0 ? $query->row_array() : false;
+		if (is_array($args)) {
+			$where = $args;
+		} else {
+			$where = [ 'id' => $args ];
+		}
+		$query = $this->db->get_where($table, $where);
+		if ($query->num_rows() == 0) {
+			return false;
+		}
+		return $query->{$isRow ? 'row_array' : 'result_array'}();
 	}
 
 	public function getLastRowWhere($table, $where, $notWhere = [])

@@ -29,6 +29,7 @@ class Joinhelper extends Dbh
 		foreach ($join_tables_columnnames as $jt => $cnames) {
 			$this->db->join($jt, "$jt.id = $table.$jt" . "_id", 'left');
 		}
+		$this->db->order_by($table . '.id', 'DESC');
 		$data = $this->db->get()->result_array();
 		return $data;
 	}

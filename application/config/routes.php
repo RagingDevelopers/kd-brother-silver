@@ -67,3 +67,7 @@ $route['master/row_material_type/edit/(:any)'] = 'master/row_material_type/index
 $route['master/row_material/edit/(:any)'] = 'master/row_material/index/edit/$1';
 $route['master/metal_type/edit/(:any)'] = 'master/metal_type/index/edit/$1';
 $route['manufacturing/garnu/edit/(:any)'] = 'manufacturing/garnu/index/edit/$1';
+$route['sales/report'] = 'sales/getReport';
+/* Daybook Report Route */
+$route['report/daybook']['get'] = 'report/daybook/index';
+$route['report/daybook']['post'] = 'report/daybook/search';

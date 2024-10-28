@@ -81,10 +81,19 @@ class Metal_type_stock extends CI_Controller
 			SELECT SUM(total_count) AS total_records
 			FROM (
 				SELECT COUNT(*) AS total_count
+				FROM given_testing_item
+				UNION ALL
+				SELECT COUNT(*) AS total_count
+				FROM receive_given_testing
+				UNION ALL
+				SELECT COUNT(*) AS total_count
 				FROM garnu_item
 				UNION ALL
 				SELECT COUNT(*) AS total_count
 				FROM receive_garnu
+				UNION ALL
+				SELECT COUNT(*) AS total_count
+				FROM receive_garnu_dhal
 				UNION ALL
 				SELECT COUNT(*) AS total_count
 				FROM process_metal_type
@@ -115,6 +124,21 @@ class Metal_type_stock extends CI_Controller
 			$openingQuery = "SELECT 
 								SUM(touch) AS total_touch, SUM(weight) AS total_weight, type
 							FROM (
+							    SELECT touch, weight, 'given testing' AS type, given_testing_item.created_at AS created_at
+								FROM given_testing_item
+								WHERE given_testing_item.creation_date < STR_TO_DATE(" . $this->db->escape($fromdate) . ", '%Y-%m-%d')
+									" . (!empty($touch) ? " AND given_testing_item.touch = $touch" : "") . "
+									" . (!empty($metal_type_id) ? " AND given_testing_item.metal_type_id = $metal_type_id" : "") . "
+									" . (!empty($garnu_id) ? " AND given_testing_item.given_testing_id = $garnu_id" : "") . "
+								UNION ALL
+								SELECT touch, weight, 'given testing receive' AS type, receive_given_testing.created_at AS created_at
+								FROM receive_given_testing
+								WHERE receive_given_testing.creation_date < STR_TO_DATE(" . $this->db->escape($fromdate) . ", '%Y-%m-%d')
+									" . (!empty($touch) ? " AND receive_given_testing.touch = $touch" : "") . "
+									" . (!empty($metal_type_id) ? " AND receive_given_testing.metal_type_id = $metal_type_id" : "") 
+									 . "
+								UNION ALL
+							
 								SELECT touch, weight, 'garnu given' AS type, garnu_item.created_at AS created_at
 								FROM garnu_item
 								WHERE garnu_item.creation_date < STR_TO_DATE(" . $this->db->escape($fromdate) . ", '%Y-%m-%d')
@@ -126,8 +150,15 @@ class Metal_type_stock extends CI_Controller
 								FROM receive_garnu
 								WHERE receive_garnu.creation_date < STR_TO_DATE(" . $this->db->escape($fromdate) . ", '%Y-%m-%d')
 									" . (!empty($touch) ? " AND receive_garnu.touch = $touch" : "") . "
-									" . (!empty($metal_type_id) ? " AND receive_garnu.metal_type_id = $metal_type_id" : "") . "
-									" . (!empty($garnu_id) ? " AND receive_garnu.garnu_id = $garnu_id" : "") . "
+									" . (!empty($metal_type_id) ? " AND receive_garnu.metal_type_id = $metal_type_id" : "") 
+									 . "
+								UNION ALL
+								SELECT touch, weight, 'dhal receive' AS type, receive_garnu_dhal.created_at AS created_at
+								FROM receive_garnu_dhal
+								WHERE receive_garnu_dhal.creation_date < STR_TO_DATE(" . $this->db->escape($fromdate) . ", '%Y-%m-%d')
+									" . (!empty($touch) ? " AND receive_garnu_dhal.touch = $touch" : "") . "
+									" . (!empty($metal_type_id) ? " AND receive_garnu_dhal.metal_type_id = $metal_type_id" : "") . "
+									" . (!empty($garnu_id) ? " AND receive_garnu_dhal.garnu_id = $garnu_id" : "") . "
 								UNION ALL
 								SELECT process_metal_type.touch, process_metal_type.weight, 'process given' AS type, process_metal_type.created_at AS created_at
 								FROM process_metal_type
@@ -137,17 +168,17 @@ class Metal_type_stock extends CI_Controller
 									" . (!empty($metal_type_id) ? " AND process_metal_type.metal_type_id = $metal_type_id" : "") . "
 									" . (!empty($garnu_id) ? " AND given.garnu_id = $garnu_id" : "") . "
 								UNION ALL
-								SELECT jama.gross AS touch, jama.purity AS weight, 'jama' AS type, jama.created_at AS created_at
+								SELECT jama.purity AS touch, jama.gross AS weight, 'jama' AS type, jama.created_at AS created_at
 								FROM jama
 								WHERE  jama.type = 'fine' AND jama.creation_date < STR_TO_DATE(" . $this->db->escape($fromdate) . ", '%Y-%m-%d')
-									" . (!empty($touch) ? " AND jama.gross = $touch" : "") . "
+									" . (!empty($touch) ? " AND jama.purity = $touch" : "") . "
 									" . (!empty($metal_type_id) ? " AND jama.metal_type_id = $metal_type_id" : "") . "
 									" . (!empty($garnu_id) ? " AND jama.id = 0 " : "") . "
 								UNION ALL
-								SELECT baki.gross AS touch, baki.purity AS weight, 'baki' AS type, baki.created_at AS created_at
+								SELECT baki.purity AS touch, baki.gross AS weight, 'baki' AS type, baki.created_at AS created_at
 								FROM baki
 								WHERE baki.type = 'fine' AND baki.creation_date < STR_TO_DATE(" . $this->db->escape($fromdate) . ", '%Y-%m-%d')
-								" . (!empty($touch) ? " AND baki.gross = $touch" : "") . "
+								" . (!empty($touch) ? " AND baki.purity = $touch" : "") . "
 								" . (!empty($metal_type_id) ? " AND baki.metal_type_id = $metal_type_id" : "") . "
 								" . (!empty($garnu_id) ? " AND baki.id = 0 " : "") . "
 								UNION ALL
@@ -166,11 +197,11 @@ class Metal_type_stock extends CI_Controller
 			$openingWeight = 0;
 
 			foreach ($openingResult as $r) {
-				if ($r['type'] == 'garnu receive' || $r['type'] == 'process given' || $r['type'] == 'jama') {
+				if ($r['type'] == 'given testing receive' || $r['type'] == 'garnu receive' || $r['type'] == 'dhal receive' || $r['type'] == 'process given' || $r['type'] == 'jama') {
 					$openingTouch += $r['total_touch'];
 					$openingWeight += $r['total_weight'];
 				}
-				if ($r['type'] == 'garnu given' || $r['type'] == 'baki' || $r['type'] == 'main garnu given') {
+				if ($r['type'] == 'given testing' || $r['type'] == 'garnu given' || $r['type'] == 'baki' || $r['type'] == 'main garnu given') {
 					$openingTouch -= $r['total_touch'];
 					$openingWeight -= $r['total_weight'];
 				}
@@ -178,6 +209,38 @@ class Metal_type_stock extends CI_Controller
 		}
 
 		$sql = "SELECT COUNT(*) AS total_count_filtered FROM (
+		
+	            SELECT DISTINCT
+                    given_testing_item.id AS id,
+                    given_testing_item.created_at AS created_at,
+                    'gitven testing' AS type
+                FROM
+                    given_testing_item
+                LEFT JOIN given_testing ON given_testing_item.given_testing_id = given_testing.id
+                LEFT JOIN metal_type ON given_testing_item.metal_type_id = metal_type.id
+                LEFT JOIN given ON given_testing.id = given.garnu_id
+                WHERE
+                    $filteredQueryCondition" . (!empty($fromdate) ? " AND given_testing_item.creation_date >= STR_TO_DATE(" . $this->db->escape($fromdate) . ", '%Y-%m-%d')" : "") . "
+                    " . (!empty($todate) ? " AND given_testing_item.creation_date <= STR_TO_DATE(" . $this->db->escape($todate) . ", '%Y-%m-%d')" : "") . "
+					" . (!empty($touch) ? " AND given_testing_item.touch = $touch" : "") . "
+					" . (!empty($metal_type_id) ? " AND given_testing_item.metal_type_id = $metal_type_id" : "") . "
+                UNION
+                SELECT DISTINCT
+                    receive_given_testing.id AS id,
+                    receive_given_testing.created_at AS created_at,
+                    'given testing receive' AS type
+                FROM
+                    receive_given_testing
+                
+                LEFT JOIN metal_type ON receive_given_testing.metal_type_id = metal_type.id
+                
+                WHERE
+                    $filteredQueryCondition" . (!empty($fromdate) ? " AND receive_given_testing.creation_date >= STR_TO_DATE(" . $this->db->escape($fromdate) . ", '%Y-%m-%d')" : "") . "
+                    " . (!empty($todate) ? " AND receive_given_testing.creation_date <= STR_TO_DATE(" . $this->db->escape($todate) . ", '%Y-%m-%d')" : "") . "
+					" . (!empty($touch) ? " AND receive_given_testing.touch = $touch" : "") . "
+					" . (!empty($metal_type_id) ? " AND receive_given_testing.metal_type_id = $metal_type_id" : "") . "
+                UNION
+		
                 SELECT DISTINCT
                     garnu_item.id AS id,
                     garnu_item.created_at AS created_at,
@@ -199,14 +262,29 @@ class Metal_type_stock extends CI_Controller
                     'garnu receive' AS type
                 FROM
                     receive_garnu
-                LEFT JOIN garnu ON receive_garnu.garnu_id = garnu.id
+                
                 LEFT JOIN metal_type ON receive_garnu.metal_type_id = metal_type.id
-                LEFT JOIN given ON garnu.id = given.garnu_id
+                
                 WHERE
                     $filteredQueryCondition" . (!empty($fromdate) ? " AND receive_garnu.creation_date >= STR_TO_DATE(" . $this->db->escape($fromdate) . ", '%Y-%m-%d')" : "") . "
                     " . (!empty($todate) ? " AND receive_garnu.creation_date <= STR_TO_DATE(" . $this->db->escape($todate) . ", '%Y-%m-%d')" : "") . "
 					" . (!empty($touch) ? " AND receive_garnu.touch = $touch" : "") . "
 					" . (!empty($metal_type_id) ? " AND receive_garnu.metal_type_id = $metal_type_id" : "") . "
+                UNION
+                SELECT DISTINCT
+                    receive_garnu_dhal.id AS id,
+                    receive_garnu_dhal.created_at AS created_at,
+                    'dhal receive' AS type
+                FROM
+                    receive_garnu_dhal
+                LEFT JOIN garnu ON receive_garnu_dhal.garnu_id = garnu.id
+                LEFT JOIN metal_type ON receive_garnu_dhal.metal_type_id = metal_type.id
+                LEFT JOIN given ON garnu.id = given.garnu_id
+                WHERE
+                    $filteredQueryCondition" . (!empty($fromdate) ? " AND receive_garnu_dhal.creation_date >= STR_TO_DATE(" . $this->db->escape($fromdate) . ", '%Y-%m-%d')" : "") . "
+                    " . (!empty($todate) ? " AND receive_garnu_dhal.creation_date <= STR_TO_DATE(" . $this->db->escape($todate) . ", '%Y-%m-%d')" : "") . "
+					" . (!empty($touch) ? " AND receive_garnu_dhal.touch = $touch" : "") . "
+					" . (!empty($metal_type_id) ? " AND receive_garnu_dhal.metal_type_id = $metal_type_id" : "") . "
                 UNION
                 SELECT DISTINCT
                     process_metal_type.id AS id,
@@ -234,7 +312,7 @@ class Metal_type_stock extends CI_Controller
 					jama.type = 'fine'
 					" . (!empty($fromdate) ? "AND jama.creation_date >= STR_TO_DATE(" . $this->db->escape($fromdate) . ", '%Y-%m-%d')" : "") . "
 					" . (!empty($todate) ? " AND jama.creation_date <= STR_TO_DATE(" . $this->db->escape($todate) . ", '%Y-%m-%d')" : "") . "
-					" . (!empty($touch) ? " AND jama.gross = $touch" : "") . "
+					" . (!empty($touch) ? " AND jama.purity = $touch" : "") . "
 					" . (!empty($metal_type_id) ? " AND jama.metal_type_id = $metal_type_id" : "") . "
 				UNION
 				SELECT DISTINCT
@@ -248,7 +326,7 @@ class Metal_type_stock extends CI_Controller
 					baki.type = 'fine'
 				" . (!empty($fromdate) ? "AND baki.creation_date >= STR_TO_DATE(" . $this->db->escape($fromdate) . ", '%Y-%m-%d')" : "") . "
 				" . (!empty($todate) ? " AND baki.creation_date <= STR_TO_DATE(" . $this->db->escape($todate) . ", '%Y-%m-%d')" : "") . "
-				" . (!empty($touch) ? " AND baki.gross = $touch" : "") . "
+				" . (!empty($touch) ? " AND baki.purity = $touch" : "") . "
 				" . (!empty($metal_type_id) ? " AND baki.metal_type_id = $metal_type_id" : "") . "
 				UNION
 				SELECT DISTINCT
@@ -279,6 +357,45 @@ class Metal_type_stock extends CI_Controller
         FROM
             (
             SELECT
+                given_testing_item.id AS Id,
+                metal_type.name AS metal_type,
+                given_testing.name AS GarnuName,
+                COALESCE(given_testing_item.touch, 0) AS Touch,
+            	COALESCE(given_testing_item.weight, 0) AS Weight,
+                given_testing_item.created_at AS created_at,
+                'given testing' AS type
+            FROM
+                given_testing_item
+            LEFT JOIN given_testing ON given_testing_item.given_testing_id = given_testing.id
+            LEFT JOIN metal_type ON given_testing_item.metal_type_id = metal_type.id
+            WHERE 
+                $fetchQueryCondition
+                " . (!empty($fromdate) ? "AND given_testing_item.creation_date >= STR_TO_DATE(" . $this->db->escape($fromdate) . ", '%Y-%m-%d')" : "") . "
+                " . (!empty($todate) ? " AND given_testing_item.creation_date <= STR_TO_DATE(" . $this->db->escape($todate) . ", '%Y-%m-%d')" : "") . "
+				" . (!empty($touch) ? " AND given_testing_item.touch = $touch" : "") . "
+				" . (!empty($metal_type_id) ? " AND given_testing_item.metal_type_id = $metal_type_id" : "") . "
+            UNION
+            SELECT
+                receive_given_testing.id AS Id,
+                metal_type.name AS metal_type,
+                given_testing.name AS GarnuName,
+                COALESCE(receive_given_testing.touch, 0) AS Touch,
+            	COALESCE(receive_given_testing.weight, 0) AS Weight,
+                receive_given_testing.created_at AS created_at,
+                'receive given testing' AS type
+            FROM
+                receive_given_testing
+            LEFT JOIN given_testing ON receive_given_testing.given_testing_id = given_testing.id
+            LEFT JOIN metal_type ON receive_given_testing.metal_type_id = metal_type.id
+            WHERE 
+                $fetchQueryCondition
+                " . (!empty($fromdate) ? "AND receive_given_testing.creation_date >= STR_TO_DATE(" . $this->db->escape($fromdate) . ", '%Y-%m-%d')" : "") . "
+                " . (!empty($todate) ? " AND receive_given_testing.creation_date <= STR_TO_DATE(" . $this->db->escape($todate) . ", '%Y-%m-%d')" : "") . "
+				" . (!empty($touch) ? " AND receive_given_testing.touch = $touch" : "") . "
+				" . (!empty($metal_type_id) ? " AND receive_given_testing.metal_type_id = $metal_type_id" : "") . "
+            UNION
+            
+            SELECT
                 garnu_item.id AS Id,
                 metal_type.name AS metal_type,
                 garnu.name AS GarnuName,
@@ -301,22 +418,42 @@ class Metal_type_stock extends CI_Controller
             SELECT
                 receive_garnu.id AS Id,
                 metal_type.name AS metal_type,
-                garnu.name AS GarnuName,
+                main_garnu.name AS GarnuName,
                 COALESCE(receive_garnu.touch, 0) AS Touch,
             	COALESCE(receive_garnu.weight, 0) AS Weight,
                 receive_garnu.created_at AS created_at,
                 'garnu receive' AS type
             FROM
                 receive_garnu
-            LEFT JOIN garnu ON receive_garnu.garnu_id = garnu.id
+            LEFT JOIN main_garnu ON receive_garnu.garnu_id = main_garnu.id
             LEFT JOIN metal_type ON receive_garnu.metal_type_id = metal_type.id
-            LEFT JOIN given ON garnu.id = given.garnu_id
+            
             WHERE 
                 $fetchQueryCondition
                 " . (!empty($fromdate) ? "AND receive_garnu.creation_date >= STR_TO_DATE(" . $this->db->escape($fromdate) . ", '%Y-%m-%d')" : "") . "
                 " . (!empty($todate) ? " AND receive_garnu.creation_date <= STR_TO_DATE(" . $this->db->escape($todate) . ", '%Y-%m-%d')" : "") . "
 				" . (!empty($touch) ? " AND receive_garnu.touch = $touch" : "") . "
 				" . (!empty($metal_type_id) ? " AND receive_garnu.metal_type_id = $metal_type_id" : "") . "
+            UNION
+            SELECT
+                receive_garnu_dhal.id AS Id,
+                metal_type.name AS metal_type,
+                garnu.name AS GarnuName,
+                COALESCE(receive_garnu_dhal.touch, 0) AS Touch,
+            	COALESCE(receive_garnu_dhal.weight, 0) AS Weight,
+                receive_garnu_dhal.created_at AS created_at,
+                'dhal receive' AS type
+            FROM
+                receive_garnu_dhal
+            LEFT JOIN garnu ON receive_garnu_dhal.garnu_id = garnu.id
+            LEFT JOIN metal_type ON receive_garnu_dhal.metal_type_id = metal_type.id
+            
+            WHERE 
+                $fetchQueryCondition
+                " . (!empty($fromdate) ? "AND receive_garnu_dhal.creation_date >= STR_TO_DATE(" . $this->db->escape($fromdate) . ", '%Y-%m-%d')" : "") . "
+                " . (!empty($todate) ? " AND receive_garnu_dhal.creation_date <= STR_TO_DATE(" . $this->db->escape($todate) . ", '%Y-%m-%d')" : "") . "
+				" . (!empty($touch) ? " AND receive_garnu_dhal.touch = $touch" : "") . "
+				" . (!empty($metal_type_id) ? " AND receive_garnu_dhal.metal_type_id = $metal_type_id" : "") . "
             UNION
             SELECT
                 process_metal_type.id AS Id,
@@ -342,10 +479,10 @@ class Metal_type_stock extends CI_Controller
                 jama.id AS Id,
                 metal_type.name AS metal_type,
                 jama.mode AS GarnuName,
-                COALESCE(jama.gross, 0) AS Touch,
-            	COALESCE(jama.purity, 0) AS Weight,
+                COALESCE(jama.purity, 0) AS Touch,
+            	COALESCE(jama.gross, 0) AS Weight,
                 jama.created_at AS created_at,
-                'jama' AS type
+                jama.payment_type AS type
             FROM
                 jama
             LEFT JOIN metal_type ON jama.metal_type_id = metal_type.id
@@ -353,29 +490,10 @@ class Metal_type_stock extends CI_Controller
 				jama.type = 'fine'
                 " . (!empty($fromdate) ? "AND jama.creation_date >= STR_TO_DATE(" . $this->db->escape($fromdate) . ", '%Y-%m-%d')" : "") . "
                 " . (!empty($todate) ? " AND jama.creation_date <= STR_TO_DATE(" . $this->db->escape($todate) . ", '%Y-%m-%d')" : "") . "
-                " . (!empty($touch) ? " AND jama.gross = $touch" : "") . "
+                " . (!empty($touch) ? " AND jama.purity = $touch" : "") . "
                 " . (!empty($metal_type_id) ? " AND jama.metal_type_id = $metal_type_id" : "") . "
 				" . (!empty($garnu_id) ? " AND jama.id = 0 " : "") . "
             UNION
-            SELECT
-				baki.id AS Id,
-				metal_type.name AS metal_type,
-				baki.mode AS GarnuName,
-				COALESCE(baki.gross, 0) AS Touch,
-				COALESCE(baki.purity, 0) AS Weight,
-				baki.created_at AS created_at,
-                'baki' AS type
-			FROM
-                baki
-				LEFT JOIN metal_type ON baki.metal_type_id = metal_type.id
-				WHERE
-				baki.type = 'fine'
-                " . (!empty($fromdate) ? "AND baki.creation_date >= STR_TO_DATE(" . $this->db->escape($fromdate) . ", '%Y-%m-%d')" : "") . "
-                " . (!empty($todate) ? " AND baki.creation_date <= STR_TO_DATE(" . $this->db->escape($todate) . ", '%Y-%m-%d')" : "") . "
-                " . (!empty($touch) ? " AND baki.gross = $touch" : "") . "
-                " . (!empty($metal_type_id) ? " AND baki.metal_type_id = $metal_type_id" : "") . "
-				" . (!empty($garnu_id) ? " AND baki.id = 0 " : "") . "
-			UNION
 			SELECT
                 main_garnu_item.id AS Id,
                 metal_type.name AS metal_type,
@@ -410,33 +528,33 @@ class Metal_type_stock extends CI_Controller
 		$closingWeight = 0;
 		
 		foreach ($records as $r) {
-			// echo "<pre>";
-			// print_r($r);
+// 			echo "<pre>";
+// 			print_r($r);
 			$cweight = '--';
 			$dweight = '--';
 
-			if ($r['type'] == 'garnu receive' || $r['type'] == 'process given' || $r['type'] == 'jama') {
+			if ($r['type'] == 'receive given testing' || $r['type'] == 'garnu receive' || $r['type'] == 'dhal receive' || $r['type'] == 'process given' || $r['type'] == 'CREDIT') {
 				$cweight = $r['Weight'];
-				$closingTouch += $r['Touch'];
-				$closingWeight += $r['Weight'];
+				$closingTouch += isset($r['Touch']) && !empty($r['Touch']) ? $r['Touch'] : 0;
+				$closingWeight += isset($r['Weight']) && !empty($r['Weight']) ? $r['Weight'] : 0;
 			}
-			if ($r['type'] == 'garnu given' || $r['type'] == 'baki' || $r['type'] == 'main garnu given') {
-				$closingTouch -= $r['Touch'];
-				$closingWeight -= $r['Weight'];
-				$dweight = $r['Weight'];
+			if ($r['type'] == 'given testing' || $r['type'] == 'garnu given' || $r['type'] == 'DEBIT' || $r['type'] == 'main garnu given') {
+				$closingTouch -= isset($r['Touch']) && !empty($r['Touch']) ? $r['Touch'] : 0;
+				$closingWeight -= isset($r['Weight']) && !empty($r['Weight']) ? $r['Weight'] : 0;
+				$dweight = isset($r['Weight']) && !empty($r['Weight']) ? $r['Weight'] : 0;
 			}
 
 			$data[] = array(
 				'id' => $i,
-				'row_material' => $r['metal_type'] ?? '--',
-				'garnu' => $r['GarnuName'] ?? '--',
-				'process' => $r['type'],
-				'type' => $r['type'],
-				'touch' => $r['Touch'] ??  '--',
+				'row_material' => isset($r['metal_type']) && !empty($r['metal_type']) ? $r['metal_type'] : '--',
+				'garnu' => isset($r['GarnuName']) && !empty($r['GarnuName']) ? $r['GarnuName'] : '--',
+				'process' => isset($r['type']) && !empty($r['type']) ? $r['type'] : '--',
+				'type' => isset($r['type']) && !empty($r['type']) ? $r['type'] : '--',
+				'touch' => isset($r['Touch']) && !empty($r['Touch']) ? $r['Touch'] : '--',
 				'cweight' => $cweight,
 				'dweight' => $dweight,
 				'date' => date("d-m-Y g:i A", strtotime($r['created_at'])),
-				'closingWeight' => $closingWeight,
+				'closingWeight' => number_format($closingWeight, 2, '.', ''),
 			);
 			$i++;
 		}
@@ -446,8 +564,8 @@ class Metal_type_stock extends CI_Controller
 			"iTotalRecords" => $totalRecords,
 			"iTotalDisplayRecords" => $totalRecordwithFilter,
 			"aaData" => $data,
-			"closingWeight" => $closingWeight,
-			"openingWeight" => $openingWeight,
+			"closingWeight" => number_format($closingWeight, 4, '.', ''),
+			"openingWeight" => number_format($openingWeight, 4, '.', ''),
 		);
 		echo json_encode($response);
 		exit();

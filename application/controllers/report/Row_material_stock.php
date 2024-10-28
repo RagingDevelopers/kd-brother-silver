@@ -238,7 +238,7 @@ class Row_material_stock extends CI_Controller
 				'credit' => ($type == 'Credit') ? $r['Weight'] : '--',
 				'debit' => ($type == 'Debit') ? $r['Weight'] : '--',
 				'date' => date("d-m-Y g:i A", strtotime($r['Date'])),
-				'closingWeight' => $closingWeight,
+				'closingWeight' => number_format($closingWeight, 2, '.', ''),
 			);
 			$i = $i + 1;
 		}
@@ -249,8 +249,8 @@ class Row_material_stock extends CI_Controller
 			"iTotalRecords" => $totalRecords,
 			"iTotalDisplayRecords" => $totalRecordwithFilter,
 			"aaData" => $data,
-			"closingWeight" => $closingWeight,
-			"openingWeight" => $openingWeight,
+			"closingWeight" => number_format($closingWeight, 4, '.', ''),
+			"openingWeight" => number_format($openingWeight, 4, '.', ''),
 		);
 		echo json_encode($response);
 		exit();

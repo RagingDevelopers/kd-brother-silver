@@ -8,8 +8,9 @@ class Receive_garnu extends CI_Controller
 
 	const View = "admin/manufacturing/receive_garnu_report";
 	const ADD = "admin/manufacturing/garnu";
-
 	const RECEIVE = "admin/manufacturing/receive";
+	const LOT_CREATION = "admin/manufacturing/lot/lot_creation_report";
+
 	public function __construct()
 	{
 		parent::__construct();
@@ -234,12 +235,11 @@ class Receive_garnu extends CI_Controller
 
 		if ($searchQuery != '')
 			$this->db->where($searchQuery);
-		if (!empty($fromdate)) {
+		if (!empty($fromdate))
 			$this->db->where('DATE(garnu.creation_date) >=', $fromdate);
-		}
-		if (!empty($todate)) {
+		if (!empty($todate))
 			$this->db->where('DATE(garnu.creation_date) <=', $todate);
-		}
+
 		$this->db->where('garnu.recieved', 'YES');
 		// if (!empty($received)) {
 		// }
@@ -255,12 +255,11 @@ class Receive_garnu extends CI_Controller
 
 		if ($searchQuery != '')
 			$this->db->where($searchQuery);
-		if (!empty($fromdate)) {
+		if (!empty($fromdate))
 			$this->db->where('DATE(garnu.creation_date) >=', $fromdate);
-		}
-		if (!empty($todate)) {
+		if (!empty($todate))
 			$this->db->where('DATE(garnu.creation_date) <=', $todate);
-		}
+		
 		$this->db->where('garnu.recieved', 'YES');
 		// if (!empty($received)) {
 		// 	$this->db->where('garnu.recieved', $received);
@@ -291,13 +290,13 @@ class Receive_garnu extends CI_Controller
 			// <a href="' . base_url('manufacturing/receive_garnu/edit/') . $record->id . '" class="btn btn-action bg-warning text-white me-2" data-bs-toggle="tooltip" data-bs-placement="top"  data-bs-original-title="Edit Proccess"><i class="fas fa-edit"></i></a>
 			if ($record->recieved == 'NO') {
 				$dnone = "d-none";
-			}else{
+			} else {
 				$dnone = "";
 			}
 			// <span data-receiveid="' . $record->id . '" class="btn btn-action bg-green text-white me-2 receive-btn" data-bs-toggle="tooltip" data-bs-placement="top"  data-bs-original-title="Receive"><i class="fa-solid fa-receipt"></i></span>
-			$action ='
+			$action = '
 				<div class="d-flex gap-1">
-					<a href="' . base_url('manufacturing/process/manage/') . $record->id . '" class="btn btn-action bg-indigo text-white '.$dnone.'" data-bs-toggle="tooltip" data-bs-placement="top"  data-bs-original-title="Proccess Manage"><i class="fa-solid fa-code-fork"></i></a>
+					<a href="' . base_url('manufacturing/process/manage/') . $record->id . '" class="btn btn-action bg-indigo text-white ' . $dnone . '" data-bs-toggle="tooltip" data-bs-placement="top"  data-bs-original-title="Proccess Manage"><i class="fa-solid fa-code-fork"></i></a>
 				</div>
 			';
 
@@ -336,88 +335,119 @@ class Receive_garnu extends CI_Controller
 		exit();
 	}
 
+	public function lot_creation()
+	{
+		checkPrivilege(privilege["lot_creation_report"]);
+		$page_data['page_title'] = 'Lot Creation Report';
+		$page_data['item'] = $this->db->select('id,name')->get('item')->result_array();
+		$page_data['data'] = $this->dbh->getResultArray('garnu');
+		$page_data['metal_type'] = $this->dbh->findAll('metal_type');
 
-	// public function checkReceive()
-	// {
-	// 	try {
-	// 		$this->form_validation->set_rules('id', 'Garnu Id', 'trim|required|numeric');
-	// 		if ($this->form_validation->run() == FALSE) {
-	// 			$response = ['success' => false, 'error' => validation_errors()];
-	// 			echo json_encode($response);
-	// 			return;
-	// 		} else {
-	// 			$postData = $this->input->post();
-	// 			$id = $postData['id'];
-	// 			$data = $this->dbh->getWhereResultArray('receive_garnu', ['garnu_id' => $id]);
-	// 			$garnuData = $this->dbh->getWhereRowArray('garnu', ['id'=>$id,'recieved'=>'YES']);
-	// 			if (!empty($data) || !empty($garnuData)) {
-	// 				$response = ['success' => true, 'message' => 'Data Fetched successfully.', 'data' => $data,'garnuData' => $garnuData];
-	// 			} else {
-	// 				$response = ['success' => false, 'message' => 'Data Not Found.', 'data' => []];
-	// 			}
-	// 			echo json_encode($response);
-	// 			return;
-	// 		}
-	// 	} catch (Exception $e) {
-	// 		$response = [
-	// 			'success' => false, 'error' => $e->getMessage(), 'data' => []
-	// 		];
-	// 		echo json_encode($response);
-	// 	}
-	// }
+		return view(self::LOT_CREATION, $page_data);
+	}
+
+	public function lot_creation_report()
+	{
+		$postData = $this->security->xss_clean($this->input->post());
+		$draw = $postData['draw'];
+		$start = $postData['start'];
+		$rowperpage = $postData['length'];
+		$columnIndex = $postData['order'][0]['column']; // Column index
+		$searchValue = $postData['search']['value']; // Search value
+		$todate = $postData['todate'];
+		$fromdate = $postData['fromdate'];
+		$item_id = $postData['item_id'];
+
+		# Search 
+		$searchQuery = "";
+		if ($searchValue != '') {
+			$searchQuery = " (receive.code like '%" . $searchValue . "%'  or item.name like '%" . $searchValue . "%'  or receive.touch like '%" . $searchValue . "%' or receive.fine like'%" . $searchValue . "%' or receive.pcs like'%" . $searchValue . "%'  or receive.weight like'%" . $searchValue . "%' ) ";
+		}
+		## Total number of records without filtering
+		$this->db->select('count(*) as allcount');
+		$this->db->where('receive.lot_creation', 'YES');
+		$records = $this->db->get('receive')->result();
+		$totalRecords = $records[0]->allcount;
 
 
-	// public function receive()
-	// {
-	// 	$post = $this->input->post();
-	// 	$garnuRecieved = $this->db->select('recieved')->from('garnu')->where('id', $post['garnu_id'])->get()->row_array();
-	// 	if($garnuRecieved['recieved'] == 'YES'){
-	// 		$insertBatch = [];
-	// 		$updateBatch = [];
-	// 		$existingIds = isset($post['sdid']) ? $post['sdid'] : [];
-	// 		$allids = isset($post['ids']) ? $post['ids'] : [];
-	
-	// 		$idsNotExisting = array_diff($allids, $existingIds);
-	// 		if (!empty($idsNotExisting)) {
-	// 			$this->db->where_in('id', $idsNotExisting);
-	// 			$this->db->delete('receive_garnu');
-	// 		}
-	
-	// 		foreach ($post['sdid'] as $key => $sdid) {
-	// 			$rmData = [
-	// 				'metal_type_id' => isset($post['metal_type_id'][$key]) ? $post['metal_type_id'][$key] : null,
-	// 				'touch' => isset($post['touch'][$key]) ? $post['touch'][$key] : null,
-	// 				'weight' => isset($post['weight'][$key]) ? $post['weight'][$key] : null,
-	// 				'net_weight' => isset($post['net_weight'][$key]) ? $post['net_weight'][$key] : null,
-	// 			];
-	
-	// 			if ($sdid == 0) {
-	// 				$rmData['garnu_id'] = $post['garnu_id'];
-	// 				$insertBatch[] = $rmData;
-	// 			} else if (in_array($sdid, $existingIds)) {
-	// 				$rmData['id'] = $sdid;
-	// 				$updateBatch[] = $rmData;
-	// 			}
-	// 		}
-	
-	// 		if (!empty($insertBatch)) {
-	// 			$this->db->insert_batch('receive_garnu', $insertBatch);
-	// 			$this->db->where('id', $post['garnu_id'])->update('garnu',['recieved'=>'YES']);
-	// 			$response = ['success' => true, 'message' => 'Data Add Successfully.'];
-	// 		} else {
-	// 			$response = ['success' => false, 'message' => 'Data Add Failed.'];
-	// 		}
-	// 		if (!empty($updateBatch)) {
-	// 			$this->db->update_batch('receive_garnu', $updateBatch, 'id');
-	// 			$this->db->where('id', $post['garnu_id'])->update('garnu',['recieved'=>'YES']);
-	// 			$response = ['success' => true, 'message' => 'Data Update Successfully.'];
-	// 		}
-	// 	}else{
-	// 		$response = ['success' => false, 'message' => 'Garnu Is Not Received'];
-	// 	}
-	// 	echo json_encode($response);
-	// 	return;
-	// }
+		$this->db->select('item.name');
+		$this->db->from('receive');
+		$this->db->join('item', 'receive.item_id = item.id', 'left');
+		if ($searchQuery != '')
+			$this->db->where($searchQuery);
+		if (!empty($fromdate)) {
+			$this->db->where('DATE(receive.creation_date) >=', $fromdate);
+		}
+		if (!empty($todate)) {
+			$this->db->where('DATE(receive.creation_date) <=', $todate);
+		}
+		if (!empty($item_id)) {
+			$this->db->where('receive.item_id', $item_id);
+		}
+		$this->db->where('receive.lot_creation', 'YES');
+		$records = $this->db->get();
+		$totalRecordwithFilter = $records->num_rows();
+
+
+		## Fetch records
+		$where = [];
+		$this->db->select('receive.*,item.name as item_name');
+		$this->db->from('receive');
+		$this->db->join('item', 'receive.item_id = item.id', 'left');
+		if ($searchQuery != '')
+			$this->db->where($searchQuery);
+		if (!empty($fromdate)) {
+			$this->db->where('DATE(receive.creation_date) >=', $fromdate);
+		}
+		if (!empty($todate)) {
+			$this->db->where('DATE(receive.creation_date) <=', $todate);
+		}
+		if (!empty($item_id)) {
+			$this->db->where('receive.item_id', $item_id);
+		}
+		$this->db->where('receive.lot_creation', 'YES');
+		$this->db->limit($rowperpage, $start);
+		$this->db->order_by('receive.id', "desc");
+		$records = $this->db->get()->result();
+
+		
+		$data = array();
+		$i = $start + 1;
+		foreach ($records as $record) {
+			$this->db->select_sum('piece');  // Sum up all the pieces
+			$this->db->from('lot_creation');  // From the lot_creation table
+			$this->db->where('barcode', $record->code);  // Condition: where barcode matches
+			$ComplatedPcs = $this->db->get()->row()->piece;
+
+			$data[] = array(
+				'id' => $i,
+				'code' => '<a href="' . base_url('manufacturing/lot/index/') . $record->code . '" class="text-danger">'.$record->code.'</a>',
+				'item_name' => $record->item_name,
+				'pcs' => $record->pcs,
+				'complated_pcs' => $ComplatedPcs,
+				'weight' => $record->weight,
+				'labour_type' => $record->labour_type,
+				'labour' => $record->labour,
+				'total_labour' => $record->total_labour,
+				'rm_weight' => $record->row_material_weight,
+				'total_weight' => $record->total_weight,
+				'touch' => $record->touch,
+				'fine' => $record->fine,
+				'remark' => $record->remark,
+				'created_at' => date('d-m-Y g:i A', strtotime($record->created_at)),
+			);
+			$i = $i + 1;
+		}
+
+		$response = array(
+			"draw" => intval($draw),
+			"iTotalRecords" => $totalRecords,
+			"iTotalDisplayRecords" => $totalRecordwithFilter,
+			"aaData" => $data,
+		);
+		echo json_encode($response);
+		exit();
+	}
 
 	private function validateId($id)
 	{

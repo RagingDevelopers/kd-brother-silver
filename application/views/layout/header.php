@@ -27,7 +27,7 @@
 								Master
 							</span>
 						</a>
-						<div class="dropdown-menu" data-bs-popper="static">
+						<div class="dropdown-menu dropdown-menu-arrow" data-bs-popper="static">
 							<div class="dropdown-menu-columns">
 								<div class="dropdown-menu-column">
 									<a class="dropdown-item" href="<?= base_url("master/process") ?>">
@@ -59,6 +59,12 @@
 											<i class="fa-solid fa-layer-group" aria-hidden="true"></i>
 										</span>
 										Item
+									</a>
+									<a class="dropdown-item" href="<?= base_url("master/sub_item") ?>">
+										<span class="nav-link-icon d-md-none d-lg-inline-block">
+											<i class="fa-solid fa-diagram-next" aria-hidden="true"></i>
+										</span>
+										Sub Item
 									</a>
 									<a class="dropdown-item" href="<?= base_url("master/row_material_type") ?>">
 										<span class="nav-link-icon d-md-none d-lg-inline-block">
@@ -110,7 +116,7 @@
 								Registration
 							</span>
 						</a>
-						<div class="dropdown-menu" data-bs-popper="static">
+						<div class="dropdown-menu dropdown-menu-arrow" data-bs-popper="static">
 							<div class="dropdown-menu-columns">
 								<div class="dropdown-menu-column">
 									<a class="dropdown-item" href="<?= base_url("registration/customer") ?>">
@@ -139,20 +145,20 @@
 								Manufacturing
 							</span>
 						</a>
-						<div class="dropdown-menu" data-bs-popper="static">
+						<div class="dropdown-menu dropdown-menu-arrow" data-bs-popper="static">
 							<div class="dropdown-menu-columns">
 								<div class="dropdown-menu-column">
-									<a class="dropdown-item" href="<?= base_url("manufacturing/main_garnu") ?>">
-										<span class="nav-link-icon d-md-none d-lg-inline-block">
-											<i class="fa-solid fa-filter-circle-dollar"></i>
-										</span>
-										Main Garnu
-									</a>
+									<!--<a class="dropdown-item" href="<?= base_url("manufacturing/main_garnu") ?>">-->
+									<!--	<span class="nav-link-icon d-md-none d-lg-inline-block">-->
+									<!--		<i class="fa-solid fa-filter-circle-dollar"></i>-->
+									<!--	</span>-->
+									<!--	Main Garnu-->
+									<!--</a>-->
 									<a class="dropdown-item" href="<?= base_url("manufacturing/garnu") ?>">
 										<span class="nav-link-icon d-md-none d-lg-inline-block">
 											<i class="fa-solid fa-filter"></i>
 										</span>
-										Dhal
+										Garnu
 									</a>
 									<a class="dropdown-item" href="<?= base_url("manufacturing/receive_garnu") ?>">
 										<span class="nav-link-icon d-md-none d-lg-inline-block">
@@ -164,14 +170,44 @@
 										<span class="nav-link-icon d-md-none d-lg-inline-block">
 											<i class="fa-solid fa-truck-fast"></i>
 										</span>
-										Main Report
+										Main Dhal Report
+									</a>
+									<a class="dropdown-item" href="<?= base_url("manufacturing/product/main_given_report") ?>">
+										<span class="nav-link-icon d-md-none d-lg-inline-block">
+											<i class="fa fa-line-chart" aria-hidden="true"></i>
+										</span>
+										Main Given Report
+									</a>
+									<a class="dropdown-item" href="<?= base_url("manufacturing/receive_garnu/lot_creation") ?>">
+										<span class="nav-link-icon d-md-none d-lg-inline-block">
+											<i class="fa-solid fa-boxes-packing"></i>
+										</span>
+										Ready For Lot
+									</a>
+									<a class="dropdown-item" href="<?= base_url("manufacturing/lot") ?>">
+										<span class="nav-link-icon d-md-none d-lg-inline-block">
+											<i class="fa fa-random" aria-hidden="true"></i>
+										</span>
+										Lot Creation
+									</a>
+									<a class="dropdown-item" href="<?= base_url("manufacturing/ready_for_sale") ?>">
+										<span class="nav-link-icon d-md-none d-lg-inline-block">
+											<i class="fa-solid fa-diagram-next" aria-hidden="true"></i>
+										</span>
+										Ready For Sale
+									</a>
+									<a class="dropdown-item" href="<?= base_url("manufacturing/given_testing") ?>">
+										<span class="nav-link-icon d-md-none d-lg-inline-block">
+											<i class="fa-solid fa-filter"></i>
+										</span>
+										Given Testing
 									</a>
 								</div>
 							</div>
 						</div>
 					</li>
 
-					<li class="nav-item dropdown <?= IsActive("purchase"); ?>">
+					<li class="nav-item dropdown <?= IsActive("purchase"); ?> <?= IsActive("purchase_return"); ?>">
 						<a class="nav-link dropdown-toggle" href="#navbar-third" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false">
 							<span class="nav-link-icon d-md-none d-lg-inline-block">
 								<i class="fa fa-solid fa-money-check-dollar"></i>
@@ -180,21 +216,28 @@
 								Purchase
 							</span>
 						</a>
-						<div class="dropdown-menu" data-bs-popper="static">
+						<div class="dropdown-menu dropdown-menu-arrow" data-bs-popper="static">
 							<div class="dropdown-menu-columns">
 								<div class="dropdown-menu-column">
-									<a class="dropdown-item" href="<?= base_url("") ?>">
+									<a class="dropdown-item" href="<?= base_url("purchase") ?>">
 										<span class="nav-link-icon d-md-none d-lg-inline-block">
 											<i class="fa-solid fa-user-plus"></i>
 										</span>
 										Purchase Item
 									</a>
+									<a class="dropdown-item" href="<?= base_url("purchase_return") ?>">
+										<span class="nav-link-icon d-md-none d-lg-inline-block">
+											<i class="fa-solid fa-money-bill-transfer"></i>
+										</span>
+										Purchase Item Return
+									</a>
 								</div>
 							</div>
+							
 						</div>
 					</li>
 
-					<li class="nav-item dropdown <?= IsActive("sales"); ?>">
+					<li class="nav-item dropdown <?= IsActive("sales"); ?> <?= IsActive("sales_return"); ?>">
 						<a class="nav-link dropdown-toggle" href="#navbar-third" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false">
 							<span class="nav-link-icon d-md-none d-lg-inline-block">
 								<i class="fa-solid fa-file-invoice-dollar"></i>
@@ -203,7 +246,7 @@
 								Sales
 							</span>
 						</a>
-						<div class="dropdown-menu" data-bs-popper="static">
+						<div class="dropdown-menu dropdown-menu-arrow" data-bs-popper="static">
 							<div class="dropdown-menu-columns">
 								<div class="dropdown-menu-column">
 									<a class="dropdown-item" href="<?= base_url("sales") ?>">
@@ -212,39 +255,59 @@
 										</span>
 										Sales Report
 									</a>
+										<a class="dropdown-item" href="<?= base_url("sales_return") ?>">
+										<span class="nav-link-icon d-md-none d-lg-inline-block">
+											<i class="fa-solid fa-money-bill-transfer"></i>
+										</span>
+										Sales Return Report
+									</a>
 								</div>
 							</div>
+							
 						</div>
 					</li>
 
+
 					<li class="nav-item dropdown <?= IsActive("payment"); ?>">
-						<a class="nav-link dropdown-toggle" href="#navbar-third" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false">
+						<a class="nav-link dropdown-toggle" href="#navbar-payment" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false">
 							<span class="nav-link-icon d-md-none d-lg-inline-block">
-								<i class="fa-solid fa-credit-card"></i>
+								<i class="fa-solid fa-file-invoice-dollar"></i>
 							</span>
 							<span class="nav-link-title">
 								Payment
 							</span>
 						</a>
-						<div class="dropdown-menu" data-bs-popper="static">
+						<div class="dropdown-menu dropdown-menu-arrow" data-bs-popper="static">
 							<div class="dropdown-menu-columns">
 								<div class="dropdown-menu-column">
 									<a class="dropdown-item" href="<?= base_url("payment/jama_report") ?>">
 										<span class="nav-link-icon d-md-none d-lg-inline-block">
-											<i class="fa-solid fa-user-plus"></i>
+											<i class="fa-solid fa-money-bills"></i>
 										</span>
-										Customer Jama Report
+										Payment Report
 									</a>
-									<a class="dropdown-item" href="<?= base_url("payment/baki_report") ?>">
+									<a class="dropdown-item" href="<?= base_url("payment/transfer_entry") ?>">
 										<span class="nav-link-icon d-md-none d-lg-inline-block">
-											<i class="fa-solid fa-user-minus"></i>
+											<i class="fa-solid fa-money-bill-transfer"></i>
 										</span>
-										Customer Baki Report
+										Trasnfer Entry
 									</a>
 								</div>
 							</div>
+
 						</div>
 					</li>
+
+					<!--<li class="nav-item <?= IsActive("payment"); ?>">-->
+					<!--	<a class="nav-link" href="<?= base_url("payment/jama_report") ?>">-->
+					<!--		<span class="nav-link-icon d-md-none d-lg-inline-block">-->
+					<!--			<i class="fa-solid fa-file-invoice-dollar"></i>-->
+					<!--		</span>-->
+					<!--		<span class="nav-link-title">-->
+					<!--			Payment Report-->
+					<!--		</span>-->
+					<!--	</a>-->
+					<!--</li>-->
 
 					<li class="nav-item dropdown <?= IsActive("report"); ?>">
 						<a class="nav-link dropdown-toggle" href="#navbar-third" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false">
@@ -255,9 +318,15 @@
 								Report
 							</span>
 						</a>
-						<div class="dropdown-menu" data-bs-popper="static">
+						<div class="dropdown-menu dropdown-menu-arrow" data-bs-popper="static">
 							<div class="dropdown-menu-columns">
 								<div class="dropdown-menu-column">
+									<a class="dropdown-item" href="<?= base_url("report/lot") ?>">
+										<span class="nav-link-icon d-md-none d-lg-inline-block">
+											<i class="fa-solid fa-boxes-packing"></i>
+										</span>
+										Lot Reprot
+									</a>
 									<a class="dropdown-item" href="<?= base_url("report/Row_material_stock") ?>">
 										<span class="nav-link-icon d-md-none d-lg-inline-block">
 											<i class="fa-solid fa-user-plus"></i>
@@ -275,6 +344,71 @@
 											<i class="fa-brands fa-dropbox" aria-hidden="true"></i>
 										</span>
 										Row Material Closing
+									</a>
+									<a class="dropdown-item" href="<?= base_url("report/account_ledger") ?>">
+										<span class="nav-link-icon d-md-none d-lg-inline-block">
+											<i class="fa-solid fa-receipt" aria-hidden="true"></i>
+										</span>
+										Account Ledger
+									</a>
+									<a class="dropdown-item" href="<?= base_url("report/daybook") ?>">
+										<span class="nav-link-icon d-md-none d-lg-inline-block">
+											<i class="fa fa-repeat" aria-hidden="true"></i>
+										</span>
+										Daybook
+									</a>
+									<a class="dropdown-item" href="<?= base_url("report/account_ledger/balanceSheetReport") ?>">
+										<span class="nav-link-icon d-md-none d-lg-inline-block">
+											<i class="fa-solid fa-book" aria-hidden="true"></i>
+										</span>
+										Balance Sheet
+									</a>
+									<a class="dropdown-item" href="<?= base_url("report/silverBhavReport") ?>">
+										<span class="nav-link-icon d-md-none d-lg-inline-block">
+											<i class="fa-solid fa-money-bill-transfer"></i>
+										</span>
+										Silver Bhav Report
+									</a>
+									<a class="dropdown-item" href="<?= base_url("report/stockReport") ?>">
+										<span class="nav-link-icon d-md-none d-lg-inline-block">
+											<i class="fa fa-line-chart" aria-hidden="true"></i>
+										</span>
+										Stock Report
+									</a>
+									<a class="dropdown-item" href="<?= base_url("report/lot_wise_rm") ?>">
+										<span class="nav-link-icon d-md-none d-lg-inline-block">
+											<i class="fa fa-random" aria-hidden="true"></i>
+										</span>
+										Lot Wise Row Material
+									</a>
+									<a class="dropdown-item" href="<?= base_url("report/profit_loss_report") ?>">
+										<span class="nav-link-icon d-md-none d-lg-inline-block">
+											<i class="fa fa-random" aria-hidden="true"></i>
+										</span>
+										Profit And Loss report
+									</a>
+								</div>
+							</div>
+						</div>
+					</li>
+
+					<li class="nav-item dropdown <?= IsActive("setting"); ?>">
+						<a class="nav-link dropdown-toggle" href="#navbar-third" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false">
+							<span class="nav-link-icon d-md-none d-lg-inline-block">
+								<i class="fa-solid fa-gear"></i>
+							</span>
+							<span class="nav-link-title">
+								Setting
+							</span>
+						</a>
+						<div class="dropdown-menu dropdown-menu-arrow" data-bs-popper="static">
+							<div class="dropdown-menu-columns">
+								<div class="dropdown-menu-column">
+									<a class="dropdown-item" href="<?= base_url("setting/sequence") ?>">
+										<span class="nav-link-icon d-md-none d-lg-inline-block">
+											<i class="fa-solid fa-boxes-packing"></i>
+										</span>
+										Sequence
 									</a>
 								</div>
 							</div>
@@ -319,7 +453,7 @@
 						</svg>
 						Light Mode
 					</a>
-					<a href="<?= base_url() ?>" class="dropdown-item" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-original-title="Change Password">
+					<a href="#" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#changePasswordModal">
 						<i class="fs-2 ti ti-key dropdown-item-icon "></i>
 						Change Password
 					</a>
@@ -336,4 +470,70 @@
 			</div>
 		</div>
 	</header>
+</div>
+
+<div class="modal modal-blur fade" id="changePasswordModal" tabindex="-1" aria-hidden="true">
+	<div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">Change PassWord</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<form action="#" id="changePassword">
+				<div class="modal-body">
+					<div class="row">
+						<div class="col-lg-12">
+							<div class="mb-2">
+								<label class="form-label" for=""> Old Password</label>
+								<div class="input-group">
+									<input type="password" name="old_password" class="form-control" placeholder="Your Old password" autocomplete="off">
+									<span class="input-group-text">
+										<a href="#" class="link-secondary" data-bs-toggle="tooltip" aria-label="Show password" data-bs-original-title="Show password"><!-- Download SVG icon from http://tabler-icons.io/i/eye -->
+											<i class="fa-regular fa-eye"></i>
+										</a>
+									</span>
+								</div>
+							</div>
+						</div>
+						<div class="col-lg-12">
+							<div class="mb-2">
+								<label class="form-label" for="">New Password</label>
+								<div class="input-group">
+									<input type="password" name="new_password" class="form-control" placeholder="Your New password" autocomplete="off">
+									<span class="input-group-text">
+										<a href="#" class="link-secondary" data-bs-toggle="tooltip" aria-label="Show password" data-bs-original-title="Show password">
+											<i class="fa-regular fa-eye"></i>
+										</a>
+									</span>
+								</div>
+							</div>
+						</div>
+						<div class="col-lg-12">
+							<div class="mb-2">
+								<label class="form-label" for="">Confirm Password</label>
+								<div class="input-group">
+									<input type="password" name="confirm_password" class="form-control" placeholder="Your Confirm password" autocomplete="off">
+									<span class="input-group-text">
+										<a href="#" class="link-secondary" data-bs-toggle="tooltip" aria-label="Show password" data-bs-original-title="Show password">
+											<i class="fa-regular fa-eye"></i>
+										</a>
+									</span>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<div>
+						<a href="#" class="btn btn-danger" data-bs-dismiss="modal">
+							Cancel
+						</a>
+						<button type="submit" class="input-icon btn btn-primary btn-primary submit-btn">Save Changes
+							<span style="display: none;" class="spinner-border border-3 ms-2 spinner-border-sm text-white" role="status"></span>
+						</button>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
 </div>

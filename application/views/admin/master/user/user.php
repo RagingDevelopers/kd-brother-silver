@@ -192,5 +192,9 @@
             }).join(',');
             $('.permission').val(product_ids_str);
         });
+		$('.select2').select2({
+			placeholder: "-- Select --",
+			allowClear: true,
+		});
     });
 </script>

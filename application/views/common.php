@@ -1,12 +1,4 @@
-<!doctype html>
-<!--
-* Tabler - Premium and Open Source dashboard template with responsive and high quality UI.
-* @version 1.0.0-beta19
-* @link https://tabler.io
-* Copyright 2018-2023 The Tabler Authors
-* Copyright 2018-2023 codecalm.net Paweł Kuna
-* Licensed under MIT (https://github.com/tabler/tabler/blob/master/LICENSE)
--->
+
 <html lang="en">
 
 <head>
@@ -39,6 +31,16 @@
 
 
 	<style>
+	    @keyframes blink {
+            0% { opacity: 1; }
+            50% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+        
+        .blinking-text {
+            animation: blink 3s linear infinite;
+        }
+
 		@import url('https://rsms.me/inter/inter.css');
 
 		:root {
@@ -166,6 +168,73 @@
 		.container-xl {
 			max-width: 100% !important;
 		}
+
+		@media only screen and (min-device-width: 820px) and (max-device-width: 1700px) {
+			/*body {*/
+			/*	zoom: 80%;*/
+
+			/*}*/
+			.modal-backdrop{
+				width: 100%;
+				height: 100%;
+			}
+		}
+		
+        .navbar-nav	.dropdown-menu-end {
+            right: 0;
+            left: auto;
+        }
+		
+		.dropdown-menu {
+            top: 100%;
+            left: 0;
+            margin-top: var(--tblr-dropdown-spacer);
+        }
+		
+		.navbar-nav .dropdown-menu {
+            
+            border-radius: 9px !important;
+            opacity: 0;
+            visibility: hidden;
+            -webkit-box-shadow: 0 1px 10px 0 rgba(69, 90, 100, 0.2) !important;
+            box-shadow: 0 1px 10px 0 rgba(69, 90, 100, 0.2) !important;
+            -webkit-transform: translateY(15px);
+            transform: translateY(16px);
+            transition: transform 0.32s cubic-bezier(0, 0, 0, 1), opacity 80ms;
+            transition: transform 0.32s cubic-bezier(0, 0, 0, 1), opacity 80ms, -webkit-transform 0.32s cubic-bezier(0, 0, 0, 1);
+			transition : ease-in-out 0.2s;
+
+        }
+        .dropdown-item i {
+            margin-right: 8px;
+            transition: transform 0.3s ease;
+        }
+        
+        
+        .dropdown-item {
+            transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease;
+        }
+        
+        .dropdown-item:focus, .dropdown-item:hover {
+            color: var(--tblr-dropdown-link-hover-color);
+            text-decoration: none;
+            transform: scale(1.05); /* Slight zoom effect */
+        }
+		
+		.navbar-nav .show.dropdown-menu {
+            opacity: 1;
+            visibility: visible;
+            display: unset;
+            -webkit-transform: translateY(0);
+            transform: translateY(0);
+        }
+		
+		/*@media only screen and (min-device-width: 820px) and (max-device-width: 1520px)  { */
+  /*          body{ */
+  /*              zoom:50%;*/
+                
+  /*          }*/
+  /*          }*/
 	</style>
 	<script>
 		const BaseUrl = "<?= base_url() ?>"

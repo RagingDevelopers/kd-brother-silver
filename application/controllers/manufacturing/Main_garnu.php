@@ -21,6 +21,9 @@ class Main_garnu extends CI_Controller
 	public function index($action = "", $id = null)
 	{
 		$page_data['page_title'] = 'Main Garnu';
+		flash()->withSuccess("Here is the garnu")->to("manufacturing/garnu");
+		exit;
+		
 		switch ($action) {
 			case "":
 				checkPrivilege(privilege["main_garnu_view"]);
@@ -56,6 +59,7 @@ class Main_garnu extends CI_Controller
 					->set_rules('touchs', 'touch', 'required')
 					->set_rules('mfine', 'Total Fine', 'required')
 					->set_rules('metal_type_id[]', 'metal_type_id', 'required')
+					->set_rules('closing_touch[]', 'closing touch', 'required')
 					->set_rules('weight[]', 'weight', 'required')
 					->set_rules('touch[]', 'touch', 'required')
 					->set_rules('fine[]', 'Fine', 'required');
@@ -65,6 +69,7 @@ class Main_garnu extends CI_Controller
 				}
 				$post = xss_clean($this->input->post());
 				$garnu = array();
+				$garnu['user_id'] = session('id');
 				$garnu['name'] = $post['name'];
 				$garnu['garnu_weight'] = $post['garnu_weight'];
 				$garnu['touch'] = $post['touchs'];
@@ -79,7 +84,9 @@ class Main_garnu extends CI_Controller
 
 				$garnu_item = $new = array();
 				for ($i = 0; $i < $length; $i++) {
+					$garnu_item['user_id'] = session('id');
 					$garnu_item['metal_type_id'] = $post['metal_type_id'][$i];
+					$garnu_item['closing_touch'] = $post['closing_touch'][$i];
 					$garnu_item['weight'] = $post['weight'][$i];
 					$garnu_item['touch'] = $post['touch'][$i];
 					$garnu_item['fine'] = $post['fine'][$i];
@@ -183,16 +190,12 @@ class Main_garnu extends CI_Controller
 
 		if ($searchQuery != '')
 			$this->db->where($searchQuery);
-		if (!empty($fromdate)) {
+		if (!empty($fromdate))
 			$this->db->where('DATE(main_garnu.creation_date) >=', $fromdate);
-		}
-		if (!empty($todate)) {
+		if (!empty($todate))
 			$this->db->where('DATE(main_garnu.creation_date) <=', $todate);
-		}
-		if (!empty($received)) {
+		if (!empty($received))
 			$this->db->where('main_garnu.recieved', $received);
-		}
-
 		$records = $this->db->get();
 		$totalRecordwithFilter = $records->num_rows();
 
@@ -204,16 +207,12 @@ class Main_garnu extends CI_Controller
 
 		if ($searchQuery != '')
 			$this->db->where($searchQuery);
-		if (!empty($fromdate)) {
+		if (!empty($fromdate))
 			$this->db->where('DATE(main_garnu.creation_date) >=', $fromdate);
-		}
-		if (!empty($todate)) {
+		if (!empty($todate))
 			$this->db->where('DATE(main_garnu.creation_date) <=', $todate);
-		}
-		if (!empty($received)) {
+		if (!empty($received))
 			$this->db->where('main_garnu.recieved', $received);
-		}
-
 		$this->db->limit($rowperpage, $start);
 		$this->db->order_by('id', "desc");
 		$records = $this->db->get()->result();
@@ -319,8 +318,7 @@ class Main_garnu extends CI_Controller
 			echo json_encode($response);
 		}
 	}
-
-
+	
 	public function receive()
 	{
 		$post = $this->input->post();
@@ -397,97 +395,97 @@ class Main_garnu extends CI_Controller
 		}
 	}
 
-	public function getClosingstock()
-	{
-		try {
-			$this->form_validation->set_rules('touch', 'Touch', 'trim|required|numeric');
-			if ($this->form_validation->run() == FALSE) {
-				$response = ['success' => false, 'error' => validation_errors()];
-				echo json_encode($response);
-				return;
-			} else {
-				$postData = $this->input->post();
-				$touch = $postData['touch'];
+	// public function getClosingstock()
+	// {
+	// 	try {
+	// 		$this->form_validation->set_rules('touch', 'Touch', 'trim|required|numeric');
+	// 		if ($this->form_validation->run() == FALSE) {
+	// 			$response = ['success' => false, 'message' => validation_errors()];
+	// 			echo json_encode($response);
+	// 			return;
+	// 		} else {
+	// 			$postData = $this->input->post();
+	// 			$touch = $postData['touch'];
 
-				$this->db->query("SET SESSION sql_mode=(SELECT REPLACE(@@sql_mode, 'ONLY_FULL_GROUP_BY', ''));");
-				$openingTouch = 0;
-				$openingWeight = 0;
-				$openingQuery = "SELECT 
-								SUM(touch) AS total_touch, SUM(weight) AS total_weight, type
-							FROM (
-								SELECT touch, weight, 'garnu given' AS type, garnu_item.created_at AS created_at
-								FROM garnu_item
-								WHERE 
-									" . (!empty($touch) ? "garnu_item.touch = $touch" : "") . "
-								UNION ALL
-								SELECT touch, weight, 'garnu receive' AS type, receive_garnu.created_at AS created_at
-								FROM receive_garnu
-								WHERE 
-									" . (!empty($touch) ? " receive_garnu.touch = $touch" : "") . "
-								UNION ALL
-								SELECT process_metal_type.touch, process_metal_type.weight, 'process given' AS type, process_metal_type.created_at AS created_at
-								FROM process_metal_type
-								LEFT JOIN given ON process_metal_type.given_id = given.id
-								WHERE
-									" . (!empty($touch) ? " process_metal_type.touch = $touch" : "") . "
-								UNION ALL
-								SELECT jama.gross AS touch, jama.purity AS weight, 'jama' AS type, jama.created_at AS created_at
-								FROM jama
-								WHERE
-									jama.type = 'fine'  
-									" . (!empty($touch) ? " AND jama.gross = $touch" : "") . "
-								UNION ALL
-								SELECT baki.gross AS touch, baki.purity AS weight, 'baki' AS type, baki.created_at AS created_at
-								FROM baki
-								WHERE
-									baki.type = 'fine' 
-								" . (!empty($touch) ? " AND baki.gross = $touch" : "") . "
-								UNION ALL
-								SELECT touch, weight, 'garnu given' AS type, main_garnu_item.created_at AS created_at
-								FROM main_garnu_item
-								WHERE 
-									" . (!empty($touch) ? " main_garnu_item.touch = $touch" : "") . "
-							) AS opening_records
-							GROUP BY type
-							ORDER BY created_at ASC";
-				$openingResult = $this->db->query($openingQuery)->result_array();
+	// 			$this->db->query("SET SESSION sql_mode=(SELECT REPLACE(@@sql_mode, 'ONLY_FULL_GROUP_BY', ''));");
+	// 			$openingTouch = 0;
+	// 			$openingWeight = 0;
+	// 			$openingQuery = "SELECT 
+	// 							SUM(touch) AS total_touch, SUM(weight) AS total_weight, type
+	// 						FROM (
+	// 							SELECT touch, weight, 'garnu given' AS type, garnu_item.created_at AS created_at
+	// 							FROM garnu_item
+	// 							WHERE 
+	// 								" . (!empty($touch) ? "garnu_item.touch = $touch" : "") . "
+	// 							UNION ALL
+	// 							SELECT touch, weight, 'garnu receive' AS type, receive_garnu.created_at AS created_at
+	// 							FROM receive_garnu
+	// 							WHERE 
+	// 								" . (!empty($touch) ? " receive_garnu.touch = $touch" : "") . "
+	// 							UNION ALL
+	// 							SELECT process_metal_type.touch, process_metal_type.weight, 'process given' AS type, process_metal_type.created_at AS created_at
+	// 							FROM process_metal_type
+	// 							LEFT JOIN given ON process_metal_type.given_id = given.id
+	// 							WHERE
+	// 								" . (!empty($touch) ? " process_metal_type.touch = $touch" : "") . "
+	// 							UNION ALL
+	// 							SELECT jama.gross AS touch, jama.purity AS weight, 'jama' AS type, jama.created_at AS created_at
+	// 							FROM jama
+	// 							WHERE
+	// 								jama.type = 'fine'  
+	// 								" . (!empty($touch) ? " AND jama.gross = $touch" : "") . "
+	// 							UNION ALL
+	// 							SELECT baki.gross AS touch, baki.purity AS weight, 'baki' AS type, baki.created_at AS created_at
+	// 							FROM baki
+	// 							WHERE
+	// 								baki.type = 'fine' 
+	// 							" . (!empty($touch) ? " AND baki.gross = $touch" : "") . "
+	// 							UNION ALL
+	// 							SELECT touch, weight, 'garnu given' AS type, main_garnu_item.created_at AS created_at
+	// 							FROM main_garnu_item
+	// 							WHERE 
+	// 								" . (!empty($touch) ? " main_garnu_item.touch = $touch" : "") . "
+	// 						) AS opening_records
+	// 						GROUP BY type
+	// 						ORDER BY created_at ASC";
+	// 			$openingResult = $this->db->query($openingQuery)->result_array();
 
-				$openingTouch = 0;
-				$openingWeight = 0;
+	// 			$openingTouch = 0;
+	// 			$openingWeight = 0;
 
-				foreach ($openingResult as $r) {
-					if ($r['type'] == 'garnu receive' || $r['type'] == 'process given' || $r['type'] == 'jama') {
-						$openingTouch += $r['total_touch'];
-						$openingWeight += $r['total_weight'];
-					}
-					if ($r['type'] == 'garnu given' || $r['type'] == 'baki' || $r['type'] == 'main garnu given') {
-						$openingTouch -= $r['total_touch'];
-						$openingWeight -= $r['total_weight'];
-					}
-				}
+	// 			foreach ($openingResult as $r) {
+	// 				if ($r['type'] == 'garnu receive' || $r['type'] == 'process given' || $r['type'] == 'jama') {
+	// 					$openingTouch += $r['total_touch'];
+	// 					$openingWeight += $r['total_weight'];
+	// 				}
+	// 				if ($r['type'] == 'garnu given' || $r['type'] == 'baki' || $r['type'] == 'main garnu given') {
+	// 					$openingTouch -= $r['total_touch'];
+	// 					$openingWeight -= $r['total_weight'];
+	// 				}
+	// 			}
 
-				if (!empty($openingWeight)) {
-					$response = ['success' => true, 'message' => 'Data Fetched successfully.', 'data' => $openingWeight];
-				} else {
-					$response = ['success' => false, 'message' => 'Data Fetched successfully.', 'data' => "0"];
-				}
-				echo json_encode($response);
-				return;
-			}
-		} catch (Exception $e) {
-			$response = [
-				'success' => false, 'error' => $e->getMessage(), 'data' => []
-			];
-			echo json_encode($response);
-		}
-	}
+	// 			if (!empty($openingWeight)) {
+	// 				$response = ['success' => true, 'message' => 'Data Fetched successfully.', 'data' => $openingWeight];
+	// 			} else {
+	// 				$response = ['success' => false, 'message' => 'Data Fetched successfully.', 'data' => "0"];
+	// 			}
+	// 			echo json_encode($response);
+	// 			return;
+	// 		}
+	// 	} catch (Exception $e) {
+	// 		$response = [
+	// 			'success' => false, 'error' => $e->getMessage(), 'data' => []
+	// 		];
+	// 		echo json_encode($response);
+	// 	}
+	// }
 
 	public function getStockTouch()
 	{
 		try {
 			$this->form_validation->set_rules('metal_type_id', 'Metal Type', 'trim|required|numeric');
 			if ($this->form_validation->run() == FALSE) {
-				$response = ['success' => false, 'error' => validation_errors()];
+				$response = ['success' => false, 'message' => validation_errors()];
 				echo json_encode($response);
 				return;
 			} else {
@@ -509,17 +507,31 @@ class Main_garnu extends CI_Controller
                     FROM receive_garnu
                     WHERE " . (!empty($metal_type_id) ? "receive_garnu.metal_type_id = $metal_type_id" : "") . "
                     UNION ALL
+                    
+                    SELECT touch, weight, 'testing given' AS type, given_testing_item.created_at AS created_at
+                    FROM given_testing_item
+                    WHERE " . (!empty($metal_type_id) ? "given_testing_item.metal_type_id = $metal_type_id" : "") . "
+                    UNION ALL
+                    SELECT touch, weight, 'given testing receive' AS type, receive_given_testing.created_at AS created_at
+                    FROM receive_given_testing
+                    WHERE " . (!empty($metal_type_id) ? "receive_given_testing.metal_type_id = $metal_type_id" : "") . "
+                    UNION ALL
+                    
+                    SELECT touch, weight, 'dhal receive' AS type, receive_garnu_dhal.created_at AS created_at
+                    FROM receive_garnu_dhal
+                    WHERE " . (!empty($metal_type_id) ? "receive_garnu_dhal.metal_type_id = $metal_type_id" : "") . "
+                    UNION ALL
                     SELECT touch, weight, 'process given' AS type, process_metal_type.created_at AS created_at
                     FROM process_metal_type
                     LEFT JOIN given ON process_metal_type.given_id = given.id
                     WHERE " . (!empty($metal_type_id) ? "process_metal_type.metal_type_id = $metal_type_id" : "") . "
                     UNION ALL
-                    SELECT gross AS touch, purity AS weight, 'jama' AS type, created_at
+                    SELECT  purity AS touch,gross AS weight, 'jama' AS type, created_at
                     FROM jama
                     WHERE type = 'fine'
                       AND " . (!empty($metal_type_id) ? "jama.metal_type_id = $metal_type_id" : "1") . "
                     UNION ALL
-                    SELECT gross AS touch, purity AS weight, 'baki' AS type, created_at
+                    SELECT purity AS touch,gross AS weight,  'baki' AS type, created_at
                     FROM baki
                     WHERE type = 'fine'
                       AND " . (!empty($metal_type_id) ? "baki.metal_type_id = $metal_type_id" : "1") . "
@@ -531,19 +543,36 @@ class Main_garnu extends CI_Controller
                 ORDER BY created_at ASC";
 
 				$openingResult = $this->db->query($openingQuery)->result_array();
+				// pre($openingResult);
+				// pre($openingResult);
 				$metal_closing_stock = [];
 				foreach ($openingResult as $r) {
-					if (in_array($r['touch'], $metal_closing_stock)) {
-						$index = array_search($r['touch'], $metal_closing_stock);
-						$metal_closing_stock[$index] *= 2;
+					$touch = abs($r['touch']);
+					$weight = abs($r['weight']);
+					
+					if (in_array($touch, array_column($metal_closing_stock, 'touch'))) {
+						$index = array_search($touch, array_column($metal_closing_stock, 'touch'));
+						if ($r['type'] == 'given testing receive' || $r['type'] == 'garnu receive' || $r['type'] == 'dhal receive' || $r['type'] == 'process given' || $r['type'] == 'jama') {
+							$metal_closing_stock[$index]['weight'] += $weight;
+						} elseif ($r['type'] == 'testing given' || $r['type'] == 'garnu given' || $r['type'] == 'baki' || $r['type'] == 'main garnu given') {
+							$metal_closing_stock[$index]['weight'] -= $weight;
+						}
 					} else {
-						$metal_closing_stock[] = $r['touch'];
+						if ($r['type'] == 'given testing receive' || $r['type'] == 'garnu receive' || $r['type'] == 'dhal receive' || $r['type'] == 'process given' || $r['type'] == 'jama') {
+							$metal_closing_stock[] = ['touch' => $touch, 'weight' => $weight];
+						} elseif ($r['type'] == 'testing given' || $r['type'] == 'garnu given' || $r['type'] == 'baki' || $r['type'] == 'main garnu given') {
+							$metal_closing_stock[] = ['touch' => $touch, 'weight' => '-'.$weight];
+						}
 					}
 				}
-				if (!empty($metal_closing_stock)) {
-					$response = ['success' => true, 'message' => 'Data Fetched successfully.', 'data' => $metal_closing_stock];
+				$data = array_map(function($entry) {
+					return $entry['touch'] . ' - ' . abs($entry['weight']).' KG';
+				}, $metal_closing_stock);
+
+				if (!empty($data)) {
+					$response = ['success' => true, 'message' => 'Data Fetched successfully.', 'data' => $data];
 				} else {
-					$response = ['success' => false, 'message' => 'Data Fetched successfully.', 'data' => "0"];
+					$response = ['success' => false, 'message' => 'Data Not Found.', 'data' => []];
 				}
 				echo json_encode($response);
 				return;

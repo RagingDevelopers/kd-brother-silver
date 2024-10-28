@@ -26,15 +26,15 @@
 						<div class="row">
 							<div class="col-sm-2">
 								<label>From date:</label> <br>
-								<input type="date" id="fromdate" name="fromdddate" class="form-control">
+								<input type="date" id="fromdate" value="<?=date('Y-m-01');?>" name="fromdddate" class="form-control from">
 							</div>
 							<div class="col-sm-2">
 								<label>To date:</label> <br>
-								<input type="date" id="todate" name="todate" class="form-control">
+								<input type="date" id="todate" name="todate" class="form-control to">
 							</div>
 						</div>
 						<div class="mt-3">
-							<table id="garnu" class="table table-vcenter card-table">
+							<table id="garnu" class="table table-vcenter card-table" style="width:100% !important;">
 								<thead>
 									<tr>
 										<th scope="col">Serial No </th>
@@ -42,13 +42,21 @@
 										<th scope="col">Name</th>
 										<th scope="col">Garnu Weight</th>
 										<th scope="col">Touch</th>
-										<th scope="col">Silver</th>
-										<th scope="col">Copper</th>
 										<th scope="col">Process Name</th>
 										<th scope="col">Worker Name</th>
 										<th scope="col">Created At</th>
 									</tr>
 								</thead>
+								<tfoot>
+								    <tr>
+								        <td class="text-center text-primary" colspan="3"><h3 class="blinking-text">Totals ==></h3></td>
+								        <td></td>
+								        <td></td>
+								        <td>--</td>
+								        <td>--</td>
+								        <td>---</td>
+								    </tr>
+								</tfoot>
 							</table>
 						</div>
 					</div>
@@ -75,6 +83,7 @@
 			'serverMethod': 'post',
 			'searching': true,
 			"ajax": {
+			    'showLoader': true,
 				'url': "<?= base_url(); ?>manufacturing/receive_garnu/getlist",
 				'data': function(data) {
 					data.todate = $('#todate').val();
@@ -98,12 +107,6 @@
 					data: 'touch'
 				},
 				{
-					data: 'silver'
-				},
-				{
-					data: 'copper'
-				},
-				{
 					data: 'process_name'
 				},
 				{
@@ -116,6 +119,12 @@
 			drawCallback: function(settings) {
 				$('[data-bs-toggle="tooltip"]').tooltip();
 			},
+			footerCallback: function(row, data, start, end, display) {
+                handelFooterTotal(
+                    this.api(),
+                    [3,4]
+                );
+            },
 		});
 		$('#todate').on('change', function() {
 			table.clear()

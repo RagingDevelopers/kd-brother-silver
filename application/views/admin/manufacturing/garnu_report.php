@@ -26,10 +26,10 @@
 										<p class="modal-title">Issue Weight </p>
 									</div>
 									<div class="col-md-4">
-										<p class="modal-title">Dhal Weight:- <span class="garnu_weight"></span></p>
+										<p class="modal-title">Garnu Weight:- <span class="garnu_weight"></span></p>
 									</div>
 									<div class="col-md-4 text-center">
-										<p class="modal-title">Dhal Name:- <span class="garnu_name"></span></p>
+										<p class="modal-title">Garnu Name:- <span class="garnu_name"></span></p>
 									</div>
 									<!-- <div class="col-md-1"> -->
 									<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -40,7 +40,7 @@
 									<table class="table card-table table-vcenter text-center text-nowrap ">
 										<thead class="thead-light">
 											<th>Metal Type</th>
-											<th scope="col">Weight(Gm)</th>
+											<th scope="col">Weight(Kg)</th>
 											<th scope="col">Touch (%)</th>
 											<th scope="col">Net Weight</th>
 											<th scope="col"></th>
@@ -64,13 +64,13 @@
 												</td>
 
 												<td>
-													<input class="form-control weight" type="number" name="weight[]" placeholder="Enter Weight" value="0" required>
+													<input class="form-control weight" step="any" type="number" name="weight[]" placeholder="Enter Weight" value="0" required>
 												</td>
 												<td>
 													<input class="form-control touch" type="number" name="touch[]" step="any" placeholder="Enter touch(%)" value="0" required>
 												</td>
 												<td>
-													<input class="form-control net_weight" type="number" value="0" readonly name="net_weight[]">
+													<input class="form-control net_weight" type="number" step="any" value="0" readonly name="net_weight[]">
 												</td>
 												<td>
 													<button type="button" class="btn btn-danger del">X</button>
@@ -99,6 +99,34 @@
 												</td>
 												<td></td>
 											</tr>
+											<tr>
+												<td colspan="1" id="jama_baki"></td>
+												<td colspan="1">
+													<label class="form-check">
+														<input class="form-check-input" id="is_kasar" name="is_kasar" type="checkbox">
+														<h4 class="form-check-label is_kasar">Is Kasar</h4>
+													</label>
+												</td>
+												<td colspan="1">
+													<div class="parent-div-party" style="display:none">
+														<?php $this->db->select('*');
+														$this->db->from('customer');
+														$party =  $this->db->get()->result_array();  ?>
+														<select name="transfer_account" class="form-select col-md-2 col-sm-3" id="select-account">
+															<option value="">Select Worker</option>
+															<?php
+															if (!empty($party)) {
+																foreach ($party as $row) { ?>
+																	<option value="<?= $row['id']; ?>"> <?= $row['name']; ?> </option>
+															<?php }
+															} ?>
+														</select>
+													</div>
+												</td>
+												<td></td>
+												<td></td>
+												<input type="hidden" name="jama_baki" value="" class="jama_baki">
+											</tr>
 										</tfoot>
 									</table>
 								</div>
@@ -120,7 +148,7 @@
 				</form>
 
 				<div class="col-sm-11">
-					<h1 class="card-title"><b> Dhal Report </b></h1>
+					<h1 class="card-title"><b> Garnu Report </b></h1>
 				</div>
 				<div class="col-sm-1 ms-5 ps-5">
 					<a class="btn btn-action bg-primary text-white" href="<?= base_url('manufacturing/garnu/index/add') ?>">
@@ -135,11 +163,11 @@
 						<div class="row">
 							<div class="col-sm-2">
 								<label>From date:</label> <br>
-								<input type="date" id="fromdate" name="fromdddate" class="form-control">
+								<input type="date" value="<?= date('Y-m-01'); ?>" id="fromdate" name="fromdddate" class="form-control from">
 							</div>
 							<div class="col-sm-2">
 								<label>To date:</label> <br>
-								<input type="date" id="todate" name="todate" class="form-control">
+								<input type="date" id="todate" name="todate" class="form-control to">
 							</div>
 							<div class="col-sm-2">
 								<label>Received:</label> <br>
@@ -151,7 +179,7 @@
 							</div>
 						</div>
 						<div class="mt-3">
-							<table id="garnu" class="table table-vcenter card-table">
+							<table id="garnu" class="table table-vcenter card-table" style="width:100% !important;">
 								<thead>
 									<tr>
 										<th scope="col">Serial No </th>
@@ -167,6 +195,20 @@
 										<th scope="col">Created At</th>
 									</tr>
 								</thead>
+								<tfoot>
+									<tr>
+										<td class="text-center text-primary" colspan="3">
+											<h3 class="blinking-text">Totals ==></h3>
+										</td>
+										<td></td>
+										<td></td>
+										<td> -- </td>
+										<td> -- </td>
+										<td> -- </td>
+										<td> -- </td>
+										<td> -- </td>
+									</tr>
+								</tfoot>
 							</table>
 						</div>
 					</div>
@@ -213,6 +255,7 @@
 			'serverMethod': 'post',
 			'searching': true,
 			"ajax": {
+				'showLoader': true,
 				'url': "<?= base_url(); ?>manufacturing/garnu/getlist",
 				'data': function(data) {
 					data.todate = $('#todate').val();
@@ -254,6 +297,12 @@
 					data: 'created_at'
 				},
 			],
+			footerCallback: function(row, data, start, end, display) {
+				handelFooterTotal(
+					this.api(),
+					[3, 4, 5]
+				);
+			},
 			drawCallback: function(settings) {
 				$('[data-bs-toggle="tooltip"]').tooltip();
 			},
@@ -300,6 +349,21 @@
 			$('.total-touch').text(formatNumber(Totaltouch));
 			$('.total-weight').text(formatNumber(Totalweight));
 			$('.total-net_weight').text(formatNumber(Totalnet_weight));
+
+
+			var Total = $(".garnu_weight").text() - Totalweight;
+			let formattedTotal = formatNumber(Total);
+			var jamaBaki = "";
+			if (formattedTotal > 0) {
+				jamaBaki = `<h4 class='text-danger'>ધટાડો :- <span class='ps-3'> ${formattedTotal} </span></h4>`;
+			} else if (formattedTotal == 0) {
+				jamaBaki = `<h4 class='text-success'>સરભર :- <span class='ps-3'> ${formattedTotal} </span></h4>`;
+			} else {
+				jamaBaki = `<h4 class='text-success'>વધારો :- <span class='ps-3'> ${formattedTotal} </span></h4>`;
+			}
+			$(".jama_baki").val(formattedTotal);
+			$("#jama_baki").html("");
+			$("#jama_baki").html(jamaBaki);
 		}
 
 		function receiveGarnu(id = null) {
@@ -319,7 +383,21 @@
 						garnuTouch = response.garnuData.touch;
 						garnuName = response.garnuData.name;
 						garnuWeight = response.garnuData.garnu_weight;
+						garnukasar = response.garnuData.is_kasar;
+						garnuaccount = response.garnuData.transfer_account;
 
+						if(garnukasar == 'YES'){
+							isKasar($(":checked"));
+						}else{
+							isKasar($(":not(:checked)"));
+						}
+						$('#select-account')
+									.val(garnuaccount)
+									.trigger('change')
+									.select2({
+										width: '100%',
+										dropdownParent: $('#ReceivedModel')
+									});
 						$('.garnu_weight').text("");
 						$('.garnu_name').text("");
 						$('.garnu_weight').text(garnuWeight);
@@ -510,7 +588,7 @@
 			});
 		});
 
-		$(document).on('click','.is_receive', function() {
+		$(document).on('click', '.is_receive', function() {
 			var self = $(this);
 			var id = $(this).data('garnu_id');
 			alert_if("Do you want to update the Receive Garnu?", function() {
@@ -518,7 +596,9 @@
 					url: "<?php echo base_url('manufacturing/garnu/updateStatus'); ?>",
 					type: 'POST',
 					showLoader: true,
-					data: {id},
+					data: {
+						id
+					},
 					success: function(response) {
 						var response = JSON.parse(response);
 						console.log(response);
@@ -543,5 +623,29 @@
 				});
 			});
 		});
+
+		$('.select2').select2({
+			placeholder: "-- Select --",
+			allowClear: true,
+		});
+
+		$(document).on("click", "#is_kasar", function() {
+			isKasar($(this));
+		});
+
+		function isKasar(ref) {
+			if (ref.is(":checked")) {
+				$(".is_kasar").css("color", "green");
+				$("#is_kasar").prop("checked", true);
+			} else {
+				$(".is_kasar").css("color", "red");
+				$("#is_kasar").prop("checked", false);
+			}
+			$(".parent-div-party").toggle(ref.is(":checked"));
+			$('#select-account').select2({
+				width: '100%',
+				dropdownParent: $('#ReceivedModel')
+			});
+		}
 	});
 </script>

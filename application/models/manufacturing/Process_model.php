@@ -9,7 +9,7 @@ class Process_model extends CI_Model
 
 	function fetch_process()
 	{
-		$this->db->order_by("name", "DESC");
+		$this->db->order_by("line_no","asc");
 		$query = $this->db->get("process");
 		return $query->result();
 	}
@@ -18,7 +18,7 @@ class Process_model extends CI_Model
 	{
 		$data = $this->dbh->getWhereResultArray('customer', [
 			'process_id'        => $post['process_id'] ?? null,
-			'account_type_id' => 7
+			'account_type_id' => 2
 		]);
 		$output = '<option value="">Select Workers</option>';
 		foreach ($data as $row) {
@@ -40,7 +40,6 @@ class Process_model extends CI_Model
 			->from('given_row_material')->where(['garnu_id' => $garnu_id, 'given_id' => $given_id])
 			->join('row_material', 'given_row_material.row_material_id = row_material.id', 'left')
 			->get()->result_array();
-		
 		return $data;
 	}
 

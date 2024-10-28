@@ -57,7 +57,7 @@
 				<thead>
 					<tr>
 						<th colspan="2" style="text-align:center;padding-top: 10px;padding-bottom: 10px;">
-							<img src="https://chart.googleapis.com/chart?chs=110x110&cht=qr&chl=<?= $data['givenData']['garnu_id'] ?? "" . "_" . $data['givenData']['id'] ?? "" ?>&choe=UTF-8" />
+							<img src="<?=generate_qr_code($data['givenData']['garnu_id'] ?? "" . "-" . $data['givenData']['id'] ?? "",100)?>" />
 							<br>
 							<?= $data['givenData']['process_name'] ?? ""; ?>
 						</th>
@@ -72,7 +72,7 @@
 							Garnu Name :- <?= $data['givenData']['garnu_name'] ?? ""; ?>
 						</th>
 						<th>
-							Touch <?= $data['givenData']['garnu_touch'] ?? ""; ?>
+							Touch <?= $data['givenData']['given_touch'] ?? ""; ?>
 						</th>
 					</tr>
 					<tr>
@@ -122,7 +122,7 @@
 				<thead>
 					<tr>
 						<th colspan="2" style="text-align:center;padding-top: 10px;padding-bottom: 10px;">
-							<img src="https://chart.googleapis.com/chart?chs=110x110&cht=qr&chl=<?= $data['givenData']['garnu_id'] ?? "" . "_" . $data['givenData']['id'] ?? "" ?>&choe=UTF-8" />
+							<img src="<?=generate_qr_code($data['givenData']['garnu_id'] ?? "" . "-" . $data['givenData']['id'] ?? "",100)?>" />
 							<br>
 							<?= $data['givenData']['process_name'] ?? ""; ?>
 						</th>
@@ -137,7 +137,7 @@
 							Garnu Name :- <?= $data['givenData']['garnu_name'] ?? ""; ?>
 						</th>
 						<th>
-							Touch <?= $data['givenData']['garnu_touch'] ?? ""; ?>
+							Touch <?= $data['givenData']['given_touch'] ?? ""; ?>
 						</th>
 					</tr>
 					<tr>

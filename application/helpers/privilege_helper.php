@@ -51,7 +51,7 @@ const privilege = [
 	'item_add' => 37,
 	'item_view' => 38,
 	'item_edit' => 39,
-	'item_delete' => 40, 
+	'item_delete' => 40,
 
 	'garnu_add' => 41,
 	'garnu_view' => 42,
@@ -76,11 +76,11 @@ const privilege = [
 	'given_garnu' => 57,
 	'given_garnu_view' => 58,
 	'given_garnu_edit' => 59,
-	
+
 	'receive_garnu' => 60,
 	'receive_garnu_view' => 61,
 	'receive_garnu_edit' => 62,
-	
+
 	'main_report' => 63,
 
 	'jama_add' => 64,
@@ -100,19 +100,69 @@ const privilege = [
 	'main_garnu_add' => 75,
 	'main_garnu_view' => 76,
 	'main_garnu_edit' => 77,
+
+	'lot_creation_report' => 78,
+	'lot_creation_edit' => 79,
+	'lot_creation_add' => 80,
+	'lot_creation_delete' => 81,
+
+	'account_ledger' => 82,
+	'daybook_report' => 83,
+	'balance_sheet_report' => 84,
+	'lot_report' => 85,
+	
+	'purchase_add' => 86,
+	'purchase_view' => 87,
+	'purchase_edit' => 88,
+	'purchase_delete' => 89,
+	
+	'purchase_return_add' => 90,
+	'purchase_return_view' => 91,
+	'purchase_return_edit' => 92,
+	'purchase_return_delete' => 93,
+	
+	'sale_add' => 94,
+	'sale_view' => 95,
+	'sale_edit' => 96,
+	'sale_delete' => 97,
+	
+	'sale_return_add' => 98,
+	'sale_return_view' => 99,
+	'sale_return_edit' => 100,
+	'sale_return_delete' => 101,
+	
+	'silver_bhav_report' => 102,
+	'stock_report' => 103,
+	
+	'sequence_view' => 104,
+	'sequence_add' => 105,
+	'sequence_edit' => 106,
+	'sequence_delete' => 107,
+	
+	'lot_wise_rm_report' =>108,
+	
+	'sub_item_add' => 109,
+	'sub_item_view' => 110,
+	'sub_item_edit' => 111,
+	'sub_item_delete' => 112,
+	
+	'main_given_report' => 113,
+
+	'ready_for_sale_add' => 114,
+	'ready_for_sale_view' => 115,
+	'ready_for_sale_edit' => 116,
+	'ready_for_sale_delete' => 117,
+	
+	'given_testing_add' => 118,
+	'given_testing_view' => 119,
+	'given_testing_edit' => 120,
+	'given_testing_delete' => 121,
 ];
 
 function checkPrivilege($privilegeCode)
 {
 	$ci = ci();
-	// if (!in_array($privilegeCode, $ci->session->userdata('permission'))) {
-	// 	flash()->withError('You dont have permission')->to("dashboard");
-	// 	exit();
-	// }
-	// pre($ci->session->userdata());
-	// pre(session('is_admin'));
-	// exit;
-	if (!in_array($privilegeCode, $ci->session->userdata('permission')) && session('is_admin')) {
+	if (in_array($privilegeCode, $ci->session->userdata('permission'))) {
 		flash()->withError('You dont have permission')->to("dashboard");
 		exit();
 	}

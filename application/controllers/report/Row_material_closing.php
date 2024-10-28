@@ -36,8 +36,6 @@ class Row_material_closing extends CI_Controller
 		// serching coding
 		$columnIndex = $postData['order'][0]['column']; // Column index
 		$searchValue = $postData['search']['value']; // Search value
-		$todate = $postData['todate'] ?? null;
-		$fromdate = $postData['fromdate'] ?? null;
 		$row_material_id = $postData['row_material_id'] ?? null;
 		$garnu_id = $postData['garnu_id'] ?? null;
 		$process_id = $postData['process_id'] ?? null;
@@ -114,7 +112,7 @@ class Row_material_closing extends CI_Controller
 
 			$data[] = array(
 				'id' => $i,
-				'row_material' => "<a class='dropdown-item' target='_blank' href='".base_url('report/row_material_stock/index/'.$id.'/'.$date)."'><b>$name</d></a>",
+				'row_material' => "<a class='badge bg-indigo text-indigo-fg' target='_blank' href='".base_url('report/row_material_stock/index/'.$id.'/'.$date)."'><b>$name</d></a>",
 				'closingWeight' => $r['weight'],
 				'date' => $r['date'],
 			);

@@ -40,7 +40,6 @@ class Account_type extends CI_Controller
                 checkPrivilege(privilege["account_type_add"]);
                 $validation = $this->form_validation;
                 $validation->set_rules('name', 'Name', 'required');
-                $validation->set_rules('opening_amount', 'opening_amount', 'required');
                 if (!$validation->run()) {
                     return flash()->withError(validation_errors())->back();
                 }
@@ -56,10 +55,9 @@ class Account_type extends CI_Controller
             //     flash()->withSuccess("Account type Deleted Successfully")->back();
             //     break;
             case "update":
-                checkPrivilege(privilege["city_edit"]);
+                checkPrivilege(privilege["account_type_edit"]);
                 $validation = $this->form_validation;
                 $validation->set_rules('name', 'Name', 'required');
-                $validation->set_rules('opening_amount', 'Opening Amount', 'required');
                 if ($validation->run() == false) {
                     return flash()->withError(validation_errors())->back();
                 }

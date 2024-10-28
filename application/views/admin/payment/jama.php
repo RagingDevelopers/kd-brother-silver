@@ -18,7 +18,7 @@
 																	echo '0';
 																} ?>" name="jama_code" id="jama_code">
 									<label class="form-label">Date <span class="text-danger">*</span></label>
-									<input type="date" name="date" class="form-control" id="date" value="<?= date('Y-m-d'); ?>" />
+									<input type="date" name="date" class="form-control from" id="date" value="<?= date('Y-m-d'); ?>" />
 								</div>
 							</div>
 
@@ -38,9 +38,23 @@
 																				} ?>><?= $C['name']; ?></option>
 										<?php } ?>
 									</select>
+									<h4 class="text-blue pt-1" id="closing-label"></h4>
 								</div>
 							</div>
-
+							<div class="col-md-2">
+								<div class="form-group">
+									<label class="form-label">Payment Type<span class="text-danger">*</span></label>
+									<select name="payment_type" id="payment_type" class="form-select select2">
+										<option value="">Select</option>
+										<option value="CREDIT" <?php if (isset($payment_type) && !empty($payment_type) && $payment_type == "CREDIT") {
+																	echo 'selected';
+																} ?>>CREDIT / PURCHASE / RECEIPT</option>
+										<option value="DEBIT" <?php if (isset($payment_type) && !empty($payment_type) && $payment_type == "DEBIT") {
+																	echo 'selected';
+																} ?>>DEBIT / SALE / PAYMENT</option>
+									</select>
+								</div>
+							</div>
 						</div>
 
 						<div class="row" style="margin-top:1%;">
@@ -50,15 +64,15 @@
 									<select name="type" id="type" class="form-select select2">
 										<option data-mode="" value="">select</option>
 										<option value="fine" data-mode="Chorsa,Silli">Fine</option>
-										<option value="cash" data-mode="">Cash</option>
-										<option value="bank" data-mode="">Bank</option>
-										<option value="ratecutfine" data-mode="Cash Chorsha,RTGS Chorsa,Cash Silli,RTGS Silli">Rate Cut - Fine</option>
-										<option value="ratecutrs" data-mode="Cash Chorsha,RTGS Chorsa,Cash Silli,RTGS Silli">Rate Cut - Rs</option>
+										<!-- <option value="cash" data-mode="">Cash</option> -->
+										<option value="bank" data-mode="bank">Bank</option>
+										<option value="ratecutfine" data-mode="Cash,RTGS">Rate Cut - Fine</option>
+										<option value="ratecutrs" data-mode="Cash,RTGS">Rate Cut - Rs</option>
 										<option value="roopu" data-mode="">Roopu</option>
 									</select>
 								</div>
 							</div>
-							<div class="col-md-2 allinone dfine dratecutfine dratecutrs">
+							<div class="col-md-1 allinone dfine dratecutfine dratecutrs">
 								<div class="form-group">
 									<label class="form-label">Mode<span class="text-danger">*</span></label>
 									<select name="mode" id="mode" class="form-select">
@@ -74,7 +88,7 @@
 							<div class="col-md-1 allinone dfine dratecutfine droopu">
 								<div class="form-group">
 									<label class="form-label">Gross <span class="text-danger">*</span></label>
-									<input type="text" name="gross" class="form-control" id="gross" value="" placeholder="gross" />
+									<input type="text" name="gross" class="form-control" id="gross" value="0" placeholder="gross" />
 								</div>
 							</div>
 							<div class="col-md-1 allinone dfine dratecutfine dratecutrs droopu">
@@ -92,7 +106,7 @@
 							<div class="col-md-1 allinone dfine dratecutfine dratecutrs droopu">
 								<div class="form-group">
 									<label class="form-label">Fine<span class="text-danger">*</span></label>
-									<input type="text" name="fine" class="form-control" id="fine" value="" placeholder="fine" />
+									<input type="text" name="fine" class="form-control" id="fine" value="0" placeholder="fine" />
 								</div>
 							</div>
 							<div class="col-md-1 allinone dratecutfine dratecutrs">
@@ -101,19 +115,24 @@
 									<input type="text" name="rate" class="form-control" id="rate" value="" placeholder="rate" />
 								</div>
 							</div>
+							<div class="col-md-2 allinone dbank">
+								<div class="form-group">
+									<label class="form-label">Bank<span class="text-danger">*</span></label>
+									<select name="bank" id="bank" class="form-select select2">
+										<option value="">select Bank</option>
+										<?php foreach ($bank as $bank) { ?>
+											<option value="<?= $bank['id']; ?>"><?= $bank['name']; ?></option>
+										<?php } ?>
+									</select>
+								</div>
+							</div>
 							<div class="col-md-1 allinone dcash dbank dratecutfine">
 								<div class="form-group">
 									<label class="form-label">Amount<span class="text-danger">*</span></label>
 									<input type="text" name="amount" class="form-control" id="amount" value="" placeholder="amount" />
 								</div>
 							</div>
-							<div class="col-md-2">
-								<div class="form-group">
-									<label class="form-label">Remark<span class="text-danger">*</span></label>
-									<input type="text" name="remark" class="form-control" id="remark" value="" placeholder="remark" />
-								</div>
-							</div>
-							<div class="col-md-2  allinone dfine">
+							<div class="col-md-1  allinone dfine dratecutfine dratecutrs">
 								<div class="form-group">
 									<label class="form-label">Metal Type<span class="text-danger">*</span></label>
 									<select name="metal_type_id" id="metal_type_id" class="form-select select2">
@@ -122,6 +141,12 @@
 											<option value="<?= $r['id']; ?>"><?= $r['name']; ?></option>
 										<?php } ?>
 									</select>
+								</div>
+							</div>
+							<div class="col-md-2">
+								<div class="form-group">
+									<label class="form-label">Remark<span class="text-danger">*</span></label>
+									<input type="text" name="remark" class="form-control" id="remark" value="" placeholder="remark" />
 								</div>
 							</div>
 						</div>
@@ -139,6 +164,7 @@
 									<th>Sl No</th>
 									<th>Action</th>
 									<th>Party Name</th>
+									<th>Payment Type</th>
 									<th>Date</th>
 									<th>Type</th>
 									<th>mode</th>
@@ -168,7 +194,16 @@
 </div>
 <script>
 	$(document).ready(function() {
-
+	$('.select2').select2({
+		placeholder: "-- Select --",
+		allowClear: true,
+	});
+		
+        if ($("#party_id").val()) {
+            setTimeout(() => {
+                $("#party_id").trigger('change');
+    		}, 300);
+        }
 		$('#jama_data_ajax_update').hide();
 		var example_table_billing = $('#table-jama').DataTable({
 			'paging': false,
@@ -177,6 +212,7 @@
 			'serverSide': true,
 			'serverMethod': 'post',
 			"ajax": {
+				showLoader: true,
 				'url': "<?php echo base_url(); ?>payment/jama/report",
 				'data': function(data) {
 					data.jama_code = $('#jama_code').val();
@@ -190,6 +226,9 @@
 				},
 				{
 					data: 'party'
+				},
+				{
+					data: 'payment_type'
 				},
 				{
 					data: 'date'
@@ -332,10 +371,18 @@
 			var date = $("#date").val();
 			var party_id = $("#party_id").val();
 			var type = $("#type").val();
-			if (date == "" || party_id == "" || type == "") {
-				alert('Field Are Required');
+			var payment_type = $("#payment_type").val();
+			var bank = "";
+			if (type == "bank") {
+				bank = $("#bank").val();
+			}
+			if (date == "" || party_id == "" || type == "" || payment_type == "" || (type == "bank" && bank == "")) {
+				if (type == "bank" && bank == "") {
+					alert('Please select a bank.');
+				} else {
+					alert('Fields are required.');
+				}
 			} else {
-
 				if (type == "ratecutrs") {
 					$("#amount").val($("#amount2").val());
 				}
@@ -344,6 +391,7 @@
 					'date': date,
 					'party_id': party_id,
 					'type': type,
+					'payment_type': payment_type,
 					'mode': $("#mode").val(),
 					'gross': $("#gross").val(),
 					'purity': $("#purity").val(),
@@ -355,6 +403,7 @@
 					'code': $('#jama_code').val(),
 					'check_party_id': $('#check_party_id').val(),
 					'metal_type_id': $('#metal_type_id').val(),
+					'bank': $('#bank').val(),
 				}
 
 				$.ajax({
@@ -379,29 +428,20 @@
 								$("#amount2").val()
 								$('#rate').val('');
 								$('#remark').val('');
+								// $('#payment_type').val('');
+								$('#bank').val('');
+								$('#metal_type_id').val('').trigger('change');
+								$("#party_id").trigger('change');
+								SweetAlert('success',res.message);
 							} else {
-								swal({
-									icon: 'error',
-									title: 'Error 500',
-									text: res.message
-								})
+								SweetAlert('error',error.message);
 							}
 						} catch (error) {
-							console.log(error);
-							swal({
-								icon: 'error',
-								title: 'Something went wrong',
-								text: error.message
-							})
+							SweetAlert('error',error.message);
 						}
 					},
 					error: function(error) {
-						console.log(error);
-						swal({
-							icon: 'error',
-							title: 'Something went wrong. Please try again.',
-							text: error.message
-						});
+						SweetAlert('error',error.message);
 					}
 				});
 			}
@@ -411,10 +451,23 @@
 			var date = $("#date").val();
 			var party_id = $("#party_id").val();
 			var type = $("#type").val();
+			var payment_type = $("#payment_type").val();
+			var bank = "";
+			if (type == "bank") {
+				bank = $("#bank").val();
+			}
 
-			if (date == "" || party_id == "" || type == "") {
-				alert('Field Are Required');
+			if (date == "" || party_id == "" || type == "" || payment_type == "" || (type == "bank" && bank == "")) {
+				if (type == "bank" && bank == "") {
+					alert('Please select a bank.');
+				} else {
+					alert('Fields are required.');
+				}
 			} else {
+				if (type == "bank") {
+					var bank = $("#bank").val();
+
+				}
 
 				if (type == "ratecutrs") {
 					$("#amount").val($("#amount2").val());
@@ -424,6 +477,7 @@
 					'date': date,
 					'party_id': party_id,
 					'type': type,
+					'payment_type': payment_type,
 					'mode': $("#mode").val(),
 					'gross': $("#gross").val(),
 					'purity': $("#purity").val(),
@@ -435,10 +489,12 @@
 					'code': $('#jama_code').val(),
 					'jama_id': $('#jama_id').val(),
 					'metal_type_id': $('#metal_type_id').val(),
+					'bank': $('#bank').val(),
 				}
 
 				$.ajax({
 					type: "POST",
+					showLoader: true,
 					url: "<?php echo base_url(); ?>payment/jama/jama_data_ajax_update",
 					data: data,
 					success: function(res) {
@@ -459,32 +515,23 @@
 								$('#amount').val('');
 								$("#amount2").val()
 								$('#rate').val('');
+								$('#bank').val("").trigger('change');
+								$('#payment_type').val("").trigger('change');
 								$('#remark').val('');
 								$('#jama_data').show();
+								$('#metal_type_id').val('').trigger('change');
 								$('#jama_data_ajax_update').hide();
+								$("#party_id").trigger('change');
+								SweetAlert('success',res.message);
 							} else {
-								swal({
-									icon: 'error',
-									title: 'Error 500',
-									text: res.message
-								})
+								SweetAlert('error',error.message);
 							}
 						} catch (error) {
-							console.log(error);
-							swal({
-								icon: 'error',
-								title: 'Something went wrong',
-								text: error.message
-							})
+							SweetAlert('error',error.message);
 						}
 					},
 					error: function(error) {
-						console.log(error);
-						swal({
-							icon: 'error',
-							title: 'Something went wrong. Please try again.',
-							text: error.message
-						});
+						SweetAlert('error',error.message);
 					}
 				});
 			}
@@ -494,6 +541,7 @@
 			var jama_id = $(this).data('id');
 			$.ajax({
 				type: "POST",
+				showLoader: true,
 				url: "<?php echo base_url(); ?>payment/jama/jama_edit_row",
 				data: {
 					jama_id: jama_id
@@ -501,15 +549,15 @@
 				success: function(res) {
 					try {
 						res = JSON.parse(res);
-						console.log(res);
 						if (res.status) {
-
 							if (res.data.type == "ratecutrs") {
 								$('#amount2').val(res.data.amount);
 							}
 
 							$('#date').val(res.data.date);
 							$("#party_id").val(res.data.customer_id).trigger('change');
+							$("#payment_type").val(res.data.payment_type).trigger('change');
+							$("#bank").val(res.data.bank_id).trigger('change');
 							$('#type').val(res.data.type).trigger('change');
 							$('#gross').val(res.data.gross);
 							$('#purity').val(res.data.purity);
@@ -525,29 +573,16 @@
 							$('#jama_data').hide();
 							$('#jama_data_ajax_update').show();
 
+							// SweetAlert('success',res.message);
 						} else {
-							swal({
-								icon: 'error',
-								title: 'Error 500',
-								text: res.message
-							})
+							SweetAlert('error',error.message);
 						}
 					} catch (error) {
-						console.log(error);
-						swal({
-							icon: 'error',
-							title: 'Something went wrong',
-							text: error.message
-						})
+						SweetAlert('error',error.message);
 					}
 				},
 				error: function(error) {
-					console.log(error);
-					swal({
-						icon: 'error',
-						title: 'Something went wrong. Please try again.',
-						text: error.message
-					});
+					SweetAlert('error',error.message);
 				}
 			});
 
@@ -563,26 +598,56 @@
 				success: function(res) {
 					res = JSON.parse(res);
 					if (res.status) {
+						$("#party_id").trigger('change');
 						example_table_billing.clear();
 						example_table_billing.draw();
 					} else {
-						swal({
-							icon: 'error',
-							title: 'Error 500',
-							text: res.message
-						})
+						SweetAlert('error',res.message);
 					}
 				},
 				error: function(error) {
-					console.log(error);
-					swal({
-						icon: 'error',
-						title: 'Something went wrong. Please try again.',
-						text: error.message
-					});
+					SweetAlert('error',error.message);
 				}
 			});
 
 		});
+
+		$(document).on('change', '#party_id', function() {
+		var select = $(this);
+		var customer_id = select.val();
+		$.ajax({
+			url: `${BaseUrl}report/account_ledger/customerAmtAndFine_CR_DB/${customer_id}`,
+			type: "GET",
+			success: function(data) {
+				try {
+					var data = JSON.parse(data);
+					var fine = data.fine;
+					var amount = data.amount;
+
+                    var color = "";
+					if (fine < 0) {
+						fineStr = 'Dr: ' + Math.abs(fine);
+						colorF = "<span style='color: red;'>" + fineStr + "</span>";
+					} else {
+						fineStr = 'Cr: ' + fine;
+						colorF = "<span style='color: green;'>" + fineStr + "</span>";
+					}
+
+					if (amount < 0) {
+						amountStr = 'Dr: ' + Math.abs(amount);
+						colorA = "<span style='color: read;'>" + amountStr + "</span>";
+					} else {
+						amountStr = 'Cr: ' + amount;
+						colorA = "<span style='color: green;'>" + amountStr + "</span>";
+					}
+
+					$('#closing-label').html('Fine ' + colorF + '</span> &amp; Amt ' + colorA);
+				} catch (e) {
+					SweetAlert('error',e);
+					// console.log(e);
+				}
+			}
+		});
+	});
 	});
 </script>

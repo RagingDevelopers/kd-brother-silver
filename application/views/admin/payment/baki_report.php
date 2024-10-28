@@ -40,7 +40,7 @@
 								<div class="col-md-3">
 									<div class="form-group">
 										<label class="form-label">From Date</label>
-										<input type="date" class="form-control" placeholder="YYY-MM-DD" id="from">
+										<input type="date" value="<?=date('Y-m-01');?>" class="form-control" placeholder="YYY-MM-DD" id="from">
 									</div>
 								</div>
 

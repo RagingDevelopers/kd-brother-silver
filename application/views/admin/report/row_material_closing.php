@@ -49,6 +49,7 @@
 			'serverMethod': 'post',
 			'searching': true,
 			"ajax": {
+			    'showLoader': true,
 				'url': "<?= base_url(); ?>report/row_material_closing/fetchData",
 				'data': function(data) {
 					data.todate = ($('#todate').val() ?? null);

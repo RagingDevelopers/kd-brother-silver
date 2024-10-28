@@ -171,6 +171,11 @@
 </div>
 <script class="javascript">
 	$(document).ready(function() {
+		$('.select2').select2({
+			placeholder: "-- Select --",
+			allowClear: true,
+		});
+		
 		// $("#party_id").select2();
 		$('#baki_data_ajax_update').hide();
 		var example_table_billing = $('#table-baki').DataTable({

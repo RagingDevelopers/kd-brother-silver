@@ -7,6 +7,11 @@
 	.weight-input {
 		background-color: #e6fdff;
 	}
+
+	.readonly {
+		background-color: #ebebeb;
+		color: black;
+	}
 </style>
 <div class="row">
 	<div class="col-sm-12">
@@ -23,6 +28,7 @@
 								<div class="col-sm-3">
 									<label class="form-label" for="prd"> Name: </label>
 									<input class="form-control" type="text" name="name" placeholder="Enter Garnu Name" value="<?= $update['name'] ?? null ?>" id="name" required>
+									<input class="form-control" type="hidden" placeholder="Enter Garnu Name" value="<?= (isset($update)) ? "update" : "insert"; ?>" id="type">
 								</div>
 							</div>
 							<div class="card mt-5">
@@ -30,11 +36,10 @@
 									<table class="table card-table table-vcenter text-center text-nowrap ">
 										<thead class="thead-light">
 											<th>Metal Type</th>
-											<th>Touch</th>
+											<th class="closing_touch_header">Closing Touch</th>
 											<th scope="col">Touch (%)</th>
 											<th scope="col">Weight(Gm)</th>
 											<th scope="col">Fine</th>
-											<th scope="col">Closing Stoke</th>
 											<th scope="col"></th>
 										</thead>
 
@@ -43,7 +48,7 @@
 											if (empty($items)) {
 												$items[] = [
 													'metal_type_id' => '',
-													'closingTouch' => '',
+													'closing_touch' => '',
 													'weight'        => '',
 													'touch'         => 0,
 													'fine'          => '',
@@ -66,14 +71,13 @@
 															<?php } ?>
 														</select>
 													</td>
-													<td>
-														<select class="form-select select2 closingTouch" name="closingTouch[]">
-															<option value="">Select Touch</option>
+													<td class="hide_closing_touch">
+														<select class="form-select select2 closingTouch" name="closing_touch[]">
 														</select>
 													</td>
 													<td>
 														<div class="form-group input-icon">
-															<input class="form-control touch" type="number" name="touch[]" placeholder="Enter touch(%)" value="<?= $row['touch'] ?? null ?>" required>
+															<input class="form-control touch readonly" type="number" name="touch[]" placeholder="Enter touch(%)" value="<?= $row['touch'] ?? null ?>" readonly required>
 															<span class="input-icon-addon"><i class="fa-light fa-percent" aria-hidden="true"></i></span>
 														</div>
 													</td>
@@ -82,9 +86,6 @@
 													</td>
 													<td>
 														<input class="form-control fine fine-input" type="number" name="fine[]" placeholder="Fine" value="<?= $row['fine'] ?? null ?>" required>
-													</td>
-													<td>
-														<input class="form-control weight-input closingStoke" placeholder="Enter closing Stoke" required>
 													</td>
 													<td>
 														<button type="button" class="btn btn-danger remove-btn">X</button>
@@ -173,6 +174,15 @@
 				main.mainRow = $(".main-row")[0].outerHTML;
 				$(document).ready(function() {
 					$('.metal_type_id').each(function() {
+						main.select2(this);
+
+						if ($(this).val() != "") {
+							var ref = $(this);
+							ref.parents('tr').find('.hide_closing_touch').hide();
+							$('.closing_touch_header').hide();
+						}
+					});
+					$('.closingTouch').each(function() {
 						main.select2(this)
 					});
 					$(this).on('click', "#add", function() {
@@ -180,11 +190,22 @@
 						if (metal.val() == '') {
 							return metal.select2('open');
 						}
+						var closingTouch = $('.closingTouch').last();
+						if (closingTouch.val() == '') {
+							return closingTouch.select2('open');
+						}
 						$(".append-here").append(main.mainRow);
 						const lastTr = $('.append-here tr').last();
 						lastTr.find('.rowid,.touch').val(0);
-						lastTr.find('.weight,.fine').val('');
+						lastTr.find('.weight,.fine,.metal_type_id,.closingTouch').val('');
 						main.select2(lastTr.find('.metal_type_id')).select2('open');
+						main.select2(lastTr.find('.closingTouch'));
+						if ($('#type').val() == "update") {
+							var ref = $('#type');
+							lastTr.find('.hide_closing_touch').hide();
+							$('.closing_touch_header').hide();
+						}
+
 					});
 					$(this).on('click', '.remove-btn', function(e) {
 						var $this = this;
@@ -207,9 +228,16 @@
 						// $(this).off("submit").submit();
 					});
 
-					$(this).on('input', '.fine,.weight,.touch', function() {
-						main.calculateMain(this);
+					$(this).on('input', '.fine,.weight', function() {
+						var $this = $(this);
+						main.calculateMain($this);
 						main.calculation($('.append-here tr').eq(0).find('.touch'));
+					});
+
+					$(this).on('input', '.weight', function() {
+						var $this = $(this);
+						main.calculateMain($this);
+						main.calculation($this);
 					});
 
 					$(this).on('change', '.metal_type_id', function() {
@@ -217,13 +245,15 @@
 						main.stockTouch(ref.val(), ref);
 					});
 
-					$(this).on('input', '.touch', function() {
+					$(this).on('change', '.closingTouch', function() {
 						var ref = $(this);
-						if (ref.val() == "0" || ref.val() == "") {
-							ref.parents('tr').find('.closingStoke').val(0);
-						} else {
-							main.findClosingStoke(ref.val(), ref);
-						}
+						var parts = ref.val().split(' - ');
+						var touch = parts[0];
+						var weight = parts[1].split(' ');
+						ref.parents('tr').find('.touch').val(touch);
+						ref.parents('tr').find('.weight').val(weight[0]);
+						main.calculateMain(ref);
+						main.calculation(ref);
 					});
 
 					$(this).on(
@@ -250,26 +280,8 @@
 				}
 			},
 
-			findClosingStoke: function(touch = null, ref) {
-				$.ajax({
-					type: "POST",
-					dataType: "json",
-					url: `${BaseUrl}manufacturing/main_garnu/getClosingstock`,
-					method: "POST",
-					data: {
-						touch,
-					},
-					success: function(response) {
-						if (response.success) {
-							ref.parents('tr').find(".closingStoke").val(response.data);
-						} else {
-							ref.find(".closingStoke").val(response.data);
-						}
-					},
-				});
-			},
-
-			stockTouch: function(metal_type_id = null, ref,selected_id = null) {
+			stockTouch: function(metal_type_id = null, ref, selected_id = null) {
+				ref.parents('tr').find(".closingTouch").html("");
 				$.ajax({
 					type: "POST",
 					showloader: true,
@@ -281,8 +293,12 @@
 					},
 					success: function(response) {
 						if (response.success) {
-							var getTouch = getOptions(response.data,selected_id);
-							// $().
+							var getTouch = getOptions(response.data, selected_id);
+							if (selected_id != null) {
+								ref.parents('tr').find(".closingTouch").html(getTouch);
+							} else {
+								ref.parents('tr').find(".closingTouch").html(getTouch).select2("open");
+							}
 						} else {
 							SweetAlert('warning', response.message);
 						}
@@ -299,16 +315,29 @@
 					fine = parseF(row.find('.fine').val());
 				row.find('.fine').val(formatNumber((weight * touch) / 100));
 
-				if (touch > 100) {
-					return SweetAlert('warning', 'Touch should be less than equal to 100'), $(ref).val("");
+				var parts = row.find('.closingTouch').val().split(' - ');
+				var part2 = parts[1].split(' ');
+				var closingweight = part2[0];
+
+				if (closingweight < weight) {
+					return SweetAlert('warning', `Weight should be less than equal to ${closingweight}`), row.find('.weight').val("0");
 				}
+
+
+				// if (touch > 100) {
+				// 	return SweetAlert('warning', 'Touch should be less than equal to 100'), $(ref).val("");
+				// }
 				var totalUsedWeight = 0,
 					totalUsedFine = 0;
 
 				$('.append-here tr').each(function() {
-					var row = $(this),
-						rowWeight = parseF(row.find('.weight').val()),
-						rowFine = parseF(row.find('.fine').val());
+					var row = $(this);
+					// var rowClosingTouch = row.find('.closingTouch').val();
+					// if (rowClosingTouch < row.find('.weight').val()) {
+					// 	row.find('.weight').val('0');
+					// }
+					var rowWeight = parseF(row.find('.weight').val());
+					var rowFine = parseF(row.find('.fine').val());
 
 					totalUsedWeight += rowWeight;
 					totalUsedFine += rowFine;
@@ -320,6 +349,7 @@
 				$('.mtouch').val(formatNumber(mainTouch));
 
 			},
+			
 			validateSubmit: function(ref) {
 				var preventEnter = false;
 				const metal_type = $('.metal_type_id');

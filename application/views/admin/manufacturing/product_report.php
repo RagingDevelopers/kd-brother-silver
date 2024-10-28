@@ -10,6 +10,7 @@
 		font-weight: bold;
 		/* Make text bold */
 	}
+
 	tr .given {
 		background-color: #ffe1e1;
 		color: black;
@@ -19,7 +20,6 @@
 		background-color: #d9ffd9;
 		color: black;
 	}
-	
 </style>
 <div class="row">
 	<div class="col-sm-12">
@@ -42,32 +42,34 @@
 						<div class="row">
 							<div class="col-sm-2">
 								<label>From date:</label> <br>
-								<input type="date" id="fromdate" name="fromdddate" class="form-control">
+								<input type="date" value="<?= date('Y-m-01'); ?>" id="fromdate" name="fromdddate" class="form-control from">
 							</div>
 							<div class="col-sm-2">
 								<label>To date:</label> <br>
-								<input type="date" id="todate" name="todate" class="form-control">
-							</div>
-							<div class="col-sm-2">
-								<label>Process :</label> <br>
-								<select class="form-select select2" id="process">
-									<option value="">Select Process</option>
-									<?php
-									if(!empty($process)){
-										foreach($process as $row){ ?>
-											<option value="<?=$row['id'];?>"><?=$row['name'];?></option>
-									<?php } } ?>
-								</select>
+								<input type="date" id="todate" name="todate" class="form-control to">
 							</div>
 							<div class="col-sm-2">
 								<label>Garnu :</label> <br>
 								<select class="form-select select2" id="product">
 									<option value="">Select Garnu</option>
 									<?php
-									if(!empty($product)){
-										foreach($product as $row){ ?>
-											<option value="<?=$row['id'];?>"><?=$row['name'];?></option>
-									<?php } } ?>
+									if (!empty($product)) {
+										foreach ($product as $row) { ?>
+											<option value="<?= $row['id']; ?>"><?= $row['name']; ?></option>
+									<?php }
+									} ?>
+								</select>
+							</div>
+							<div class="col-sm-2">
+								<label>Process :</label> <br>
+								<select class="form-select select2" id="process">
+									<option value="">Select Process</option>
+									<?php
+									if (!empty($process)) {
+										foreach ($process as $row) { ?>
+											<option value="<?= $row['id']; ?>"><?= $row['name']; ?></option>
+									<?php }
+									} ?>
 								</select>
 							</div>
 							<div class="col-sm-2">
@@ -75,18 +77,19 @@
 								<select class="form-select select2" id="worker">
 									<option value="">Select Worker</option>
 									<?php
-									if(!empty($worker)){
-										foreach($worker as $row){ ?>
-											<option value="<?=$row['id'];?>"><?=$row['name'];?></option>
-									<?php } } ?>
+									if (!empty($worker)) {
+										foreach ($worker as $row) { ?>
+											<option value="<?= $row['id']; ?>"><?= $row['name']; ?></option>
+									<?php }
+									} ?>
 								</select>
 							</div>
 							<div class="col-sm-2">
 								<label>Status :</label> <br>
 								<select class="form-select select2" id="status">
-									<option value="">All</option>
-									<option value="YES">YES</option>
-									<option value="NO">NO</option>
+									<option value="">Select</option>
+									<option value="YES">Complated</option>
+									<option value="NO">Not Complated</option>
 								</select>
 							</div>
 						</div>
@@ -98,16 +101,35 @@
 										<th scope="col">Name</th>
 										<th scope="col">Touch</th>
 										<th scope="col">Weight</th>
-										<th scope="col">Silver</th>
-										<th scope="col">Copper</th>
-										<!-- <th scope="col">Used Weight</th>
-										<th scope="col">Used Silver</th>
-										<th scope="col">Used Copper</th> -->
+										<!--<th scope="col">Silver</th>-->
+										<!--<th scope="col">Copper</th>-->
 										<th scope="col" class="text-center">Process</th>
 										<th scope="col">Received</th>
 										<th scope="col">Created At</th>
 									</tr>
 								</thead>
+								<tfoot>
+									<tr>
+										<td colspan="4" class="text-center"></td>
+										<td>
+											<table class="w-100">
+												<tr>
+													<td scope="col" colspan="2" class="ps-0">Total Data</td>
+													<td scope="col" colspan="1"> ==></td>
+													<td scope="col" class="text-start GivenQty"></td>
+													<td scope="col" class="text-center GivenWeight"></td>
+													<td scope="col" class="text-center GivenRm"></td>
+													<td scope="col" class="text-end GivenTotalWeight"></td>
+													<td scope="col" class="text-end ReceiveQty"></td>
+													<td scope="col" class="text-end ReceiveWeight"></td>
+													<td scope="col" class="text-end ReceiveRm"></td>
+													<td scope="col" class="text-center ReceiveTotalWeight"></td>
+												</tr>
+											</table>
+										</td>
+										<td colspan="2"></td>
+									</tr>
+								</tfoot>
 							</table>
 						</div>
 					</div>
@@ -133,11 +155,12 @@
 			'serverMethod': 'post',
 			'searching': true,
 			"ajax": {
+				'showLoader': true,
 				'url': "<?= base_url(); ?>manufacturing/product/getlist",
 				'data': function(data) {
 					data.todate = $('#todate').val();
 					data.fromdate = $('#fromdate').val();
-					data.received = $('#status').val();
+					data.isComplated = $('#status').val();
 					data.process_id = $('#process').val();
 					data.worker_id = $('#worker').val();
 					data.product_id = $('#product').val();
@@ -155,12 +178,12 @@
 				{
 					data: 'garnu_weight'
 				},
-				{
-					data: 'garnu_silver'
-				},
-				{
-					data: 'garnu_copper'
-				},
+				// {
+				// 	data: 'garnu_silver'
+				// },
+				// {
+				// 	data: 'garnu_copper'
+				// },
 				{
 					data: 'process'
 				},
@@ -174,13 +197,34 @@
 			drawCallback: function(settings) {
 				$('[data-bs-toggle="tooltip"]').tooltip();
 			},
-			// "rowCallback": function(row, data) {
-			// 	if (data.is_recieved == 'YES') {
-			// 		$(row).css('color', 'green');
-			// 	} else if (data.is_recieved == 'NO') {
-			// 		$(row).css('color', 'red');
-			// 	}
-			// }
+			"footerCallback": function(row, data, start, end, display) {
+				var api = this.api();
+				var jsonResponse = api.ajax.json();
+				if (jsonResponse && jsonResponse.givenPcs !== undefined) {
+					$('.GivenQty').html(jsonResponse.givenPcs);
+				}
+				if (jsonResponse && jsonResponse.givenWeight !== undefined) {
+					$('.GivenWeight').html(jsonResponse.givenWeight);
+				}
+				if (jsonResponse && jsonResponse.givenRmWeight !== undefined) {
+					$('.GivenRm').html(jsonResponse.givenRmWeight);
+				}
+				if (jsonResponse && jsonResponse.givenTotalWeight !== undefined) {
+					$('.GivenTotalWeight').html(jsonResponse.givenTotalWeight);
+				}
+				if (jsonResponse && jsonResponse.receivePcs !== undefined) {
+					$('.ReceiveQty').html(jsonResponse.receivePcs);
+				}
+				if (jsonResponse && jsonResponse.receiveWeight !== undefined) {
+					$('.ReceiveWeight').html(jsonResponse.receiveWeight);
+				}
+				if (jsonResponse && jsonResponse.receiveRmWeight !== undefined) {
+					$('.ReceiveRm').html(jsonResponse.receiveRmWeight);
+				}
+				if (jsonResponse && jsonResponse.receiveTotalWeight !== undefined) {
+					$('.ReceiveTotalWeight').html(jsonResponse.receiveTotalWeight);
+				}
+			}
 		});
 		$('#todate').on('change', function() {
 			table.clear();
@@ -191,6 +235,9 @@
 			table.draw();
 		});
 
-		$('#process,#worker,#product,#status').select2();
+		$('#process,#worker,#product,#status').select2({
+			placeholder: "-- Select --",
+			allowClear: true,
+		});
 	});
 </script>

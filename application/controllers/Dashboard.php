@@ -6,6 +6,10 @@ class Dashboard extends CI_Controller
     {
         parent::__construct();
         check_login();
+    	library("dbh");
+    	
+        $this->db->query("SET SESSION sql_mode=(SELECT REPLACE(@@sql_mode, 'ONLY_FULL_GROUP_BY',''));");
+
     }
     public function index()
     {

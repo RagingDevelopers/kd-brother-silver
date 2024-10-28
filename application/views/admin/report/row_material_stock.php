@@ -17,11 +17,11 @@
 						<div class="row">
 							<div class="col-sm-2">
 								<label>From date:</label> <br>
-								<input type="date" id="fromdate" value="<?= $from_date ?? ""?>" name="fromdddate" class="form-control">
+								<input type="date" id="fromdate" value="<?= $from_date ?? date('Y-m-01')?>" name="fromdddate" class="form-control from">
 							</div>
 							<div class="col-sm-2">
 								<label>To date:</label> <br>
-								<input type="date" id="todate" name="todate" class="form-control">
+								<input type="date" id="todate" name="todate" class="form-control to">
 							</div>
 							<div class="col-sm-2">
 								<label>Row Material</label><br>
@@ -118,6 +118,7 @@
 			'serverMethod': 'post',
 			'searching': true,
 			"ajax": {
+			    'showLoader': true,
 				'url': "<?= base_url(); ?>report/Row_material_stock/fetchData",
 				'data': function(data) {
 					data.todate = ($('#todate').val() ?? null);
@@ -209,6 +210,10 @@
 		$('#fromdate,#row_material,#garnu,#process,#type').on('change', function() {
 			table.clear();
 			table.draw();
+		});
+		$('.select2').select2({
+			placeholder: "-- Select --",
+			allowClear: true,
 		});
 	});
 </script>

@@ -1,4 +1,13 @@
 // const BaseUrl = $("meta[name=baseurl]").attr("content");
+var fpFrom = flatpickr(".from", {
+    dateFormat: "Y-m-d",
+});
+
+var fpTo = flatpickr(".to", {
+    dateFormat: "Y-m-d",
+});
+
+		
 const parseF = (str) => {
 	var f = parseFloat(str);
 	if (isNaN(f)) {
@@ -14,33 +23,50 @@ const { format: formatCurrency } = new Intl.NumberFormat("hi-in", {
 const getOptions = function (response, selected_id = null) {
 	var options = "";
 	var selected = "";
-	// if (props.default) {
-	// 	if (props.default_html !== undefined) {
-	// 		options += `<option value=""> ${props.default_html}</option>`;
-		// } else {
-			options += `<option value=""> Select <option>`;
-	// 	}
-	// }
+	options += `<option value=""> Select <option>`;
 	$.each(response, function (key, value) {
-		selected =
-			selected_id != null && selected_id == value
-				? "selected"
-				: " ";
-		// if (props.format) {
-		// 	const parts = props.format.split("-");
-		// 	let label = "";
-		// 	$.each(parts, function (i, part) {
-		// 		if ($.inArray(part, value)) {
-		// 			label +=
-		// 				part == "user_type" ? `( ${value[part]} )` : value[part] + " ";
-		// 		} else {
-		// 			label += value.name;
-		// 		}
-		// 	});
-		// 	options += `<option value="${value.id}" ${selected}>${label}</option>`;
-		// } else {
+		selected =selected_id != null && selected_id == value? "selected": " ";
 			options += `<option value="${value}" ${selected}>${value}</option>`;
-		// }
+	});
+	return options;
+};
+
+function handelFooterTotal(api, indexes = []) {
+    indexes.forEach((index) => {
+        const Total = api
+            .column(index)
+            .data()
+            .reduce((a, b) => +a + +b, 0);
+        $(api.column(index).footer()).html(intVal(Total.toFixed(2)));
+    });
+}
+
+var intVal = function(i) {
+    return typeof i === "string" ?
+        i.replace(/[\$,]/g, "") * 1 :
+        typeof i === "number" ?
+        i :
+        0;
+};
+
+const setOptions = function (response, selected_id = null) {
+	var options = "";
+	var selected = "";
+	options += `<option value=""> Select <option>`;
+	$.each(response, function (key, value) {
+		selected = selected_id != null && selected_id == value.id ? "selected" : " ";
+		options += `<option value="${value.id}" ${selected}>${value.name}</option>`;
+	});
+	return options;
+};
+
+const setLotWiseRmOptions = function (response, selected_id = null) {
+// 	var options = "";
+	var selected = "";
+	var options = `<option value=""> Select RM<option>`;
+	$.each(response, function (key, value) {
+		selected = selected_id != null && selected_id == value.id ? "selected" : " ";
+		options += `<option value="${value.id}" ${selected} data-weight="${value.rem_weight}" data-touchData="${value.touch}" data-quantity="${value.rem_quantity}" data-oldWeight="${value.weight || 0}" data-oldQuantity="${value.quantity || 0}" >${value.id} - ${value.code} &nbsp; Weight: ${value.rem_weight} Quantity :  ${value.rem_quantity}</option>`;
 	});
 	return options;
 };
@@ -50,7 +76,7 @@ const getWorker = function (process_id, selected_id = null) {
 		var optionHTML = "";
 		var selected = "";
 		optionHTML += `<option value=""> Select <option>`;
-		
+
 		$.ajax({
 			type: "POST",
 			dataType: "json",
@@ -194,7 +220,7 @@ const alert_if = (message, callBack) => {
 
 $("body").on(
 	"keydown change",
-	"input, select,textarea,.remove-btn",
+	"input, select,textarea,.remove-btn,.Receivedmaterial,.select2",
 	function (e) {
 		if (e.key !== "Enter") {
 			return;
@@ -207,6 +233,7 @@ $("body").on(
 			.find("input,a,select,button,textarea,.select2")
 			.filter(":visible");
 		next = focusable.eq(focusable.index(this) + 1);
+		
 		if (next.length) {
 			if ($(next[0]).data("select2") != undefined) {
 				$(next[0]).select2("open");
@@ -234,6 +261,33 @@ $("body").on(
 	}
 );
 
+$(document).on("change", "select", function (e) {
+    var temp = $(this);
+    
+    setTimeout(function () {
+        // Remove focus class from any Select2 container
+        $(".select2-container--focus").removeClass("select2-container--focus");
+
+        // Blur the currently focused element
+        $(":focus").select();
+
+        var nextElement = temp.parent().next().find("select");
+
+        if (nextElement.hasClass("select2-hidden-accessible")) {
+            // If the next input is a Select2 element, open the dropdown
+            nextElement.select2("open");
+        } else {
+            if (nextElement.attr("type") === "hidden") {
+                // If the next input is hidden, find the next visible input and focus on it
+                temp.parent().next().next().find("select").focus().select();
+            } else {
+                // Otherwise, focus and select the next input
+                nextElement.focus().select();
+            }
+        }
+    }, 50);
+});
+	
 /* common Jquery validation for all input just add */
 jQuery.validator.setDefaults({
 	debug: false,
@@ -492,31 +546,58 @@ $(".validateForm-reset").on("click", function () {
 	});
 });
 
-function Validator() {
-	this.fieldConfigs = [];
-}
+function Validator(multiple = false) {
+    this.fieldConfigs = [];
+    this.multiple = multiple;
+  }
+  Validator.prototype.addField = function (field, message, actionOnFail) {
+    this.fieldConfigs.push({ field, message, actionOnFail });
+    return this;
+  };
+  Validator.prototype.validate = function () {
+    var index = 0;
+    var error = false;
 
-Validator.prototype.addField = function (field, message, actionOnFail) {
-	this.fieldConfigs.push({ field, message, actionOnFail });
-	return this;
-};
+    for (let { field, message, actionOnFail } of this.fieldConfigs) {
+      // console.log(message)
+      if (this.multiple) {
+        if (!(field instanceof jQuery)) field = $(field);
+        for (let i = 0; i < field.length; i++) {
+          const element = $(field)[i];
+          if (!$(element).val() || $(element).val().trim() == "") {
+            if (
+              ["textarea", "number", "text"].indexOf(
+                $(element).attr("type") || "text"
+              ) != -1
+            ) {
+              $(element).focus();
+            }
+            SweetAlert("warning", message);
+            actionOnFail instanceof Function && actionOnFail($(element));
+            return false;
+          }
+        }
+      } else {
+        if (!(field instanceof jQuery)) {
+          field = $(field);
+        }
+        if (!field.val()) {
+          if (
+            ["textarea", "number", "text"].indexOf(
+              field.attr("type") || "text"
+            ) != -1
+          ) {
+            field.focus();
+          }
+          SweetAlert("warning", message);
+          actionOnFail instanceof Function && actionOnFail(field);
+          return false;
+        }
+      }
+    }
+    return true;
+  };
 
-Validator.prototype.validate = function () {
-	for (let { field, message, actionOnFail } of this.fieldConfigs) {
-		if (!(field instanceof jQuery)) {
-			field = $(field);
-		}
-		if (!field.val()) {
-			if (["textarea", "number", "text"].indexOf(field?.attr("type")) != -1) {
-				field.focus();
-			}
-			SweetAlert("warning", message);
-			if (typeof actionOnFail == "function") actionOnFail(field);
-			return false;
-		}
-	}
-	return true;
-};
 // $("form").on("submit", function (e) {
 // 	let isValid = true;
 // 	$(this)

@@ -135,11 +135,11 @@
 						<div class="row">
 							<div class="col-sm-2">
 								<label>From date:</label> <br>
-								<input type="date" id="fromdate" name="fromdddate" class="form-control">
+								<input type="date" id="fromdate" value="<?=date('Y-m-01');?>" name="fromdddate" class="form-control from">
 							</div>
 							<div class="col-sm-2">
 								<label>To date:</label> <br>
-								<input type="date" id="todate" name="todate" class="form-control">
+								<input type="date" id="todate" name="todate" class="form-control to">
 							</div>
 							<div class="col-sm-2">
 								<label>Received:</label> <br>
@@ -213,6 +213,7 @@
 			'serverMethod': 'post',
 			'searching': true,
 			"ajax": {
+			    'showLoader': true,
 				'url': "<?= base_url(); ?>manufacturing/main_garnu/getlist",
 				'data': function(data) {
 					data.todate = $('#todate').val();

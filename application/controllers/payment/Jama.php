@@ -9,6 +9,7 @@ class Jama extends CI_Controller
 	{
 		parent::__construct();
 		$this->load->model('payment/Jama_model', 'jama');
+		$this->load->model('Sequence_model', 'seq');
 		check_login();
 	}
 
@@ -22,13 +23,16 @@ class Jama extends CI_Controller
 		// $page_data['page_name'] = 'payment/jama';
         return view(self::View,$page_data);
 	}
+	
 	public function edit($param,$param1){
-	    $num_rows = $this->db->get_where('jama',array('jama_code'=>$param))->num_rows();
-	    if($num_rows==0){
+	    $num_rows = $this->db->get_where('jama',array('jama_code'=>$param));
+	    if($num_rows->num_rows()==0){
 			redirect(base_url('payment/jama_report'), 'refresh');
 	    }else{
+			$data = $num_rows->row_array();
     		$page_data['page_title'] = 'Jama'; 
     		$page_data['jama_code']= $param;
+    		$page_data['payment_type']= $data['payment_type'];
     		$page_data['party_id']= $param1;
     		$page_data['bank'] = $this->jama->bank();
     		$page_data['party'] = $this->jama->party();
@@ -50,7 +54,6 @@ class Jama extends CI_Controller
 				'status' => false,
 			];
 		}
-		
     	echo json_encode($res);
 	}
 	public function delete_jama_code($param){
@@ -69,7 +72,7 @@ class Jama extends CI_Controller
 			$this->db->where('id',$condata['jama_id']);
             $update = $this->db->update('jama',array('date'=>$condata['date'],'customer_id'=>$condata['party_id'],'type'=>$condata['type'],'mode'=>$condata['mode']
             ,'gross'=>$condata['gross'],'purity'=>$condata['purity'],'wb'=>$condata['wb'],'fine'=>$condata['fine'],'rate'=>$condata['rate'],
-            'amount'=>$condata['amount'],'remark'=>$condata['remark'],'metal_type_id'=>$condata['metal_type_id']));
+            'amount'=>$condata['amount'],'remark'=>$condata['remark'],'metal_type_id'=>$condata['metal_type_id'],'payment_type'=>$condata['payment_type'],'bank_id'=>$condata['bank']));
 			
 			if ($update == TRUE) {
 				$res = [
@@ -92,7 +95,7 @@ class Jama extends CI_Controller
 			$this->db->where('id',$condata['jama_id']);
             $update = $this->db->update('jama',array('date'=>$condata['date'],'customer_id'=>$condata['party_id'],'type'=>$condata['type'],'mode'=>$condata['mode']
             ,'gross'=>$condata['gross'],'purity'=>$condata['purity'],'wb'=>$condata['wb'],'fine'=>$condata['fine'],'rate'=>$condata['rate'],
-            'amount'=>$condata['amount'],'remark'=>$condata['remark']));
+            'amount'=>$condata['amount'],'remark'=>$condata['remark'],'payment_type'=>$condata['payment_type'],'bank_id'=>$condata['bank']));
 			
 			if ($update == TRUE) {
 				$res = [
@@ -125,9 +128,10 @@ class Jama extends CI_Controller
         			$this->db->update('setting', array('jama_code' => $jama_code + 1));
 			    }
 			}
+			$sequence_code = $this->seq->getNextSequence('jama');
             $insert = $this->db->insert('jama',array('date'=>$condata['date'],'customer_id'=>$condata['party_id'],'type'=>$condata['type'],'mode'=>$condata['mode']
             ,'gross'=>$condata['gross'],'purity'=>$condata['purity'],'wb'=>$condata['wb'],'fine'=>$condata['fine'],'rate'=>$condata['rate'],
-            'amount'=>$condata['amount'],'remark'=>$condata['remark'],'jama_code'=>$condata['jama_code'],'metal_type_id'=>$condata['metal_type_id'],'creation_date'=>date('Y-m-d')));
+            'amount'=>$condata['amount'],'remark'=>$condata['remark'],'jama_code'=>$condata['jama_code'],'metal_type_id'=>$condata['metal_type_id'],'creation_date'=>date('Y-m-d'),'payment_type'=>$condata['payment_type'],'bank_id'=>$condata['bank'],'sequence_code'=>$sequence_code));
 
 			if ($insert == TRUE) {
 				$res = [
@@ -180,6 +184,7 @@ class Jama extends CI_Controller
 				redirect(base_url('admin/payment/payment'), 'refresh');
 			} else {
 				$condata = $this->security->xss_clean($this->input->post());
+				$sequence_code = $this->seq->getNextSequence('payment');
 				$insertarray = [
 					'date' => $this->security->xss_clean($this->input->post('date')),
 					'payment_type' => $this->security->xss_clean($this->input->post('payment_type')),
@@ -191,6 +196,8 @@ class Jama extends CI_Controller
 					'remark' => $this->security->xss_clean($this->input->post('remark')),
 					'admin_id' => $this->session->userdata('admin_ID'),
 					'department_id' => $this->session->userdata('department_id'),
+					'payment_type'=> $this->security->xss_clean($this->input->post('payment_type')),
+					'sequence_code'=> $sequence_code,
 				];
 
 				$result = $this->payment->insert($insertarray);
@@ -216,7 +223,7 @@ class Jama extends CI_Controller
 			$this->db->where('id',$condata['jama_id']);
             $update = $this->db->update('jama',array('date'=>$condata['date'],'customer_id'=>$condata['party_id'],'type'=>$condata['type'],'mode'=>$condata['mode']
             ,'gross'=>$condata['gross'],'purity'=>$condata['purity'],'wb'=>$condata['wb'],'fine'=>$condata['fine'],'rate'=>$condata['rate'],
-            'amount'=>$condata['amount'],'remark'=>$condata['remark']));
+            'amount'=>$condata['amount'],'remark'=>$condata['remark'],'payment_type'=>$condata['payment_type'],'bank_id'=>$condata['bank']));
 			
 			if ($update == TRUE) {
 				$res = [
@@ -253,6 +260,11 @@ class Jama extends CI_Controller
 
 		$this->db->select('jama.*');
 		$this->db->from('jama');
+		if(!empty($jama_code)){
+            $this->db->where('jama.jama_code',$jama_code);
+        }else{
+            $this->db->where('jama.id',0);
+        }
 		$this->db->group_by('jama.id');
 		$this->db->order_by('jama.id', 'desc');
 		$records = $this->db->get();
@@ -273,7 +285,7 @@ class Jama extends CI_Controller
 		$totalRecordwithFilter = $records->num_rows();
 
 
-		$this->db->select('jama.*,customer.name as pname,metal_type.name as metal_type');
+		$this->db->select('jama.*,customer.name as pname,metal_type.name as metal_type,.jama.payment_type');
 		$this->db->from('jama');
 		$this->db->join('customer', 'customer.id = jama.customer_id', 'left');
 		$this->db->join('metal_type', 'metal_type.id = jama.metal_type_id', 'left');
@@ -295,11 +307,19 @@ class Jama extends CI_Controller
             $edit = '<a class="btn btn-action bg-warning text-white me-2 jama_edit_row" href="javascript:void(0)" data-id="'.$record->id.'"><i class="far fa-edit"></i></a>   &nbsp;&nbsp;
             <a class="btn btn-action bg-danger text-white me-2 delete_row"  href="javascript:void(0)" data-id="'.$record->id.'"><i class="fa-solid fa-trash"></i></a>';
 		
+			if($record->payment_type == "CREDIT"){
+				$payment_type = "<span class='text-success'>Credit</span>";;
+			}else if($record->payment_type == "DEBIT"){
+				$payment_type =  "<span class='text-danger'>Debit</span>";
+			}else{
+				$payment_type = "";
+			}
 		
 			$data[] = array(
 				"sno" => $i,
 				"action" => $edit,
 				"party"=> $record->pname,
+				"payment_type"=> $payment_type,
 				"date" => date('d-m-Y', strtotime($record->date)),
 				"type"=>$record->type,
 				"purity" => $record->purity,

@@ -48,8 +48,8 @@ class Customer extends CI_Controller
                 checkPrivilege(privilege["customer_add"]);
                 $validation = $this->form_validation;
                 $validation->set_rules('name', 'Name', 'required')
-                    ->set_rules('mobile', 'mobile', 'required')
-                    ->set_rules('city_id', 'city_id', 'required')
+                    // ->set_rules('mobile', 'mobile', 'required')
+                    // ->set_rules('city_id', 'city_id', 'required')
                     ->set_rules('account_type_id', 'account_type_id', 'required')
                     ->set_rules('opening_amount', 'opening_amount', 'required')
                     ->set_rules('opening_amount_type', 'opening_amount_type', 'required')
@@ -74,11 +74,23 @@ class Customer extends CI_Controller
                 $customer['opening_amount'] = $data['opening_amount'];
                 $customer['opening_amount_type'] = $data['opening_amount_type'];
                 $customer['opening_fine'] = $data['opening_fine'];
-				$customer['process_id'] = $data['process_id'] ?? null; 
+                if(isset($data['process_id']) && count($data['process_id'])>0){
+				$customer['process_id'] = implode(',',$data['process_id']) ?? null; 
+                }else{
+                $customer['process_id'] = NULL;    
+                }
                 $customer['opening_fine_type'] = $data['opening_fine_type'];
 
                 $this->db->insert('customer', $customer);
                 $customer_id = $this->db->insert_id();
+                
+                if($customer_id>0){
+                    
+                    $this->db->insert('jama',array('date'=>date('Y-m-d'),'customer_id'=>$customer_id,'type'=>'bank','mode'=>''
+            ,'gross'=>'','purity'=>'','wb'=>'','fine'=>'','rate'=>'','is_not_show'=>1,
+            'amount'=>0,'remark'=>'','jama_code'=>'','metal_type_id'=>'','creation_date'=>date('Y-m-d'),'payment_type'=>'CREDIT','bank_id'=>0,'sequence_code'=>''));
+
+                }
 
                 $customer_details = $new = array();
                 for ($i = 0; $i < count($data['item_id']); $i++) {
@@ -112,8 +124,8 @@ class Customer extends CI_Controller
                 checkPrivilege(privilege["customer_edit"]);
                 $validation = $this->form_validation;
                 $validation->set_rules('name', 'Name', 'required')
-                    ->set_rules('mobile', 'mobile', 'required')
-                    ->set_rules('city_id', 'city_id', 'required')
+                    // ->set_rules('mobile', 'mobile', 'required')
+                    // ->set_rules('city_id', 'city_id', 'required')
                     ->set_rules('account_type_id', 'account_type_id', 'required')
                     ->set_rules('opening_amount', 'opening_amount', 'required')
                     ->set_rules('opening_amount_type', 'opening_amount_type', 'required')
@@ -140,7 +152,11 @@ class Customer extends CI_Controller
                 $customer['opening_amount_type'] = $data['opening_amount_type'];
                 $customer['opening_fine'] = $data['opening_fine'];
                 $customer['opening_fine_type'] = $data['opening_fine_type'];
-                $customer['process_id'] = $data['process_id'] ?? null; 
+                if(isset($data['process_id']) && count($data['process_id'])>0){
+				$customer['process_id'] = implode(',',$data['process_id']) ?? null; 
+                }else{
+                $customer['process_id'] = NULL;    
+                }
                 $this->db->where('id', $id)->update('customer', $customer);
 
                 $oldIds = $this->db->select('id')->get_where('customer_item', ['customer_id' => $id])->result_array();
@@ -189,7 +205,7 @@ class Customer extends CI_Controller
         # Search 
         $searchQuery = "";
         if ($searchValue != '') {
-            $searchQuery = "(name like '%" . $searchValue . "%'  or mobile like '%" . $searchValue . "%'  or city.name like '%" . $searchValue . "%' or account_type.name like'%" . $searchValue . "%' or opening_amount like'%" . $searchValue . "%' or opening_amount_type like'%" . $searchValue . "%'  or opening_fine like'%" . $searchValue . "%'  or opening_fine_type like'%" . $searchValue . "%' ) ";
+            $searchQuery = "(customer.name like '%" . $searchValue . "%'  or customer.mobile like '%" . $searchValue . "%'  or city.name like '%" . $searchValue . "%' or account_type.name like'%" . $searchValue . "%' or customer.opening_amount like'%" . $searchValue . "%' or customer.opening_amount_type like'%" . $searchValue . "%'  or customer.opening_fine like'%" . $searchValue . "%'  or customer.opening_fine_type like'%" . $searchValue . "%' ) ";
         }
 
         ## Total number of records without filtering
