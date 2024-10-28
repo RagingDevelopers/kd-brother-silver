@@ -92,7 +92,7 @@ class Sales extends CI_Controller
 			$saleDetail['user_id'] = session('id');
 			$saleDetail['item_id'] = $data['item'][$i];
 			// $saleDetail['sub_item_id'] = $data['sub_item'][$i];
-			$saleDetail['stamp_id'] = $data['stamp'][$i];
+			$saleDetail['stamp_id'] = $data['stamp'][$i] == "null" ? null : $data['stamp'][$i];
 			$saleDetail['unit_id'] = $data['unit'][$i];
 			$saleDetail['lot_creation_tag'] = $data['lot_creation_tag'][$i];
 			$saleDetail['remark'] = $data['remark'][$i];
@@ -257,7 +257,7 @@ class Sales extends CI_Controller
 
 			$saleDetail['item_id'] = $data['item'][$i];
 			// $saleDetail['sub_item_id'] = $data['sub_item'][$i];
-			$saleDetail['stamp_id'] = $data['stamp'][$i];
+			$saleDetail['stamp_id'] = $data['stamp'][$i] == "null" ? null : $data['stamp'][$i];
 			$saleDetail['unit_id'] = $data['unit'][$i];
 			$saleDetail['remark'] = $data['remark'][$i];
 			$saleDetail['gross_weight'] = $data['gross_weight'][$i];

@@ -243,6 +243,7 @@
 														<td>
 															<select name="stamp[]" class="form-control w65 select2 stamp">
 																<option value="">Select Stamp</option>
+																<option value="null">None</option>
 																<?php foreach ($stamp as $s) { ?>
 																	<option value="<?= $s['id']; ?>" <?php if (isset($row['stamp_id']) && $s['id'] == $row['stamp_id']) {echo 'selected';} ?>> <?= $s['name']; ?> </option>
 																<?php } ?>
@@ -252,7 +253,7 @@
 																<?php foreach ($unit as $u) { ?>
 																	<option value="<?= $u['id']; ?>" <?php if (isset($row['unit_id']) && $u['id'] == $row['unit_id']) {
 																											echo 'selected';
-																										} ?>><?= $u['name']; ?></option>
+																										}else if($u['name'] == 'KG' && !isset($row['unit_id'])){ echo 'selected'; } ?>><?= $u['name']; ?></option>
 																<?php } ?>
 															</select></td>
 														<td><input type="text" class="form-control remark inputBox" name="remark[]" placeholder="Remark" value="<?= $row['remark'] ?? null ?>"></td>
