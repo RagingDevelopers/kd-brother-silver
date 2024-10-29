@@ -13,6 +13,7 @@ class Lot_wise_rm extends CI_Controller
 		check_login();
 		library("dbh");
 		// library("Joinhelper");
+		$this->load->helper('barcode');
 	}
 
 	public function index($action = "", $id = null)
@@ -119,7 +120,7 @@ class Lot_wise_rm extends CI_Controller
 			$received = "<span class='badge bg-$class'>" . $record['is_complated'] . "</span>";
 
 			$data[] = array(
-				'id' => $i,
+				'id' => $i . '<input type="checkbox" class="form-check-input rowId" style="margin-left: 5px !important;" data-rowId="' . $record['id'] . '">',
 				'code' => '<span data-id="' . $record['id'] . '" class="text-success me-2 showUsed" data-bs-toggle="tooltip" data-bs-placement="top"  data-bs-original-title="Used Row Material">' . $record['code'] . '</span>',
 				'type' => $record['type'],
 				'rm' => $record['rm_name'],
@@ -223,8 +224,8 @@ class Lot_wise_rm extends CI_Controller
 	{
 		$data = $this->input->post();
 
-		$rowM = $this->db->get_where('row_material',['id'=>$data['rmId']])->row_array();
-		$code = date('my') . '_' . explode(' ', $rowM['name'])[0].'_'.$data['averageTouch'];
+		$rowM = $this->db->get_where('row_material', ['id' => $data['rmId']])->row_array();
+		$code = date('my') . '_' . explode(' ', $rowM['name'])[0] . '_' . $data['averageTouch'];
 		if ($this->db->get_where('lot_wise_rm', ['code' => $code])->num_rows() > 0) {
 			echo json_encode(['success' => false, 'message' => 'Code Field Is unique.']);
 			return;
@@ -255,5 +256,14 @@ class Lot_wise_rm extends CI_Controller
 			$response = ['success' => false, 'message' => 'Data Not Found.'];
 		}
 		echo json_encode($response);
+	}
+
+	public function printCustomerTags()
+	{
+		$idsArray = explode(',', $this->security->xss_clean($this->input->post('ids'))[0]);
+		$LC = $this->db->select('id,code')->where_in('id', $idsArray)->get('lot_wise_rm')->result_array();
+		$data['LCS']    = $LC;
+		$data['title'] = "Tag Print";
+		$this->load->view('admin/report/tnx/lot/lot_wise_rm_print', $data);
 	}
 }

@@ -79,9 +79,10 @@
 							<cite>
 								<b>
 									<table id="garnu" class="table table-vcenter card-table">
+										<button class="btn btn-primary button_old__print"><i class="fa fa-print"></i></button>
 										<thead>
 											<tr>
-												<th scope="col">SN</th>
+												<th scope="col">SN<input type="checkbox" class="form-check-input checkall" style="margin-left: 5px !important;"></th>
 												<th scope="col">Code</th>
 												<th scope="col">Type</th>
 												<th scope="col">Row Material</th>
@@ -307,7 +308,8 @@
 				}
 			},
 			"columns": [{
-					data: 'id'
+					data: 'id',
+					orderable: false
 				},
 				{
 					data: 'code'
@@ -672,4 +674,38 @@
 			pixel
 		);
 	}
+
+
+	$(document).ready(function() {
+		$('.checkall').click(function() {
+			$('.rowId').prop('checked', this.checked);
+		})
+
+		$('.button_old__print').click(function() {
+			var ids = [];
+			$('.rowId').each(function() {
+				if ($(this).is(':checked')) {
+					ids.push($(this).data('rowid'));
+				}
+			})
+			if (ids.length == 0) {
+				alert('Please select atleast one record');
+				return false;
+			}
+			
+			var form = $('<form>', {
+				action: "<?= base_url('report/lot_wise_rm/printCustomerTags'); ?>",
+				method: 'POST',
+				target: '_blank'
+			});
+
+			$('<input>').attr({
+				type: 'hidden',
+				name: 'ids',
+				value: ids.join(',')
+			}).appendTo(form);
+
+			form.appendTo('body').submit().remove();
+		})
+	});
 </script>
