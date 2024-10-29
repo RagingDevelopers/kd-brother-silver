@@ -16,7 +16,7 @@ class Purchase_return extends CI_Controller
 
 	public function index()
 	{
-	    checkPrivilege(privilege['purchase_return_view']);
+		checkPrivilege(privilege['purchase_return_view']);
 		$page_data['page_title'] = 'Purchase Return Report';
 		$page_data['party'] = $this->purchase->fetch_party();
 		$page_data['items'] = $this->purchase->fetch_item();
@@ -25,7 +25,7 @@ class Purchase_return extends CI_Controller
 
 	public function create()
 	{
-	    checkPrivilege(privilege['purchase_return_add']);
+		checkPrivilege(privilege['purchase_return_add']);
 		$page_data['page_title'] = 'Purchase Return';
 		$page_data['row_material'] = $this->db->select('id,name')->from('row_material')->where('status', "ACTIVE")->get()->result_array();
 		$page_data['party'] = $this->purchase->fetch_party();
@@ -49,7 +49,7 @@ class Purchase_return extends CI_Controller
 		// print_r($data);exit;
 		$insert['date'] = $data['date'];
 		$insert['user_id'] = session('id');
-		$insert['code'] = 'PR'.$this->generate_unique_code();
+		$insert['code'] = 'PR' . $this->generate_unique_code();
 		$insert['sequence_code'] = $this->seq->getNextSequence('purchase_return');
 		$insert['party_id'] = $data['party_id'];
 		$insert['product_type'] = $data['product_type'];
@@ -109,7 +109,7 @@ class Purchase_return extends CI_Controller
 
 	public function edit($id)
 	{
-	    checkPrivilege(privilege['purchase_return_edit']);
+		checkPrivilege(privilege['purchase_return_edit']);
 		$data = $this->db->select('purchase_return.*')->from('purchase_return')->where('id', $id)->get()->row_array();
 
 		if (empty($data)) {
@@ -136,7 +136,10 @@ class Purchase_return extends CI_Controller
 					$array1 = explode(",", $array[$a]);
 					$material = $this->db->select('*')->from('purchase_return_material')->where([
 						'purchase_detail_id' => $data['purchase_detail'][$i]['id'],
-						'row_material_id' => $array1[0], 'quantity' => $array1[1], 'rate' => $array1[2], 'sub_total' => $array1[3]
+						'row_material_id' => $array1[0],
+						'quantity' => $array1[1],
+						'rate' => $array1[2],
+						'sub_total' => $array1[3]
 					])->get()->row_array();
 					$array1[4] = isset($material['id']) ? $material['id'] : 0;
 					$array2[] = implode(",", $array1);
@@ -284,55 +287,57 @@ class Purchase_return extends CI_Controller
 		echo json_encode($response);
 		return;
 	}
-	
-	public function delete($id) {
-        checkPrivilege(privilege['purchase_delete']);
-        $this->db->trans_start();
-        $this->db->where('id', $id);
-        $this->db->delete('purchase_return');
-    
-        if ($this->db->affected_rows() > 0) {
-            $purchase_detail_ids = $this->db->select('id')->from('purchase_return_detail')->where('purchase_id', $id)->get()->result_array();
-            if (!empty($purchase_detail_ids)) {
-                $ids = array_map(function($item) {
-                    return $item['id'];
-                }, $purchase_detail_ids);
-    
-                $this->db->where_in('purchase_detail_id', $ids);
-                $this->db->delete('purchase_return_material');
-    
-                $this->db->where_in('id', $ids);
-                $this->db->delete('purchase_return_detail');
-            }
-    
-            $this->db->trans_complete();
-            if ($this->db->trans_status() === FALSE) {
-                flash()->withError("Deletion failed.")->to("purchase_return");
-                return FALSE;
-            } else {
-                flash()->withSuccess("Deleted successfully.")->to("purchase_return");
-                return TRUE;
-            }
-        } else {
-            $this->db->trans_complete();
-            flash()->withError("Deletion failed.")->to("purchase_return");
-            return FALSE;
-        }
-    }
-    
-    function generate_unique_code() {
-        $unique_code = '';
-        do {
-            $unique_code = sprintf('%05d', mt_rand(0, 99999));
-            $this->db->where('code', $unique_code);
-            $count = $this->db->count_all_results('purchase_return');
-        } while ($count > 0);
-        return $unique_code;
-    }
-    
-    function bill($purchase_id = 0)
+
+	public function delete($id)
 	{
-	    $this->db->query("SET SESSION sql_mode=(SELECT REPLACE(@@sql_mode, 'ONLY_FULL_GROUP_BY', ''));");
+		checkPrivilege(privilege['purchase_delete']);
+		$this->db->trans_start();
+		$this->db->where('id', $id);
+		$this->db->delete('purchase_return');
+
+		if ($this->db->affected_rows() > 0) {
+			$purchase_detail_ids = $this->db->select('id')->from('purchase_return_detail')->where('purchase_id', $id)->get()->result_array();
+			if (!empty($purchase_detail_ids)) {
+				$ids = array_map(function ($item) {
+					return $item['id'];
+				}, $purchase_detail_ids);
+
+				$this->db->where_in('purchase_detail_id', $ids);
+				$this->db->delete('purchase_return_material');
+
+				$this->db->where_in('id', $ids);
+				$this->db->delete('purchase_return_detail');
+			}
+
+			$this->db->trans_complete();
+			if ($this->db->trans_status() === FALSE) {
+				flash()->withError("Deletion failed.")->to("purchase_return");
+				return FALSE;
+			} else {
+				flash()->withSuccess("Deleted successfully.")->to("purchase_return");
+				return TRUE;
+			}
+		} else {
+			$this->db->trans_complete();
+			flash()->withError("Deletion failed.")->to("purchase_return");
+			return FALSE;
+		}
+	}
+
+	function generate_unique_code()
+	{
+		$unique_code = '';
+		do {
+			$unique_code = sprintf('%05d', mt_rand(0, 99999));
+			$this->db->where('code', $unique_code);
+			$count = $this->db->count_all_results('purchase_return');
+		} while ($count > 0);
+		return $unique_code;
+	}
+
+	function bill($purchase_id = 0)
+	{
+		$this->db->query("SET SESSION sql_mode=(SELECT REPLACE(@@sql_mode, 'ONLY_FULL_GROUP_BY', ''));");
 		$purchase_id = $this->security->xss_clean($purchase_id);
 		$purchase_id = $this->db->escape($purchase_id);
 		$q = "SELECT 
@@ -376,7 +381,7 @@ class Purchase_return extends CI_Controller
         		LEFT JOIN city ON city.id = C.city_id 
         		WHERE S.id = $purchase_id";
 		$customer = $this->db->query($customerQ)->row_array();
-        $page_data['url'] = 'purchase_return';
+		$page_data['url'] = 'purchase_return';
 		$page_data['page_name'] = 'admin/print/purchase_bill';
 		$page_data['page_title'] = 'Purchase Bill';
 		$page_data['bill_data'] = $res;

@@ -305,11 +305,13 @@ class Ready_for_sale extends CI_Controller
 				S.`created_at` AS created_at,
 				I.name AS item_name,
 				RSI.name AS sub_item_name,
-				city.name AS city
+				city.name AS city,
+				C.`id` AS customer_id
 			FROM ready_for_sale_detail SI 
 			LEFT JOIN ready_for_sale S ON S.id = SI.sale_id
 			LEFT JOIN item I ON I.id = SI.item_id
 			LEFT JOIN sub_item RSI ON RSI.id = SI.sub_item_id
+			LEFT JOIN customer C ON C.id = S.party_id
 			LEFT JOIN city ON city.id = C.city_id
 			WHERE S.id = $sales_id
 			GROUP BY SI.item_id
@@ -321,8 +323,10 @@ class Ready_for_sale extends CI_Controller
         		city.name AS city,
         		S.date, 
         		S.created_at, 
-        		S.id AS sales_id 
-        		FROM ready_for_sale S 
+        		S.id AS sales_id ,
+		  		C.`id` AS customer_id
+        		FROM ready_for_sale S
+		  		LEFT JOIN customer C ON C.id = S.party_id
         		LEFT JOIN city ON city.id = C.city_id
         		WHERE S.id = $sales_id";
 		$customer = $this->db->query($customerQ)->row_array();

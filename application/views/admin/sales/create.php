@@ -50,10 +50,6 @@
 		-moz-appearance: textfield;
 	}
 
-
-
-
-
 	.table-wrap {
 		position: relative;
 	}
@@ -80,38 +76,39 @@
 		border: none !important;
 		border-bottom: 1px solid black !important;
 	}
-	    .no-spinners::-webkit-outer-spin-button,
-    .no-spinners::-webkit-inner-spin-button {
-        -webkit-appearance: none;
-        margin: 0;
-    }
 
-    .no-spinners {
-        -moz-appearance: textfield;
-    }
+	.no-spinners::-webkit-outer-spin-button,
+	.no-spinners::-webkit-inner-spin-button {
+		-webkit-appearance: none;
+		margin: 0;
+	}
 
-    .table-responsive {
-        position: relative;
-        max-height: 300px;
-        overflow-y: auto;
+	.no-spinners {
+		-moz-appearance: textfield;
+	}
 
-    }
+	.table-responsive {
+		position: relative;
+		max-height: 300px;
+		overflow-y: auto;
 
-    .table-responsive thead {
-        position: sticky;
-        top: 0;
-        z-index: 100;
-        background-color: white;
-        /* Ensures the header has a background */
-    }
+	}
 
-    .table-responsive tfoot {
-        position: sticky;
-        bottom: 0;
-        z-index: 100;
-        background-color: white;
-        /* Ensures the header has a background */
-    }
+	.table-responsive thead {
+		position: sticky;
+		top: 0;
+		z-index: 100;
+		background-color: white;
+		/* Ensures the header has a background */
+	}
+
+	.table-responsive tfoot {
+		position: sticky;
+		bottom: 0;
+		z-index: 100;
+		background-color: white;
+		/* Ensures the header has a background */
+	}
 </style>
 <div class="row element">
 	<div class="col-sm-12">
@@ -128,10 +125,10 @@
 								<div class="form-group">
 									<label class="form-label">Date <span class="text-danger">*</span></label>
 									<input type="date" name="date" class="form-control from" id="date" value="<?php if (isset($data['date'])) {
-																													echo $data['date'];
-																												} else {
-																													echo date('Y-m-d');
-																												} ?>" />
+																																			echo $data['date'];
+																																		} else {
+																																			echo date('Y-m-d');
+																																		} ?>" />
 								</div>
 							</div>
 							<div class="col-md-2">
@@ -141,8 +138,8 @@
 										<option value="">Select Customer</option>
 										<?php foreach ($party as $c) { ?>
 											<option value="<?= $c['id']; ?>" <?php if (isset($data['party_id']) && $data['party_id'] == $c['id']) {
-																					echo "selected";
-																				} ?>>
+																							echo "selected";
+																						} ?>>
 												<?= $c['name']; ?>
 											</option>
 										<?php } ?>
@@ -226,12 +223,12 @@
 														<input type="hidden" class="rowid" name="rowid[]" value="<?= $row['id'] ?? null; ?>" />
 														<input type="hidden" name="lot_creation_tag[]" value="<?= $row['lot_creation_tag'] ?? null; ?>" class="form-control hiddenTag" autocomplete="off">
 														<td>
-															<select class="form-select select2 item" data-sub_item="<?= isset($row) && !empty($row['sub_item_id']) ? $row['sub_item_id'] : ""?>" required name="item[]">
+															<select class="form-select select2 item" data-sub_item="<?= isset($row) && !empty($row['sub_item_id']) ? $row['sub_item_id'] : "" ?>" required name="item[]">
 																<option value="">Select Item</option>
 																<?php foreach ($item as $i) { ?>
 																	<option value="<?= $i['id']; ?>" <?php if (isset($row['item_id']) && $i['id'] == $row['item_id']) {
-																											echo 'selected';
-																										} ?>> <?= $i['name']; ?>
+																													echo 'selected';
+																												} ?>> <?= $i['name']; ?>
 																	</option>
 																<?php } ?>
 															</select>
@@ -243,16 +240,21 @@
 														<td>
 															<select name="stamp[]" class="form-control w65 select2 stamp">
 																<option value="">Select Stamp</option>
+																<option value="null">None</option>
 																<?php foreach ($stamp as $s) { ?>
-																	<option value="<?= $s['id']; ?>" <?php if (isset($row['stamp_id']) && $s['id'] == $row['stamp_id']) {echo 'selected';} ?>> <?= $s['name']; ?> </option>
+																	<option value="<?= $s['id']; ?>" <?php if (isset($row['stamp_id']) && $s['id'] == $row['stamp_id']) {
+																													echo 'selected';
+																												} ?>> <?= $s['name']; ?> </option>
 																<?php } ?>
 															</select>
 														</td>
 														<td><select name="unit[]" id="" class="form-control w65 unit">
 																<?php foreach ($unit as $u) { ?>
 																	<option value="<?= $u['id']; ?>" <?php if (isset($row['unit_id']) && $u['id'] == $row['unit_id']) {
-																											echo 'selected';
-																										} ?>><?= $u['name']; ?></option>
+																													echo 'selected';
+																												} else if ($u['name'] == 'KG' && !isset($row['unit_id'])) {
+																													echo 'selected';
+																												} ?>><?= $u['name']; ?></option>
 																<?php } ?>
 															</select></td>
 														<td><input type="text" class="form-control remark inputBox" name="remark[]" placeholder="Remark" value="<?= $row['remark'] ?? null ?>"></td>
@@ -279,17 +281,17 @@
 														<td><select name="labour_type[]" class="form-control w65 labour_type">
 																<option value="">Select Labour</option>
 																<option value="net" <?php if ($row['labour_type'] == 'net') {
-																						echo 'selected';
-																					} ?>>Net</option>
+																								echo 'selected';
+																							} ?>>Net</option>
 																<option value="pcs" <?php if ($row['labour_type'] == 'pcs') {
-																						echo 'selected';
-																					} ?>>Pcs</option>
+																								echo 'selected';
+																							} ?>>Pcs</option>
 																<option value="fixed" <?php if ($row['labour_type'] == 'fixed') {
-																							echo 'selected';
-																						} ?>>Fixed</option>
+																									echo 'selected';
+																								} ?>>Fixed</option>
 																<option value="gross" <?php if ($row['labour_type'] == 'gross') {
-																							echo 'selected';
-																						} ?>>Gross</option>
+																									echo 'selected';
+																								} ?>>Gross</option>
 															</select>
 														</td>
 														<td><input type="number" step="any" class="form-control other_amount inputBox" name="other_amount[]" placeholder="Other Amount" value="<?= $row['other_amount'] ?? 0; ?>" /></td>
@@ -381,86 +383,104 @@
 										</table>
 									</div>
 									<div class="text-left pt-1">
-									    <button type="button" class="btn btn-success " id="add">Add row <i class="ms-2 fa-solid fa-plus"></i></button>
-								    </div>
+										<button type="button" class="btn btn-success " id="add">Add row <i class="ms-2 fa-solid fa-plus"></i></button>
+									</div>
 								</div>
 							</div>
 						</div>
 					</div>
 				</div>
 				<div class="card-footer">
-				    <div class="row col-md-12">
-				        <div class="col-md-1">
-					        <button type="submit" class="btn btn-primary ms-auto">Submit</button>
-					    </div>
-					    <div class="col-md-1">
-					        <button type="button" class="btn btn-success me-2 paymentAdd" data-demo-color data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Received">Payment Add</button>
-				        </div>
-				        <div class="col-md-5"></div>
-				        <div class="col-md-5" style="padding-left: 145px;padding-right: 130px;">
-        				    <table class="table card-table table-vcenter  table-scroll text-center text-nowrap">
-                                <thead>
-                                    <tr>
-                                        <th>Net</th>
-                                        <th style="width: 70px !important;">Fine</th>
-                                        <th>Amount</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td class="TotalNet_weight">0</td>
-                                        <td class="TotalFine">0</td>
-                                        <td class="Sub_total">0</td>
-                                    </tr>
-                                    <tr>
-                                        <td style="color:red;">Closing Amount</td>
-                                        <td class="fineClosing"><?php if (isset($data['closing_fine'])) { echo $data['closing_fine'];}else{ echo 0; } ?></td>
-                                        <td class="amountClosing"><?php if (isset($data['closing_amount'])) { echo $data['closing_amount'];}else{ echo 0; } ?></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+					<div class="row col-md-12">
+						<div class="col-md-1">
+							<button type="submit" class="btn btn-primary ms-auto">Submit</button>
+						</div>
+						<div class="col-md-1">
+							<button type="button" class="btn btn-success me-2 paymentAdd" data-demo-color data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Received">Payment Add</button>
+						</div>
+						<div class="col-md-5"></div>
+						<div class="col-md-5" style="padding-left: 145px;padding-right: 130px;">
+							<table class="table card-table table-vcenter  table-scroll text-center text-nowrap">
+								<thead>
+									<tr>
+										<th>Net</th>
+										<th style="width: 70px !important;">Fine</th>
+										<th>Amount</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<td class="TotalNet_weight">0</td>
+										<td class="TotalFine">0</td>
+										<td class="Sub_total">0</td>
+									</tr>
+									<tr>
+										<td style="color:red;">Closing Amount</td>
+										<td class="fineClosing"><?php if (isset($data['closing_fine'])) {
+																			echo $data['closing_fine'];
+																		} else {
+																			echo 0;
+																		} ?></td>
+										<td class="amountClosing"><?php if (isset($data['closing_amount'])) {
+																				echo $data['closing_amount'];
+																			} else {
+																				echo 0;
+																			} ?></td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
 				</div>
 			</form>
 		</div>
 	</div>
 	<div class="col-sm-7 pt-2"></div>
 	<div class="col-sm-5 pt-2" style="padding-right: 44px">
-	    <table id="dataTableExample" class="table card-table table-vcenter table-scroll text-center text-nowrap">
-            <thead>
-                <tr>
-                    <th>S No.</th>
-                    <th>Type</th>
-                    <th>Payment Type</th>
-                    <th style="width: 70px !important;">Fine</th>
-                    <th>Amount</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php $ii=1; foreach($payment ?? [] as $p){?>
-                    <tr>
-                        <td class="sid" data-rate="<?=$p->rate?>" data-bankname="<?=$p->bankname?>" data-bankid="<?=$p->bank_id?>"><?=$ii?></td>
-                        <td class="saleId" data-gross="<?=$p->gross?>" data-saleid="<?=$p->id?>"><?=$p->type?></td>
-                        <td><?=$p->payment_type?></td>
-                        <td class="fine" data-amount="<?=$p->amount?>" data-metal_type_id="<?=$p->metal_type_id?>" data-payment_type="<?=$p->payment_type?>"><?=$p->payment_type == 'CREDIT' ? $p->fine : '-'.$p->fine?></td>
-                        <td class="amount" data-purity="<?=$p->purity?>" data-wb="<?=$p->wb?>" data-remark="<?=$p->remark?>"><?=$p->payment_type == 'CREDIT' ? $p->amount :'-'.$p->amount?></td>
-                        <td><button class='btn btn-success editPayment' data-id="<?=$ii?>"><i class='fas fa-edit'></i></button><button class='btn btn-danger removePayment' data-id="<?=$ii?>"><i class='fa fa-trash' aria-hidden='true'></i></button></td>
-                    </tr>
-                <?php $ii++; } ?>
-            </tbody>
-            <tfoot>
-                <tr>
-                    <td style="border:none;"></td>
-                    <td style="border:none;"></td>
-                    <td style="border:none;"></td>
-                    <td class="finalFine"><?php if (isset($data['total_fine'])) { echo $data['total_fine'];}else{ echo 0; } ?></td>
-                    <td class="finalAmount"><?php if (isset($data['total_amount'])) { echo $data['total_amount'];}else{ echo 0; } ?></td>
-                    <td style="border:none;"></td>
-                </tr>
-            </tfoot>
-        </table>
+		<table id="dataTableExample" class="table card-table table-vcenter table-scroll text-center text-nowrap">
+			<thead>
+				<tr>
+					<th>S No.</th>
+					<th>Type</th>
+					<th>Payment Type</th>
+					<th style="width: 70px !important;">Fine</th>
+					<th>Amount</th>
+					<th>Action</th>
+				</tr>
+			</thead>
+			<tbody>
+				<?php $ii = 1;
+				foreach ($payment ?? [] as $p) { ?>
+					<tr>
+						<td class="sid" data-rate="<?= $p->rate ?>" data-bankname="<?= $p->bankname ?>" data-bankid="<?= $p->bank_id ?>"><?= $ii ?></td>
+						<td class="saleId" data-gross="<?= $p->gross ?>" data-saleid="<?= $p->id ?>"><?= $p->type ?></td>
+						<td><?= $p->payment_type ?></td>
+						<td class="fine" data-amount="<?= $p->amount ?>" data-metal_type_id="<?= $p->metal_type_id ?>" data-payment_type="<?= $p->payment_type ?>"><?= $p->payment_type == 'CREDIT' ? $p->fine : '-' . $p->fine ?></td>
+						<td class="amount" data-purity="<?= $p->purity ?>" data-wb="<?= $p->wb ?>" data-remark="<?= $p->remark ?>"><?= $p->payment_type == 'CREDIT' ? $p->amount : '-' . $p->amount ?></td>
+						<td><button class='btn btn-success editPayment' data-id="<?= $ii ?>"><i class='fas fa-edit'></i></button><button class='btn btn-danger removePayment' data-id="<?= $ii ?>"><i class='fa fa-trash' aria-hidden='true'></i></button></td>
+					</tr>
+				<?php $ii++;
+				} ?>
+			</tbody>
+			<tfoot>
+				<tr>
+					<td style="border:none;"></td>
+					<td style="border:none;"></td>
+					<td style="border:none;"></td>
+					<td class="finalFine"><?php if (isset($data['total_fine'])) {
+														echo $data['total_fine'];
+													} else {
+														echo 0;
+													} ?></td>
+					<td class="finalAmount"><?php if (isset($data['total_amount'])) {
+														echo $data['total_amount'];
+													} else {
+														echo 0;
+													} ?></td>
+					<td style="border:none;"></td>
+				</tr>
+			</tfoot>
+		</table>
 	</div>
 </div>
 
@@ -503,8 +523,8 @@
 										if (!empty($row_material)) {
 											foreach ($row_material as $rm) { ?>
 												<option value="<?= $rm['id']; ?>" <?php if (isset($row) && $rm['id'] == $row['row_material_id']) {
-																						echo 'selected';
-																					} ?>><?= $rm['name']; ?></option>
+																									echo 'selected';
+																								} ?>><?= $rm['name']; ?></option>
 										<?php }
 										} ?>
 									</select>
@@ -571,7 +591,7 @@
 			</div>
 			<div class="modal-body">
 				<div class="row mainRow" style="margin-top:1%;">
-				    <div class="col-md-2">
+					<div class="col-md-2">
 						<div class="form-group">
 							<label class="form-label">Payment Type<span class="text-danger">*</span></label>
 							<select name="payment_type" id="payment_type" class="form-select select2" required>
@@ -688,34 +708,34 @@
 <script class="javascript" src="<?= base_url("assets") ?>/dist/js/sale.js?v=<?= $time ?>"></script>
 <script class="javascript">
 	$('#RFSCode').on('contextmenu', function(e) {
-        e.preventDefault();
-        navigator.clipboard.readText().then((text) => {
-            $('#RFSCode').val(text);
-            if (text != "") {
-                SweetAlert("success", `${text}  Past Successfully!!`);
-            } else {
-                SweetAlert("error", `Text Not Found`);
-            }
-        }).catch((err) => {
-            SweetAlert("error", `Failed to read clipboard contents: ${err}`);
-        });
-    });
+		e.preventDefault();
+		navigator.clipboard.readText().then((text) => {
+			$('#RFSCode').val(text);
+			if (text != "") {
+				SweetAlert("success", `${text}  Past Successfully!!`);
+			} else {
+				SweetAlert("error", `Text Not Found`);
+			}
+		}).catch((err) => {
+			SweetAlert("error", `Failed to read clipboard contents: ${err}`);
+		});
+	});
 </script>
 <script class="javascript">
-    if ($("#party_id").val()) {
-        setTimeout(() => {
-            $("#party_id").trigger('change');
+	if ($("#party_id").val()) {
+		setTimeout(() => {
+			$("#party_id").trigger('change');
 		}, 300);
-    }
+	}
 	var modal = $("#payment-report");
-    $(document).on("click", ".paymentAdd", function () {
-		$('input',modal).val('');
+	$(document).on("click", ".paymentAdd", function() {
+		$('input', modal).val('');
 		window.edit = false;
-		$('select',modal).val('').trigger('change');
+		$('select', modal).val('').trigger('change');
 		modal.modal("show");
 	});
-	
-    $(document).on("change", "#type", function () {
+
+	$(document).on("change", "#type", function() {
 		var mode = $(this).find(':selected').data('mode');
 		var type = $(this).val();
 		$(".allinone").hide();
@@ -734,89 +754,89 @@
 		$("." + newtype).show();
 
 	});
-	
+
 	$(document).ready(function() {
-        var allDataArray = [];
-        var rowIndex = 1;
-    
-        function reverseDataFromTable() {
-            $('#dataTableExample tbody tr').each(function(index) {
-                var row = $(this);
-                var saleid = row.find('.saleId').data('saleid');
-                var gross = row.find('.saleId').data('gross');
-                
-                var rate = row.find('.sid').data('rate');
-                var bankName = row.find('.sid').data('bankname');
-                var bankid = row.find('.sid').data('bankid');
-                
-                var amount = row.find('.fine').data('amount');
-                var metal_type_id = row.find('.fine').data('metal_type_id');
-                var payment = row.find('.fine').data('payment_type');
-                
-                var purity = row.find('.amount').data('purity');
-                var wb = row.find('.amount').data('wb');
-                var remark = row.find('.amount').data('remark');
-                
-                allDataArray[index + 1] = {
-                    type: row.find('td').eq(1).text(),
-                    mode: row.find('td').eq(2).text(),
-                    gross: gross,
-                    purity: purity,
-                    wb: wb,
-                    fine: row.find('td').eq(6).text(),
-                    rate: rate,
-                    bank: bankid,
-                    bankName: bankName,
-                    amount: amount,
-                    metal_type_id: metal_type_id,
-                    remark: remark,
-                    payment: payment,
-                    id: rowIndex,
-                    saleid: saleid
-                };
-                rowIndex++;
-            });
-            $('#paymentArray').val(JSON.stringify(allDataArray));
-            setTimeout(function () {
-                total();
-            }, 1000);
-        }
-    
-        <?php if(isset($payment)){ ?>
-            reverseDataFromTable();
-        <?php } ?>
-    
-        $('.savePmData').on('click', function() {
-            
-            if(!$('#payment_type').val()){
-                SweetAlert("error", `Payment Type Field Is Required`);
-                return;
-            }
-            if(!$('#type').val()){
-                SweetAlert("error", `Type Field Is Required`);
-                return;
-            }
-            
-            if(window.edit == true) {
-                handleEditCase(window.index);
-                return;
-            }
-    
-            var type = $('#type').val();
-            var mode = $('#mode').val();
-            var gross = $('#gross').val();
-            var purity = $('#purity').val();
-            var wb = $('#wb').val();
-            var fine = $('#fine').val();
-            var rate = $('#rate').val();
-            var bank = $('#bank').val();
-            var bankName = $('#bank option:selected').text();
-            var amount = $('#amount2').val();
-            var metal_type_id = $('#metal_type_id').val();
-            var remark = $('#remark').val();
-            var paymentType = $('#payment_type').val();
-    
-            var newRow = `<tr data-id="${rowIndex}">
+		var allDataArray = [];
+		var rowIndex = 1;
+
+		function reverseDataFromTable() {
+			$('#dataTableExample tbody tr').each(function(index) {
+				var row = $(this);
+				var saleid = row.find('.saleId').data('saleid');
+				var gross = row.find('.saleId').data('gross');
+
+				var rate = row.find('.sid').data('rate');
+				var bankName = row.find('.sid').data('bankname');
+				var bankid = row.find('.sid').data('bankid');
+
+				var amount = row.find('.fine').data('amount');
+				var metal_type_id = row.find('.fine').data('metal_type_id');
+				var payment = row.find('.fine').data('payment_type');
+
+				var purity = row.find('.amount').data('purity');
+				var wb = row.find('.amount').data('wb');
+				var remark = row.find('.amount').data('remark');
+
+				allDataArray[index + 1] = {
+					type: row.find('td').eq(1).text(),
+					mode: row.find('td').eq(2).text(),
+					gross: gross,
+					purity: purity,
+					wb: wb,
+					fine: row.find('td').eq(6).text(),
+					rate: rate,
+					bank: bankid,
+					bankName: bankName,
+					amount: amount,
+					metal_type_id: metal_type_id,
+					remark: remark,
+					payment: payment,
+					id: rowIndex,
+					saleid: saleid
+				};
+				rowIndex++;
+			});
+			$('#paymentArray').val(JSON.stringify(allDataArray));
+			setTimeout(function() {
+				total();
+			}, 1000);
+		}
+
+		<?php if (isset($payment)) { ?>
+			reverseDataFromTable();
+		<?php } ?>
+
+		$('.savePmData').on('click', function() {
+
+			if (!$('#payment_type').val()) {
+				SweetAlert("error", `Payment Type Field Is Required`);
+				return;
+			}
+			if (!$('#type').val()) {
+				SweetAlert("error", `Type Field Is Required`);
+				return;
+			}
+
+			if (window.edit == true) {
+				handleEditCase(window.index);
+				return;
+			}
+
+			var type = $('#type').val();
+			var mode = $('#mode').val();
+			var gross = $('#gross').val();
+			var purity = $('#purity').val();
+			var wb = $('#wb').val();
+			var fine = $('#fine').val();
+			var rate = $('#rate').val();
+			var bank = $('#bank').val();
+			var bankName = $('#bank option:selected').text();
+			var amount = $('#amount2').val();
+			var metal_type_id = $('#metal_type_id').val();
+			var remark = $('#remark').val();
+			var paymentType = $('#payment_type').val();
+
+			var newRow = `<tr data-id="${rowIndex}">
                 <td>${rowIndex}</td>
                 <td>${type}</td>
                 <td>${paymentType ?? ''}</td>
@@ -827,91 +847,91 @@
                     <button class='btn btn-danger removePayment' data-id="${rowIndex}"><i class='fa fa-trash' aria-hidden='true'></i></button>
                 </td>
             </tr>`;
-            $('#dataTableExample tbody').append(newRow);
-    
-            allDataArray[rowIndex] = {
-                type: type, 
-                mode: mode,
-                amount: amount,
-                gross: gross,
-                purity: purity,
-                wb: wb,
-                fine: fine,
-                rate: rate,
-                bank: bank,
-                bankName: bankName,
-                metal_type_id: metal_type_id,
-                remark: remark,
-                payment: paymentType,
-                saleid: null
-            };
-    
-            $('#payment-report input').val('');
-            $('#payment-report select').val('').trigger('change');
-            $('#payment-report').modal('hide');
-            rowIndex++;
-            $('#paymentArray').val(JSON.stringify(allDataArray));
-            setTimeout(function () {
-                total();
-            }, 1000);
-        });
-    
-        $('#dataTableExample tbody').on('click', '.editPayment', function() {
-            $('input',modal).val('');
-            $('select',modal).val('').trigger('change');
-            window.edit = true;
-            var id = $(this).data('id');
-            window.index = id;
-            var rowData = allDataArray[id];
-    
-            if (rowData) {
-                $('#type').val(rowData.type).trigger('change');
-                $('#mode').val(rowData.mode);
-                $('#amount2').val(rowData.amount);
-                $('#gross').val(rowData.gross);
-                $('#purity').val(rowData.purity);
-                $('#wb').val(rowData.wb);
-                $('#fine').val(rowData.fine);
-                $('#rate').val(rowData.rate);
-                $('#bank').val(rowData.bank);
-                $('#metal_type_id').val(rowData.metal_type_id);
-                $('#remark').val(rowData.remark);
-                $('#payment_type').val(rowData.payment);
-                $('#payment-report').modal('show');
-            }
-            setTimeout(function () {
-                total();
-            }, 1000);
-        });
-    
-        $(document).on('click', '.removePayment', function(){
-            var row = $(this).closest('tr');
-            var id = $(this).data('id');
-            allDataArray[id] = null;
-            row.remove();
-            $('#paymentArray').val(JSON.stringify(allDataArray));
-            setTimeout(function () {
-                total();
-            }, 1000);
-        });
-    
-        function handleEditCase(id) {
-            var updatedType = $('#type').val();
-            var updatedMode = $('#mode').val();
-            var updatedAmount = $('#amount2').val();
-            var updatedGross = $('#gross').val();
-            var updatedPurity = $('#purity').val();
-            var updatedWb = $('#wb').val();
-            var updatedFine = $('#fine').val();
-            var updatedRate = $('#rate').val();
-            var updatedBank = $('#bank').val();
-            var updatedBankName = $('#bank option:selected').text();
-            var updatedMetalTypeId = $('#metal_type_id').val();
-            var updatedRemark = $('#remark').val();
-            var updatedPaymentType = $('#payment_type').val();
-    
-            var row = $('tr[data-id="' + id + '"]');
-            row.html(`
+			$('#dataTableExample tbody').append(newRow);
+
+			allDataArray[rowIndex] = {
+				type: type,
+				mode: mode,
+				amount: amount,
+				gross: gross,
+				purity: purity,
+				wb: wb,
+				fine: fine,
+				rate: rate,
+				bank: bank,
+				bankName: bankName,
+				metal_type_id: metal_type_id,
+				remark: remark,
+				payment: paymentType,
+				saleid: null
+			};
+
+			$('#payment-report input').val('');
+			$('#payment-report select').val('').trigger('change');
+			$('#payment-report').modal('hide');
+			rowIndex++;
+			$('#paymentArray').val(JSON.stringify(allDataArray));
+			setTimeout(function() {
+				total();
+			}, 1000);
+		});
+
+		$('#dataTableExample tbody').on('click', '.editPayment', function() {
+			$('input', modal).val('');
+			$('select', modal).val('').trigger('change');
+			window.edit = true;
+			var id = $(this).data('id');
+			window.index = id;
+			var rowData = allDataArray[id];
+
+			if (rowData) {
+				$('#type').val(rowData.type).trigger('change');
+				$('#mode').val(rowData.mode);
+				$('#amount2').val(rowData.amount);
+				$('#gross').val(rowData.gross);
+				$('#purity').val(rowData.purity);
+				$('#wb').val(rowData.wb);
+				$('#fine').val(rowData.fine);
+				$('#rate').val(rowData.rate);
+				$('#bank').val(rowData.bank);
+				$('#metal_type_id').val(rowData.metal_type_id);
+				$('#remark').val(rowData.remark);
+				$('#payment_type').val(rowData.payment);
+				$('#payment-report').modal('show');
+			}
+			setTimeout(function() {
+				total();
+			}, 1000);
+		});
+
+		$(document).on('click', '.removePayment', function() {
+			var row = $(this).closest('tr');
+			var id = $(this).data('id');
+			allDataArray[id] = null;
+			row.remove();
+			$('#paymentArray').val(JSON.stringify(allDataArray));
+			setTimeout(function() {
+				total();
+			}, 1000);
+		});
+
+		function handleEditCase(id) {
+			var updatedType = $('#type').val();
+			var updatedMode = $('#mode').val();
+			var updatedAmount = $('#amount2').val();
+			var updatedGross = $('#gross').val();
+			var updatedPurity = $('#purity').val();
+			var updatedWb = $('#wb').val();
+			var updatedFine = $('#fine').val();
+			var updatedRate = $('#rate').val();
+			var updatedBank = $('#bank').val();
+			var updatedBankName = $('#bank option:selected').text();
+			var updatedMetalTypeId = $('#metal_type_id').val();
+			var updatedRemark = $('#remark').val();
+			var updatedPaymentType = $('#payment_type').val();
+
+			var row = $('tr[data-id="' + id + '"]');
+			row.html(`
                 <td>${id}</td>
                 <td>${updatedType}</td>
                 <td>${updatedPaymentType ?? ''}</td>
@@ -922,34 +942,34 @@
                     <button class='btn btn-danger removePayment' data-id="${id}"><i class='fa fa-trash' aria-hidden='true'></i></button>
                 </td>
             `);
-    
-            allDataArray[id] = {
-                type: updatedType,  
-                mode: updatedMode,  
-                amount: updatedAmount,
-                gross: updatedGross, 
-                purity: updatedPurity,
-                wb: updatedWb, 
-                fine: updatedFine,  
-                rate: updatedRate,  
-                bank: updatedBank,
-                bankName: updatedBankName,
-                metal_type_id: updatedMetalTypeId,
-                remark: updatedRemark,
-                payment: updatedPaymentType,
-                saleid: allDataArray[id].saleid
-            };
-            
-            $('#paymentArray').val(JSON.stringify(allDataArray));
-            $('#payment-report').modal('hide');
-            
-            setTimeout(function () {
-                total();
-            }, 1000);
-        }
-    });
 
-	
+			allDataArray[id] = {
+				type: updatedType,
+				mode: updatedMode,
+				amount: updatedAmount,
+				gross: updatedGross,
+				purity: updatedPurity,
+				wb: updatedWb,
+				fine: updatedFine,
+				rate: updatedRate,
+				bank: updatedBank,
+				bankName: updatedBankName,
+				metal_type_id: updatedMetalTypeId,
+				remark: updatedRemark,
+				payment: updatedPaymentType,
+				saleid: allDataArray[id].saleid
+			};
+
+			$('#paymentArray').val(JSON.stringify(allDataArray));
+			$('#payment-report').modal('hide');
+
+			setTimeout(function() {
+				total();
+			}, 1000);
+		}
+	});
+
+
 	$(document).on("keyup", ".allinone", function() {
 		var type = $("#type").val();
 
@@ -1022,11 +1042,11 @@
 			}
 			$("#fine").val(Math.round(fine));
 		}
-        setTimeout(function () {
-            total();
-        }, 1000);
+		setTimeout(function() {
+			total();
+		}, 1000);
 	});
-	
+
 	$(document).on('change', '#party_id', function() {
 		var select = $(this);
 		var customer_id = select.val();
@@ -1038,11 +1058,11 @@
 					var data = JSON.parse(data);
 					var fine = data.fine;
 					var amount = data.amount;
-                    $('.fineClosing').html(fine);
-                    $('.amountClosing').html(amount);
-                    $('#closing_fine').val(fine);
-				    $('#closing_amount').val(amount);
-                    var color = "";
+					$('.fineClosing').html(fine);
+					$('.amountClosing').html(amount);
+					$('#closing_fine').val(fine);
+					$('#closing_amount').val(amount);
+					var color = "";
 					if (fine < 0) {
 						fineStr = 'Dr: ' + Math.abs(fine);
 						colorF = "<span style='color: red;'>" + fineStr + "</span>";
@@ -1058,51 +1078,51 @@
 						amountStr = 'Cr: ' + amount;
 						colorA = "<span style='color: green;'>" + amountStr + "</span>";
 					}
-                    
+
 					$('#closing-label').html('Fine ' + colorF + '</span> &amp; Amt ' + colorA);
-					
+
 				} catch (e) {
-					SweetAlert('error',e);
+					SweetAlert('error', e);
 				}
 			}
 		});
-		setTimeout(function () {
-            total();
-        }, 1000);
+		setTimeout(function() {
+			total();
+		}, 1000);
 	});
-	
+
 	function total() {
-        var TotalFine = parseFloat($('.card-footer .TotalFine').text().trim()) || 0;
-        var Sub_total = parseFloat($('.card-footer .Sub_total').text().trim()) || 0;
-        var fineClosing = parseFloat($('.card-footer .fineClosing').text().trim()) || 0;
-        var amountClosing = parseFloat($('.card-footer .amountClosing').text().trim()) || 0;
-    
-        var fine = fineClosing - TotalFine;
-        var amount = amountClosing - Sub_total;
-        
-        var TotalAmounts = amount;
-        var TotalFines = fine;
-    
-        $('.amount').each(function () {
-            var value = parseFloat($(this).text().trim()) || 0;
-            TotalAmounts += value;
-        });
-    
-        $('.fine').each(function () {
-            var value = parseFloat($(this).text().trim()) || 0;
-            TotalFines += value;
-        });
-        
-        $('.finalFine').text(TotalFines.toFixed(2));
-        $('.finalAmount').text(TotalAmounts.toFixed(2));
-        $('#total_fine').val(TotalFines.toFixed(2));
-        $('#total_amount').val(TotalAmounts.toFixed(2));
-    }
-    
-    function scrollToBottom() {
-        var $tableContainer = $('.table-responsive');
-        $tableContainer.animate({
-            scrollTop: $tableContainer.prop("scrollHeight")
-        }, 1000);
-    }
+		var TotalFine = parseFloat($('.card-footer .TotalFine').text().trim()) || 0;
+		var Sub_total = parseFloat($('.card-footer .Sub_total').text().trim()) || 0;
+		var fineClosing = parseFloat($('.card-footer .fineClosing').text().trim()) || 0;
+		var amountClosing = parseFloat($('.card-footer .amountClosing').text().trim()) || 0;
+
+		var fine = fineClosing - TotalFine;
+		var amount = amountClosing - Sub_total;
+
+		var TotalAmounts = amount;
+		var TotalFines = fine;
+
+		$('.amount').each(function() {
+			var value = parseFloat($(this).text().trim()) || 0;
+			TotalAmounts += value;
+		});
+
+		$('.fine').each(function() {
+			var value = parseFloat($(this).text().trim()) || 0;
+			TotalFines += value;
+		});
+
+		$('.finalFine').text(TotalFines.toFixed(2));
+		$('.finalAmount').text(TotalAmounts.toFixed(2));
+		$('#total_fine').val(TotalFines.toFixed(2));
+		$('#total_amount').val(TotalAmounts.toFixed(2));
+	}
+
+	function scrollToBottom() {
+		var $tableContainer = $('.table-responsive');
+		$tableContainer.animate({
+			scrollTop: $tableContainer.prop("scrollHeight")
+		}, 1000);
+	}
 </script>

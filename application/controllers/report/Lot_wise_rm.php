@@ -13,6 +13,7 @@ class Lot_wise_rm extends CI_Controller
 		check_login();
 		library("dbh");
 		// library("Joinhelper");
+		$this->load->helper('barcode');
 	}
 
 	public function index($action = "", $id = null)
@@ -113,13 +114,13 @@ class Lot_wise_rm extends CI_Controller
 		$FinalGivenRMWeight = 0;
 		$FinalGivenWeight = 0;
 		$FinalGivenPcs = 0;
-				
+
 		foreach ($records as $record) {
-		    $class = ($record['is_complated'] == "YES") ? 'indigo' : 'danger';
-			$received = "<span class='badge bg-$class'>".$record['is_complated']."</span>";
-			
+			$class = ($record['is_complated'] == "YES") ? 'indigo' : 'danger';
+			$received = "<span class='badge bg-$class'>" . $record['is_complated'] . "</span>";
+
 			$data[] = array(
-				'id' => $i,
+				'id' => $i . '<input type="checkbox" class="form-check-input rowId" style="margin-left: 5px !important;" data-rowId="' . $record['id'] . '">',
 				'code' => '<span data-id="' . $record['id'] . '" class="text-success me-2 showUsed" data-bs-toggle="tooltip" data-bs-placement="top"  data-bs-original-title="Used Row Material">' . $record['code'] . '</span>',
 				'type' => $record['type'],
 				'rm' => $record['rm_name'],
@@ -143,14 +144,14 @@ class Lot_wise_rm extends CI_Controller
 			"iTotalRecords" => $totalRecords,
 			"iTotalDisplayRecords" => $totalRecordwithFilter,
 			"aaData" => $data,
-		    "givenPcs" => $FinalGivenPcs,
-		    "givenWeight" => $FinalGivenWeight,
-		    "givenRmWeight" => $FinalGivenRMWeight,
-		    "givenTotalWeight" => $FinalGivenTotalWeight,
-		    "receivePcs" => $FinalReceivePcs,
-		    "receiveWeight" => $FinalReceiveWeight,
-		    "receiveRmWeight" => $FinalReceiveRMWeight,
-		    "receiveTotalWeight" => $TotalReceiveWeight,
+			"givenPcs" => $FinalGivenPcs,
+			"givenWeight" => $FinalGivenWeight,
+			"givenRmWeight" => $FinalGivenRMWeight,
+			"givenTotalWeight" => $FinalGivenTotalWeight,
+			"receivePcs" => $FinalReceivePcs,
+			"receiveWeight" => $FinalReceiveWeight,
+			"receiveRmWeight" => $FinalReceiveRMWeight,
+			"receiveTotalWeight" => $TotalReceiveWeight,
 		);
 		echo json_encode($response);
 		exit();
@@ -160,16 +161,17 @@ class Lot_wise_rm extends CI_Controller
 	{
 		(!is_numeric($id) || empty($id)) && flash()->withError("invalid id please enter valid Id")->to("manufacturing/receive_garnu");
 	}
-	
-	public function UsedRowMaterial(){
-	     $this->form_validation->set_rules('id', 'Id', 'trim|required|numeric');
-        if ($this->form_validation->run() == FALSE) {
-            $response = ['success' => false, 'error' => validation_errors() ];
-            echo json_encode($response);
-            return;
-        } else {
-	        $id = $this->input->post('id');
-    	    $sql      = "SELECT 'Given' AS type, given_row_material.id, row_material.name as row_material, 
+
+	public function UsedRowMaterial()
+	{
+		$this->form_validation->set_rules('id', 'Id', 'trim|required|numeric');
+		if ($this->form_validation->run() == FALSE) {
+			$response = ['success' => false, 'error' => validation_errors()];
+			echo json_encode($response);
+			return;
+		} else {
+			$id = $this->input->post('id');
+			$sql      = "SELECT 'Given' AS type, given_row_material.id, row_material.name as row_material, 
     				given_row_material.touch, given_row_material.weight, given_row_material.quantity, 
     				given_row_material.garnu_id,process.name as Process_name,given_row_material.creation_date AS date
     				FROM given_row_material
@@ -187,67 +189,81 @@ class Lot_wise_rm extends CI_Controller
     				JOIN given ON receive.given_id = given.id
     				JOIN process ON given.process_id = process.id
     				WHERE receive_row_material.lot_wise_rm_id = $id ORDER BY date DESC";
-            $query    = $this->db->query($sql);
-            $records  = $query->result_array();
-            
-            if (!empty($records)) {
-                $response = [ 'success' => true, 'message' => 'Data Fetched successfully.', 'data' => $records];
-            } else {
-                $response = [ 'success' => false, 'message' => 'Data Not Found.', 'data' => [] ];
-            }
-	    }
-	    
-        echo json_encode($response);
-        return;
+			$query    = $this->db->query($sql);
+			$records  = $query->result_array();
+
+			if (!empty($records)) {
+				$response = ['success' => true, 'message' => 'Data Fetched successfully.', 'data' => $records];
+			} else {
+				$response = ['success' => false, 'message' => 'Data Not Found.', 'data' => []];
+			}
+		}
+
+		echo json_encode($response);
+		return;
 	}
-	
-	public function getrmCode(){
-	    $this->db->query("SET SESSION sql_mode=''");
-	    $datas = $this->db->select('id,code')->where('is_complated','No')->group_by('code')->get('lot_wise_rm')->result();
-	    $output = '<option value="">Select Code</option>';
-        foreach($datas as $row)
-        {
-            $output .= '<option value="'.$row->id.'">'.$row->code.'</option>';
-        }
-        echo $output;
+
+	public function getrmCode()
+	{
+		$this->db->query("SET SESSION sql_mode=''");
+		$datas = $this->db->select('id,code')->where('is_complated', 'No')->group_by('code')->get('lot_wise_rm')->result();
+		$output = '<option value="">Select Code</option>';
+		foreach ($datas as $row) {
+			$output .= '<option value="' . $row->id . '">' . $row->code . '</option>';
+		}
+		echo $output;
 	}
-	
-	public function getCodeDetail(){
-	    $id = $this->security->xss_clean($this->input->post('id'));
-	    echo json_encode($this->db->select('*')->where('id',$id)->get('lot_wise_rm')->row_array());
+
+	public function getCodeDetail()
+	{
+		$id = $this->security->xss_clean($this->input->post('id'));
+		echo json_encode($this->db->select('*')->where('id', $id)->get('lot_wise_rm')->row_array());
 	}
-	
-	public function addMergerData(){
-	    $data = $this->input->post();
-	    
-	    $code = $this->db->get_where('lot_wise_rm',['code'=>$data['code']])->num_rows();
-	    if($code > 0){
-	        echo json_encode([ 'success' => false, 'message' => 'Code Field Is unique.']);return; 
-	    }
-	    
-	    $insert['touch'] = $data['touch'];
-	    $insert['weight'] = $data['weight'];
-	    $insert['quantity'] = $data['qty'];
-	    $insert['given_weight'] = $data['givenWeight'];
-	    $insert['given_quantity'] = $data['givenQuantity'];
-	    $insert['receive_weight'] = $data['receiveWeight'];
-	    $insert['receive_quantity'] = $data['receiveQuantity'];
-	    $insert['rem_weight'] = $data['remWeight'];
-	    $insert['rem_quantity'] = $data['remQuantity'];
-	    $insert['code'] = $data['code'];
-	    $insert['row_material_id'] = $data['rmId'];
-	    $insert['type'] = 'RECEIVE';
-	    $insert['is_complated'] = 'NO';
-	    $insert['is_merger'] = 'YES';
-	    $this->db->insert('lot_wise_rm', $insert);
-	    $insertId = $this->db->insert_id();
-	    $records = $this->db->where_in('id', $data['id'])->update('lot_wise_rm',['is_complated'=>'YES','merger_id'=>$insertId]);
-	    
-	    if (!empty($records)) {
-            $response = [ 'success' => true, 'message' => 'Data Fetched successfully.'];
-        } else {
-            $response = [ 'success' => false, 'message' => 'Data Not Found.'];
-        }
-	    echo json_encode($response);
+
+	public function addMergerData()
+	{
+		$data = $this->input->post();
+
+		$rowM = $this->db->get_where('row_material', ['id' => $data['rmId']])->row_array();
+		$code = date('my') . '_' . explode(' ', $rowM['name'])[0] . '_' . $data['averageTouch'];
+		if ($this->db->get_where('lot_wise_rm', ['code' => $code])->num_rows() > 0) {
+			echo json_encode(['success' => false, 'message' => 'Code Field Is unique.']);
+			return;
+		}
+
+		$insert['touch'] = $data['touch'];
+		$insert['weight'] = $data['weight'];
+		$insert['quantity'] = $data['qty'];
+		$insert['given_weight'] = $data['givenWeight'];
+		$insert['given_quantity'] = $data['givenQuantity'];
+		$insert['receive_weight'] = $data['receiveWeight'];
+		$insert['receive_quantity'] = $data['receiveQuantity'];
+		$insert['rem_weight'] = $data['remWeight'];
+		$insert['rem_quantity'] = $data['remQuantity'];
+		$insert['code'] = $code;
+		$insert['row_material_id'] = $data['rmId'];
+		$insert['average_touch'] = $data['averageTouch'];
+		$insert['type'] = 'RECEIVE';
+		$insert['is_complated'] = 'NO';
+		$insert['is_merger'] = 'YES';
+		$this->db->insert('lot_wise_rm', $insert);
+		$insertId = $this->db->insert_id();
+		$records = $this->db->where_in('id', $data['id'])->update('lot_wise_rm', ['is_complated' => 'YES', 'merger_id' => $insertId]);
+
+		if (!empty($records)) {
+			$response = ['success' => true, 'message' => 'Data Fetched successfully.'];
+		} else {
+			$response = ['success' => false, 'message' => 'Data Not Found.'];
+		}
+		echo json_encode($response);
+	}
+
+	public function printCustomerTags()
+	{
+		$idsArray = explode(',', $this->security->xss_clean($this->input->post('ids'))[0]);
+		$LC = $this->db->select('id,code')->where_in('id', $idsArray)->get('lot_wise_rm')->result_array();
+		$data['LCS']    = $LC;
+		$data['title'] = "Tag Print";
+		$this->load->view('admin/report/tnx/lot/lot_wise_rm_print', $data);
 	}
 }
