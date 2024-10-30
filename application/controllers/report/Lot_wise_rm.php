@@ -260,7 +260,7 @@ class Lot_wise_rm extends CI_Controller
 
 	public function printCustomerTags()
 	{
-		$idsArray = explode(',', $this->security->xss_clean($this->input->post('ids'))[0]);
+		$idsArray = explode(',', $this->security->xss_clean($this->input->post('ids')));
 		$LC = $this->db->select('id,code')->where_in('id', $idsArray)->get('lot_wise_rm')->result_array();
 		$data['LCS']    = $LC;
 		$data['title'] = "Tag Print";
