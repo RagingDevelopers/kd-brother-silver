@@ -692,6 +692,7 @@
 				alert('Please select atleast one record');
 				return false;
 			}
+			console.log(ids);
 			
 			var form = $('<form>', {
 				action: "<?= base_url('report/lot_wise_rm/printCustomerTags'); ?>",
@@ -701,7 +702,7 @@
 
 			$('<input>').attr({
 				type: 'hidden',
-				name: 'ids',
+				name: 'ids[]',
 				value: ids.join(',')
 			}).appendTo(form);
 

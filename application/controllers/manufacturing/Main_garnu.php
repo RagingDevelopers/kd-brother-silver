@@ -23,7 +23,7 @@ class Main_garnu extends CI_Controller
 		$page_data['page_title'] = 'Main Garnu';
 		flash()->withSuccess("Here is the garnu")->to("manufacturing/garnu");
 		exit;
-		
+
 		switch ($action) {
 			case "":
 				checkPrivilege(privilege["main_garnu_view"]);
@@ -313,12 +313,14 @@ class Main_garnu extends CI_Controller
 			}
 		} catch (Exception $e) {
 			$response = [
-				'success' => false, 'error' => $e->getMessage(), 'data' => []
+				'success' => false,
+				'error' => $e->getMessage(),
+				'data' => []
 			];
 			echo json_encode($response);
 		}
 	}
-	
+
 	public function receive()
 	{
 		$post = $this->input->post();
@@ -389,7 +391,9 @@ class Main_garnu extends CI_Controller
 			}
 		} catch (Exception $e) {
 			$response = [
-				'success' => false, 'error' => $e->getMessage(), 'data' => []
+				'success' => false,
+				'error' => $e->getMessage(),
+				'data' => []
 			];
 			echo json_encode($response);
 		}
@@ -549,7 +553,7 @@ class Main_garnu extends CI_Controller
 				foreach ($openingResult as $r) {
 					$touch = abs($r['touch']);
 					$weight = abs($r['weight']);
-					
+
 					if (in_array($touch, array_column($metal_closing_stock, 'touch'))) {
 						$index = array_search($touch, array_column($metal_closing_stock, 'touch'));
 						if ($r['type'] == 'given testing receive' || $r['type'] == 'garnu receive' || $r['type'] == 'dhal receive' || $r['type'] == 'process given' || $r['type'] == 'jama') {
@@ -561,12 +565,31 @@ class Main_garnu extends CI_Controller
 						if ($r['type'] == 'given testing receive' || $r['type'] == 'garnu receive' || $r['type'] == 'dhal receive' || $r['type'] == 'process given' || $r['type'] == 'jama') {
 							$metal_closing_stock[] = ['touch' => $touch, 'weight' => $weight];
 						} elseif ($r['type'] == 'testing given' || $r['type'] == 'garnu given' || $r['type'] == 'baki' || $r['type'] == 'main garnu given') {
-							$metal_closing_stock[] = ['touch' => $touch, 'weight' => '-'.$weight];
+							$metal_closing_stock[] = ['touch' => $touch, 'weight' => '-' . $weight];
 						}
 					}
 				}
-				$data = array_map(function($entry) {
-					return $entry['touch'] . ' - ' . abs($entry['weight']).' KG';
+
+				// Add fine and average touch calculation if metal_type_id is 8
+				$fine = 0;
+				$weight = 0;
+				if ($metal_type_id == 8) {
+					foreach ($metal_closing_stock as &$stock) {
+						$fine += ($stock['weight'] * $stock['touch']) / 100;
+						$weight += abs($stock['weight']);
+					}
+					$average_touch = ($fine * 100) / $weight;
+					$metal_closing_stock = [];
+					$stock['weight'] = $weight;
+					$stock['touch'] = $average_touch;
+					$metal_closing_stock[] = ['touch' => $average_touch, 'weight' => $weight];
+				}
+
+				$data = array_map(function ($entry) {
+					if (isset($entry['fine']) && isset($entry['average_touch'])) {
+						return $entry['touch'] . ' - ' . abs($entry['weight']) . ' KG (Fine: ' . $entry['fine'] . ', Average Touch: ' . $entry['average_touch'] . ')';
+					}
+					return $entry['touch'] . ' - ' . abs($entry['weight']) . ' KG';
 				}, $metal_closing_stock);
 
 				if (!empty($data)) {
@@ -579,7 +602,9 @@ class Main_garnu extends CI_Controller
 			}
 		} catch (Exception $e) {
 			$response = [
-				'success' => false, 'error' => $e->getMessage(), 'data' => []
+				'success' => false,
+				'error' => $e->getMessage(),
+				'data' => []
 			];
 			echo json_encode($response);
 		}
