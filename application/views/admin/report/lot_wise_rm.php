@@ -702,7 +702,7 @@
 
 			$('<input>').attr({
 				type: 'hidden',
-				name: 'ids[]',
+				name: 'ids',
 				value: ids.join(',')
 			}).appendTo(form);
 
