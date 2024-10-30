@@ -14,7 +14,6 @@ var mainFunction = (function () {
 				if (!this.isInit) {
 					this.isInit = true;
 					mainFunction = null;
-					console.log("main Function Enabled");
 					if (this.isInit) {
 						main.ready.call();
 					}
