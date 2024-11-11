@@ -505,44 +505,44 @@ class Main_garnu extends CI_Controller
                 FROM (
                     SELECT touch, weight, 'garnu given' AS type, garnu_item.created_at AS created_at
                     FROM garnu_item
-                    WHERE " . (!empty($metal_type_id) ? "garnu_item.metal_type_id = $metal_type_id" : "") . "
+                    WHERE " . (!empty($metal_type_id) ? "garnu_item.metal_type_id = $metal_type_id  AND garnu_item.is_bhuko_used = 0" : "") . "
                     UNION ALL
                     SELECT touch, weight, 'garnu receive' AS type, receive_garnu.created_at AS created_at
                     FROM receive_garnu
-                    WHERE " . (!empty($metal_type_id) ? "receive_garnu.metal_type_id = $metal_type_id" : "") . "
+                    WHERE " . (!empty($metal_type_id) ? "receive_garnu.metal_type_id = $metal_type_id  AND receive_garnu.is_bhuko_used = 0" : "") . "
                     UNION ALL
                     
                     SELECT touch, weight, 'testing given' AS type, given_testing_item.created_at AS created_at
                     FROM given_testing_item
-                    WHERE " . (!empty($metal_type_id) ? "given_testing_item.metal_type_id = $metal_type_id" : "") . "
+                    WHERE " . (!empty($metal_type_id) ? "given_testing_item.metal_type_id = $metal_type_id  AND given_testing_item.is_bhuko_used = 0" : "") . "
                     UNION ALL
                     SELECT touch, weight, 'given testing receive' AS type, receive_given_testing.created_at AS created_at
                     FROM receive_given_testing
-                    WHERE " . (!empty($metal_type_id) ? "receive_given_testing.metal_type_id = $metal_type_id" : "") . "
+                    WHERE " . (!empty($metal_type_id) ? "receive_given_testing.metal_type_id = $metal_type_id  AND receive_given_testing.is_bhuko_used = 0" : "") . "
                     UNION ALL
                     
                     SELECT touch, weight, 'dhal receive' AS type, receive_garnu_dhal.created_at AS created_at
                     FROM receive_garnu_dhal
-                    WHERE " . (!empty($metal_type_id) ? "receive_garnu_dhal.metal_type_id = $metal_type_id" : "") . "
+                    WHERE " . (!empty($metal_type_id) ? "receive_garnu_dhal.metal_type_id = $metal_type_id  AND receive_garnu_dhal.is_bhuko_used = 0" : "") . "
                     UNION ALL
                     SELECT touch, weight, 'process given' AS type, process_metal_type.created_at AS created_at
                     FROM process_metal_type
                     LEFT JOIN given ON process_metal_type.given_id = given.id
-                    WHERE " . (!empty($metal_type_id) ? "process_metal_type.metal_type_id = $metal_type_id" : "") . "
+                    WHERE " . (!empty($metal_type_id) ? "process_metal_type.metal_type_id = $metal_type_id  AND process_metal_type.is_bhuko_used = 0" : "") . "
                     UNION ALL
                     SELECT  purity AS touch,gross AS weight, 'jama' AS type, created_at
                     FROM jama
                     WHERE type = 'fine'
-                      AND " . (!empty($metal_type_id) ? "jama.metal_type_id = $metal_type_id" : "1") . "
+                      AND " . (!empty($metal_type_id) ? "jama.metal_type_id = $metal_type_id AND jama.is_bhuko_used = 0" : "1") . "
                     UNION ALL
                     SELECT purity AS touch,gross AS weight,  'baki' AS type, created_at
                     FROM baki
                     WHERE type = 'fine'
-                      AND " . (!empty($metal_type_id) ? "baki.metal_type_id = $metal_type_id" : "1") . "
+                      AND " . (!empty($metal_type_id) ? "baki.metal_type_id = $metal_type_id AND baki.is_bhuko_used = 0" : "1") . "
                     UNION ALL
                     SELECT touch, weight, 'garnu given' AS type, main_garnu_item.created_at AS created_at
                     FROM main_garnu_item
-                    WHERE " . (!empty($metal_type_id) ? "main_garnu_item.metal_type_id = $metal_type_id" : "") . "
+                    WHERE " . (!empty($metal_type_id) ? "main_garnu_item.metal_type_id = $metal_type_id  AND main_garnu_item.is_bhuko_used = 0" : "") . "
                 ) AS opening_records
                 ORDER BY created_at ASC";
 
@@ -574,15 +574,16 @@ class Main_garnu extends CI_Controller
 				$fine = 0;
 				$weight = 0;
 				if ($metal_type_id == 8) {
-					foreach ($metal_closing_stock as &$stock) {
-						$fine += ($stock['weight'] * $stock['touch']) / 100;
-						$weight += abs($stock['weight']);
-					}
-					$average_touch = ($fine * 100) / $weight;
-					$metal_closing_stock = [];
-					$stock['weight'] = $weight;
-					$stock['touch'] = $average_touch;
-					$metal_closing_stock[] = ['touch' => $average_touch, 'weight' => $weight];
+					// foreach ($metal_closing_stock as &$stock) {
+					// 	$fine += ($stock['weight'] * $stock['touch']) / 100;
+					// 	$weight += abs($stock['weight']);
+					// }
+					// $average_touch = ($fine * 100) / $weight;
+					// $metal_closing_stock = [];
+					// $stock['weight'] = $weight;
+					// $stock['touch'] = $average_touch;
+					$bhuko = $this->db->get('common_bhuko')->row_array();
+					$metal_closing_stock[] = ['touch' => $bhuko['touch'], 'weight' => $bhuko['weight']];
 				}
 
 				$data = array_map(function ($entry) {
@@ -597,11 +598,6 @@ class Main_garnu extends CI_Controller
 				} else {
 					$response = ['success' => false, 'message' => 'Data Not Found.', 'data' => []];
 				}
-
-
-				
-
-
 
 				echo json_encode($response);
 				return;
