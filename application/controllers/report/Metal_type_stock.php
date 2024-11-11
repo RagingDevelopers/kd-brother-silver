@@ -135,8 +135,8 @@ class Metal_type_stock extends CI_Controller
 								FROM receive_given_testing
 								WHERE receive_given_testing.creation_date < STR_TO_DATE(" . $this->db->escape($fromdate) . ", '%Y-%m-%d')
 									" . (!empty($touch) ? " AND receive_given_testing.touch = $touch" : "") . "
-									" . (!empty($metal_type_id) ? " AND receive_given_testing.metal_type_id = $metal_type_id" : "") 
-									 . "
+									" . (!empty($metal_type_id) ? " AND receive_given_testing.metal_type_id = $metal_type_id" : "")
+				. "
 								UNION ALL
 							
 								SELECT touch, weight, 'garnu given' AS type, garnu_item.created_at AS created_at
@@ -150,8 +150,8 @@ class Metal_type_stock extends CI_Controller
 								FROM receive_garnu
 								WHERE receive_garnu.creation_date < STR_TO_DATE(" . $this->db->escape($fromdate) . ", '%Y-%m-%d')
 									" . (!empty($touch) ? " AND receive_garnu.touch = $touch" : "") . "
-									" . (!empty($metal_type_id) ? " AND receive_garnu.metal_type_id = $metal_type_id" : "") 
-									 . "
+									" . (!empty($metal_type_id) ? " AND receive_garnu.metal_type_id = $metal_type_id" : "")
+				. "
 								UNION ALL
 								SELECT touch, weight, 'dhal receive' AS type, receive_garnu_dhal.created_at AS created_at
 								FROM receive_garnu_dhal
@@ -521,15 +521,15 @@ class Metal_type_stock extends CI_Controller
 
 		// echo "<pre>";
 		// print_r($records);exit;
-		
+
 		$data = array();
 		$i = $start + 1;
 		$closingTouch = 0;
 		$closingWeight = 0;
-		
+
 		foreach ($records as $r) {
-// 			echo "<pre>";
-// 			print_r($r);
+			// 			echo "<pre>";
+			// 			print_r($r);
 			$cweight = '--';
 			$dweight = '--';
 
@@ -569,5 +569,138 @@ class Metal_type_stock extends CI_Controller
 		);
 		echo json_encode($response);
 		exit();
+	}
+
+	public function averagebhukon()
+	{
+		try {
+			$metal_type_id = 8;
+
+			$this->db->query("SET SESSION sql_mode=(SELECT REPLACE(@@sql_mode, 'ONLY_FULL_GROUP_BY', ''));");
+			// Build the SQL query
+			$openingQuery = "SELECT 
+                    *
+                FROM (
+                    SELECT garnu_item.id,'garnu_item' AS tableName, touch, weight, 'garnu given' AS type, garnu_item.created_at AS created_at
+                    FROM garnu_item
+                    WHERE " . (!empty($metal_type_id) ? "garnu_item.metal_type_id = $metal_type_id AND garnu_item.is_bhuko_used = 0" : "") . "
+                    UNION ALL
+                    SELECT receive_garnu.id,'receive_garnu' AS tableName, touch, weight, 'garnu receive' AS type, receive_garnu.created_at AS created_at
+                    FROM receive_garnu
+                    WHERE " . (!empty($metal_type_id) ? "receive_garnu.metal_type_id = $metal_type_id  AND receive_garnu.is_bhuko_used = 0" : "") . "
+                    UNION ALL
+                    
+                    SELECT given_testing_item.id,'given_testing_item' AS tableName, touch, weight, 'testing given' AS type, given_testing_item.created_at AS created_at
+                    FROM given_testing_item
+                    WHERE " . (!empty($metal_type_id) ? "given_testing_item.metal_type_id = $metal_type_id  AND given_testing_item.is_bhuko_used = 0" : "") . "
+                    UNION ALL
+                    SELECT receive_given_testing.id,'receive_given_testing' AS tableName, touch, weight, 'given testing receive' AS type, receive_given_testing.created_at AS created_at
+                    FROM receive_given_testing
+                    WHERE " . (!empty($metal_type_id) ? "receive_given_testing.metal_type_id = $metal_type_id  AND receive_given_testing.is_bhuko_used = 0" : "") . "
+                    UNION ALL
+
+                    SELECT common_bhuko.id,' ' AS tableName, touch, weight, ' ' AS type, '' AS created_at FROM common_bhuko
+
+                    UNION ALL
+
+                    SELECT receive_garnu_dhal.id,'receive_garnu_dhal' AS tableName, touch, weight, 'dhal receive' AS type, receive_garnu_dhal.created_at AS created_at
+                    FROM receive_garnu_dhal
+                    WHERE " . (!empty($metal_type_id) ? "receive_garnu_dhal.metal_type_id = $metal_type_id  AND receive_garnu_dhal.is_bhuko_used = 0" : "") . "
+                    UNION ALL
+                    SELECT process_metal_type.id,'process_metal_type' AS tableName, touch, weight, 'process given' AS type, process_metal_type.created_at AS created_at
+                    FROM process_metal_type
+                    LEFT JOIN given ON process_metal_type.given_id = given.id
+                    WHERE " . (!empty($metal_type_id) ? "process_metal_type.metal_type_id = $metal_type_id  AND process_metal_type.is_bhuko_used = 0" : "") . "
+                    UNION ALL
+                    SELECT jama.id,'jama' AS tableName,  purity AS touch,gross AS weight, 'jama' AS type, created_at
+                    FROM jama
+                    WHERE type = 'fine' AND " . (!empty($metal_type_id) ? "jama.metal_type_id = $metal_type_id  AND jama.is_bhuko_used = 0" : "1") . "
+                    UNION ALL
+                    SELECT baki.id,'baki' AS tableName, purity AS touch,gross AS weight,  'baki' AS type, created_at
+                    FROM baki
+                    WHERE type = 'fine' AND " . (!empty($metal_type_id) ? "baki.metal_type_id = $metal_type_id  AND baki.is_bhuko_used = 0" : "1") . "
+                    UNION ALL
+                    SELECT main_garnu_item.id,'main_garnu_item' AS tableName, touch, weight, 'garnu given' AS type, main_garnu_item.created_at AS created_at
+                    FROM main_garnu_item
+                    WHERE " . (!empty($metal_type_id) ? "main_garnu_item.metal_type_id = $metal_type_id  AND main_garnu_item.is_bhuko_used = 0" : "") . "
+                ) AS opening_records
+                ORDER BY created_at ASC";
+
+			$openingResult = $this->db->query($openingQuery)->result_array();
+			$metal_closing_stock = [];
+			foreach ($openingResult as $r) {
+				$touch = abs($r['touch']);
+				$weight = abs($r['weight']);
+
+				if (in_array($touch, array_column($metal_closing_stock, 'touch'))) {
+					$index = array_search($touch, array_column($metal_closing_stock, 'touch'));
+					if ($r['type'] == 'given testing receive' || $r['type'] == 'garnu receive' || $r['type'] == 'dhal receive' || $r['type'] == 'process given' || $r['type'] == 'jama') {
+						$metal_closing_stock[$index]['weight'] += $weight;
+					} elseif ($r['type'] == 'testing given' || $r['type'] == 'garnu given' || $r['type'] == 'baki' || $r['type'] == 'main garnu given') {
+						$metal_closing_stock[$index]['weight'] -= $weight;
+					}
+				} else {
+					if ($r['type'] == 'given testing receive' || $r['type'] == 'garnu receive' || $r['type'] == 'dhal receive' || $r['type'] == 'process given' || $r['type'] == 'jama') {
+						$metal_closing_stock[] = ['touch' => $touch, 'weight' => $weight];
+					} elseif ($r['type'] == 'testing given' || $r['type'] == 'garnu given' || $r['type'] == 'baki' || $r['type'] == 'main garnu given') {
+						$metal_closing_stock[] = ['touch' => $touch, 'weight' => '-' . $weight];
+					}
+				}
+			}
+
+			$fine = 0;
+			$weight = 0;
+			if ($metal_type_id == 8) {
+				foreach ($metal_closing_stock as &$stock) {
+					$fine += ($stock['weight'] * $stock['touch']) / 100;
+					$weight += abs($stock['weight']);
+				}
+				$average_touch = ($weight ?? 0) !== 0 ? (($fine ?? 0) * 100) / $weight : 0;
+				$metal_closing_stock = [];
+				$stock['weight'] = $weight;
+				$stock['touch'] = $average_touch;
+				$metal_closing_stock[] = ['touch' => $average_touch, 'weight' => $weight];
+			}
+
+			$data = array_map(function ($entry) {
+				if (isset($entry['fine']) && isset($entry['average_touch'])) {
+					return $entry['touch'] . ' - ' . abs($entry['weight']) . ' KG (Fine: ' . $entry['fine'] . ', Average Touch: ' . $entry['average_touch'] . ')';
+				}
+				return $entry['touch'] . ' - ' . abs($entry['weight']) . ' KG';
+			}, $metal_closing_stock);
+
+			if (!empty($data)) {
+				foreach ($openingResult as $r) {
+					if($r['type'] != ' '){
+						$this->db->where('id', $r['id']);
+						$this->db->update($r['tableName'], ['is_bhuko_used' => 1]);
+					}
+				}
+				foreach ($data as $value) {
+					$parts = explode(" - ", $value);
+					$touch = trim($parts[0]);
+					$weight = trim(str_replace("KG", "", $parts[1]));
+				}
+				if($touch != 0 && !empty($touch) && $weight != 0 && !empty($weight)){
+					$this->db->where('id', 1);
+					$this->db->update('common_bhuko', ['touch' => $touch, 'weight' => $weight]);
+					$response = ['success' => true, 'message' => 'Average Bhukon Updated successfully.  asdasd', 'data' => ['touch' => $touch, 'weight' => $weight]];
+				}else{
+					$response = ['success' => false, 'message' => 'Already Updated.'];
+				}
+			} else {
+				$response = ['success' => false, 'message' => 'Average Bhukon Updated Failed.'];
+			}
+
+			echo json_encode($response);
+			return;
+		} catch (Exception $e) {
+			$response = [
+				'success' => false,
+				'error' => $e->getMessage(),
+				'data' => []
+			];
+			echo json_encode($response);
+		}
 	}
 }

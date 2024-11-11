@@ -597,6 +597,12 @@ class Main_garnu extends CI_Controller
 				} else {
 					$response = ['success' => false, 'message' => 'Data Not Found.', 'data' => []];
 				}
+
+
+				
+
+
+
 				echo json_encode($response);
 				return;
 			}
