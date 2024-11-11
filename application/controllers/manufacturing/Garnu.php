@@ -97,7 +97,17 @@ class Garnu extends CI_Controller
 					$garnu_item['fine'] = $post['fine'][$i];
 					$garnu_item['creation_date'] = date('Y-m-d');
 					$garnu_item['garnu_id'] = $garnu_id;
+					$garnu_item['is_bhuko_used'] = 1;
 					$new[] = $garnu_item;
+
+					if ($post['metal_type_id'][$i] == 8) {
+						$current_record = $this->db->get('common_bhuko')->row_array();
+
+						$difference_touch = $post['touch'][$i] - $current_record['touch'];
+						$difference_weight = $post['weight'][$i] - $current_record['weight'];
+
+						$this->db->update('common_bhuko', ['touch' => $difference_touch, 'weight' => $difference_weight]);
+					}
 				}
 
 				$this->db->insert_batch('garnu_item', $new);
@@ -153,6 +163,26 @@ class Garnu extends CI_Controller
 				}
 				$length = count($post['metal_type_id']);
 
+				$rows = $this->db->get_where('garnu_item', ['garnu_id' => $id])->result_array();
+				if (!empty($rows)) {
+					$current_record = $this->db->get('common_bhuko')->row_array();
+
+					$current_touch = $current_record['touch'] ?? 0;
+					$current_weight = $current_record['weight'] ?? 0;
+
+					foreach ($rows as $row) {
+						if ($row['metal_type_id'] == 8) {
+							$current_touch += $row['touch'];
+							$current_weight += $row['weight'];
+						}
+					}
+
+					$this->db->update('common_bhuko', [
+						'touch' => $current_touch,
+						'weight' => $current_weight
+					]);
+				}
+
 				for ($i = 0; $i < $length; $i++) {
 					$garnu_item = array();
 					$garnu_item['metal_type_id'] = $post['metal_type_id'][$i];
@@ -166,6 +196,15 @@ class Garnu extends CI_Controller
 					} else if ($post['rowid'][$i] == 0) {
 						$garnu_item['garnu_id'] = $id;
 						$this->db->insert('garnu_item', $garnu_item);
+					}
+
+					if ($post['metal_type_id'][$i] == 8) {
+						$current_record = $this->db->get('common_bhuko')->row_array();
+
+						$difference_touch = $post['touch'][$i] - $current_record['touch'];
+						$difference_weight = $post['weight'][$i] - $current_record['weight'];
+
+						$this->db->update('common_bhuko', ['touch' => $difference_touch, 'weight' => $difference_weight]);
 					}
 				}
 				flash()->withSuccess("Garnu Updated Successfully")->to("manufacturing/garnu");
@@ -324,7 +363,9 @@ class Garnu extends CI_Controller
 			}
 		} catch (Exception $e) {
 			$response = [
-				'success' => false, 'error' => $e->getMessage(), 'data' => []
+				'success' => false,
+				'error' => $e->getMessage(),
+				'data' => []
 			];
 			echo json_encode($response);
 		}
@@ -382,7 +423,7 @@ class Garnu extends CI_Controller
 		}
 		if (!empty($updateBatch)) {
 			$this->db->update_batch('receive_garnu_dhal', $updateBatch, 'id');
-			$this->db->where('id', $post['garnu_id'])->update('garnu', ['recieved' => 'YES', 'is_kasar' => $is_kasar,'vadharo_garnu'=>$post['jama_baki'], 'transfer_account' => $transfer_account]);
+			$this->db->where('id', $post['garnu_id'])->update('garnu', ['recieved' => 'YES', 'is_kasar' => $is_kasar, 'vadharo_garnu' => $post['jama_baki'], 'transfer_account' => $transfer_account]);
 			$response = ['success' => true, 'message' => 'Data Update Successfully.'];
 		}
 		echo json_encode($response);
@@ -411,7 +452,9 @@ class Garnu extends CI_Controller
 			}
 		} catch (Exception $e) {
 			$response = [
-				'success' => false, 'error' => $e->getMessage(), 'data' => []
+				'success' => false,
+				'error' => $e->getMessage(),
+				'data' => []
 			];
 			echo json_encode($response);
 		}
