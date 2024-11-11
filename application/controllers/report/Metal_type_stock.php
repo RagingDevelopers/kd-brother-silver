@@ -684,7 +684,7 @@ class Metal_type_stock extends CI_Controller
 				if($touch != 0 && !empty($touch) && $weight != 0 && !empty($weight)){
 					$this->db->where('id', 1);
 					$this->db->update('common_bhuko', ['touch' => $touch, 'weight' => $weight]);
-					$response = ['success' => true, 'message' => 'Average Bhukon Updated successfully.  asdasd', 'data' => ['touch' => $touch, 'weight' => $weight]];
+					$response = ['success' => true, 'message' => 'Average Bhukon Updated successfully.', 'data' => ['touch' => $touch, 'weight' => $weight]];
 				}else{
 					$response = ['success' => false, 'message' => 'Already Updated.'];
 				}
