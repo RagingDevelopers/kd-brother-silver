@@ -78,7 +78,6 @@ class Account_ledger extends CI_Controller
 
 		$other['master_type']               = $master_type;
 		$data['customer_check_master_type'] = $master_type;
-// 		pre($this->input->post());die;
 		$data['data'] = $this->alm->getLedgerReprot($fromDate, $toDate, $customer_id, $ac_cat, $other);
 
 		// echo count($this->alm->getLedgerReprot($fromDate, $toDate, 6, $ac_cat)['data']);
@@ -135,7 +134,7 @@ class Account_ledger extends CI_Controller
 		$other             = [
 			'master_type' => $master_type
 		];
-		
+
 		$page_data['data'] = $this->alm->getLedgerReprot($fromDate, $toDate, $cid, $ac_cat, $other);
 		$page_data['dbh'] = $this->dbh;
 		if ($master_type == "bank") {
@@ -195,7 +194,7 @@ class Account_ledger extends CI_Controller
 		];
 		$data['isBank'] = $isBank;
 		$data['data']   = $this->alm->getLedgerReprot($fromDate, $toDate, $customer_id, 0, $other);
-// 		pre($data['data']);die;
+		// 		pre($data['data']);die;
 		$cust = $this->dbh->getWhereRowArray('customer', [
 			'id' => $customer_id
 		]);
@@ -225,7 +224,7 @@ class Account_ledger extends CI_Controller
 		if (!empty($toDate)) {
 			$this->session->set_userdata('ledger_to_date', $toDate);
 		}
-		
+
 		return $this->load->view('admin/report/tnx/ajax_account_ledger_customer_report', $data);
 	}
 
@@ -516,7 +515,7 @@ class Account_ledger extends CI_Controller
 			$id = $postRequest['id'];
 
 			switch ($postRequest['type']) {
-			    case 'garnu':
+				case 'garnu':
 					$update = $this->db->where(['id' => $id, 'worker_id' => $customer_id])->update('garnu', array('verification' => $status));
 					if ($update) {
 						$response = ['success' => true, 'message' => "Verification successful"];
@@ -603,9 +602,9 @@ class Account_ledger extends CI_Controller
 				$amount = 0;
 			}
 
-			$response = array('status'  => true,'message' => '','fine'    => $fine,'amount'  => $amount, 'data' => $customerLedgerData);
+			$response = array('status'  => true, 'message' => '', 'fine'    => $fine, 'amount'  => $amount, 'data' => $customerLedgerData);
 		} else {
-			$response = array('status'  => false,'message' => 'Something went wrong!','fine'    => 0,'amount'  => 0);
+			$response = array('status'  => false, 'message' => 'Something went wrong!', 'fine'    => 0, 'amount'  => 0);
 		}
 		echo json_encode($response);
 	}

@@ -8,7 +8,11 @@ foreach ($data['data'] as $di => $dv) {
 		$customers[] = $dv['party_id'];
 	}
 }
-// pre($data);exit;
+foreach ($data['opening_data'] ?? [] as $diop => $op) {
+	if (!in_array($op['party_id'], $customers)) {
+		$customers[] = $op['party_id'];
+	}
+}
 $data['filtered_data'] = [];
 $totalDebitFine        = 0;
 $totalCreditFine       = 0;
@@ -40,17 +44,42 @@ foreach ($customers as $abc => $c) {
 	$isBank = false;
 	$bank['bank_name'] = [];
 
+	$typeDebitArr  = [
+		'PUR',
+		'SAL_RETURN',
+		'FINE_CR',
+		'BANK_CR',
+		'ROOPU_CR',
+		'TE_CR',
+		'receive',
+		'LABOUR'
+
+	];
+	$typeCreditArr = [
+		'SAL',
+		'PUR_RETURN',
+		'FINE_DB',
+		'BANK_DB',
+		'ROOPU_DB',
+		'TE_DB',
+
+
+	];
+	$typeFineArr   = [
+		'IN_GIVEN_FINE',
+		'KASAR'
+	];
 
 	foreach ($data['data'] as $di => $v) {
-	    if(!in_array($v['bank_name'],$bank['bank_name']) && $data['other']['master_type'] == "bank"){
-    	    $bank['bank_name'][] = $v['bank_name'];
-    	}
-//     	if($v['loss'] > 0){
-// 		    $v['total_fine_gold'] += abs($v['loss']);
-// 		}else if($v['loss'] < 0){
-// 		    $v['total_fine_gold'] += abs($v['loss']);
-// 		}
-	    $closingFine = number_format($closingFine, 3, '.', '');
+		if (!in_array($v['bank_name'], $bank['bank_name']) && $data['other']['master_type'] == "bank") {
+			$bank['bank_name'][] = $v['bank_name'];
+		}
+		//     	if($v['loss'] > 0){
+		// 		    $v['total_fine_gold'] += abs($v['loss']);
+		// 		}else if($v['loss'] < 0){
+		// 		    $v['total_fine_gold'] += abs($v['loss']);
+		// 		}
+		$closingFine = number_format($closingFine, 3, '.', '');
 		$closingAmt  = number_format($closingAmt, 3, '.', '');
 
 		$totalDebitFine2  = number_format($totalDebitFine2, 3, '.', '');
@@ -66,31 +95,7 @@ foreach ($customers as $abc => $c) {
 			$customerId    = $c;
 			$date          = $v['date'];
 			$customerName  = $v['customer_name'];
-                $typeDebitArr  = [
-										'PUR',
-										'SAL_RETURN',
-										'FINE_CR',
-										'BANK_CR',
-										'ROOPU_CR',
-										'TE_CR',
-                                        'receive',
-                                        'LABOUR'
 
-									];
-									$typeCreditArr = [
-										'SAL',
-										'PUR_RETURN',
-										'FINE_DB',
-										'BANK_DB',
-										'ROOPU_DB',
-										'TE_DB',
-										
-										
-									];
-									$typeFineArr   = [
-										'IN_GIVEN_FINE',
-										'KASAR'
-									];
 			if ($v['type'] == 'PAY_PAY' && !$isBank) {
 				// $closingAmt -= abs($v['total_net_amt']);
 				if ($v['total_fine_gold'] <= 0) {
@@ -171,13 +176,15 @@ foreach ($customers as $abc => $c) {
 			// }
 		}
 	}
-	
+
 	foreach ($data['opening_data'] as $odi => $v) {
 		$openingAmt       = number_format($openingAmt, 3, '.', '');
 		$openingFine      = number_format($openingFine, 3, '.', '');
 		$totalOpeningAmt  = number_format($totalOpeningAmt, 3, '.', '');
 		$totalOpeningFine = number_format($totalOpeningFine, 3, '.', '');
 		if ($c == $v['party_id']) {
+			$customerName  = $v['customer_name'];
+			$customerId    = $c;
 			if ($v['code'] == 'link(bank)') {
 				$isBankO = true;
 			} else {
@@ -247,32 +254,32 @@ foreach ($customers as $abc => $c) {
 			'id' => $customerId
 		]);
 		if ($cust['opening_amount_type'] == 'JAMA') {
-            $openingAmt -= $cust['opening_amount'];
-            $totalOpeningAmt -= $cust['opening_amount'];
-        } else {
-            $openingAmt += $cust['opening_amount'];
-            $totalOpeningAmt += $cust['opening_amount'];
-        }
+			$openingAmt -= $cust['opening_amount'];
+			$totalOpeningAmt -= $cust['opening_amount'];
+		} else {
+			$openingAmt += $cust['opening_amount'];
+			$totalOpeningAmt += $cust['opening_amount'];
+		}
 
-        if ($cust['opening_fine_type'] == 'JAMA') {
-            $openingFine -= $cust['opening_fine'];
-            $totalOpeningFine -= $cust['opening_fine'];
-        } else {
-            $openingFine += $cust['opening_fine'];
-            $totalOpeningFine += $cust['opening_fine'];
-        }
+		if ($cust['opening_fine_type'] == 'JAMA') {
+			$openingFine -= $cust['opening_fine'];
+			$totalOpeningFine -= $cust['opening_fine'];
+		} else {
+			$openingFine += $cust['opening_fine'];
+			$totalOpeningFine += $cust['opening_fine'];
+		}
 	}
-	
-    $bank_name = "";
-	if($data['other']['master_type'] == "bank" && !empty($bank['bank_name'][$abc])){
-	    $bank_name = $bank['bank_name'][$abc];
+
+	$bank_name = "";
+	if ($data['other']['master_type'] == "bank" && !empty($bank['bank_name'][$abc])) {
+		$bank_name = $bank['bank_name'][$abc];
 	}
 	$totalLoss += $loss;
 	$data['filtered_data'][] = [
-		'date'              => $dv['date'],
+		// 'date'              => $dv['date'],
 		'type'              => '',
 		'customer_name'     => $customerName,
-		'party_id'       => $customerId,
+		'party_id'          => $customerId,
 		'opening_fine'      => $openingFine,
 		'opening_amt'       => $openingAmt,
 		'total_debit_fine'  => $totalDebitFine2,

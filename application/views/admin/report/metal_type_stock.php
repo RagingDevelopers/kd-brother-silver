@@ -7,8 +7,13 @@
 	<div class="col-sm-12">
 		<div class="card mt-3">
 			<div class="card-header">
-				<div class="col-sm-11">
+				<div class="col-sm-10">
 					<h1 class="card-title"><b> Metal Type Report </b></h1>
+				</div>
+				<div class="col-sm-2 ms-5 ps-5">
+					<button class="btn btn-success bg-primary text-white" id="bhuko">
+						Average Bhuko
+					</button>
 				</div>
 			</div>
 			<div class="card-body border-bottom py-3">
@@ -198,6 +203,21 @@
 					$(this).find('td:eq(6), td:eq(7), td:eq(8)').css('background-color', '#fecece');
 				});
 			});
+		});
+
+		$('#bhuko').on('click', function() {
+				$.ajax({
+					url: "<?= base_url(); ?>report/metal_type_stock/averagebhukon",
+					type: "POST",
+					success: function(response) {
+						var response = JSON.parse(response);
+						if (response.success === true) {
+							SweetAlert('success', response.message);
+						} else {
+							SweetAlert('error', response.message);
+						}
+					}
+				})
 		});
 
 		$('#fromdate, #todate,#metal_type,#garnu,#process').on('change', function() {

@@ -4,134 +4,128 @@ defined('BASEPATH') or exit('Direct Script not allowed!');
 
 class AccountLedger extends CI_Model
 {
-    function __construct()
-    {
-        parent::__construct();
-    } 
-    
-    function getSearchQuery($table, $dateField, $fromDate, $toDate, $cid = 0, $ac_cat = 0, $sqother = [])
-    {
-        
-        //  pre([$sqother,$table]);
-        
-        $q = " WHERE TRUE ";
-        if (!empty($fromDate) && !empty($toDate)) {
-            $fromDate = $this->db->escape($fromDate);
-            $toDate   = $this->db->escape($toDate);
-            $q .= " AND DATE($table.$dateField) >= DATE($fromDate) AND DATE($table.$dateField) <= DATE($toDate) ";
-        } else if (!empty($toDate)) {
-            $toDate = $this->db->escape($toDate);
-            $q .= " AND DATE($table.$dateField) <= DATE($toDate) ";
-        } else if (!empty($fromDate)) {
-            $fromDate = $this->db->escape($fromDate);
-            $q .= " AND DATE($table.$dateField) >= DATE($fromDate) ";
-        }
+	function __construct()
+	{
+		parent::__construct();
+	}
 
-        if ($sqother['master_type'] == 'bank' && $table == 'B') {
-            if ($cid > 0 && $sqother['master_type'] != 'account_category') {
-                $q .= " AND B.bank_id = " . $this->db->escape($cid);
-            }
-        } else if ($sqother['master_type'] == 'bank' && $table != 'B') {
-            $q .= ' AND FALSE ';
-        } else if ($sqother['master_type'] == 'account_category') {
-            if ($ac_cat !== NULL && $ac_cat > 0 && $sqother['master_type'] == 'account_category') {
-                $q .= " AND C.account_type_id = " . $this->db->escape($ac_cat) . " ";
-            }
-            if ($cid > 0) {
-                $cid = $this->db->escape($cid);
-                if($table == "F" || $table == "B" || $table == "RCR" || $table == "RCF" || $table == "ROOPU" || $table == "TE"){
-                    $q .= " AND $table.customer_id = $cid ";
-                }else{
-                    $q .= " AND $table.party_id = $cid ";
-                }
-            }
-        }
-        return $q;
-    }
-    
-    function getOpeningSearchQuery($table, $dateField, $fromDate, $cid = 0, $ac_cat = 0, $other = [])
-    {   
-        
-        $q = " WHERE TRUE ";
-        if (!empty($fromDate)) {
-            $fromDate = $this->db->escape($fromDate);
-            $q .= " AND DATE($table.$dateField) < DATE($fromDate) ";
-        } else {
-            $q .= " AND FALSE ";
-        }
+	function getSearchQuery($table, $dateField, $fromDate, $toDate, $cid = 0, $ac_cat = 0, $sqother = [])
+	{
 
-        if ($other['master_type'] == 'bank' && $table == 'B') {
-            if ($cid > 0) {
-                $q .= " AND B.bank_id = " . $this->db->escape($cid);
-            }
-        } else if ($other['master_type'] == 'bank' && $table != 'B') {
-            $q .= ' AND FALSE ';
-        } else if ($other['master_type'] == 'account_category') {
-            if ($ac_cat !== NULL && $ac_cat > 0 && $other['master_type'] == 'account_category') {
-                $q .= " AND C.account_type_id = " . $this->db->escape($ac_cat) . " ";
-            }
-            if ($cid > 0) {
-                $cid = $this->db->escape($cid);
-                if($table == "F" || $table == "B" || $table == "RCR" || $table == "RCF" || $table == "ROOPU" || $table == "TE"){
-                    $q .= " AND $table.customer_id = $cid ";
-                }else{
-                    $q .= " AND $table.party_id = $cid ";
-                }
-                
-            }
-        }
-        return $q;
-    }
+		//  pre([$sqother,$table]);
 
-    function getLedgerQuery($opening = false, $fromDate = null, $toDate = null, $cid = 0, $ac_cat = 0, $lother = [])
-    {
-        $this->db->query("SET SESSION sql_mode=(SELECT REPLACE(@@sql_mode, 'ONLY_FULL_GROUP_BY', ''));");
-        $cid = (int) $cid;
-        $fn  = $opening ? "getOpeningSearchQuery" : "getSearchQuery";
-        if ($opening) {
-            $purchaseWhere                     = $this->getOpeningSearchQuery('PII', 'created_at', $fromDate, $cid, $ac_cat, $lother);
-            $purchaseReturnWhere               = $this->getOpeningSearchQuery('PRI', 'created_at', $fromDate, $cid, $ac_cat, $lother);
-            $salesWhere                        = $this->getOpeningSearchQuery('SI', 'created_at', $fromDate, $cid, $ac_cat, $lother);
-            $salesReturnWhere                  = $this->getOpeningSearchQuery('SRI', 'created_at', $fromDate, $cid, $ac_cat, $lother);
-            $transferEntryTransferWhere        = $this->getOpeningSearchQuery('TE', 'created_at', $fromDate, 0, 0, $lother);
-            $transferEntryWhere                = $this->getOpeningSearchQuery('TE', 'created_at', $fromDate, $cid, $ac_cat, $lother);
-            
-            $FPaymentWhere                      = $this->getOpeningSearchQuery('F', 'created_at', $fromDate, $cid, $ac_cat, $lother);
-            $BPaymentWhere                      = $this->getOpeningSearchQuery('B', 'created_at', $fromDate, $cid, $ac_cat, $lother);
-            $RCFPaymentWhere                    = $this->getOpeningSearchQuery('RCF', 'created_at', $fromDate, $cid, $ac_cat, $lother);
-            $RCRPaymentWhere                    = $this->getOpeningSearchQuery('RCR', 'created_at', $fromDate, $cid, $ac_cat, $lother);
-            $ROOPUPaymentWhere                  = $this->getOpeningSearchQuery('ROOPU', 'created_at', $fromDate, $cid, $ac_cat, $lother);
-            
-        } else {
-            $purchaseWhere                     = $this->getSearchQuery('PII', 'created_at', $fromDate, $toDate, $cid, $ac_cat, $lother);
-            $purchaseReturnWhere               = $this->getSearchQuery('PRI', 'created_at', $fromDate, $toDate, $cid, $ac_cat, $lother);
-            $salesWhere                        = $this->getSearchQuery('SI', 'created_at', $fromDate, $toDate, $cid, $ac_cat, $lother);
-            $salesReturnWhere                  = $this->getSearchQuery('SRI', 'created_at', $fromDate, $toDate, $cid, $ac_cat, $lother);
-            $transferEntryWhere                = $this->getSearchQuery('TE', 'created_at', $fromDate, $toDate, $cid, $ac_cat, $lother);
-            $transferEntryTransferWhere        = $this->getSearchQuery('TE', 'created_at', $fromDate, $toDate, 0, 0, $lother);
-           
-            $FPaymentWhere                      = $this->getSearchQuery('F', 'created_at', $fromDate,$toDate, $cid, $ac_cat, $lother);
-            $BPaymentWhere                      = $this->getSearchQuery('B', 'created_at', $fromDate,$toDate, $cid, $ac_cat, $lother);
-            $RCFPaymentWhere                      = $this->getSearchQuery('RCF', 'created_at', $fromDate,$toDate , $cid, $ac_cat, $lother);
-            $RCRPaymentWhere                      = $this->getSearchQuery('RCR', 'created_at', $fromDate,$toDate ,$cid, $ac_cat, $lother);
-            $ROOPUPaymentWhere                      = $this->getSearchQuery('ROOPU', 'created_at', $fromDate,$toDate ,$cid, $ac_cat, $lother);
-        }
-        
-        
-        
-        // pre($karigarTransferEntryTransferWhere);
+		$q = " WHERE TRUE ";
+		if (!empty($fromDate) && !empty($toDate)) {
+			$fromDate = $this->db->escape($fromDate);
+			$toDate   = $this->db->escape($toDate);
+			$q .= " AND DATE($table.$dateField) >= DATE($fromDate) AND DATE($table.$dateField) <= DATE($toDate) ";
+		} else if (!empty($toDate)) {
+			$toDate = $this->db->escape($toDate);
+			$q .= " AND DATE($table.$dateField) <= DATE($toDate) ";
+		} else if (!empty($fromDate)) {
+			$fromDate = $this->db->escape($fromDate);
+			$q .= " AND DATE($table.$dateField) >= DATE($fromDate) ";
+		}
 
-        if ($ac_cat !== NULL && $ac_cat > 0) {
-            $transferEntryTransferWhere .= " AND C.account_type_id = " . $this->db->escape($ac_cat) . " ";
-            // $karigarTransferEntryTransferWhere .= " AND C.account_type_id = " . $this->db->escape($ac_cat) . " ";
-        }
-        if ($cid > 0) {
-            $c_id                              = $this->db->escape($cid);
-            $transferEntryTransferWhere .= " AND TE.transfer_customer_id = $c_id ";
-            // $karigarTransferEntryTransferWhere .= " AND KTE.transfer_customer_id = $c_id ";
-        }
+		if ($sqother['master_type'] == 'bank' && $table == 'B') {
+			if ($cid > 0 && $sqother['master_type'] != 'account_category') {
+				$q .= " AND B.bank_id = " . $this->db->escape($cid);
+			}
+		} else if ($sqother['master_type'] == 'bank' && $table != 'B') {
+			$q .= ' AND FALSE ';
+		} else if ($sqother['master_type'] == 'account_category') {
+			if ($ac_cat !== NULL && $ac_cat > 0 && $sqother['master_type'] == 'account_category') {
+				$q .= " AND C.account_type_id = " . $this->db->escape($ac_cat) . " ";
+			}
+			if ($cid > 0) {
+				$cid = $this->db->escape($cid);
+				if ($table == "F" || $table == "B" || $table == "RCR" || $table == "RCF" || $table == "ROOPU" || $table == "TE") {
+					$q .= " AND $table.customer_id = $cid ";
+				} else {
+					$q .= " AND $table.party_id = $cid ";
+				}
+			}
+		}
+		return $q;
+	}
 
-        $q = "SELECT PII.verification,PII.id,PII.date,'PUR' AS `type`,'PII' AS `code`,C.`name` AS customer_name,PII.`party_id`,
+	function getOpeningSearchQuery($table, $dateField, $fromDate, $cid = 0, $ac_cat = 0, $other = [])
+	{
+
+		$q = " WHERE TRUE ";
+		if (!empty($fromDate)) {
+			$fromDate = $this->db->escape($fromDate);
+			$q .= " AND DATE($table.$dateField) < DATE($fromDate) ";
+		} else {
+			$q .= " AND FALSE ";
+		}
+
+		if ($other['master_type'] == 'bank' && $table == 'B') {
+			if ($cid > 0) {
+				$q .= " AND B.bank_id = " . $this->db->escape($cid);
+			}
+		} else if ($other['master_type'] == 'bank' && $table != 'B') {
+			$q .= ' AND FALSE ';
+		} else if ($other['master_type'] == 'account_category') {
+			if ($ac_cat !== NULL && $ac_cat > 0 && $other['master_type'] == 'account_category') {
+				$q .= " AND C.account_type_id = " . $this->db->escape($ac_cat) . " ";
+			}
+			if ($cid > 0) {
+				$cid = $this->db->escape($cid);
+				if ($table == "F" || $table == "B" || $table == "RCR" || $table == "RCF" || $table == "ROOPU" || $table == "TE") {
+					$q .= " AND $table.customer_id = $cid ";
+				} else {
+					$q .= " AND $table.party_id = $cid ";
+				}
+			}
+		}
+		return $q;
+	}
+
+	function getLedgerQuery($opening = false, $fromDate = null, $toDate = null, $cid = 0, $ac_cat = 0, $lother = [])
+	{
+		$this->db->query("SET SESSION sql_mode=(SELECT REPLACE(@@sql_mode, 'ONLY_FULL_GROUP_BY', ''));");
+		$cid = (int) $cid;
+		$fn  = $opening ? "getOpeningSearchQuery" : "getSearchQuery";
+		if ($opening) {
+			$purchaseWhere                     = $this->getOpeningSearchQuery('PII', 'created_at', $fromDate, $cid, $ac_cat, $lother);
+			$purchaseReturnWhere               = $this->getOpeningSearchQuery('PRI', 'created_at', $fromDate, $cid, $ac_cat, $lother);
+			$salesWhere                        = $this->getOpeningSearchQuery('SI', 'created_at', $fromDate, $cid, $ac_cat, $lother);
+			$salesReturnWhere                  = $this->getOpeningSearchQuery('SRI', 'created_at', $fromDate, $cid, $ac_cat, $lother);
+			$transferEntryTransferWhere        = $this->getOpeningSearchQuery('TE', 'created_at', $fromDate, 0, 0, $lother);
+			$transferEntryWhere                = $this->getOpeningSearchQuery('TE', 'created_at', $fromDate, $cid, $ac_cat, $lother);
+
+			$FPaymentWhere                      = $this->getOpeningSearchQuery('F', 'created_at', $fromDate, $cid, $ac_cat, $lother);
+			$BPaymentWhere                      = $this->getOpeningSearchQuery('B', 'created_at', $fromDate, $cid, $ac_cat, $lother);
+			$RCFPaymentWhere                    = $this->getOpeningSearchQuery('RCF', 'created_at', $fromDate, $cid, $ac_cat, $lother);
+			$RCRPaymentWhere                    = $this->getOpeningSearchQuery('RCR', 'created_at', $fromDate, $cid, $ac_cat, $lother);
+			$ROOPUPaymentWhere                  = $this->getOpeningSearchQuery('ROOPU', 'created_at', $fromDate, $cid, $ac_cat, $lother);
+		} else {
+			$purchaseWhere                     = $this->getSearchQuery('PII', 'created_at', $fromDate, $toDate, $cid, $ac_cat, $lother);
+			$purchaseReturnWhere               = $this->getSearchQuery('PRI', 'created_at', $fromDate, $toDate, $cid, $ac_cat, $lother);
+			$salesWhere                        = $this->getSearchQuery('SI', 'created_at', $fromDate, $toDate, $cid, $ac_cat, $lother);
+			$salesReturnWhere                  = $this->getSearchQuery('SRI', 'created_at', $fromDate, $toDate, $cid, $ac_cat, $lother);
+			$transferEntryWhere                = $this->getSearchQuery('TE', 'created_at', $fromDate, $toDate, $cid, $ac_cat, $lother);
+			$transferEntryTransferWhere        = $this->getSearchQuery('TE', 'created_at', $fromDate, $toDate, 0, 0, $lother);
+
+			$FPaymentWhere                      = $this->getSearchQuery('F', 'created_at', $fromDate, $toDate, $cid, $ac_cat, $lother);
+			$BPaymentWhere                      = $this->getSearchQuery('B', 'created_at', $fromDate, $toDate, $cid, $ac_cat, $lother);
+			$RCFPaymentWhere                      = $this->getSearchQuery('RCF', 'created_at', $fromDate, $toDate, $cid, $ac_cat, $lother);
+			$RCRPaymentWhere                      = $this->getSearchQuery('RCR', 'created_at', $fromDate, $toDate, $cid, $ac_cat, $lother);
+			$ROOPUPaymentWhere                      = $this->getSearchQuery('ROOPU', 'created_at', $fromDate, $toDate, $cid, $ac_cat, $lother);
+		}
+
+		if ($ac_cat !== NULL && $ac_cat > 0) {
+			$transferEntryTransferWhere .= " AND C.account_type_id = " . $this->db->escape($ac_cat) . " ";
+			// $karigarTransferEntryTransferWhere .= " AND C.account_type_id = " . $this->db->escape($ac_cat) . " ";
+		}
+		if ($cid > 0) {
+			$c_id                              = $this->db->escape($cid);
+			$transferEntryTransferWhere .= " AND TE.transfer_customer_id = $c_id ";
+			// $karigarTransferEntryTransferWhere .= " AND KTE.transfer_customer_id = $c_id ";
+		}
+
+		$q = "SELECT PII.verification,PII.id,PII.date,'PUR' AS `type`,'PII' AS `code`,C.`name` AS customer_name,PII.`party_id`,
                     '' AS process,
                     '' AS remark,
                     '' AS bank_name,
@@ -360,217 +354,215 @@ class AccountLedger extends CI_Model
 				LEFT JOIN customer C ON C.id = TE.transfer_customer_id
 				$transferEntryTransferWhere";
 
-        
-        // if (!empty($cid) && $cid > 0) {
-        //     if ($other['master_type'] != 'bank') {
-        //         $this->db->select('AC.name,AC.id');
-        //         $this->db->from('customer C');
-        //         $this->db->join('account_type AC', 'AC.id = C.account_type_id', 'left');
-        //         $this->db->where('C.id', $cid);
-        //         if (!empty($ac_cat) && $ac_cat > 0) {
-        //             $this->db->where('AC.id', $ac_cat);
-        //         }
-        //         $AC = $this->db->get()->row_array();
-        //         if (!empty($AC)) {
-        //             $this->session->set_userdata('account_type', $AC['name']);
-        //             if ($AC['name'] == 'karigar') {
-        //                 $additionalKarigarLedgerQuery = $this->getKarigarLedgerData($opening, $fromDate, $toDate, $cid, ((int) $AC['id']), $other);
-        //                 $q .= " UNION ALL $additionalKarigarLedgerQuery ";
-        //             }
-        //         }
-        //     }
-        // } else if (!empty($ac_cat) && $ac_cat > 0) {
-        //     if ($other['master_type'] != 'bank') {
-        //         $AC = $this->db->get_where('account_type', [ 'id' => $ac_cat ])->row_array();
-        //         $this->session->set_userdata('account_type', $AC['name']);
-        //         if ($AC['name'] == 'karigar') {
-        //             $additionalKarigarLedgerQuery = $this->getKarigarLedgerData($opening, $fromDate, $toDate, $cid, $ac_cat, $other);
-        //             $q .= " UNION ALL $additionalKarigarLedgerQuery ";
-        //         }
-        //     }
-        // } else if ($ac_cat === -111) {
-        //     $additionalKarigarLedgerQuery = $this->getKarigarLedgerData($opening, $fromDate, $toDate, $cid, $ac_cat, $other);
-        //     $q .= " UNION ALL $additionalKarigarLedgerQuery ";
-        // }
 
-        if (!empty ($cid) && $cid > 0) {
-            $this->db->select('AC.name,AC.id');
-            $this->db->from('customer C');
-            $this->db->join('account_type AC', 'AC.id = C.account_type_id', 'left');
-            $this->db->where('C.id', $cid);
-            if (!empty ($ac_cat) && $ac_cat > 0) {
-                $this->db->where('AC.id', $ac_cat);
-            }
-            $AC = $this->db->get()->row_array();
-            $this->session->set_userdata('account_type', $AC['name']);
-            // if ($AC['name'] == 'karigar') {
-                // $additionalKarigarLedgerQuery = $this->getKarigarLedgerData($opening, $fromDate, $toDate, $cid, $AC['id'], $ig_id, $other);
-                $additionalKarigarLedgerQuery = $this->getKarigarLedgerData($opening, $fromDate, $toDate, $cid, $ac_cat, $lother);
-                $q .= " UNION ALL $additionalKarigarLedgerQuery ";
-            // }
-        } else if (!empty ($ac_cat) && $ac_cat > 0) {
-            $AC = $this->db->get_where('account_type', [ 'id' => $ac_cat ])->row_array();
-			if(!empty ($AC)) {
+		// if (!empty($cid) && $cid > 0) {
+		//     if ($other['master_type'] != 'bank') {
+		//         $this->db->select('AC.name,AC.id');
+		//         $this->db->from('customer C');
+		//         $this->db->join('account_type AC', 'AC.id = C.account_type_id', 'left');
+		//         $this->db->where('C.id', $cid);
+		//         if (!empty($ac_cat) && $ac_cat > 0) {
+		//             $this->db->where('AC.id', $ac_cat);
+		//         }
+		//         $AC = $this->db->get()->row_array();
+		//         if (!empty($AC)) {
+		//             $this->session->set_userdata('account_type', $AC['name']);
+		//             if ($AC['name'] == 'karigar') {
+		//                 $additionalKarigarLedgerQuery = $this->getKarigarLedgerData($opening, $fromDate, $toDate, $cid, ((int) $AC['id']), $other);
+		//                 $q .= " UNION ALL $additionalKarigarLedgerQuery ";
+		//             }
+		//         }
+		//     }
+		// } else if (!empty($ac_cat) && $ac_cat > 0) {
+		//     if ($other['master_type'] != 'bank') {
+		//         $AC = $this->db->get_where('account_type', [ 'id' => $ac_cat ])->row_array();
+		//         $this->session->set_userdata('account_type', $AC['name']);
+		//         if ($AC['name'] == 'karigar') {
+		//             $additionalKarigarLedgerQuery = $this->getKarigarLedgerData($opening, $fromDate, $toDate, $cid, $ac_cat, $other);
+		//             $q .= " UNION ALL $additionalKarigarLedgerQuery ";
+		//         }
+		//     }
+		// } else if ($ac_cat === -111) {
+		//     $additionalKarigarLedgerQuery = $this->getKarigarLedgerData($opening, $fromDate, $toDate, $cid, $ac_cat, $other);
+		//     $q .= " UNION ALL $additionalKarigarLedgerQuery ";
+		// }
+
+		if (!empty($cid) && $cid > 0) {
+			$this->db->select('AC.name,AC.id');
+			$this->db->from('customer C');
+			$this->db->join('account_type AC', 'AC.id = C.account_type_id', 'left');
+			$this->db->where('C.id', $cid);
+			if (!empty($ac_cat) && $ac_cat > 0) {
+				$this->db->where('AC.id', $ac_cat);
+			}
+			$AC = $this->db->get()->row_array();
+			$this->session->set_userdata('account_type', $AC['name']);
+			// if ($AC['name'] == 'karigar') {
+			// $additionalKarigarLedgerQuery = $this->getKarigarLedgerData($opening, $fromDate, $toDate, $cid, $AC['id'], $ig_id, $other);
+			$additionalKarigarLedgerQuery = $this->getKarigarLedgerData($opening, $fromDate, $toDate, $cid, $ac_cat, $lother);
+			$q .= " UNION ALL $additionalKarigarLedgerQuery ";
+			// }
+		} else if (!empty($ac_cat) && $ac_cat > 0) {
+			$AC = $this->db->get_where('account_type', ['id' => $ac_cat])->row_array();
+			if (!empty($AC)) {
 				$this->session->set_userdata('account_type', $AC['name']);
 				// if ($AC['name'] == 'karigar') {
-					// $additionalKarigarLedgerQuery = $this->getKarigarLedgerData($opening, $fromDate, $toDate, $cid, $ac_cat, $ig_id, $other);
-					$additionalKarigarLedgerQuery = $this->getKarigarLedgerData($opening, $fromDate, $toDate, $cid, $ac_cat,$lother);
-					$q .= " UNION ALL $additionalKarigarLedgerQuery ";
+				// $additionalKarigarLedgerQuery = $this->getKarigarLedgerData($opening, $fromDate, $toDate, $cid, $ac_cat, $ig_id, $other);
+				$additionalKarigarLedgerQuery = $this->getKarigarLedgerData($opening, $fromDate, $toDate, $cid, $ac_cat, $lother);
+				$q .= " UNION ALL $additionalKarigarLedgerQuery ";
 				// }
 			}
-        } else if ($ac_cat === -111) {
-            $additionalKarigarLedgerQuery = $this->getKarigarLedgerData($opening, $fromDate, $toDate, $cid, $ac_cat, $lother);
-            $q .= " UNION ALL $additionalKarigarLedgerQuery ";
-        }
+		} else if ($ac_cat === -111) {
+			$additionalKarigarLedgerQuery = $this->getKarigarLedgerData($opening, $fromDate, $toDate, $cid, $ac_cat, $lother);
+			$q .= " UNION ALL $additionalKarigarLedgerQuery ";
+		}
 
-        $q .= " ORDER BY `date`";
-        $query = $this->db->query($q);
-        // $last_query = $this->db->last_query();
-        // pre($last_query);exit;
-        return $query;
-    }
+		$q .= " ORDER BY `date`";
+		$query = $this->db->query($q);
+		// $last_query = $this->db->last_query();
+		// pre($last_query);exit;
+		return $query;
+	}
 
-    function getKarigarSearchQuery($table, $dateField, $fromDate, $toDate, $cid, $ac_cat, $other = [])
-    {
-        $this->db->query("SET SESSION sql_mode=(SELECT REPLACE(@@sql_mode, 'ONLY_FULL_GROUP_BY', ''));");
-        $fromDate = $this->db->escape($fromDate);
-        $toDate   = $this->db->escape($toDate);
-        $q = " WHERE TRUE ";
-        if (!empty($fromDate) && !empty($toDate)) {
-            $q .= " AND DATE($table.$dateField) >= DATE($fromDate) AND DATE($table.$dateField) <= DATE($toDate) ";
-        } else if (!empty($toDate)) {
-            $toDate = $this->db->escape($toDate);
-            $q .= " AND DATE($table.$dateField) <= DATE($toDate) ";
-        } else if (!empty($fromDate)) {
-            $fromDate = $this->db->escape($fromDate);
-            $q .= " AND DATE($table.$dateField) >= DATE($fromDate) ";
-        }
+	function getKarigarSearchQuery($table, $dateField, $fromDate, $toDate, $cid, $ac_cat, $other = [])
+	{
+		$this->db->query("SET SESSION sql_mode=(SELECT REPLACE(@@sql_mode, 'ONLY_FULL_GROUP_BY', ''));");
+		$fromDate = $this->db->escape($fromDate);
+		$toDate   = $this->db->escape($toDate);
+		$q = " WHERE TRUE ";
+		if (!empty($fromDate) && !empty($toDate)) {
+			$q .= " AND DATE($table.$dateField) >= DATE($fromDate) AND DATE($table.$dateField) <= DATE($toDate) ";
+		} else if (!empty($toDate)) {
+			$toDate = $this->db->escape($toDate);
+			$q .= " AND DATE($table.$dateField) <= DATE($toDate) ";
+		} else if (!empty($fromDate)) {
+			$fromDate = $this->db->escape($fromDate);
+			$q .= " AND DATE($table.$dateField) >= DATE($fromDate) ";
+		}
 
-        if ($other['master_type'] == 'bank' && $table == 'PY') {
-            // if ($cid > 0) {
-            //     $q .= " AND PY.bank_id = " . $this->db->escape($cid);
-            // }
-        } else if ($other['master_type'] == 'bank' && $table != 'PY') {
-            $q .= ' AND FALSE ';
-        } else if ($other['master_type'] == 'account_category') {
+		if ($other['master_type'] == 'bank' && $table == 'PY') {
+			// if ($cid > 0) {
+			//     $q .= " AND PY.bank_id = " . $this->db->escape($cid);
+			// }
+		} else if ($other['master_type'] == 'bank' && $table != 'PY') {
+			$q .= ' AND FALSE ';
+		} else if ($other['master_type'] == 'account_category') {
 
-            if ($ac_cat !== NULL && $ac_cat > 0) {
-                $q .= " AND K.account_type_id = " . $this->db->escape($ac_cat) . " ";
-            }
+			if ($ac_cat !== NULL && $ac_cat > 0) {
+				$q .= " AND K.account_type_id = " . $this->db->escape($ac_cat) . " ";
+			}
 
-            if ($cid > 0) {
-                $cid                   = $this->db->escape($cid);
-                $karigarTableForColumn = [
-                    "G",
-                    'R',
-                    'TR',
-                    'GRNU',
-                    'GRNUTR'
-                ];
-                if (in_array($table, $karigarTableForColumn)) {
-                    if ($table == "G" || $table == "GRNU") {
-                        $q .= " AND $table.worker_id = $cid AND $table.worker_id IS NOT NULL ";
-                        // 		$q .= " AND $table.transfer_account = $cid AND $table.transfer_account IS NOT NULL ";
+			if ($cid > 0) {
+				$cid                   = $this->db->escape($cid);
+				$karigarTableForColumn = [
+					"G",
+					'R',
+					'TR',
+					'GRNU',
+					'GRNUTR'
+				];
+				if (in_array($table, $karigarTableForColumn)) {
+					if ($table == "G" || $table == "GRNU") {
+						$q .= " AND $table.worker_id = $cid AND $table.worker_id IS NOT NULL ";
+						// 		$q .= " AND $table.transfer_account = $cid AND $table.transfer_account IS NOT NULL ";
 
-                    } else if ($table == "TR" || $table == "GRNUTR") {
-                        $q .= " AND $table.transfer_account = $cid AND $table.transfer_account IS NOT NULL ";
-                    } else {
-                        $table == 'R' ? $table = "G" : $table = $table;
-                        $q .= " AND $table.worker_id = $cid AND $table.worker_id IS NOT NULL";
-                    }
-                } else {
-                    $q .= " AND $table.party_id = $cid ";
-                }
-            }
-        }
-        return $q;
-    }
+					} else if ($table == "TR" || $table == "GRNUTR") {
+						$q .= " AND $table.transfer_account = $cid AND $table.transfer_account IS NOT NULL ";
+					} else {
+						$table == 'R' ? $table = "G" : $table = $table;
+						$q .= " AND $table.worker_id = $cid AND $table.worker_id IS NOT NULL";
+					}
+				} else {
+					$q .= " AND $table.party_id = $cid ";
+				}
+			}
+		}
+		return $q;
+	}
 
-    function getKarigarSearchOpeningQuery($table, $dateField, $fromDate, $cid, $ac_cat, $other = [])
-    {
-        $q = " WHERE TRUE ";
-        if (!empty($fromDate)) {
-            $fromDate = $this->db->escape($fromDate);
-            $q .= " AND DATE($table.$dateField) < DATE($fromDate) ";
-        } else {
-            $q .= " AND FALSE ";
-        }
+	function getKarigarSearchOpeningQuery($table, $dateField, $fromDate, $cid, $ac_cat, $other = [])
+	{
+		$q = " WHERE TRUE ";
+		if (!empty($fromDate)) {
+			$fromDate = $this->db->escape($fromDate);
+			$q .= " AND DATE($table.$dateField) < DATE($fromDate) ";
+		} else {
+			$q .= " AND FALSE ";
+		}
 
-        
-        if ($other['master_type'] == 'bank' && $table == 'PY') {
-            if ($cid > 0) {
-                $q .= " AND PY.bank_id = " . $this->db->escape($cid);
-            }
-        } else if ($other['master_type'] == 'bank' && $table != 'PY') {
-            $q .= ' AND FALSE ';
-        } else if ($other['master_type'] == 'account_category') {
-            if ($ac_cat !== NULL && $ac_cat > 0) {
-                $q .= " AND K.account_type_id = " . $this->db->escape($ac_cat) . " ";
-            }
-            // 	pre($cid > 0 ? "Y" : "N");;
-            // 	pre($cid);;
 
-            if ($cid > 0) {
-                $cid                   = $this->db->escape($cid);
-                $karigarTableForColumn = [
-                    
-                    "G",
-                    
-                    'R',
-                    
-                    'TR',
-                    'GRNU',
-                    'GRNUTR'
-                ];
-               if (in_array($table, $karigarTableForColumn)) {
-                    if ($table == "G" || $table == "GRNU") {
-                        $q .= " AND $table.worker_id = $cid AND $table.worker_id IS NOT NULL ";
-                        // 		$q .= " AND $table.transfer_account = $cid AND $table.transfer_account IS NOT NULL ";
+		if ($other['master_type'] == 'bank' && $table == 'PY') {
+			if ($cid > 0) {
+				$q .= " AND PY.bank_id = " . $this->db->escape($cid);
+			}
+		} else if ($other['master_type'] == 'bank' && $table != 'PY') {
+			$q .= ' AND FALSE ';
+		} else if ($other['master_type'] == 'account_category') {
+			if ($ac_cat !== NULL && $ac_cat > 0) {
+				$q .= " AND K.account_type_id = " . $this->db->escape($ac_cat) . " ";
+			}
+			// 	pre($cid > 0 ? "Y" : "N");;
+			// 	pre($cid);;
 
-                    } else if ($table == "TR" || $table == "GRNUTR") {
-                        $q .= " AND $table.transfer_account = $cid AND $table.transfer_account IS NOT NULL ";
-                    } else {
-                        $table == 'R' ? $table = "G" : $table = $table;
-                        $q .= " AND $table.worker_id = $cid AND $table.worker_id IS NOT NULL ";
-                    }
-                } else {
-                    $q .= " AND $table.party_id = $cid ";
-                }
-            }
-        }
-        // 		pre($q);;
-        return $q;
-    }
+			if ($cid > 0) {
+				$cid                   = $this->db->escape($cid);
+				$karigarTableForColumn = [
 
-    function getKarigarLedgerData($opening = false, $fromDate = NULL, $toDate = NULL, $cid = 0, $ac_cat = 0, $other = [])
-    {   
-         
-        if ($opening) {
-            $R     = $this->getKarigarSearchOpeningQuery('R', 'created_at', $fromDate, $cid, $ac_cat, $other);
-            $given = $this->getKarigarSearchOpeningQuery('G', 'created_at', $fromDate, $cid, $ac_cat, $other);
-            $tr    = $this->getKarigarSearchOpeningQuery('TR', 'created_at', $fromDate, $cid, $ac_cat, $other);
-            
-            $GRNU = $this->getKarigarSearchOpeningQuery('GRNU', 'created_at', $fromDate, $cid, $ac_cat, $other);
-            $GRNUTR    = $this->getKarigarSearchOpeningQuery('GRNUTR', 'created_at', $fromDate, $cid, $ac_cat, $other);
-            
-        } else {
-            $R     = $this->getKarigarSearchQuery('R', 'created_at', $fromDate, $toDate, $cid, $ac_cat, $other);
-            $given = $this->getKarigarSearchQuery('G', 'created_at', $fromDate, $toDate, $cid, $ac_cat, $other);
-            $tr    = $this->getKarigarSearchQuery('TR', 'created_at', $fromDate, $toDate, $cid, $ac_cat, $other);
-            
-            $GRNU = $this->getKarigarSearchQuery('GRNU', 'created_at', $fromDate, $toDate, $cid, $ac_cat, $other);
-            $GRNUTR    = $this->getKarigarSearchQuery('GRNUTR', 'created_at', $fromDate, $toDate, $cid, $ac_cat, $other);
-            
-        }
+					"G",
 
-        if (($other['run_time_loss'] ?? "false" ) === 'true') {
-            $run_time_loss = 'true';
-        } else {
-            $run_time_loss = 'false';
-        }
-        $run_time_loss = $this->db->escape($run_time_loss);
+					'R',
 
-        $q = "
+					'TR',
+					'GRNU',
+					'GRNUTR'
+				];
+				if (in_array($table, $karigarTableForColumn)) {
+					if ($table == "G" || $table == "GRNU") {
+						$q .= " AND $table.worker_id = $cid AND $table.worker_id IS NOT NULL ";
+						// 		$q .= " AND $table.transfer_account = $cid AND $table.transfer_account IS NOT NULL ";
+
+					} else if ($table == "TR" || $table == "GRNUTR") {
+						$q .= " AND $table.transfer_account = $cid AND $table.transfer_account IS NOT NULL ";
+					} else {
+						$table == 'R' ? $table = "G" : $table = $table;
+						$q .= " AND $table.worker_id = $cid AND $table.worker_id IS NOT NULL ";
+					}
+				} else {
+					$q .= " AND $table.party_id = $cid ";
+				}
+			}
+		}
+		// 		pre($q);;
+		return $q;
+	}
+
+	function getKarigarLedgerData($opening = false, $fromDate = NULL, $toDate = NULL, $cid = 0, $ac_cat = 0, $other = [])
+	{
+
+		if ($opening) {
+			$R     = $this->getKarigarSearchOpeningQuery('R', 'created_at', $fromDate, $cid, $ac_cat, $other);
+			$given = $this->getKarigarSearchOpeningQuery('G', 'created_at', $fromDate, $cid, $ac_cat, $other);
+			$tr    = $this->getKarigarSearchOpeningQuery('TR', 'created_at', $fromDate, $cid, $ac_cat, $other);
+
+			$GRNU = $this->getKarigarSearchOpeningQuery('GRNU', 'created_at', $fromDate, $cid, $ac_cat, $other);
+			$GRNUTR    = $this->getKarigarSearchOpeningQuery('GRNUTR', 'created_at', $fromDate, $cid, $ac_cat, $other);
+		} else {
+			$R     = $this->getKarigarSearchQuery('R', 'created_at', $fromDate, $toDate, $cid, $ac_cat, $other);
+			$given = $this->getKarigarSearchQuery('G', 'created_at', $fromDate, $toDate, $cid, $ac_cat, $other);
+			$tr    = $this->getKarigarSearchQuery('TR', 'created_at', $fromDate, $toDate, $cid, $ac_cat, $other);
+
+			$GRNU = $this->getKarigarSearchQuery('GRNU', 'created_at', $fromDate, $toDate, $cid, $ac_cat, $other);
+			$GRNUTR    = $this->getKarigarSearchQuery('GRNUTR', 'created_at', $fromDate, $toDate, $cid, $ac_cat, $other);
+		}
+
+		if (($other['run_time_loss'] ?? "false") === 'true') {
+			$run_time_loss = 'true';
+		} else {
+			$run_time_loss = 'false';
+		}
+		$run_time_loss = $this->db->escape($run_time_loss);
+
+		$q = "
 		SELECT
 				TR.verification,TR.id,
 				TR.`creation_date` AS `date`,
@@ -736,356 +728,356 @@ class AccountLedger extends CI_Model
 				LEFT JOIN given G ON G.id = R.given_id
 				LEFT JOIN customer K ON G.worker_id = K.id
 				LEFT JOIN process P ON G.process_id = P.id $R AND G.worker_id > 0 AND G.is_completed='YES' ";
-				
-        return $q;
-    }
 
-    function getLedgerReprot($fromDate, $toDate, $cid = 0, $ac_cat = 0, $nother = [])
-    {
-        // pre($nother);
-        // die;
-        $openingData = $this->getLedgerQuery(true, $fromDate, $toDate, $cid, $ac_cat, $nother)->result_array();
-        
-        
-        $data        = $this->getLedgerQuery(false, $fromDate, $toDate, $cid, $ac_cat, $nother)->result_array();
-        
-        
-        
-        return [
-            'data'         => $data,
-            'opening_data' => $openingData,
-            'other'        => $nother
-        ];
-    }
-
-    function getCustomerAndKarigarLedgerTotals($customer_id = 0)
-    {
-        $fromDate    = date('1970-m-01');
-        $toDate      = date('Y-m-d');
-        $ac_cat      = 0;
-        $fromDate    = $this->security->xss_clean($fromDate);
-        $toDate      = $this->security->xss_clean($toDate);
-        $customer_id = $this->security->xss_clean($customer_id);
-        $ac_cat      = $this->security->xss_clean($ac_cat);
-        $data        = [];
-        $finalData   = [];
-        $AC          = $this->db->get('account_type')->result_array();
-        foreach ($AC as $k => $v) {
-            $ac_cat                 = $v['id'];
-            $other['master_type']   = 'account_category';
-            $other['run_time_loss'] = 'false';
-            $data['data']           = $this->getLedgerReprot($fromDate, $toDate, $customer_id, $ac_cat, $other);
-            if (!empty($data['data'])) {
-                foreach ($data['data']['data'] as $i => $d) {
-                    $d['account_category']       = $v['name'];
-                    $finalData['data']['data'][] = $d;
-                }
-            }
-        }
-
-        $finalData['data']['opening_data'] = [];
-        $page_data['data']                 = $finalData;
-
-        extract($page_data);
-        extract($data);
-        
-        
-        $totalOpeningFine = 0;
-
-$customers = [];
-foreach ($data['data'] as $di => $dv) {
-	if (!in_array($dv['party_id'], $customers)) {
-		$customers[] = $dv['party_id'];
+		return $q;
 	}
-}
+
+	function getLedgerReprot($fromDate, $toDate, $cid = 0, $ac_cat = 0, $nother = [])
+	{
+		// pre($nother);
+		// die;
+		$openingData = $this->getLedgerQuery(true, $fromDate, $toDate, $cid, $ac_cat, $nother)->result_array();
 
 
-// pre($data);exit;
-$data['filtered_data'] = [];
-$totalDebitFine        = 0;
-$totalCreditFine       = 0;
-$totalClosingFine      = 0;
-$totalDebitAmt         = 0;
-$totalCreditAmt        = 0;
-$totalClosingAmt       = 0;
-$totalOpeningFine      = 0;
-$totalOpeningAmt       = 0;
-
-// pre($data);
-$totalLoss = 0;
-
-foreach ($customers as $abc => $c) {
-	$closingFine      = 0;
-	$closingAmt       = 0;
-	$openingFine      = 0;
-	$openingAmt       = 0;
-	$date             = '';
-	$customerName     = '';
-	$customerId       = 0;
-	$totalDebitFine2  = 0;
-	$totalDebitAmt2   = 0;
-	$totalCreditFine2 = 0;
-	$totalCreditAmt2  = 0;
-
-	$loss = 0;
-
-	$isBank = false;
-	$bank['bank_name'] = [];
+		$data        = $this->getLedgerQuery(false, $fromDate, $toDate, $cid, $ac_cat, $nother)->result_array();
 
 
-	foreach ($data['data'] as $di => $v) {
-	    
-	    $closingFine = number_format($closingFine, 3, '.', '');
-		$closingAmt  = number_format($closingAmt, 3, '.', '');
 
-		$totalDebitFine2  = number_format($totalDebitFine2, 3, '.', '');
-		$totalDebitAmt2   = number_format($totalDebitAmt2, 3, '.', '');
-		$totalCreditFine2 = number_format($totalCreditFine2, 3, '.', '');
-		$totalCreditAmt2  = number_format($totalCreditAmt2, 3, '.', '');
-		// $loss = number_format($loss, 3, '.', '');
-		// if ($v['code'] == 'link(bank)') {
-		// 	$isBank = true;
-		// }
-		if ($v['party_id'] == $c) {
-			$loss += $v['loss'];
-			$customerId    = $c;
-			$date          = $v['date'];
-			$customerName  = $v['customer_name'];
-                $typeDebitArr  = [
-										'PUR',
-										'SAL_RETURN',
-										'FINE_CR',
-										'BANK_CR',
-										'ROOPU_CR',
-										'TE_CR',
-                                        'receive',
-                                        'LABOUR'
-
-									];
-									$typeCreditArr = [
-										'SAL',
-										'PUR_RETURN',
-										'FINE_DB',
-										'BANK_DB',
-										'ROOPU_DB',
-										'TE_DB',
-										
-										
-									];
-									$typeFineArr   = [
-										'IN_GIVEN_FINE',
-										'KASAR'
-									];
-			if ($v['type'] == 'PAY_PAY' && !$isBank) {
-				// $closingAmt -= abs($v['total_net_amt']);
-				if ($v['total_fine_gold'] <= 0) {
-					$closingAmt -= (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
-					$totalDebitAmt2 += (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
-					$totalClosingAmt -= (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
-				}
-				$closingFine -= (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
-				$totalDebitFine2 += (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
-				// $totalDebitAmt2 += abs($v['total_net_amt']);
-				$totalClosingFine -= (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
-				// $totalClosingAmt -= abs($v['total_net_amt']);
-			} else if ($v['type'] == 'PAY_REC' && !$isBank) {
-				// $closingAmt += abs($v['total_net_amt']);
-				if ($v['total_fine_gold'] <= 0) {
-					$closingAmt += (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
-					$totalCreditAmt2 += (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
-					$totalClosingAmt += (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
-				}
-				$closingFine += (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
-				$totalCreditFine2 += (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
-				// $totalCreditAmt2 += abs($v['total_net_amt']);
-				$totalClosingFine += (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
-				// $totalClosingAmt += abs($v['total_net_amt']);
-			} else if (in_array($v['type'], $typeCreditArr)) {
-				$closingAmt -= (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
-				$closingFine -= (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
-				$totalDebitFine2 += (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
-				$totalDebitAmt2 += (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
-				$totalClosingFine -= (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
-				$totalClosingAmt -= (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
-			} else if (in_array($v['type'], $typeDebitArr)) {
-				$closingAmt += (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
-				$closingFine += (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
-				$totalCreditFine2 += (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
-				$totalCreditAmt2 += (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
-				$totalClosingFine += (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
-				$totalClosingAmt += (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
-			} else if (in_array($v['type'], $typeFineArr)) {
-				if ($v['total_fine_gold'] < 0) {
-					$closingAmt += 0;
-					$closingFine += (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
-					$totalCreditFine2 += (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
-					$totalCreditAmt2 += 0;
-					$totalClosingFine += (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
-					$totalClosingAmt += 0;
-				} else {
-					$closingAmt -= 0;
-					$closingFine -= (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
-					$totalDebitFine2 += (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
-					$totalDebitAmt2 += 0;
-					$totalClosingFine -= (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
-					$totalClosingAmt -= 0;
-				}
-			} else if ($v['type'] == 'RATEFINE_DB' || $v['type'] == 'RATERS_DB') {
-				$closingAmt -= (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
-				$closingFine      = number_format($closingFine, 3, '.', '');
-				$closingFine += (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
-				$totalDebitAmt2 += (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
-				$totalCreditFine2 += (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
-				$totalClosingAmt -= (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
-				$totalClosingFine += (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
-			} else if ($v['type'] == 'RATEFINE_CR' || $v['type'] == 'RATERS_CR') {
-				$closingAmt += (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
-				$closingFine -= (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
-				$totalDebitAmt2 += (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
-				$totalCreditFine2 += (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
-				$totalClosingAmt += (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
-				$totalClosingFine -= (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
-
-				// $openingAmt += abs($v['total_net_amt']);
-				// $openingFine -= abs($v['total_fine_gold']);
-				// $totalOpeningAmt += abs($v['total_net_amt']);
-				// $totalOpeningFine -= abs($v['total_fine_gold']);
-			}
-			// else if (in_array($v['type'], $typeLossArr)) {
-			// 	// $loss = ($v['total_fine_gold'] != NULL || $v['total_fine_gold'] != "") ? $v['total_fine_gold'] : $v['total_net_amt'];
-			// }
-		}
+		return [
+			'data'         => $data,
+			'opening_data' => $openingData,
+			'other'        => $nother
+		];
 	}
-	
-	foreach ($data['opening_data'] as $odi => $v) {
-		$openingAmt       = number_format($openingAmt, 3, '.', '');
-		$openingFine      = number_format($openingFine, 3, '.', '');
-		$totalOpeningAmt  = number_format($totalOpeningAmt, 3, '.', '');
-		$totalOpeningFine = number_format($totalOpeningFine, 3, '.', '');
-		if ($c == $v['party_id']) {
-			if ($v['code'] == 'link(bank)') {
-				$isBankO = true;
-			} else {
-				$isBankO = false;
-			}
-			if ($v['type'] == 'PAY_PAY' && !$isBankO) {
-				// $openingAmt -= abs($v['total_net_amt']);
-				if ($v['total_fine_gold'] <= 0) {
-					$openingAmt -= (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
-					$totalOpeningAmt -= (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
+
+	function getCustomerAndKarigarLedgerTotals($customer_id = 0)
+	{
+		$fromDate    = date('1970-m-01');
+		$toDate      = date('Y-m-d');
+		$ac_cat      = 0;
+		$fromDate    = $this->security->xss_clean($fromDate);
+		$toDate      = $this->security->xss_clean($toDate);
+		$customer_id = $this->security->xss_clean($customer_id);
+		$ac_cat      = $this->security->xss_clean($ac_cat);
+		$data        = [];
+		$finalData   = [];
+		$AC          = $this->db->get('account_type')->result_array();
+		foreach ($AC as $k => $v) {
+			$ac_cat                 = $v['id'];
+			$other['master_type']   = 'account_category';
+			$other['run_time_loss'] = 'false';
+			$data['data']           = $this->getLedgerReprot($fromDate, $toDate, $customer_id, $ac_cat, $other);
+			if (!empty($data['data'])) {
+				foreach ($data['data']['data'] as $i => $d) {
+					$d['account_category']       = $v['name'];
+					$finalData['data']['data'][] = $d;
 				}
-				$openingFine -= (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
-				// $totalOpeningAmt -= abs($v['total_net_amt']);
-				$totalOpeningFine -= (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
-			} else if ($v['type'] == 'PAY_REC' && !$isBankO) {
-				// $openingAmt += abs($v['total_net_amt']);
-				if ($v['total_fine_gold'] <= 0) {
-					$openingAmt += (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
-					$totalOpeningAmt += (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
-				}
-				$openingFine += (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
-				// $totalOpeningAmt += abs($v['total_net_amt']);
-				$totalOpeningFine += (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
-			} else if (in_array($v['type'], $typeCreditArr)) {
-				$openingAmt -= (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
-				$openingFine -= (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
-				$totalOpeningAmt -= (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
-				$totalOpeningFine -= (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
-			} else if (in_array($v['type'], $typeDebitArr)) {
-				$openingAmt += (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
-				$openingFine += (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
-				$totalOpeningAmt += (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
-				$totalOpeningFine += (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
-			} else if (in_array($v['type'], $typeFineArr)) {
-				if ($v['total_fine_gold'] < 0) {
-					$openingAmt += (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
-					$openingFine += (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
-					$totalOpeningAmt += (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
-					$totalOpeningFine += (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
-				} else {
-					$openingAmt -= (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
-					$openingFine -= (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
-					$totalOpeningAmt -= (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
-					$totalOpeningFine -= (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
-				}
-			} else if ($v['type'] == 'RATEFINE_DB' || $v['type'] == 'RATERS_DB') {
-				$openingAmt -= (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
-				$openingFine += (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
-				$totalOpeningAmt -= (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
-				$totalOpeningFine += (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
-			} else if ($v['type'] == 'RATEFINE_CR' || $v['type'] == 'RATERS_CR') {
-				$openingAmt += (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
-				$openingFine -= (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
-				$totalOpeningAmt += (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
-				$totalOpeningFine -= (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
 			}
 		}
+
+		$finalData['data']['opening_data'] = [];
+		$page_data['data']                 = $finalData;
+
+		extract($page_data);
+		extract($data);
+
+
+		$totalOpeningFine = 0;
+
+		$customers = [];
+		foreach ($data['data'] as $di => $dv) {
+			if (!in_array($dv['party_id'], $customers)) {
+				$customers[] = $dv['party_id'];
+			}
+		}
+
+
+		// pre($data);exit;
+		$data['filtered_data'] = [];
+		$totalDebitFine        = 0;
+		$totalCreditFine       = 0;
+		$totalClosingFine      = 0;
+		$totalDebitAmt         = 0;
+		$totalCreditAmt        = 0;
+		$totalClosingAmt       = 0;
+		$totalOpeningFine      = 0;
+		$totalOpeningAmt       = 0;
+
+		// pre($data);
+		$totalLoss = 0;
+
+		foreach ($customers as $abc => $c) {
+			$closingFine      = 0;
+			$closingAmt       = 0;
+			$openingFine      = 0;
+			$openingAmt       = 0;
+			$date             = '';
+			$customerName     = '';
+			$customerId       = 0;
+			$totalDebitFine2  = 0;
+			$totalDebitAmt2   = 0;
+			$totalCreditFine2 = 0;
+			$totalCreditAmt2  = 0;
+
+			$loss = 0;
+
+			$isBank = false;
+			$bank['bank_name'] = [];
+
+
+			foreach ($data['data'] as $di => $v) {
+
+				$closingFine = number_format($closingFine, 3, '.', '');
+				$closingAmt  = number_format($closingAmt, 3, '.', '');
+
+				$totalDebitFine2  = number_format($totalDebitFine2, 3, '.', '');
+				$totalDebitAmt2   = number_format($totalDebitAmt2, 3, '.', '');
+				$totalCreditFine2 = number_format($totalCreditFine2, 3, '.', '');
+				$totalCreditAmt2  = number_format($totalCreditAmt2, 3, '.', '');
+				// $loss = number_format($loss, 3, '.', '');
+				// if ($v['code'] == 'link(bank)') {
+				// 	$isBank = true;
+				// }
+				if ($v['party_id'] == $c) {
+					$loss += $v['loss'];
+					$customerId    = $c;
+					$date          = $v['date'];
+					$customerName  = $v['customer_name'];
+					$typeDebitArr  = [
+						'PUR',
+						'SAL_RETURN',
+						'FINE_CR',
+						'BANK_CR',
+						'ROOPU_CR',
+						'TE_CR',
+						'receive',
+						'LABOUR'
+
+					];
+					$typeCreditArr = [
+						'SAL',
+						'PUR_RETURN',
+						'FINE_DB',
+						'BANK_DB',
+						'ROOPU_DB',
+						'TE_DB',
+
+
+					];
+					$typeFineArr   = [
+						'IN_GIVEN_FINE',
+						'KASAR'
+					];
+					if ($v['type'] == 'PAY_PAY' && !$isBank) {
+						// $closingAmt -= abs($v['total_net_amt']);
+						if ($v['total_fine_gold'] <= 0) {
+							$closingAmt -= (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
+							$totalDebitAmt2 += (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
+							$totalClosingAmt -= (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
+						}
+						$closingFine -= (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
+						$totalDebitFine2 += (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
+						// $totalDebitAmt2 += abs($v['total_net_amt']);
+						$totalClosingFine -= (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
+						// $totalClosingAmt -= abs($v['total_net_amt']);
+					} else if ($v['type'] == 'PAY_REC' && !$isBank) {
+						// $closingAmt += abs($v['total_net_amt']);
+						if ($v['total_fine_gold'] <= 0) {
+							$closingAmt += (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
+							$totalCreditAmt2 += (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
+							$totalClosingAmt += (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
+						}
+						$closingFine += (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
+						$totalCreditFine2 += (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
+						// $totalCreditAmt2 += abs($v['total_net_amt']);
+						$totalClosingFine += (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
+						// $totalClosingAmt += abs($v['total_net_amt']);
+					} else if (in_array($v['type'], $typeCreditArr)) {
+						$closingAmt -= (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
+						$closingFine -= (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
+						$totalDebitFine2 += (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
+						$totalDebitAmt2 += (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
+						$totalClosingFine -= (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
+						$totalClosingAmt -= (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
+					} else if (in_array($v['type'], $typeDebitArr)) {
+						$closingAmt += (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
+						$closingFine += (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
+						$totalCreditFine2 += (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
+						$totalCreditAmt2 += (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
+						$totalClosingFine += (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
+						$totalClosingAmt += (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
+					} else if (in_array($v['type'], $typeFineArr)) {
+						if ($v['total_fine_gold'] < 0) {
+							$closingAmt += 0;
+							$closingFine += (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
+							$totalCreditFine2 += (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
+							$totalCreditAmt2 += 0;
+							$totalClosingFine += (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
+							$totalClosingAmt += 0;
+						} else {
+							$closingAmt -= 0;
+							$closingFine -= (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
+							$totalDebitFine2 += (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
+							$totalDebitAmt2 += 0;
+							$totalClosingFine -= (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
+							$totalClosingAmt -= 0;
+						}
+					} else if ($v['type'] == 'RATEFINE_DB' || $v['type'] == 'RATERS_DB') {
+						$closingAmt -= (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
+						$closingFine      = number_format($closingFine, 3, '.', '');
+						$closingFine += (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
+						$totalDebitAmt2 += (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
+						$totalCreditFine2 += (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
+						$totalClosingAmt -= (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
+						$totalClosingFine += (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
+					} else if ($v['type'] == 'RATEFINE_CR' || $v['type'] == 'RATERS_CR') {
+						$closingAmt += (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
+						$closingFine -= (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
+						$totalDebitAmt2 += (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
+						$totalCreditFine2 += (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
+						$totalClosingAmt += (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
+						$totalClosingFine -= (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
+
+						// $openingAmt += abs($v['total_net_amt']);
+						// $openingFine -= abs($v['total_fine_gold']);
+						// $totalOpeningAmt += abs($v['total_net_amt']);
+						// $totalOpeningFine -= abs($v['total_fine_gold']);
+					}
+					// else if (in_array($v['type'], $typeLossArr)) {
+					// 	// $loss = ($v['total_fine_gold'] != NULL || $v['total_fine_gold'] != "") ? $v['total_fine_gold'] : $v['total_net_amt'];
+					// }
+				}
+			}
+
+			foreach ($data['opening_data'] as $odi => $v) {
+				$openingAmt       = number_format($openingAmt, 3, '.', '');
+				$openingFine      = number_format($openingFine, 3, '.', '');
+				$totalOpeningAmt  = number_format($totalOpeningAmt, 3, '.', '');
+				$totalOpeningFine = number_format($totalOpeningFine, 3, '.', '');
+				if ($c == $v['party_id']) {
+					if ($v['code'] == 'link(bank)') {
+						$isBankO = true;
+					} else {
+						$isBankO = false;
+					}
+					if ($v['type'] == 'PAY_PAY' && !$isBankO) {
+						// $openingAmt -= abs($v['total_net_amt']);
+						if ($v['total_fine_gold'] <= 0) {
+							$openingAmt -= (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
+							$totalOpeningAmt -= (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
+						}
+						$openingFine -= (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
+						// $totalOpeningAmt -= abs($v['total_net_amt']);
+						$totalOpeningFine -= (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
+					} else if ($v['type'] == 'PAY_REC' && !$isBankO) {
+						// $openingAmt += abs($v['total_net_amt']);
+						if ($v['total_fine_gold'] <= 0) {
+							$openingAmt += (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
+							$totalOpeningAmt += (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
+						}
+						$openingFine += (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
+						// $totalOpeningAmt += abs($v['total_net_amt']);
+						$totalOpeningFine += (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
+					} else if (in_array($v['type'], $typeCreditArr)) {
+						$openingAmt -= (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
+						$openingFine -= (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
+						$totalOpeningAmt -= (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
+						$totalOpeningFine -= (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
+					} else if (in_array($v['type'], $typeDebitArr)) {
+						$openingAmt += (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
+						$openingFine += (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
+						$totalOpeningAmt += (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
+						$totalOpeningFine += (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
+					} else if (in_array($v['type'], $typeFineArr)) {
+						if ($v['total_fine_gold'] < 0) {
+							$openingAmt += (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
+							$openingFine += (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
+							$totalOpeningAmt += (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
+							$totalOpeningFine += (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
+						} else {
+							$openingAmt -= (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
+							$openingFine -= (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
+							$totalOpeningAmt -= (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
+							$totalOpeningFine -= (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
+						}
+					} else if ($v['type'] == 'RATEFINE_DB' || $v['type'] == 'RATERS_DB') {
+						$openingAmt -= (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
+						$openingFine += (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
+						$totalOpeningAmt -= (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
+						$totalOpeningFine += (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
+					} else if ($v['type'] == 'RATEFINE_CR' || $v['type'] == 'RATERS_CR') {
+						$openingAmt += (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
+						$openingFine -= (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
+						$totalOpeningAmt += (isset($v['total_net_amt']) && !empty($v['total_net_amt'])) ? abs($v['total_net_amt']) : 0;
+						$totalOpeningFine -= (isset($v['total_fine_gold']) && !empty($v['total_fine_gold'])) ? abs($v['total_fine_gold']) : 0;
+					}
+				}
+			}
+
+			$totalDebitAmt += $totalDebitAmt2;
+			$totalDebitFine += $totalDebitFine2;
+			$totalCreditAmt += $totalCreditAmt2;
+			$totalCreditFine += $totalCreditFine2;
+
+			if ($customerId > 0) {
+				// 		$cust = $dbh->getWhereRowArray('customer', [
+				// 			'id' => $customerId
+				// 		]);
+				$this->db->where('id', $customerId);
+				$cust = $this->db->get('customer')->row_array();
+				if ($cust['opening_amount_type'] == 'JAMA') {
+					$openingAmt -= $cust['opening_amount'];
+					$totalOpeningAmt -= $cust['opening_amount'];
+				} else {
+					$openingAmt += $cust['opening_amount'];
+					$totalOpeningAmt += $cust['opening_amount'];
+				}
+
+				if ($cust['opening_fine_type'] == 'JAMA') {
+					$openingFine -= $cust['opening_fine'];
+					$totalOpeningFine -= $cust['opening_fine'];
+				} else {
+					$openingFine += $cust['opening_fine'];
+					$totalOpeningFine += $cust['opening_fine'];
+				}
+			}
+
+			$bank_name = "";
+			// 	if($data['other']['master_type'] == "bank" && !empty($bank['bank_name'][$abc])){
+			// 	    $bank_name = $bank['bank_name'][$abc];
+			// 	}
+			$totalLoss += $loss;
+			$data['filtered_data'][] = [
+				'date'              => $dv['date'],
+				'type'              => '',
+				'customer_name'     => $customerName,
+				'party_id'       => $customerId,
+				'opening_fine'      => $openingFine,
+				'opening_amt'       => $openingAmt,
+				'total_debit_fine'  => $totalDebitFine2,
+				'total_debit_amt'   => $totalDebitAmt2,
+				'total_credit_fine' => $totalCreditFine2,
+				'total_credit_amt'  => $totalCreditAmt2,
+				'closing_fine'      => $closingFine,
+				'closing_amt'       => $closingAmt,
+				'loss'              => $loss,
+				'isBank'            => $isBank,
+				'bank_name'         => $bank_name
+			];
+		}
+
+		// pre($data['filtered_data']);
+		$finalData = [];
+		foreach ($data['filtered_data'] as $fdi => $fdv) {
+			$CF = $fdv['closing_fine'] + $fdv['opening_fine'];
+			$CA = $fdv['closing_amt'] + $fdv['opening_amt'];
+
+			$finalData[$fdv['party_id']] = [
+				'fine'   => $CF,
+				'amount' => $CA
+			];
+		}
+
+		return $finalData;
 	}
-
-	$totalDebitAmt += $totalDebitAmt2;
-	$totalDebitFine += $totalDebitFine2;
-	$totalCreditAmt += $totalCreditAmt2;
-	$totalCreditFine += $totalCreditFine2;
-
-	if ($customerId > 0) {
-// 		$cust = $dbh->getWhereRowArray('customer', [
-// 			'id' => $customerId
-// 		]);
-$this->db->where('id', $customerId);
-            $cust = $this->db->get('customer')->row_array();
-		if ($cust['opening_amount_type'] == 'JAMA') {
-            $openingAmt -= $cust['opening_amount'];
-            $totalOpeningAmt -= $cust['opening_amount'];
-        } else {
-            $openingAmt += $cust['opening_amount'];
-            $totalOpeningAmt += $cust['opening_amount'];
-        }
-
-        if ($cust['opening_fine_type'] == 'JAMA') {
-            $openingFine -= $cust['opening_fine'];
-            $totalOpeningFine -= $cust['opening_fine'];
-        } else {
-            $openingFine += $cust['opening_fine'];
-            $totalOpeningFine += $cust['opening_fine'];
-        }
-	}
-	
-    $bank_name = "";
-// 	if($data['other']['master_type'] == "bank" && !empty($bank['bank_name'][$abc])){
-// 	    $bank_name = $bank['bank_name'][$abc];
-// 	}
-	$totalLoss += $loss;
-	$data['filtered_data'][] = [
-		'date'              => $dv['date'],
-		'type'              => '',
-		'customer_name'     => $customerName,
-		'party_id'       => $customerId,
-		'opening_fine'      => $openingFine,
-		'opening_amt'       => $openingAmt,
-		'total_debit_fine'  => $totalDebitFine2,
-		'total_debit_amt'   => $totalDebitAmt2,
-		'total_credit_fine' => $totalCreditFine2,
-		'total_credit_amt'  => $totalCreditAmt2,
-		'closing_fine'      => $closingFine,
-		'closing_amt'       => $closingAmt,
-		'loss'              => $loss,
-		'isBank'            => $isBank,
-		'bank_name'         => $bank_name
-	];
-}
-        
-        // pre($data['filtered_data']);
-        $finalData = [];
-        foreach ($data['filtered_data'] as $fdi => $fdv) {
-            $CF = $fdv['closing_fine'] + $fdv['opening_fine'];
-            $CA = $fdv['closing_amt'] + $fdv['opening_amt'];
-
-            $finalData[$fdv['party_id']] = [
-                'fine'   => $CF,
-                'amount' => $CA
-            ];
-        }
-
-        return $finalData;
-    }
 }
