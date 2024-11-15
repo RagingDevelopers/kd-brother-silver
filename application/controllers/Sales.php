@@ -142,7 +142,7 @@ class Sales extends CI_Controller
 			$sequence_code = $this->seq->getNextSequence('jama');
 			if (isset($payment[$a]->type)) {
 				$insert = $this->db->insert('jama', array(
-					'sale_id' => $id,
+					'sale_id' => 'sale-'.$id,
 					'date' => $data['date'],
 					'customer_id' => $data['party_id'],
 					'type' => $payment[$a]->type,
@@ -200,7 +200,7 @@ class Sales extends CI_Controller
 		$this->db->select('jama.*, bank.name as bankname'); // Select all fields from both tables (you can specify fields if needed)
 		$this->db->from('jama');
 		$this->db->join('bank', 'bank.id = jama.bank_id'); // Joining the sale table based on sale_id
-		$this->db->where('jama.sale_id', $id); // Filtering by the sale_id
+		$this->db->where('jama.sale_id', 'sale-'.$id); // Filtering by the sale_id
 		$query = $this->db->get(); // Running the query
 
 		$result = $query->result();
@@ -306,7 +306,7 @@ class Sales extends CI_Controller
 		}
 
 		$payment = json_decode($data['paymentArray']);
-		$jama = $this->db->get_where('jama', ['sale_id' => $id])->row('jama_code');
+		$jama = $this->db->get_where('jama', ['sale_id' => 'sale-'.$id])->row('jama_code');
 		if ($jama == '') {
 			$jama_code = $this->db->get_where('setting', array('id' => 1))->row('jama_code');
 			$jama = 'JAMA_' . $jama_code;
@@ -320,7 +320,7 @@ class Sales extends CI_Controller
 			}
 		}
 		// Deletion logic
-		$deleteQ = $this->db->get_where('jama', ['sale_id' => $id])->result_array();
+		$deleteQ = $this->db->get_where('jama', ['sale_id' => 'sale-'.$id])->result_array();
 		foreach ($deleteQ as $deleteR) {
 			// Check if the saleid from the current payment is in the deleteQ results
 			if (!in_array($deleteR['id'], $saleId)) {
@@ -332,7 +332,7 @@ class Sales extends CI_Controller
 				$sequence_code = $this->seq->getNextSequence('jama');
 				if ($payment[$a]->saleid == '') {
 					$insert = $this->db->insert('jama', array(
-						'sale_id' => $id,
+						'sale_id' => 'sale-'.$id,
 						'date' => $data['date'],
 						'customer_id' => $data['party_id'],
 						'type' => $payment[$a]->type,
@@ -354,7 +354,7 @@ class Sales extends CI_Controller
 					));
 				} else {
 					$saleId[] = $payment[$a]->saleid;
-					$this->db->where(['id' => $payment[$a]->saleid, 'sale_id' => $id]);
+					$this->db->where(['id' => $payment[$a]->saleid, 'sale_id' => 'sale-'.$id]);
 					$this->db->update('jama', array(
 						'date' => $data['date'],
 						'customer_id' => $data['party_id'],

@@ -12,6 +12,7 @@ class Sales_return extends CI_Controller
 		check_login();
 		$this->load->model('Sales_return_model', "sales_return");
 		$this->load->model('Sequence_model', 'seq');
+		$this->load->model('payment/Jama_model', 'jama');
 	}
 
 	public function index()
@@ -32,6 +33,9 @@ class Sales_return extends CI_Controller
 		$page_data['item'] = $this->sales_return->fetch_item();
 		$page_data['stamp'] = $this->sales_return->fetch_stamp();
 		$page_data['unit'] = $this->sales_return->fetch_unit();
+		$page_data['bank'] = $this->jama->bank();
+		$page_data['party'] = $this->jama->party();
+		$page_data['metal_type'] = $this->jama->metal_type();
 		return view(self::Create, $page_data);
 	}
 
@@ -102,6 +106,39 @@ class Sales_return extends CI_Controller
 				}
 			}
 		}
+
+		$payment = json_decode($data['paymentArray']);
+		$jama_code = $this->db->get_where('setting', array('id' => 1))->row('jama_code');
+		$jama = 'JAMA_' . $jama_code;
+		$this->db->where('id', 1);
+		$this->db->update('setting', array('jama_code' => $jama_code + 1));
+		for ($a = 0; $a < count($payment); $a++) {
+			$sequence_code = $this->seq->getNextSequence('jama');
+			if (isset($payment[$a]->type)) {
+				$insert = $this->db->insert('jama', array(
+					'sale_id' => 'sale-return-'.$id,
+					'date' => $data['date'],
+					'customer_id' => $data['party_id'],
+					'type' => $payment[$a]->type,
+					'mode' => $payment[$a]->mode,
+					'gross' => $payment[$a]->gross,
+					'purity' => $payment[$a]->purity,
+					'wb' => $payment[$a]->wb,
+					'fine' => $payment[$a]->fine,
+					'rate' => $payment[$a]->rate,
+					'amount' => $payment[$a]->amount,
+					'remark' => $payment[$a]->remark,
+					'jama_code' => '',
+					'metal_type_id' => $payment[$a]->metal_type_id,
+					'creation_date' => date('Y-m-d'),
+					'payment_type' => $payment[$a]->payment,
+					'jama_code' => $jama,
+					'bank_id' => $payment[$a]->bank,
+					'sequence_code' => $sequence_code
+				));
+			}
+		}
+
 		flash()->withSuccess("Insert Successfully.")->to("sales_return/index");
 	}
 
@@ -135,12 +172,23 @@ class Sales_return extends CI_Controller
 				$data['sale_detail'][$i]['raw_material_data'] = "";
 			}
 		}
+		$this->db->select('jama.*, bank.name as bankname'); // Select all fields from both tables (you can specify fields if needed)
+		$this->db->from('jama');
+		$this->db->join('bank', 'bank.id = jama.bank_id'); // Joining the sale table based on sale_id
+		$this->db->where('jama.sale_id', 'sale-return-'.$id); // Filtering by the sale_id
+		$query = $this->db->get(); // Running the query
+
+		$result = $query->result();
+		$page_data['payment'] = $result;
 		$page_data['page_title'] = 'Sales Return';
 		$page_data['row_material'] = $this->db->select('id,name')->from('row_material')->where('status', "ACTIVE")->get()->result_array();
 		$page_data['party'] = $this->sales_return->fetch_party();
 		$page_data['item'] = $this->sales_return->fetch_item();
 		$page_data['stamp'] = $this->sales_return->fetch_stamp();
 		$page_data['unit'] = $this->sales_return->fetch_unit();
+		$page_data['bank'] = $this->jama->bank();
+		$page_data['party'] = $this->jama->party();
+		$page_data['metal_type'] = $this->jama->metal_type();
 		$page_data['data'] = $data;
 		return view(self::Create, $page_data);
 	}
@@ -203,6 +251,76 @@ class Sales_return extends CI_Controller
 					} else {
 						$this->db->where(['sale_detail_id' => $data['rowid'][$i], 'id' => $array1[4]])->update('sale_return_material', $saleMaterial);
 					}
+				}
+			}
+		}
+
+		$payment = json_decode($data['paymentArray']);
+		$jama = $this->db->get_where('jama', ['sale_id' => 'sale-return-'.$id])->row('jama_code');
+		if ($jama == '') {
+			$jama_code = $this->db->get_where('setting', array('id' => 1))->row('jama_code');
+			$jama = 'JAMA_' . $jama_code;
+			$this->db->where('id', 1);
+			$this->db->update('setting', array('jama_code' => $jama_code + 1));
+		}
+		$saleId = [];
+		for ($b = 0; $b < count($payment); $b++) {
+			if (isset($payment[$b]->saleid)) {
+				$saleId[] = $payment[$b]->saleid;
+			}
+		}
+		// Deletion logic
+		$deleteQ = $this->db->get_where('jama', ['sale_id' => 'sale-return-'.$id])->result_array();
+		foreach ($deleteQ as $deleteR) {
+			// Check if the saleid from the current payment is in the deleteQ results
+			if (!in_array($deleteR['id'], $saleId)) {
+				$this->db->where('id', $deleteR['id'])->delete('jama');
+			}
+		}
+		for ($a = 0; $a < count($payment); $a++) {
+			if (isset($payment[$a]->type)) {
+				$sequence_code = $this->seq->getNextSequence('jama');
+				if ($payment[$a]->saleid == '') {
+					$insert = $this->db->insert('jama', array(
+						'sale_id' => 'sale-return-'.$id,
+						'date' => $data['date'],
+						'customer_id' => $data['party_id'],
+						'type' => $payment[$a]->type,
+						'mode' => $payment[$a]->mode,
+						'gross' => $payment[$a]->gross,
+						'purity' => $payment[$a]->purity,
+						'wb' => $payment[$a]->wb,
+						'fine' => $payment[$a]->fine,
+						'rate' => $payment[$a]->rate,
+						'amount' => $payment[$a]->amount,
+						'remark' => $payment[$a]->remark,
+						'jama_code' => '',
+						'metal_type_id' => $payment[$a]->metal_type_id,
+						'creation_date' => date('Y-m-d'),
+						'payment_type' => $payment[$a]->payment,
+						'jama_code' => $jama,
+						'bank_id' => $payment[$a]->bank,
+						'sequence_code' => $sequence_code
+					));
+				} else {
+					$saleId[] = $payment[$a]->saleid;
+					$this->db->where(['id' => $payment[$a]->saleid, 'sale_id' => 'sale-return-'.$id]);
+					$this->db->update('jama', array(
+						'date' => $data['date'],
+						'customer_id' => $data['party_id'],
+						'type' => $payment[$a]->type,
+						'mode' => $payment[$a]->mode,
+						'gross' => $payment[$a]->gross,
+						'purity' => $payment[$a]->purity,
+						'wb' => $payment[$a]->wb,
+						'fine' => $payment[$a]->fine,
+						'rate' => $payment[$a]->rate,
+						'amount' => $payment[$a]->amount,
+						'remark' => $payment[$a]->remark,
+						'metal_type_id' => $payment[$a]->metal_type_id,
+						'payment_type' => $payment[$a]->payment,
+						'bank_id' => $payment[$a]->bank
+					));
 				}
 			}
 		}
