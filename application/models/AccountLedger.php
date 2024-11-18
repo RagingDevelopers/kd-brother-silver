@@ -396,7 +396,7 @@ class AccountLedger extends CI_Model
 				$this->db->where('AC.id', $ac_cat);
 			}
 			$AC = $this->db->get()->row_array();
-			$this->session->set_userdata('account_type', $AC['name']);
+			$this->session->set_userdata('account_type', $AC['name'] ?? '');
 			// if ($AC['name'] == 'karigar') {
 			// $additionalKarigarLedgerQuery = $this->getKarigarLedgerData($opening, $fromDate, $toDate, $cid, $AC['id'], $ig_id, $other);
 			$additionalKarigarLedgerQuery = $this->getKarigarLedgerData($opening, $fromDate, $toDate, $cid, $ac_cat, $lother);

@@ -103,10 +103,10 @@ class Garnu extends CI_Controller
 					if ($post['metal_type_id'][$i] == 8) {
 						$current_record = $this->db->get('common_bhuko')->row_array();
 
-						$difference_touch = $post['touch'][$i] - $current_record['touch'];
+						// $difference_touch = $post['touch'][$i] - $current_record['touch'];
 						$difference_weight = $post['weight'][$i] - $current_record['weight'];
 
-						$this->db->update('common_bhuko', ['touch' => $difference_touch, 'weight' => $difference_weight]);
+						$this->db->update('common_bhuko', ['weight' => $difference_weight]);
 					}
 				}
 
@@ -177,10 +177,10 @@ class Garnu extends CI_Controller
 						}
 					}
 
-					$this->db->update('common_bhuko', [
-						'touch' => $current_touch,
-						'weight' => $current_weight
-					]);
+					// $this->db->update('common_bhuko', [
+					// 	// 'touch' => $current_touch,
+					// 	'weight' => $current_weight
+					// ]);
 				}
 
 				for ($i = 0; $i < $length; $i++) {
@@ -201,10 +201,10 @@ class Garnu extends CI_Controller
 					if ($post['metal_type_id'][$i] == 8) {
 						$current_record = $this->db->get('common_bhuko')->row_array();
 
-						$difference_touch = $post['touch'][$i] - $current_record['touch'];
-						$difference_weight = $post['weight'][$i] - $current_record['weight'];
+						// $difference_touch = $post['touch'][$i] - $current_record['touch'];
+						// $difference_weight = $post['weight'][$i] - $current_record['weight'];
 
-						$this->db->update('common_bhuko', ['touch' => $difference_touch, 'weight' => $difference_weight]);
+						// $this->db->update('common_bhuko', ['weight' => $difference_weight]);
 					}
 				}
 				flash()->withSuccess("Garnu Updated Successfully")->to("manufacturing/garnu");
