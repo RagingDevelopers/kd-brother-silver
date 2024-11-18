@@ -683,6 +683,7 @@
 			$("#party_id").trigger('change');
 		}, 300);
 	}
+	
 	var modal = $("#payment-report");
 	$(document).on("click", ".paymentAdd", function() {
 		$('input', modal).val('');
@@ -925,7 +926,6 @@
 		}
 	});
 
-
 	$(document).on("keyup", ".allinone", function() {
 		var type = $("#type").val();
 
@@ -972,8 +972,6 @@
 				fine = 0;
 			}
 
-
-
 			if (wb > 0 && fine > 0) {
 				var fineincrease = (fine * wb) / 1000;
 				fine += fineincrease;
@@ -982,8 +980,6 @@
 				var fineincrease = (fine * wb) / 1000;
 				fine += fineincrease;
 			}
-
-
 
 			$("#fine").val(Math.round(fine));
 		} else if (type == "roopu") {
