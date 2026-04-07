@@ -1,6 +1,6 @@
 <?php if (!defined('BASEPATH')) exit('No direct script access allowed');
 
-require 'vendor/autoload.php';
+require_once FCPATH . 'vendor/autoload.php';
 use Picqer\Barcode\BarcodeGeneratorHTML;
 
 function generate($barcodeValue = '')
