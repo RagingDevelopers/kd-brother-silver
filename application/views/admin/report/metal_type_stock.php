@@ -1,6 +1,6 @@
 <style>
 	.table td {
-		font-weight: bold;
+		font-weight: 500;
 	}
 </style>
 <div class="row">

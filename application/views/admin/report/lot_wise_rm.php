@@ -7,7 +7,7 @@
 	#garnu,
 	#garnu th,
 	#garnu td {
-		font-weight: bold;
+		font-weight: 500;
 		/* Make text bold */
 	}
 

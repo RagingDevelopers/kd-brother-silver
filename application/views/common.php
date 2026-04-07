@@ -1,4 +1,3 @@
-
 <html lang="en">
 
 <head>
@@ -29,22 +28,33 @@
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" />
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
 
+	<!-- Admin font -->
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
 
 	<style>
-	    @keyframes blink {
-            0% { opacity: 1; }
-            50% { opacity: 0; }
-            100% { opacity: 1; }
-        }
-        
-        .blinking-text {
-            animation: blink 3s linear infinite;
-        }
+		@keyframes blink {
+			0% {
+				opacity: 1;
+			}
 
-		@import url('https://rsms.me/inter/inter.css');
+			50% {
+				opacity: 0;
+			}
+
+			100% {
+				opacity: 1;
+			}
+		}
+
+		.blinking-text {
+			animation: blink 3s linear infinite;
+		}
 
 		:root {
-			--tblr-font-sans-serif: 'Inter Var', -apple-system, BlinkMacSystemFont, San Francisco, Segoe UI, Roboto, Helvetica Neue, sans-serif;
+			--tblr-font-sans-serif: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
 		}
 
 		body {
@@ -157,6 +167,7 @@
 		}
 
 		input[type=number] {
+			appearance: textfield;
 			-moz-appearance: textfield;
 		}
 
@@ -174,67 +185,79 @@
 			/*	zoom: 80%;*/
 
 			/*}*/
-			.modal-backdrop{
+			.modal-backdrop {
 				width: 100%;
 				height: 100%;
 			}
 		}
-		
-        .navbar-nav	.dropdown-menu-end {
-            right: 0;
-            left: auto;
-        }
-		
-		.dropdown-menu {
-            top: 100%;
-            left: 0;
-            margin-top: var(--tblr-dropdown-spacer);
-        }
-		
-		.navbar-nav .dropdown-menu {
-            
-            border-radius: 9px !important;
-            opacity: 0;
-            visibility: hidden;
-            -webkit-box-shadow: 0 1px 10px 0 rgba(69, 90, 100, 0.2) !important;
-            box-shadow: 0 1px 10px 0 rgba(69, 90, 100, 0.2) !important;
-            -webkit-transform: translateY(15px);
-            transform: translateY(16px);
-            transition: transform 0.32s cubic-bezier(0, 0, 0, 1), opacity 80ms;
-            transition: transform 0.32s cubic-bezier(0, 0, 0, 1), opacity 80ms, -webkit-transform 0.32s cubic-bezier(0, 0, 0, 1);
-			transition : ease-in-out 0.2s;
 
-        }
-        .dropdown-item i {
-            margin-right: 8px;
-            transition: transform 0.3s ease;
-        }
-        
-        
-        .dropdown-item {
-            transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease;
-        }
-        
-        .dropdown-item:focus, .dropdown-item:hover {
-            color: var(--tblr-dropdown-link-hover-color);
-            text-decoration: none;
-            transform: scale(1.05); /* Slight zoom effect */
-        }
-		
+		.navbar-nav .dropdown-menu-end {
+			right: 0;
+			left: auto;
+		}
+
+		.dropdown-menu {
+			top: 100%;
+			left: 0;
+			margin-top: var(--tblr-dropdown-spacer);
+		}
+
+		.navbar-nav .dropdown-menu {
+
+			border-radius: 9px !important;
+			opacity: 0;
+			visibility: hidden;
+			-webkit-box-shadow: 0 1px 10px 0 rgba(69, 90, 100, 0.2) !important;
+			box-shadow: 0 1px 10px 0 rgba(69, 90, 100, 0.2) !important;
+			-webkit-transform: translateY(15px);
+			transform: translateY(16px);
+			transition: transform 0.32s cubic-bezier(0, 0, 0, 1), opacity 80ms;
+			transition: transform 0.32s cubic-bezier(0, 0, 0, 1), opacity 80ms, -webkit-transform 0.32s cubic-bezier(0, 0, 0, 1);
+			transition: ease-in-out 0.2s;
+
+		}
+
+		.dropdown-item i {
+			margin-right: 8px;
+			transition: transform 0.3s ease;
+		}
+
+
+		.dropdown-item {
+			transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease;
+		}
+
+		/* Highlight currently-open page inside dropdown */
+		.dropdown-item.active,
+		.dropdown-item.active:focus,
+		.dropdown-item.active:hover {
+			background: rgba(1, 137, 255, 0.12);
+			color: #000000;
+			font-weight: 600;
+		}
+
+		.dropdown-item:focus,
+		.dropdown-item:hover {
+			color: var(--tblr-dropdown-link-hover-color);
+			text-decoration: none;
+			transform: scale(1.05);
+			/* Slight zoom effect */
+		}
+
 		.navbar-nav .show.dropdown-menu {
-            opacity: 1;
-            visibility: visible;
-            display: unset;
-            -webkit-transform: translateY(0);
-            transform: translateY(0);
-        }
-		
-		/*@media only screen and (min-device-width: 820px) and (max-device-width: 1520px)  { */
-  /*          body{ */
-  /*              zoom:50%;*/
-                
-  /*          }*/
-  /*          }*/
+			opacity: 1;
+			visibility: visible;
+			display: unset;
+			-webkit-transform: translateY(0);
+			transform: translateY(0);
+		}
+
+		/* @media only screen and (min-device-width: 820px) and (max-device-width: 1520px) {
+			body {
+				zoom: 50%;
+
+			}
+		} */
 	</style>
 	<script>
 		const BaseUrl = "<?= base_url() ?>"

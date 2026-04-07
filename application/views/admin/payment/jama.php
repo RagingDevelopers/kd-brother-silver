@@ -57,7 +57,7 @@
 							</div>
 						</div>
 
-						<div class="row" style="margin-top:1%;">
+						<div class="row">
 							<div class="col-md-2">
 								<div class="form-group">
 									<label class="form-label">Type<span class="text-danger">*</span></label>

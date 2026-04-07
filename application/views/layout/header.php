@@ -30,73 +30,73 @@
 						<div class="dropdown-menu dropdown-menu-arrow" data-bs-popper="static">
 							<div class="dropdown-menu-columns">
 								<div class="dropdown-menu-column">
-									<a class="dropdown-item" href="<?= base_url("master/process") ?>">
+									<a class="dropdown-item <?= uri("master/process"); ?>" href="<?= base_url("master/process") ?>">
 										<span class="nav-link-icon d-md-none d-lg-inline-block">
 											<i class="fa fa-spinner" aria-hidden="true"></i>
 										</span>
 										Process
 									</a>
-									<a class="dropdown-item" href="<?= base_url("master/account_type") ?>">
+									<a class="dropdown-item <?= uri("master/account_type"); ?>" href="<?= base_url("master/account_type") ?>">
 										<span class="nav-link-icon d-md-none d-lg-inline-block">
 											<i class="fa-solid fa-receipt" aria-hidden="true"></i>
 										</span>
 										Account type
 									</a>
-									<a class="dropdown-item" href="<?= base_url("master/city") ?>">
+									<a class="dropdown-item <?= uri("master/city"); ?>" href="<?= base_url("master/city") ?>">
 										<span class="nav-link-icon d-md-none d-lg-inline-block">
 											<i class="fa-solid fa-city" aria-hidden="true"></i>
 										</span>
 										City
 									</a>
-									<a class="dropdown-item" href="<?= base_url("master/category") ?>">
+									<a class="dropdown-item <?= uri("master/category"); ?>" href="<?= base_url("master/category") ?>">
 										<span class="nav-link-icon d-md-none d-lg-inline-block">
 											<i class="fa-solid fa-list" aria-hidden="true"></i>
 										</span>
 										Category
 									</a>
-									<a class="dropdown-item" href="<?= base_url("master/item") ?>">
+									<a class="dropdown-item <?= uri("master/item"); ?>" href="<?= base_url("master/item") ?>">
 										<span class="nav-link-icon d-md-none d-lg-inline-block">
 											<i class="fa-solid fa-layer-group" aria-hidden="true"></i>
 										</span>
 										Item
 									</a>
-									<a class="dropdown-item" href="<?= base_url("master/sub_item") ?>">
+									<a class="dropdown-item <?= uri("master/sub_item"); ?>" href="<?= base_url("master/sub_item") ?>">
 										<span class="nav-link-icon d-md-none d-lg-inline-block">
 											<i class="fa-solid fa-diagram-next" aria-hidden="true"></i>
 										</span>
 										Sub Item
 									</a>
-									<a class="dropdown-item" href="<?= base_url("master/row_material_type") ?>">
-										<span class="nav-link-icon d-md-none d-lg-inline-block">
-											<i class="fa-solid fa-dumpster-fire" aria-hidden="true"></i>
-										</span>
-										Row Meterial type
-									</a>
-									<a class="dropdown-item" href="<?= base_url("master/row_material") ?>">
+									<a class="dropdown-item <?= uri("master/row_material"); ?>" href="<?= base_url("master/row_material") ?>">
 										<span class="nav-link-icon d-md-none d-lg-inline-block">
 											<i class="fa-brands fa-dropbox" aria-hidden="true"></i>
 										</span>
-										Row Meterial
+										Raw Meterial
 									</a>
-									<a class="dropdown-item" href="<?= base_url("master/metal_type") ?>">
+									<a class="dropdown-item <?= uri("master/row_material_type"); ?>" href="<?= base_url("master/row_material_type") ?>">
+										<span class="nav-link-icon d-md-none d-lg-inline-block">
+											<i class="fa-solid fa-dumpster-fire" aria-hidden="true"></i>
+										</span>
+										Raw Meterial type
+									</a>
+									<a class="dropdown-item <?= uri("master/metal_type"); ?>" href="<?= base_url("master/metal_type") ?>">
 										<span class="nav-link-icon d-md-none d-lg-inline-block">
 											<i class="fa-brands fa-squarespace" aria-hidden="true"></i>
 										</span>
 										Metal Type
 									</a>
-									<a class="dropdown-item" href="<?= base_url("master/bank") ?>">
+									<a class="dropdown-item <?= uri("master/bank"); ?>" href="<?= base_url("master/bank") ?>">
 										<span class="nav-link-icon d-md-none d-lg-inline-block">
 											<i class="fa-solid fa-building-columns" aria-hidden="true"></i>
 										</span>
 										Bank
 									</a>
-									<a class="dropdown-item" href="<?= base_url("master/stamp") ?>">
+									<a class="dropdown-item <?= uri("master/stamp"); ?>" href="<?= base_url("master/stamp") ?>">
 										<span class="nav-link-icon d-md-none d-lg-inline-block">
 											<i class="fa-solid fa-stamp" aria-hidden="true"></i>
 										</span>
 										Stamp
 									</a>
-									<a class="dropdown-item" href="<?= base_url("master/unit") ?>">
+									<a class="dropdown-item <?= uri("master/unit"); ?>" href="<?= base_url("master/unit") ?>">
 										<span class="nav-link-icon d-md-none d-lg-inline-block">
 											<i class="fa-solid fa-bars" aria-hidden="true"></i>
 										</span>
@@ -119,13 +119,13 @@
 						<div class="dropdown-menu dropdown-menu-arrow" data-bs-popper="static">
 							<div class="dropdown-menu-columns">
 								<div class="dropdown-menu-column">
-									<a class="dropdown-item" href="<?= base_url("registration/customer") ?>">
+									<a class="dropdown-item <?= uri("registration/customer"); ?>" href="<?= base_url("registration/customer") ?>">
 										<span class="nav-link-icon d-md-none d-lg-inline-block">
 											<i class="fa-solid fa-address-card" aria-hidden="true"></i>
 										</span>
 										Customer
 									</a>
-									<a class="dropdown-item" href="<?= base_url("registration/user") ?>">
+									<a class="dropdown-item <?= uri("registration/user"); ?>" href="<?= base_url("registration/user") ?>">
 										<span class="nav-link-icon d-md-none d-lg-inline-block">
 											<i class="fa-solid fa-user-plus" aria-hidden="true"></i>
 										</span>
@@ -154,49 +154,49 @@
 									<!--	</span>-->
 									<!--	Main Garnu-->
 									<!--</a>-->
-									<a class="dropdown-item" href="<?= base_url("manufacturing/garnu") ?>">
+									<a class="dropdown-item <?= uri("manufacturing/garnu"); ?>" href="<?= base_url("manufacturing/garnu") ?>">
 										<span class="nav-link-icon d-md-none d-lg-inline-block">
 											<i class="fa-solid fa-filter"></i>
 										</span>
 										Garnu
 									</a>
-									<a class="dropdown-item" href="<?= base_url("manufacturing/receive_garnu") ?>">
+									<a class="dropdown-item <?= uri("manufacturing/receive_garnu"); ?>" href="<?= base_url("manufacturing/receive_garnu") ?>">
 										<span class="nav-link-icon d-md-none d-lg-inline-block">
 											<i class="fa-sharp fa-solid fa-arrow-rotate-left"></i>
 										</span>
 										Received Garnu
 									</a>
-									<a class="dropdown-item" href="<?= base_url("manufacturing/product") ?>">
+									<a class="dropdown-item <?= uri("manufacturing/product"); ?>" href="<?= base_url("manufacturing/product") ?>">
 										<span class="nav-link-icon d-md-none d-lg-inline-block">
 											<i class="fa-solid fa-truck-fast"></i>
 										</span>
 										Main Dhal Report
 									</a>
-									<a class="dropdown-item" href="<?= base_url("manufacturing/product/main_given_report") ?>">
+									<a class="dropdown-item <?= uri("manufacturing/product/main_given_report"); ?>" href="<?= base_url("manufacturing/product/main_given_report") ?>">
 										<span class="nav-link-icon d-md-none d-lg-inline-block">
 											<i class="fa fa-line-chart" aria-hidden="true"></i>
 										</span>
 										Main Given Report
 									</a>
-									<a class="dropdown-item" href="<?= base_url("manufacturing/receive_garnu/lot_creation") ?>">
+									<a class="dropdown-item <?= uri("manufacturing/receive_garnu/lot_creation"); ?>" href="<?= base_url("manufacturing/receive_garnu/lot_creation") ?>">
 										<span class="nav-link-icon d-md-none d-lg-inline-block">
 											<i class="fa-solid fa-boxes-packing"></i>
 										</span>
 										Ready For Lot
 									</a>
-									<a class="dropdown-item" href="<?= base_url("manufacturing/lot") ?>">
+									<a class="dropdown-item <?= uri("manufacturing/lot"); ?>" href="<?= base_url("manufacturing/lot") ?>">
 										<span class="nav-link-icon d-md-none d-lg-inline-block">
 											<i class="fa fa-random" aria-hidden="true"></i>
 										</span>
 										Lot Creation
 									</a>
-									<a class="dropdown-item" href="<?= base_url("manufacturing/ready_for_sale") ?>">
+									<a class="dropdown-item <?= uri("manufacturing/ready_for_sale"); ?>" href="<?= base_url("manufacturing/ready_for_sale") ?>">
 										<span class="nav-link-icon d-md-none d-lg-inline-block">
 											<i class="fa-solid fa-diagram-next" aria-hidden="true"></i>
 										</span>
 										Ready For Sale
 									</a>
-									<a class="dropdown-item" href="<?= base_url("manufacturing/given_testing") ?>">
+									<a class="dropdown-item <?= uri("manufacturing/given_testing"); ?>" href="<?= base_url("manufacturing/given_testing") ?>">
 										<span class="nav-link-icon d-md-none d-lg-inline-block">
 											<i class="fa-solid fa-filter"></i>
 										</span>
@@ -219,13 +219,13 @@
 						<div class="dropdown-menu dropdown-menu-arrow" data-bs-popper="static">
 							<div class="dropdown-menu-columns">
 								<div class="dropdown-menu-column">
-									<a class="dropdown-item" href="<?= base_url("purchase") ?>">
+									<a class="dropdown-item <?= uri("purchase"); ?>" href="<?= base_url("purchase") ?>">
 										<span class="nav-link-icon d-md-none d-lg-inline-block">
 											<i class="fa-solid fa-user-plus"></i>
 										</span>
 										Purchase Item
 									</a>
-									<a class="dropdown-item" href="<?= base_url("purchase_return") ?>">
+									<a class="dropdown-item <?= uri("purchase_return"); ?>" href="<?= base_url("purchase_return") ?>">
 										<span class="nav-link-icon d-md-none d-lg-inline-block">
 											<i class="fa-solid fa-money-bill-transfer"></i>
 										</span>
@@ -233,7 +233,6 @@
 									</a>
 								</div>
 							</div>
-							
 						</div>
 					</li>
 
@@ -249,13 +248,13 @@
 						<div class="dropdown-menu dropdown-menu-arrow" data-bs-popper="static">
 							<div class="dropdown-menu-columns">
 								<div class="dropdown-menu-column">
-									<a class="dropdown-item" href="<?= base_url("sales") ?>">
+									<a class="dropdown-item <?= uri("sales"); ?>" href="<?= base_url("sales") ?>">
 										<span class="nav-link-icon d-md-none d-lg-inline-block">
 											<i class="fa-solid fa-money-bills"></i>
 										</span>
 										Sales Report
 									</a>
-										<a class="dropdown-item" href="<?= base_url("sales_return") ?>">
+										<a class="dropdown-item <?= uri("sales_return"); ?>" href="<?= base_url("sales_return") ?>">
 										<span class="nav-link-icon d-md-none d-lg-inline-block">
 											<i class="fa-solid fa-money-bill-transfer"></i>
 										</span>
@@ -263,10 +262,8 @@
 									</a>
 								</div>
 							</div>
-							
 						</div>
 					</li>
-
 
 					<li class="nav-item dropdown <?= IsActive("payment"); ?>">
 						<a class="nav-link dropdown-toggle" href="#navbar-payment" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false">
@@ -280,13 +277,13 @@
 						<div class="dropdown-menu dropdown-menu-arrow" data-bs-popper="static">
 							<div class="dropdown-menu-columns">
 								<div class="dropdown-menu-column">
-									<a class="dropdown-item" href="<?= base_url("payment/jama_report") ?>">
+									<a class="dropdown-item <?= uri("payment/jama_report"); ?>" href="<?= base_url("payment/jama_report") ?>">
 										<span class="nav-link-icon d-md-none d-lg-inline-block">
 											<i class="fa-solid fa-money-bills"></i>
 										</span>
 										Payment Report
 									</a>
-									<a class="dropdown-item" href="<?= base_url("payment/transfer_entry") ?>">
+									<a class="dropdown-item <?= uri("payment/transfer_entry"); ?>" href="<?= base_url("payment/transfer_entry") ?>">
 										<span class="nav-link-icon d-md-none d-lg-inline-block">
 											<i class="fa-solid fa-money-bill-transfer"></i>
 										</span>
@@ -294,7 +291,6 @@
 									</a>
 								</div>
 							</div>
-
 						</div>
 					</li>
 
@@ -321,67 +317,67 @@
 						<div class="dropdown-menu dropdown-menu-arrow" data-bs-popper="static">
 							<div class="dropdown-menu-columns">
 								<div class="dropdown-menu-column">
-									<a class="dropdown-item" href="<?= base_url("report/lot") ?>">
+									<a class="dropdown-item <?= uri("report/lot"); ?>" href="<?= base_url("report/lot") ?>">
 										<span class="nav-link-icon d-md-none d-lg-inline-block">
 											<i class="fa-solid fa-boxes-packing"></i>
 										</span>
 										Lot Reprot
 									</a>
-									<a class="dropdown-item" href="<?= base_url("report/Row_material_stock") ?>">
+									<a class="dropdown-item <?= uri("report/Row_material_stock"); ?>" href="<?= base_url("report/Row_material_stock") ?>">
 										<span class="nav-link-icon d-md-none d-lg-inline-block">
 											<i class="fa-solid fa-user-plus"></i>
 										</span>
 										Row Material Stock
 									</a>
-									<a class="dropdown-item" href="<?= base_url("report/metal_type_stock") ?>">
+									<a class="dropdown-item <?= uri("report/metal_type_stock"); ?>" href="<?= base_url("report/metal_type_stock") ?>">
 										<span class="nav-link-icon d-md-none d-lg-inline-block">
 											<i class="fa-brands fa-squarespace" aria-hidden="true"></i>
 										</span>
 										Metal type Stock
 									</a>
-									<a class="dropdown-item" href="<?= base_url("report/row_material_closing") ?>">
+									<a class="dropdown-item <?= uri("report/row_material_closing"); ?>" href="<?= base_url("report/row_material_closing") ?>">
 										<span class="nav-link-icon d-md-none d-lg-inline-block">
 											<i class="fa-brands fa-dropbox" aria-hidden="true"></i>
 										</span>
 										Row Material Closing
 									</a>
-									<a class="dropdown-item" href="<?= base_url("report/account_ledger") ?>">
+									<a class="dropdown-item <?= uri("report/account_ledger"); ?>" href="<?= base_url("report/account_ledger") ?>">
 										<span class="nav-link-icon d-md-none d-lg-inline-block">
 											<i class="fa-solid fa-receipt" aria-hidden="true"></i>
 										</span>
 										Account Ledger
 									</a>
-									<a class="dropdown-item" href="<?= base_url("report/daybook") ?>">
+									<a class="dropdown-item <?= uri("report/daybook"); ?>" href="<?= base_url("report/daybook") ?>">
 										<span class="nav-link-icon d-md-none d-lg-inline-block">
 											<i class="fa fa-repeat" aria-hidden="true"></i>
 										</span>
 										Daybook
 									</a>
-									<a class="dropdown-item" href="<?= base_url("report/account_ledger/balanceSheetReport") ?>">
+									<a class="dropdown-item <?= uri("report/account_ledger/balanceSheetReport"); ?>" href="<?= base_url("report/account_ledger/balanceSheetReport") ?>">
 										<span class="nav-link-icon d-md-none d-lg-inline-block">
 											<i class="fa-solid fa-book" aria-hidden="true"></i>
 										</span>
 										Balance Sheet
 									</a>
-									<a class="dropdown-item" href="<?= base_url("report/silverBhavReport") ?>">
+									<a class="dropdown-item <?= uri("report/silverBhavReport"); ?>" href="<?= base_url("report/silverBhavReport") ?>">
 										<span class="nav-link-icon d-md-none d-lg-inline-block">
 											<i class="fa-solid fa-money-bill-transfer"></i>
 										</span>
 										Silver Bhav Report
 									</a>
-									<a class="dropdown-item" href="<?= base_url("report/stockReport") ?>">
+									<a class="dropdown-item <?= uri("report/stockReport"); ?>" href="<?= base_url("report/stockReport") ?>">
 										<span class="nav-link-icon d-md-none d-lg-inline-block">
 											<i class="fa fa-line-chart" aria-hidden="true"></i>
 										</span>
 										Stock Report
 									</a>
-									<a class="dropdown-item" href="<?= base_url("report/lot_wise_rm") ?>">
+									<a class="dropdown-item <?= uri("report/lot_wise_rm"); ?>" href="<?= base_url("report/lot_wise_rm") ?>">
 										<span class="nav-link-icon d-md-none d-lg-inline-block">
 											<i class="fa fa-random" aria-hidden="true"></i>
 										</span>
 										Lot Wise Row Material
 									</a>
-									<a class="dropdown-item" href="<?= base_url("report/profit_loss_report") ?>">
+									<a class="dropdown-item <?= uri("report/profit_loss_report"); ?>" href="<?= base_url("report/profit_loss_report") ?>">
 										<span class="nav-link-icon d-md-none d-lg-inline-block">
 											<i class="fa fa-random" aria-hidden="true"></i>
 										</span>
@@ -404,7 +400,7 @@
 						<div class="dropdown-menu dropdown-menu-arrow" data-bs-popper="static">
 							<div class="dropdown-menu-columns">
 								<div class="dropdown-menu-column">
-									<a class="dropdown-item" href="<?= base_url("setting/sequence") ?>">
+									<a class="dropdown-item <?= uri("setting/sequence"); ?>" href="<?= base_url("setting/sequence") ?>">
 										<span class="nav-link-icon d-md-none d-lg-inline-block">
 											<i class="fa-solid fa-boxes-packing"></i>
 										</span>
@@ -414,17 +410,15 @@
 							</div>
 						</div>
 					</li>
-
 				</ul>
 			</div>
 		</div>
-		<div class="navbar-nav flex-row order-md-last me-5 ">
 
+		<div class="navbar-nav flex-row order-md-last me-5 ">
 			<div class="nav-item dropdown">
 				<a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown" aria-label="Open user menu">
 					<span class="avatar avatar-sm" style="background-image: url(<?= base_url("assets") ?>/man.png)">
 						<span class="badge bg-success"></span>
-
 					</span>
 
 					<div class="d-none d-xl-block ps-2">
