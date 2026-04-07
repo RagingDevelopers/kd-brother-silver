@@ -85,12 +85,12 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-status-top bg-primary"></div>
-                <!-- <div class="card-header justify-content-between">
+                <div class="card-header justify-content-between">
                     <h3 class="card-title"><b><?= $page_title; ?> </b></h3>
                     <a class="btn btn-action bg-primary text-white m-1 p-3" href="<?= base_url(); ?>purchase/create">
                         <i class="far fa-plus card-title"></i>
                     </a>
-                </div> -->
+                </div>
                 <div class="mt-3 p-2">
                     <div class="card-body">
                         <div class="container-fluid">
