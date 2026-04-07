@@ -42,12 +42,15 @@ class Login extends CI_Controller
 					// setSession('is_admin', ($user['type'] == "ADMIN"));
 					setSession("admin_id", $user["id"]);
 					setSession('permission', explode(',', $user['permission']));
-					flash()->withSuccess("You are logged in successfully : {$user['name']}")->to("dashboard");
+					$this->session->set_flashdata('success', "You are logged in successfully : {$user['name']}");
+					return redirect('dashboard');
 				} else {
-					flash()->withError("Enter valid Password")->to("login");
+					$this->session->set_flashdata('error', 'Enter valid Password');
+					return redirect('login');
 				}
 			} else {
-				flash()->withError("Invalid Mobile Number")->to("login");
+				$this->session->set_flashdata('error', 'Invalid Mobile Number');
+				return redirect('login');
 			}
 		} else {
 			$this->load->view('login');

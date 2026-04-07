@@ -68,7 +68,7 @@
 
 								<div class="col-sm-3">
 									<label class="form-label" for="prd"> Opening Fine: </label>
-									<input class="form-control" type="number" name="opening_fine" placeholder="Enter Opening Fine" value="<?= $update['opening_fine'] ?? 0 ?>" id="opening_fine" required>
+									<input class="form-control" type="number" name="opening_fine" step="any" placeholder="Enter Opening Fine" value="<?= $update['opening_fine'] ?? 0 ?>" id="opening_fine" required>
 								</div>
 								<div class="col-sm-3">
 									<label class="form-label" for="prd"> Opening Fine Type: </label>
