@@ -259,24 +259,24 @@
 															</select></td>
 														<td><input type="text" class="form-control remark inputBox" name="remark[]" placeholder="Remark" value="<?= $row['remark'] ?? null ?>"></td>
 														<td>
-															<input type="text" class="form-control gross_weight inputBox" name="gross_weight[]" placeholder="Gross Weight" value="<?= $row['gross_weight'] ?? null ?>">
+															<input type="text" class="form-control gross_weight inputBox" name="gross_weight[]" step="any" placeholder="Gross Weight" value="<?= $row['gross_weight'] ?? null ?>">
 														</td>
 														<td>
 															<input type="hidden" name="raw-material-data[]" value="<?= $row['raw_material_data'] ?? null; ?>" class="form-control rmdata" placeholder="Enter Weight" autocomplete="off">
 															<div class="d-flex gap-2">
-																<input type="text" class="form-control inputBox less_weight" name="less_weight[]" placeholder="Less Weight" value="<?= $row['less_weight'] ?? null ?>">
+																<input type="text" class="form-control inputBox less_weight" name="less_weight[]" step="any" placeholder="Less Weight" value="<?= $row['less_weight'] ?? null ?>">
 																<button type="button" class="bg-danger btn btn-action text-danger-fg me-2 Receivedmaterial" data-demo-color data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Received">
 																	<i class="fa-solid fa-hashtag"></i>
 																</button>
 															</div>
 														</td>
 														<td><input type="text" class="form-control inputBox net_weight readonly" name="net_weight[]" readonly placeholder="Net Weight" value="<?= $row['net_weight'] ?? null ?>"></td>
-														<td><input type="text" class="form-control inputBox touchPreData" name="pre_touch[]" placeholder="Pre Touch" value="<?= $row['touch'] ?? null ?>"></td>
-														<td><input type="text" class="form-control inputBox touchData" name="touch[]" placeholder="Touch" value="<?= $row['touch'] ?? null ?>"></td>
-														<td><input type="text" class="form-control inputBox wastage" name="wastage[]" placeholder="Wastage" value="<?= $row['wastage'] ?? null ?>"></td>
+														<td><input type="text" class="form-control inputBox touchPreData" name="pre_touch[]" step="any" placeholder="Pre Touch" value="<?= $row['touch'] ?? null ?>"></td>
+														<td><input type="text" class="form-control inputBox touchData" name="touch[]" step="any" placeholder="Touch" value="<?= $row['touch'] ?? null ?>"></td>
+														<td><input type="text" class="form-control inputBox wastage" name="wastage[]" step="any" placeholder="Wastage" value="<?= $row['wastage'] ?? null ?>"></td>
 														<td><input type="text" class="form-control inputBox fine readonly" name="fine[]" readonly placeholder="Fine" value="<?= $row['fine'] ?? null ?>"></td>
-														<td><input type="text" class="form-control inputBox piece" name="piece[]" placeholder="Piece" value="<?= $row['piece'] ?? null ?>"></td>
-														<td><input type="text" class="form-control rate inputBox" name="rate[]" placeholder="Rate" value="<?= $row['rate'] ?? null ?>"></td>
+														<td><input type="text" class="form-control inputBox piece" name="piece[]" step="any" placeholder="Piece" value="<?= $row['piece'] ?? null ?>"></td>
+														<td><input type="text" class="form-control rate inputBox" name="rate[]" step="any" placeholder="Rate" value="<?= $row['rate'] ?? null ?>"></td>
 														<td><input type="number" step="any" class="form-control labour inputBox" name="labour[]" placeholder="Labour Amount" value="<?= $row['labour'] ?? null; ?>" /></td>
 														<td><select name="labour_type[]" class="form-control w65 labour_type">
 																<option value="">Select Labour</option>
@@ -294,8 +294,8 @@
 																								} ?>>Gross</option>
 															</select>
 														</td>
-														<td><input type="number" step="any" class="form-control other_amount inputBox" name="other_amount[]" placeholder="Other Amount" value="<?= $row['other_amount'] ?? 0; ?>" /></td>
-														<td><input type="text" class="form-control sub_total inputBox100" name="sub_total[]" placeholder="Sub Total" value="<?= $row['sub_total'] ?? 0 ?>"></td>
+														<td><input type="number" step="any" class="form-control other_amount inputBox" name="other_amount[]" step="any" placeholder="Other Amount" value="<?= $row['other_amount'] ?? 0; ?>" /></td>
+														<td><input type="text" class="form-control sub_total inputBox100" name="sub_total[]" step="any" placeholder="Sub Total" value="<?= $row['sub_total'] ?? 0 ?>"></td>
 														<td>
 															<button type="button" class="btn btn-danger remove-btn">X</button>
 														</td>
@@ -631,31 +631,31 @@
 					<div class="col-md-1 allinone dfine dratecutfine droopu">
 						<div class="form-group">
 							<label class="form-label">Gross <span class="text-danger">*</span></label>
-							<input type="text" name="gross" class="form-control" id="gross" value="0" placeholder="gross" />
+							<input type="text" name="gross" class="form-control" id="gross" value="0" step="any" placeholder="gross" />
 						</div>
 					</div>
 					<div class="col-md-1 allinone dfine dratecutfine dratecutrs droopu">
 						<div class="form-group">
 							<label class="form-label">Purity<span class="text-danger">*</span></label>
-							<input type="text" name="purity" class="form-control" id="purity" value="100" placeholder="purity" />
+							<input type="text" name="purity" class="form-control" id="purity" value="100" step="any" placeholder="purity" />
 						</div>
 					</div>
 					<div class="col-md-1 allinone dfine dratecutfine dratecutrs droopu">
 						<div class="form-group">
 							<label class="form-label">W/B<span class="text-danger">*</span></label>
-							<input type="text" name="wb" class="form-control" id="wb" value="" placeholder="wb" />
+							<input type="text" name="wb" class="form-control" id="wb" value="" step="any" placeholder="wb" />
 						</div>
 					</div>
 					<div class="col-md-1 allinone dfine dratecutfine dratecutrs droopu">
 						<div class="form-group">
 							<label class="form-label">Fine<span class="text-danger">*</span></label>
-							<input type="text" name="fine" class="form-control" id="fine" value="0" placeholder="fine" />
+							<input type="text" name="fine" class="form-control" id="fine" value="0" step="any" placeholder="fine" />
 						</div>
 					</div>
 					<div class="col-md-1 allinone dratecutfine dratecutrs">
 						<div class="form-group">
 							<label class="form-label">Rate<span class="text-danger">*</span></label>
-							<input type="text" name="rate" class="form-control" id="rate" value="" placeholder="rate" />
+							<input type="text" name="rate" class="form-control" id="rate" value="" step="any" placeholder="rate" />
 						</div>
 					</div>
 					<div class="col-md-2 allinone dbank">
@@ -672,7 +672,7 @@
 					<div class="col-md-1 allinone dcash dbank dratecutfine">
 						<div class="form-group">
 							<label class="form-label">Amount<span class="text-danger">*</span></label>
-							<input type="number" name="amount" class="form-control" id="amount2" value="" placeholder="amount" />
+							<input type="number" name="amount" class="form-control" id="amount2" value="" step="any" placeholder="amount" />
 						</div>
 					</div>
 					<div class="col-md-1  allinone dfine dratecutfine dratecutrs">
@@ -689,7 +689,7 @@
 					<div class="col-md-2">
 						<div class="form-group">
 							<label class="form-label">Remark</label>
-							<input type="text" name="remark" class="form-control" id="remark" value="" placeholder="remark" />
+							<input type="text" name="remark" class="form-control" id="remark" value="" step="any" placeholder="remark" />
 						</div>
 					</div>
 				</div>
