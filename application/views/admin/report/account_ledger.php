@@ -1,6 +1,6 @@
 <style>
 	.table td {
-		font-weight: bold;
+		font-weight: 500;
 	}
 </style>
 <div class="container-xl">
@@ -11,7 +11,7 @@
                 <div class="card-header justify-content-between">
                     <h3 class="card-title"><b>Account Ledger </b></h3>
                 </div>
-    			<div class="mt-3 p-2">
+    			<div class="p-1">
                     <div class="card-body">
                         <div class="container-fluid">
     						<div class="row row-cards">
@@ -47,7 +47,7 @@
     								</select>
     							</div>
     							<div class="col-sm-2">
-    								<label></label><br>
+    								<label> &nbsp;</label><br>
     								<input class="btn btn-primary button search_btn" id="search_btn" type="button" value="Search">
     							</div>
     						</div><br>

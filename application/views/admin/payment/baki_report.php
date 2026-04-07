@@ -30,7 +30,7 @@
 					<div class="card-status-top bg-primary"></div>
 					<div class="card-header justify-content-between">
 						<h3 class="card-title"><b><?= $page_title; ?> </b></h3>
-						<a class="btn btn-action bg-primary text-white m-1 p-3" href="<?= base_url(); ?>payment/baki">
+						<a class="btn btn-action bg-primary text-white" href="<?= base_url(); ?>payment/baki">
 							<i class="far fa-plus card-title"></i>
 						</a>
 					</div>

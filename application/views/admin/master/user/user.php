@@ -6,7 +6,7 @@
                 <h1 class="card-title"><b> User </b></h1>
             </div>
             <div class="card-body border-bottom py-3">
-                <div class="col-md-12 mb-5 ">
+                <div class="col-md-12">
                     <div class="row ms-1">
                         <form class="row"
                             action="<?= (isset($update)) ? base_url("registration/user/index/update/{$update['id']}") : base_url('registration/user/index/store') ?>"
@@ -38,11 +38,11 @@
                                     <select class="form-select select2" id="select" name="type">
                                         <option selected value="">Select User Type</option>
                                         <option value="ADMIN" <?php if (!empty($update) && $update['type'] == 'ADMIN') {
-                                            echo 'selected';
-                                        } ?>>Admin</option>
+                                                                    echo 'selected';
+                                                                } ?>>Admin</option>
                                         <option value="OTHER" <?php if (!empty($update) && $update['type'] == 'OTHER') {
-                                            echo 'selected';
-                                        } ?>>Other</option>
+                                                                    echo 'selected';
+                                                                } ?>>Other</option>
                                     </select>
                                 </div>
                             </div>
@@ -52,11 +52,11 @@
                                     <select class="form-select select2" id="status" name="status">
                                         <option selected value="">Select Status Type</option>
                                         <option value="ACTIVE" <?php if (!empty($update) && $update['status'] == 'ACTIVE') {
-                                            echo 'selected';
-                                        } ?>>Active</option>
+                                                                    echo 'selected';
+                                                                } ?>>Active</option>
                                         <option value="INACTIVE" <?php if (!empty($update) && $update['status'] == 'INACTIVE') {
-                                            echo 'selected';
-                                        } ?>>In-active</option>
+                                                                        echo 'selected';
+                                                                    } ?>>In-active</option>
                                     </select>
                                 </div>
 
@@ -74,12 +74,10 @@
                                         id="opening_fine" required>
                                 </div>
 
-                                <div class="row">
-                                    <div class="col-md-5 md-ms-4">
-                                        <label class="form-label" for="prd"> &nbsp </label>
-                                        <input class="btn btn-primary button" type="submit"
-                                            value="<?= isset($update) ? "Update" : "Submit" ?>">
-                                    </div>
+                                <div class="col-md-1 md-ms-4">
+                                    <label class="form-label" for="prd"> &nbsp </label>
+                                    <input class="btn btn-primary button" type="submit"
+                                        value="<?= isset($update) ? "Update" : "Submit" ?>">
                                 </div>
                             </div>
                         </form>
@@ -118,7 +116,7 @@
                         <?php $i = 1;
                         if (count($data)) {
                             foreach ($data as $data) {
-                                ?>
+                        ?>
                                 <tr>
                                     <td>
                                         <?= $i++ ?>
@@ -176,7 +174,7 @@
                                         <?= $data['created_at']; ?>
                                     </td>
                                 </tr>
-                            <?php }
+                        <?php }
                         } ?>
                     </tbody>
                 </table>
@@ -185,16 +183,16 @@
     </div>
 </div>
 <script>
-    $(document).ready(function () {
-        $(".button").click(function () {
-            var product_ids_str = $.map($('.form-check-input:checked'), function (n, i) {
+    $(document).ready(function() {
+        $(".button").click(function() {
+            var product_ids_str = $.map($('.form-check-input:checked'), function(n, i) {
                 return n.value;
             }).join(',');
             $('.permission').val(product_ids_str);
         });
-		$('.select2').select2({
-			placeholder: "-- Select --",
-			allowClear: true,
-		});
+        $('.select2').select2({
+            placeholder: "-- Select --",
+            allowClear: true,
+        });
     });
 </script>

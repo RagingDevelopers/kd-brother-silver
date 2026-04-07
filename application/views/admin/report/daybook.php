@@ -3,7 +3,7 @@
 		<div class="col-12">
 			<div class="card">
 				<div class="card-status-top bg-primary"></div>
-				<div class="mt-3 p-2">
+				<div class="p-1">
 					<div class="card-body">
 						<div class="container-fluid">
 							<form action="<?= base_url('report/daybook'); ?>" method="POST">
@@ -14,7 +14,7 @@
 											<input type="date" name="fromDate" value="<?= isset($postData['fromDate']) ? $postData['fromDate'] : date('Y-m-d'); ?>" class="form-control from">
 										</div>
 									</div>
-									<div class="col-md-2 ">
+									<div class="col-md-2">
 										<div class="form-group">
 											<label for="to" class="form-label">To Date</label>
 											<input type="date" name="toDate" value="<?= isset($postData['toDate']) ? $postData['toDate'] : date('Y-m-d'); ?>" class="form-control to">

@@ -31,7 +31,30 @@
 			padding: 2rem;
 			position: relative;
 			overflow: hidden;
-			background: #fff;
+			background: transparent;
+		}
+
+		/* Background video */
+		.bg-video {
+			position: fixed;
+			inset: 0;
+			width: 100%;
+			height: 100%;
+			object-fit: cover;
+			z-index: 0;
+		}
+
+		.bg-video-overlay {
+			position: fixed;
+			inset: 0;
+			background: rgb(0 0 0 / 15%);
+			z-index: 1;
+		}
+
+		/* Keep login card above video */
+		.card {
+			position: relative;
+			z-index: 2;
 		}
 
 		.error-message {
@@ -145,18 +168,15 @@
 		/* ── Card ── */
 		.card {
 			position: relative;
-			z-index: 1;
+			z-index: 2;
 			width: 100%;
 			max-width: 420px;
-			background: rgba(255, 255, 255, 0.72);
-			backdrop-filter: blur(32px);
-			-webkit-backdrop-filter: blur(32px);
-			border-radius: 28px;
-			border: 1.5px solid rgba(255, 255, 255, 0.9);
-			box-shadow:
-				0 8px 32px rgba(0, 0, 0, 0.1),
-				0 2px 8px rgba(0, 0, 0, 0.06),
-				inset 0 1px 0 rgba(255, 255, 255, 0.95);
+			background: rgb(10 10 10 / 35%);
+			backdrop-filter: blur(6px);
+			-webkit-backdrop-filter: blur(14px);
+			border-radius: 22px;
+			border: 1px solid rgb(255 255 255 / 10%);
+			box-shadow: 0 24px 70px rgb(0 0 0 / 55%);
 			padding: 2.8rem 2.4rem 2.4rem;
 			animation: popIn 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
 		}
@@ -185,11 +205,11 @@
 			width: 44px;
 			height: 44px;
 			border-radius: 14px;
-			background: linear-gradient(135deg, #ff6fb7, #a78bfa);
+			background: rgb(1 137 255 / 85%);
 			display: flex;
 			align-items: center;
 			justify-content: center;
-			box-shadow: 0 4px 14px rgba(167, 139, 250, 0.45);
+			box-shadow: 0 12px 26px rgb(1 137 255 / 22%);
 		}
 
 		.logo-badge i {
@@ -200,10 +220,7 @@
 		.logo-name {
 			font-size: 24px;
 			font-weight: 900;
-			background: linear-gradient(135deg, #ff6fb7, #a78bfa, #43b8ff);
-			-webkit-background-clip: text;
-			-webkit-text-fill-color: transparent;
-			background-clip: text;
+			color: #ffffff;
 			letter-spacing: -0.5px;
 		}
 
@@ -211,14 +228,14 @@
 		.heading {
 			font-size: 28px;
 			font-weight: 900;
-			color: #1a1a2e;
+			color: #ffffff;
 			line-height: 1.2;
 			margin-bottom: 6px;
 		}
 
 		.subheading {
 			font-size: 14px;
-			color: #888;
+			color: rgb(255 255 255 / 72%);
 			font-weight: 400;
 			margin-bottom: 2rem;
 		}
@@ -234,7 +251,7 @@
 			font-weight: 700;
 			letter-spacing: 0.8px;
 			text-transform: uppercase;
-			color: #555;
+			color: rgb(255 255 255 / 80%);
 			margin-bottom: 7px;
 		}
 
@@ -244,27 +261,27 @@
 
 		.field-input {
 			width: 100%;
-			background: rgba(255, 255, 255, 0.85);
-			border: 2px solid rgba(0, 0, 0, 0.07);
+			background: rgb(255 255 255 / 10%);
+			border: 1px solid rgb(255 255 255 / 14%);
 			border-radius: 14px;
 			padding: 13px 46px 13px 16px;
 			font-size: 15px;
 			font-family: 'Nunito', sans-serif;
 			font-weight: 600;
-			color: #1a1a2e;
+			color: rgb(255 255 255 / 92%);
 			outline: none;
 			transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
 		}
 
 		.field-input::placeholder {
-			color: #bbb;
+			color: rgb(255 255 255 / 55%);
 			font-weight: 400;
 		}
 
 		.field-input:focus {
-			border-color: #a78bfa;
-			background: #fff;
-			box-shadow: 0 0 0 4px rgba(167, 139, 250, 0.18);
+			border-color: rgb(1 137 255 / 70%);
+			background: rgb(255 255 255 / 12%);
+			box-shadow: 0 0 0 4px rgb(1 137 255 / 18%);
 		}
 
 		.field-icon {
@@ -272,7 +289,7 @@
 			right: 14px;
 			top: 50%;
 			transform: translateY(-50%);
-			color: #ccc;
+			color: rgb(255 255 255 / 60%);
 			pointer-events: none;
 			transition: color 0.2s;
 		}
@@ -282,7 +299,7 @@
 		}
 
 		.field-input:focus~.field-icon {
-			color: #a78bfa;
+			color: rgb(255 255 255 / 80%);
 		}
 
 		/* ── Button ── */
@@ -292,8 +309,7 @@
 			padding: 15px;
 			border: none;
 			border-radius: 14px;
-			background: linear-gradient(135deg, #ff6fb7 0%, #a78bfa 50%, #43b8ff 100%);
-			background-size: 200% 200%;
+			background: #0189ff;
 			color: #fff;
 			font-family: 'Nunito', sans-serif;
 			font-size: 15px;
@@ -304,28 +320,14 @@
 			align-items: center;
 			justify-content: center;
 			gap: 10px;
-			box-shadow: 0 6px 24px rgba(167, 139, 250, 0.45);
-			transition: transform 0.15s, box-shadow 0.2s, background-position 0.5s;
-			animation: gradShift 4s ease infinite;
-		}
-
-		@keyframes gradShift {
-			0% {
-				background-position: 0% 50%;
-			}
-
-			50% {
-				background-position: 100% 50%;
-			}
-
-			100% {
-				background-position: 0% 50%;
-			}
+			box-shadow: 0 14px 34px rgb(1 137 255 / 25%);
+			transition: transform 0.15s ease, box-shadow 0.2s ease, background 0.2s ease;
 		}
 
 		.btn-signin:hover {
 			transform: translateY(-2px);
-			box-shadow: 0 10px 32px rgba(167, 139, 250, 0.55);
+			background: #007df0;
+			box-shadow: 0 16px 42px rgb(1 137 255 / 32%);
 		}
 
 		.btn-signin:active {
@@ -366,21 +368,27 @@
 		}
 
 		.chip-pink {
-			color: #ff6fb7;
-			border-color: rgba(255, 111, 183, 0.3);
-			background: rgba(255, 111, 183, 0.08);
+			color: rgb(255 255 255 / 80%);
+			border-color: rgb(255 255 255 / 18%);
+			background: rgb(255 255 255 / 8%);
 		}
 
 		.chip-purp {
-			color: #a78bfa;
-			border-color: rgba(167, 139, 250, 0.3);
-			background: rgba(167, 139, 250, 0.08);
+			color: rgb(255 255 255 / 80%);
+			border-color: rgb(255 255 255 / 18%);
+			background: rgb(255 255 255 / 8%);
 		}
 
 		.chip-cyan {
-			color: #0ea5e9;
-			border-color: rgba(14, 165, 233, 0.3);
-			background: rgba(14, 165, 233, 0.08);
+			color: rgb(255 255 255 / 80%);
+			border-color: rgb(255 255 255 / 18%);
+			background: rgb(255 255 255 / 8%);
+		}
+
+		/* Old decorative layers not used anymore */
+		.blob,
+		.shape {
+			display: none !important;
 		}
 
 		/* ── Floating shapes (decorative) ── */
@@ -469,19 +477,10 @@
 
 <body>
 
-	<!-- Blobs -->
-	<div class="blob b1"></div>
-	<div class="blob b2"></div>
-	<div class="blob b3"></div>
-	<div class="blob b4"></div>
-	<div class="blob b5"></div>
-
-	<!-- Floating dots -->
-	<div class="shape s1"></div>
-	<div class="shape s2"></div>
-	<div class="shape s3"></div>
-	<div class="shape s4"></div>
-	<div class="shape s5"></div>
+	<video class="bg-video" autoplay muted loop playsinline>
+		<source src="<?= base_url('assets/video3.mp4') ?>" type="video/mp4">
+	</video>
+	<div class="bg-video-overlay" aria-hidden="true"></div>
 
 	<!-- Card -->
 	<div class="card">
@@ -515,7 +514,7 @@
 						name="mobile"
 						value="<?php echo set_value('mobile'); ?>"
 						placeholder="Enter your mobile number"
-						autocomplete="off" />
+						autocomplete="off" required />
 					<span class="field-icon">
 						<i class="fa-solid fa-mobile-screen-button"></i>
 					</span>
@@ -529,7 +528,7 @@
 						type="password"
 						id="password"
 						name="password"
-						placeholder="Enter your password" />
+						placeholder="Enter your password" required />
 					<span class="field-icon">
 						<i class="fa-solid fa-lock"></i>
 					</span>
