@@ -20,10 +20,10 @@
 <div class="row">
 	<div class="col-sm-12">
 		<div class="card">
-			<form action="<?= (isset($update)) ? base_url("manufacturing/garnu/index/update/{$update['id']}") : base_url('manufacturing/garnu/index/store') ?>" method="post" class="main-form" novalidate>
+			<form action="<?= (isset($update)) ? base_url("manufacturing/pre_garnu/index/update/{$update['id']}") : base_url('manufacturing/pre_garnu/index/store') ?>" method="post" class="main-form" novalidate>
 				<div class="card-header">
 					<div class="card-status-top bg-blue"></div>
-					<h1 class="card-title"><b> Casting </b></h1>
+					<h1 class="card-title"><b> Garnu </b></h1>
 				</div>
 				<div class="card-body border-bottom py-3">
 					<div class="col-md-12 mb-5 ">
