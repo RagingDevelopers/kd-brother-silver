@@ -2,12 +2,12 @@
 
 defined('BASEPATH') or exit('No direct script access allowed');
 
-class Garnu extends CI_Controller
+class Pre_garnu extends CI_Controller
 {
 	public $form_validation, $input, $db;
 
-	const View = "admin/manufacturing/garnu_report";
-	const ADD = "admin/manufacturing/garnu";
+	const View = "admin/manufacturing/pre_garnu_report";
+	const ADD = "admin/manufacturing/pre_garnu";
 
 	const RECEIVE = "admin/manufacturing/receive";
 	public function __construct()
@@ -20,17 +20,17 @@ class Garnu extends CI_Controller
 
 	public function index($action = "", $id = null)
 	{
-		$page_data['page_title'] = 'Casting ';
+		$page_data['page_title'] = 'Garnu';
 		switch ($action) {
 			case "":
 				checkPrivilege(privilege["garnu_view"]);
-				$page_data['data'] = $this->dbh->getResultArray('garnu');
+				$page_data['data'] = $this->dbh->getResultArray('pre_garnu');
 				$page_data['metal_type'] = $this->dbh->findAll('metal_type');
 
 				return view(self::View, $page_data);
 			case "add":
 				checkPrivilege(privilege["garnu_add"]);
-				$page_data['data'] = $this->dbh->getResultArray('garnu');
+				$page_data['data'] = $this->dbh->getResultArray('pre_garnu');
 				$page_data['metal_type'] = $this->dbh->findAll('metal_type');
 				$page_data['workers'] = $this->db->where('account_type_id', 2)->get('customer')->result();
 				return view(self::ADD, $page_data);
@@ -38,13 +38,13 @@ class Garnu extends CI_Controller
 			case "edit":
 				checkPrivilege(privilege["garnu_edit"]);
 				$this->validateId($id);
-				$garnu = $this->dbh->find('garnu', $id);
+				$garnu = $this->dbh->find('pre_garnu', $id);
 				if (!$garnu) {
-					flash()->withError("Garnu type Not Found")->to('manufacturing/garnu');
+					flash()->withError("Garnu type Not Found")->to('manufacturing/pre_garnu');
 				}
 
 				$this->db->select('*');
-				$this->db->from('garnu_item');
+				$this->db->from('pre_garnu_item');
 				$this->db->where('garnu_id', $id);
 				$page_data['items'] = $this->db->get()->result_array();
 				$page_data['metal_type'] = $this->dbh->findAll('metal_type');
@@ -82,7 +82,7 @@ class Garnu extends CI_Controller
 				$garnu['worker_id'] = $post['worker_id'];
 				$garnu['creation_date'] = date('Y-m-d');
 
-				$this->db->insert('garnu', $garnu);
+				$this->db->insert('pre_garnu', $garnu);
 				$garnu_id = $this->db->insert_id();
 
 				$length = count($post['metal_type_id']);
@@ -110,9 +110,9 @@ class Garnu extends CI_Controller
 					}
 				}
 
-				$this->db->insert_batch('garnu_item', $new);
+				$this->db->insert_batch('pre_garnu_item', $new);
 
-				flash()->withSuccess("Garnu type Added Successfully")->to("manufacturing/garnu");
+				flash()->withSuccess("Garnu type Added Successfully")->to("manufacturing/pre_garnu");
 				break;
 
 				// case "delete":
@@ -148,9 +148,9 @@ class Garnu extends CI_Controller
 				$update['touch'] = $post['touchs'];
 				$update['fine'] = $post['mfine'];
 
-				$this->db->where('id', $id)->update('garnu', $update);
+				$this->db->where('id', $id)->update('pre_garnu', $update);
 
-				$oldIds = $this->db->select('id')->get_where('garnu_item', ['garnu_id' => $id])->result_array();
+				$oldIds = $this->db->select('id')->get_where('pre_garnu_item', ['garnu_id' => $id])->result_array();
 				$deleteIds = [];
 				foreach ($oldIds as $row) {
 					if (!in_array($row['id'], $post['rowid'])) {
@@ -159,11 +159,11 @@ class Garnu extends CI_Controller
 				}
 
 				if (count($deleteIds) > 0) {
-					$this->dbh->deleteRow('garnu_item', $deleteIds);
+					$this->dbh->deleteRow('pre_garnu_item', $deleteIds);
 				}
 				$length = count($post['metal_type_id']);
 
-				$rows = $this->db->get_where('garnu_item', ['garnu_id' => $id])->result_array();
+				$rows = $this->db->get_where('pre_garnu_item', ['garnu_id' => $id])->result_array();
 				if (!empty($rows)) {
 					$current_record = $this->db->get('common_bhuko')->row_array();
 
@@ -190,12 +190,12 @@ class Garnu extends CI_Controller
 					$garnu_item['touch'] = $post['touch'][$i];
 					$garnu_item['fine'] = $post['fine'][$i];
 					if ($post['rowid'][$i] > 0) {
-						if ($this->dbh->isDataExists('garnu_item', ['id' => $post['rowid'][$i], 'garnu_id' => $id])) {
-							$this->db->where(['garnu_id' => $id, 'id' => $post['rowid'][$i]])->update('garnu_item', $garnu_item);
+						if ($this->dbh->isDataExists('pre_garnu_item', ['id' => $post['rowid'][$i], 'garnu_id' => $id])) {
+							$this->db->where(['garnu_id' => $id, 'id' => $post['rowid'][$i]])->update('pre_garnu_item', $garnu_item);
 						}
 					} else if ($post['rowid'][$i] == 0) {
 						$garnu_item['garnu_id'] = $id;
-						$this->db->insert('garnu_item', $garnu_item);
+						$this->db->insert('pre_garnu_item', $garnu_item);
 					}
 
 					if ($post['metal_type_id'][$i] == 8) {
@@ -207,7 +207,7 @@ class Garnu extends CI_Controller
 						// $this->db->update('common_bhuko', ['weight' => $difference_weight]);
 					}
 				}
-				flash()->withSuccess("Garnu Updated Successfully")->to("manufacturing/garnu");
+				flash()->withSuccess("Garnu Updated Successfully")->to("manufacturing/pre_garnu");
 				break;
 			default:
 				return flash()->withError("Invalid Arguments")->back();
@@ -233,21 +233,21 @@ class Garnu extends CI_Controller
 		}
 		## Total number of records without filtering
 		$this->db->select('count(*) as allcount');
-		$records = $this->db->get('garnu')->result();
+		$records = $this->db->get('pre_garnu')->result();
 		$totalRecords = $records[0]->allcount;
 
 
 		## Total number of record with filtering
 		$this->db->select('*');
-		$this->db->from('garnu');
+		$this->db->from('pre_garnu');
 		if ($searchQuery != '')
 			$this->db->where($searchQuery);
 		if (!empty($fromdate))
-			$this->db->where('DATE(garnu.creation_date) >=', $fromdate);
+			$this->db->where('DATE(pre_garnu.creation_date) >=', $fromdate);
 		if (!empty($todate))
-			$this->db->where('DATE(garnu.creation_date) <=', $todate);
+			$this->db->where('DATE(pre_garnu.creation_date) <=', $todate);
 		if (!empty($received))
-			$this->db->where('garnu.recieved', $received);
+			$this->db->where('pre_garnu.recieved', $received);
 		$records = $this->db->get();
 		$totalRecordwithFilter = $records->num_rows();
 
@@ -255,16 +255,16 @@ class Garnu extends CI_Controller
 		## Fetch records
 		$where = [];
 		$this->db->select('*');
-		$this->db->from('garnu');
+		$this->db->from('pre_garnu');
 
 		if ($searchQuery != '')
 			$this->db->where($searchQuery);
 		if (!empty($fromdate))
-			$this->db->where('DATE(garnu.creation_date) >=', $fromdate);
+			$this->db->where('DATE(pre_garnu.creation_date) >=', $fromdate);
 		if (!empty($todate))
-			$this->db->where('DATE(garnu.creation_date) <=', $todate);
+			$this->db->where('DATE(pre_garnu.creation_date) <=', $todate);
 		if (!empty($received))
-			$this->db->where('garnu.recieved', $received);
+			$this->db->where('pre_garnu.recieved', $received);
 		$this->db->limit($rowperpage, $start);
 		$this->db->order_by('id', "desc");
 		$records = $this->db->get()->result();
@@ -296,9 +296,8 @@ class Garnu extends CI_Controller
 			}
 			$action = '
 			<div class="d-flex gap-1">
-			        <a href="' . base_url('manufacturing/garnu/edit/') . $record->id . '" class="btn btn-action bg-warning text-white me-2" data-bs-toggle="tooltip" data-bs-placement="top"  data-bs-original-title="Edit Proccess"><i class="fas fa-edit"></i></a>
+			        <a href="' . base_url('manufacturing/pre_garnu/edit/') . $record->id . '" class="btn btn-action bg-warning text-white me-2" data-bs-toggle="tooltip" data-bs-placement="top"  data-bs-original-title="Edit Proccess"><i class="fas fa-edit"></i></a>
 					<span data-receiveid="' . $record->id . '" class="btn btn-action bg-green text-white me-2 receive-btn" data-bs-toggle="tooltip" data-bs-placement="top"  data-bs-original-title="Receive"><i class="fa-solid fa-receipt"></i></span>
-					<a href="' . base_url('manufacturing/process/manage/') . $record->id . '" class="btn btn-action bg-indigo text-white ' . $dnone . '" data-bs-toggle="tooltip" data-bs-placement="top"  data-bs-original-title="Proccess Manage"><i class="fa-solid fa-code-fork"></i></a>
 					<span data-garnu_id="' . $record->id . '" class="btn btn-action bg-info text-white me-2 is_receive ' . $is_receive . '" data-bs-toggle="tooltip" data-bs-placement="top"  data-bs-original-title="Is Receive"><i class="fa-solid fa-check"></i></span>
 				</div>
 			';
@@ -351,8 +350,8 @@ class Garnu extends CI_Controller
 			} else {
 				$postData = $this->input->post();
 				$id = $postData['id'];
-				$data = $this->dbh->getWhereResultArray('receive_garnu_dhal', ['garnu_id' => $id]);
-				$garnuData = $this->db->select('*')->from('garnu')->where('id', $id)->get()->row_array();
+				$data = $this->dbh->getWhereResultArray('pre_receive_garnu_dhal', ['garnu_id' => $id]);
+				$garnuData = $this->db->select('*')->from('pre_garnu')->where('id', $id)->get()->row_array();
 				if (!empty($data) || !empty($garnuData)) {
 					$response = ['success' => true, 'message' => 'Data Fetched successfully.', 'data' => $data, 'garnuData' => $garnuData];
 				} else {
@@ -383,7 +382,7 @@ class Garnu extends CI_Controller
 		$idsNotExisting = array_diff($allids, $existingIds);
 		if (!empty($idsNotExisting)) {
 			$this->db->where_in('id', $idsNotExisting);
-			$this->db->delete('receive_garnu_dhal');
+			$this->db->delete('pre_receive_garnu_dhal');
 		}
 
 		foreach ($post['sdid'] as $key => $sdid) {
@@ -415,15 +414,15 @@ class Garnu extends CI_Controller
 			$transfer_account = ($post['transfer_account'] ?? NULL);
 		}
 		if (!empty($insertBatch)) {
-			$this->db->insert_batch('receive_garnu_dhal', $insertBatch);
-			$this->db->where('id', $post['garnu_id'])->update('garnu', ['recieved' => 'YES', 'is_kasar' => $is_kasar, 'transfer_account' => $transfer_account]);
+			$this->db->insert_batch('pre_receive_garnu_dhal', $insertBatch);
+			$this->db->where('id', $post['garnu_id'])->update('pre_garnu', ['recieved' => 'YES', 'is_kasar' => $is_kasar, 'transfer_account' => $transfer_account]);
 			$response = ['success' => true, 'message' => 'Data Add Successfully.'];
 		} else {
 			$response = ['success' => false, 'message' => 'Please Fill Complate form..'];
 		}
 		if (!empty($updateBatch)) {
-			$this->db->update_batch('receive_garnu_dhal', $updateBatch, 'id');
-			$this->db->where('id', $post['garnu_id'])->update('garnu', ['recieved' => 'YES', 'is_kasar' => $is_kasar, 'vadharo_garnu' => $post['jama_baki'], 'transfer_account' => $transfer_account]);
+			$this->db->update_batch('pre_receive_garnu_dhal', $updateBatch, 'id');
+			$this->db->where('id', $post['garnu_id'])->update('pre_garnu', ['recieved' => 'YES', 'is_kasar' => $is_kasar, 'vadharo_garnu' => $post['jama_baki'], 'transfer_account' => $transfer_account]);
 			$response = ['success' => true, 'message' => 'Data Update Successfully.'];
 		}
 		echo json_encode($response);
@@ -441,7 +440,7 @@ class Garnu extends CI_Controller
 			} else {
 				$postData = $this->input->post();
 				$id = $postData['id'];
-				$update = $this->db->where('id', $id)->update('garnu', ['recieved' => 'YES']);
+				$update = $this->db->where('id', $id)->update('pre_garnu', ['recieved' => 'YES']);
 				if ($update) {
 					$response = ['success' => true, 'message' => 'Status Update successfully.'];
 				} else {
@@ -462,6 +461,6 @@ class Garnu extends CI_Controller
 
 	private function validateId($id)
 	{
-		(!is_numeric($id) || empty($id)) && flash()->withError("invalid id please enter valid Id")->to("manufacturing/garnu");
+		(!is_numeric($id) || empty($id)) && flash()->withError("invalid id please enter valid Id")->to("manufacturing/pre_garnu");
 	}
 }

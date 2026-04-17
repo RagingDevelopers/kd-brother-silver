@@ -51,7 +51,7 @@
 							<div class="row mt-3">
 								<div class="col-sm-3">
 									<label class="form-label" for="prd"> Opening Amount: </label>
-									<input class="form-control" type="number" name="opening_amount" placeholder="Enter Opening Amount" value="<?= $update['opening_amount'] ?? 0 ?>" id="opening_amount" required>
+									<input class="form-control" type="number" name="opening_amount" step="any" placeholder="Enter Opening Amount" value="<?= $update['opening_amount'] ?? 0 ?>" id="opening_amount" required>
 								</div>
 								<div class="col-sm-3">
 									<label class="form-label" for="prd"> Opening Amount Type: </label>
@@ -154,7 +154,7 @@
 														<input class="form-control extra_touch" step="any" type="number" name="extra_touch[]" placeholder="Enter Extra touch  Name" value="<?= $row['extra_touch'] ?? null ?>" id="extra_touch" required>
 													</td>
 													<td>
-														<input class="form-control wastage" type="number" name="wastage[]" placeholder="Enter Wastage Amount" value="<?= $row['wastage'] ?? null ?>" id="wastage" required>
+														<input class="form-control wastage" step="any" type="number" name="wastage[]" placeholder="Enter Wastage Amount" value="<?= $row['wastage'] ?? null ?>" id="wastage" required>
 													</td>
 													<td>
 														<select class="form-select label" name="label[]">
@@ -174,10 +174,10 @@
 														</select>
 													</td>
 													<td>
-														<input class="form-control rate" type="number" name="rate[]" placeholder="Enter Rate Amount" value="<?= $row['rate'] ?? null ?>" id="rate" required>
+														<input class="form-control rate" type="number" name="rate[]" placeholder="Enter Rate Amount" step="any" value="<?= $row['rate'] ?? null ?>" id="rate" required>
 													</td>
 													<td>
-														<input class="form-control sub_total" type="number" name="sub_total[]" placeholder="Subtotal" id="sub_total" value="<?= $row['sub_total'] ?? null ?>" required readonly>
+														<input class="form-control sub_total" type="number" name="sub_total[]" placeholder="Subtotal" step="any" id="sub_total" value="<?= $row['sub_total'] ?? null ?>" required readonly>
 													</td>
 													<td>
 														<button type="button" class="btn btn-danger del">X</button>

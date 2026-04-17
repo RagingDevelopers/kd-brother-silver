@@ -154,11 +154,17 @@
 									<!--	</span>-->
 									<!--	Main Garnu-->
 									<!--</a>-->
-									<a class="dropdown-item <?= uri("manufacturing/garnu"); ?>" href="<?= base_url("manufacturing/garnu") ?>">
+									<a class="dropdown-item <?= uri("manufacturing/pre_garnu"); ?>" href="<?= base_url("manufacturing/pre_garnu") ?>">
 										<span class="nav-link-icon d-md-none d-lg-inline-block">
 											<i class="fa-solid fa-filter"></i>
 										</span>
 										Garnu
+									</a>
+									<a class="dropdown-item <?= uri("manufacturing/garnu"); ?>" href="<?= base_url("manufacturing/garnu") ?>">
+										<span class="nav-link-icon d-md-none d-lg-inline-block">
+											<i class="fa-solid fa-hammer"></i>
+										</span>
+										Casting
 									</a>
 									<a class="dropdown-item <?= uri("manufacturing/receive_garnu"); ?>" href="<?= base_url("manufacturing/receive_garnu") ?>">
 										<span class="nav-link-icon d-md-none d-lg-inline-block">
@@ -451,7 +457,7 @@
 						<i class="fs-2 ti ti-key dropdown-item-icon "></i>
 						Change Password
 					</a>
-					<a href="<?= base_url('login/logout') ?>" class="dropdown-item" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-original-title="Logout">
+					<a href="<?= base_url('login/logout') ?>" class="dropdown-item logout-confirm" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-original-title="Logout">
 						<svg xmlns="http://www.w3.org/2000/svg" class="icon dropdown-item-icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
 							<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
 							<path d="M14 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2 -2v-2">
@@ -465,6 +471,28 @@
 		</div>
 	</header>
 </div>
+
+<script>
+	$(document).on('click', '.logout-confirm', function(e) {
+		e.preventDefault();
+		const logoutUrl = $(this).attr('href');
+
+		Swal.fire({
+			title: 'Logout?',
+			text: 'Are you sure you want to logout?',
+			icon: 'warning',
+			showCancelButton: true,
+			confirmButtonText: 'Yes, logout',
+			cancelButtonText: 'Cancel',
+			confirmButtonColor: '#206bc4',
+			cancelButtonColor: '#d63939',
+		}).then((result) => {
+			if (result.isConfirmed) {
+				window.location.href = logoutUrl;
+			}
+		});
+	});
+</script>
 
 <div class="modal modal-blur fade" id="changePasswordModal" tabindex="-1" aria-hidden="true">
 	<div class="modal-dialog modal-lg modal-dialog-centered" role="document">
