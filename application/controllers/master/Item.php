@@ -33,15 +33,22 @@ class Item extends CI_Controller
                 }
                 $page_data['data'] = $this->joinhelper->fetchJoinedTable('item', ['category']);
                 $page_data['update'] = $item;
-
-                // pre($page_data,true);
                 return view(self::View, $page_data);
+
+            case "list":
+                checkPrivilege(privilege["item_view"]);
+                $items = $this->joinhelper->fetchJoinedTable('item', ['category']);
+                header('Content-Type: application/json');
+                echo json_encode(['data' => array_values($items)]);
+                exit;
 
             case "store":
                 checkPrivilege(privilege["item_add"]);
                 $validation = $this->form_validation;
                 $validation->set_rules('name', 'Name', 'required');
-                $validation->set_rules('category_id', 'category_id', 'required');
+                $validation->set_rules('category_id', 'Category', 'required');
+                $validation->set_rules('type', 'Type', 'required|in_list[raw_material,metal_type,finish_goods]');
+                $validation->set_rules('opening_stock', 'Opening Stock', 'required|numeric');
 
                 if (!$validation->run()) {
                     return flash()->withError(validation_errors())->back();
@@ -50,19 +57,14 @@ class Item extends CI_Controller
                 $this->db->insert('item', $data);
                 flash()->withSuccess("Item Added Successfully")->back();
                 break;
-            // case "delete":
-            //     die("not permission to delete");
-            //     // checkPrivilege(privilege["item_delete"]);
-            //     $this->validateId($id);
-            //     $this->dbh->deleteRow('item', $id);
-            //     flash()->withSuccess("Item Deleted Successfully")->back();
 
-            //     break;
             case "update":
                 checkPrivilege(privilege["item_edit"]);
                 $validation = $this->form_validation;
                 $validation->set_rules('name', 'Name', 'required');
-                $validation->set_rules('category_id', 'category_id', 'required');
+                $validation->set_rules('category_id', 'Category', 'required');
+                $validation->set_rules('type', 'Type', 'required|in_list[raw_material,metal_type,finish_goods]');
+                $validation->set_rules('opening_stock', 'Opening Stock', 'required|numeric');
 
                 if ($validation->run() == false) {
                     return flash()->withError(validation_errors())->back();
@@ -71,6 +73,7 @@ class Item extends CI_Controller
                 $this->dbh->updateRow('item', $id, $data);
                 flash()->withSuccess("Item Updated Successfully")->to("master/item");
             break;
+
             default:
                 flash()->withError("Invalid Arguments")->back();
         }

@@ -146,13 +146,13 @@
 										<?php } ?>
 									</select>
 								</div>
-								<div class="col-md-4 col-md-3 material-type mb-2" style="display:none">
+								<div class="col-md-4 col-md-3 material-type mb-2">
 									<label class="form-label" for="meterial_type_id">Material Type: </label>
 									<select name="material_type_id" class="form-select select2 col-md-2 col-sm-3" id="material-type">
 										<option value=''>Select Material Type</option>
 										<?php
-										if (!empty($metal_type)) {
-											foreach ($metal_type as $row) { ?>
+										if (!empty($row_material)) {
+											foreach ($row_material as $row) { ?>
 												<option value="<?= $row['id']; ?>" <?php if (isset($process_data) && ($row['id'] == $process_data['material_type_id'])) {
 																						echo 'selected';
 																					} ?>> <?= $row['name']; ?> </option>
@@ -160,7 +160,7 @@
 										} ?>
 									</select>
 								</div>
-								<div class="col-md-4 col-md-3 material-type" style="display:none">
+								<div class="col-md-4 col-md-3 material-type">
 									<label class="form-label" for="closingTouch">Closing Touch: </label>
 									<select class="form-select select2 closingTouch" name="closing_touch"></select>
 								</div>
@@ -569,8 +569,8 @@
 															<select class="form-select select2 metal_type">
 																<option value="">Select Metal Type</option>
 																<?php
-																if (!empty($metal_type)) {
-																	foreach ($metal_type as $mt) { ?>
+																if (!empty($row_material)) {
+																	foreach ($row_material as $mt) { ?>
 																		<option value="<?= $mt['id']; ?>" <?php if (isset($row) && $mt['id'] == $row['metal_type_id']) {
 																												echo 'selected';
 																											} ?>><?= $mt['name']; ?>

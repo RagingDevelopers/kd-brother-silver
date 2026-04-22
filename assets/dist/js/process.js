@@ -263,9 +263,9 @@ $(document).on("change", ".process", function () {
 		$(".workers").empty();
 		$(".workers").append('<option value="">Select</option>');
 	}
-	$(".material-type").toggle(process_id == 1);
+	// $(".material-type").toggle(process_id == 1);
 }).trigger("change");
-$(".material-type").toggle($(".process").val() == 1);
+// $(".material-type").toggle($(".process").val() == 1);
 
 $(document).on("select2:select", "#material-type", function () {
 	metal_type_id = $(this).val();
@@ -287,6 +287,7 @@ $(document).on("select2:select", "#material-type", function () {
 					$(".closingTouch").html(getTouch).select2("open");
 				}
 			} else {
+				$(".closingTouch").html("").select2("close");
 				SweetAlert('warning', response.message);
 			}
 		},

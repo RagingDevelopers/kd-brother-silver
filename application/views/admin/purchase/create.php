@@ -130,9 +130,9 @@
 										<option value="item" <?php if (isset($data['product_type']) && $data['product_type'] == 'item') {
 																		echo "selected";
 																	} ?>>item</option>
-										<option value="rowMaterial" <?php if (isset($data['product_type']) && $data['product_type'] == 'rowMaterial') {
+										<!-- <option value="rowMaterial" <?php if (isset($data['product_type']) && $data['product_type'] == 'rowMaterial') {
 																					echo "selected";
-																				} ?>>Row Material</option>
+																				} ?>>Row Material</option> -->
 									</select>
 								</div>
 							</div>

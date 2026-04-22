@@ -25,7 +25,8 @@ class Process extends CI_Controller
 		}
 		$page_data['process_data']       = $this->db->select('*')->from('given')->where('id', $pid)->get()->row_array();
 		$page_data['given_row_material'] = $this->db->select('*')->from('given_row_material')->where(array('given_id' => $pid, 'garnu_id' => $id))->get()->result_array();
-		$page_data['row_material']       = $this->db->select('id,name')->from('row_material')->where('status', "ACTIVE")->get()->result_array();
+		// $page_data['row_material']       = $this->db->select('id,name')->from('row_material')->where('status', "ACTIVE")->get()->result_array();
+		$page_data['row_material']       = $this->db->select('id,name')->from('item')->get()->result_array();
 		$page_data['metal_type']         = $this->db->select('id,name')->from('metal_type')->get()->result_array();
 		if (!empty($pid)) {
 			$page_data['receiveCode'] = $this->db->select('id, code')->from('receive')->where(array('garnu_id' => $id))->order_by('code', 'DESC')->get()->result_array();

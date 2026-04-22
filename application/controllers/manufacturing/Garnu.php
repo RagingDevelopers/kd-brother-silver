@@ -60,14 +60,15 @@ class Garnu extends CI_Controller
 				$validation = $this->form_validation;
 				$validation->set_rules('name', 'Name', 'required')
 					->set_rules('worker_id', 'Worker', 'required')
-					->set_rules('garnu_weight', 'garnu_weight', 'required')
-					->set_rules('touchs', 'touch', 'required')
-					->set_rules('mfine', 'Total Fine', 'required')
-					->set_rules('metal_type_id[]', 'metal_type_id', 'required')
-					->set_rules('closing_touch[]', 'closing touch', 'required')
-					->set_rules('weight[]', 'weight', 'required')
-					->set_rules('touch[]', 'touch', 'required')
-					->set_rules('fine[]', 'Fine', 'required');
+					// ->set_rules('garnu_weight', 'garnu_weight', 'required')
+					// ->set_rules('touchs', 'touch', 'required')
+					// ->set_rules('mfine', 'Total Fine', 'required')
+					// ->set_rules('metal_type_id[]', 'metal_type_id', 'required')
+					// ->set_rules('closing_touch[]', 'closing touch', 'required')
+					// ->set_rules('weight[]', 'weight', 'required')
+					// ->set_rules('touch[]', 'touch', 'required')
+					// ->set_rules('fine[]', 'Fine', 'required')
+					;
 
 				if (!$validation->run()) {
 					return flash()->withError(validation_errors())->back();
@@ -76,16 +77,16 @@ class Garnu extends CI_Controller
 				$garnu = array();
 				$garnu['name'] = $post['name'];
 				$garnu['user_id'] = session('id');
-				$garnu['garnu_weight'] = $post['garnu_weight'];
-				$garnu['touch'] = $post['touchs'];
-				$garnu['fine'] = $post['mfine'];
+				// $garnu['garnu_weight'] = $post['garnu_weight'];
+				// $garnu['touch'] = $post['touchs'];
+				// $garnu['fine'] = $post['mfine'];
 				$garnu['worker_id'] = $post['worker_id'];
 				$garnu['creation_date'] = date('Y-m-d');
 
 				$this->db->insert('garnu', $garnu);
 				$garnu_id = $this->db->insert_id();
 
-				$length = count($post['metal_type_id']);
+				$length = count(@$post['metal_type_id'] ?? []);
 
 				$garnu_item = $new = array();
 				for ($i = 0; $i < $length; $i++) {
@@ -110,7 +111,9 @@ class Garnu extends CI_Controller
 					}
 				}
 
-				$this->db->insert_batch('garnu_item', $new);
+				if(!empty($new)) {
+					$this->db->insert_batch('garnu_item', $new);
+				}
 
 				flash()->withSuccess("Garnu type Added Successfully")->to("manufacturing/garnu");
 				break;

@@ -49,99 +49,102 @@
 									</select>
 								</div>
 							</div>
-							<div class="card mt-5">
-								<div class="row">
-									<table class="table card-table table-vcenter text-center text-nowrap ">
-										<thead class="thead-light">
-											<th>Metal Type</th>
-											<th class="closing_touch_header">Closing Touch</th>
-											<th scope="col">Touch (%)</th>
-											<th scope="col">Weight(kg)</th>
-											<th scope="col">Fine</th>
-											<th scope="col"></th>
-										</thead>
 
-										<tbody class="paste append-here">
-											<?php
-											if (empty($items)) {
-												$items[] = [
-													'metal_type_id' => '',
-													'closing_touch' => '',
-													'weight'        => '',
-													'touch'         => 0,
-													'fine'          => '',
-													'id'            => 0
-												];
-											}
-											foreach ($items as $row) { ?>
-												<tr class="main-row">
-													<input type="hidden" class="rowid" name="rowid[]" value="<?= $row['id'] ?? null; ?>" />
-													<td>
-														<select class="form-select select2 metal_type_id" name="metal_type_id[]">
-															<option value="">Select Metal</option>
-															<?php
-															foreach ($metal_type as $value) {
-															?>
-																<option value="<?= $value->id; ?>" <?php if (isset($row) && $value->id == $row['metal_type_id']) {
-																										echo 'selected';
-																									} ?>><?= $value->name; ?></option>
-															<?php } ?>
-														</select>
+							<?php if(false): ?>
+								<div class="card mt-5">
+									<div class="row">
+										<table class="table card-table table-vcenter text-center text-nowrap ">
+											<thead class="thead-light">
+												<th>Metal Type</th>
+												<th class="closing_touch_header">Closing Touch</th>
+												<th scope="col">Touch (%)</th>
+												<th scope="col">Weight(kg)</th>
+												<th scope="col">Fine</th>
+												<th scope="col"></th>
+											</thead>
+
+											<tbody class="paste append-here">
+												<?php
+												if (empty($items)) {
+													$items[] = [
+														'metal_type_id' => '',
+														'closing_touch' => '',
+														'weight'        => '',
+														'touch'         => 0,
+														'fine'          => '',
+														'id'            => 0
+													];
+												}
+												foreach ($items as $row) { ?>
+													<tr class="main-row">
+														<input type="hidden" class="rowid" name="rowid[]" value="<?= $row['id'] ?? null; ?>" />
+														<td>
+															<select class="form-select select2 metal_type_id" name="metal_type_id[]">
+																<option value="">Select Metal</option>
+																<?php
+																foreach ($metal_type as $value) {
+																?>
+																	<option value="<?= $value->id; ?>" <?php if (isset($row) && $value->id == $row['metal_type_id']) {
+																											echo 'selected';
+																										} ?>><?= $value->name; ?></option>
+																<?php } ?>
+															</select>
+														</td>
+														<td class="hide_closing_touch">
+															<select class="form-select select2 closingTouch" name="closing_touch[]">
+															</select>
+														</td>
+														<td>
+															<div class="form-group input-icon">
+																<input class="form-control touch readonly" type="number" name="touch[]" placeholder="Enter touch(%)" value="<?= $row['touch'] ?? null ?>" readonly required>
+																<span class="input-icon-addon"><i class="fa-light fa-percent" aria-hidden="true"></i></span>
+															</div>
+														</td>
+														<td>
+															<input class="form-control weight-input weight" type="number" name="weight[]" placeholder="Enter Weight" value="<?= $row['weight'] ?? null ?>" required>
+														</td>
+														<td>
+															<input class="form-control fine fine-input" type="number" name="fine[]" placeholder="Fine" value="<?= $row['fine'] ?? null ?>" required>
+														</td>
+														<!-- <td>
+															<input class="form-control copper-input copper" type="number" name="copper[]" placeholder="Copper(kg)" value="<?= $row['copper'] ?? null ?>" required readonly>
+														</td> -->
+														<td>
+															<button type="button" class="btn btn-danger remove-btn">X</button>
+														</td>
+													</tr>
+												<?php } ?>
+											</tbody>
+											<tfoot>
+												<tr class="border border-none">
+													<td colspan="1" class="d-flex border border-0 align-content-start flex-wrap">
+														<button type="button" class="btn btn-success " id="add">
+															Add row <i class="ms-2 fa-solid fa-plus"></i>
+														</button>
 													</td>
-													<td class="hide_closing_touch">
-														<select class="form-select select2 closingTouch" name="closing_touch[]">
-														</select>
+													<td>
+														<label class="form-label"> Garnu Weight(KG): </label>
+														<input class="form-control weight-input mweight" type="number" name="garnu_weight" readonly placeholder="Enter Garnu Weight(Kg)" value="<?= $update['garnu_weight'] ?? null ?>" required>
 													</td>
 													<td>
+														<label class="form-label">Garnu Touch (%): </label>
 														<div class="form-group input-icon">
-															<input class="form-control touch readonly" type="number" name="touch[]" placeholder="Enter touch(%)" value="<?= $row['touch'] ?? null ?>" readonly required>
+															<input class="form-control mtouch" type="number" name="touchs" placeholder="Enter Touch (%)" value="<?= $update['touch'] ?? 0 ?>" required>
 															<span class="input-icon-addon"><i class="fa-light fa-percent" aria-hidden="true"></i></span>
 														</div>
 													</td>
 													<td>
-														<input class="form-control weight-input weight" type="number" name="weight[]" placeholder="Enter Weight" value="<?= $row['weight'] ?? null ?>" required>
-													</td>
-													<td>
-														<input class="form-control fine fine-input" type="number" name="fine[]" placeholder="Fine" value="<?= $row['fine'] ?? null ?>" required>
-													</td>
-													<!-- <td>
-														<input class="form-control copper-input copper" type="number" name="copper[]" placeholder="Copper(kg)" value="<?= $row['copper'] ?? null ?>" required readonly>
-													</td> -->
-													<td>
-														<button type="button" class="btn btn-danger remove-btn">X</button>
+														<label class="form-label">Total Fine: </label>
+														<input class="form-control fine-input total_used_fine" type="number" name="mfine" placeholder="Fine(kg)" value="<?= $update['fine'] ?? null ?>" required readonly>
 													</td>
 												</tr>
-											<?php } ?>
-										</tbody>
-										<tfoot>
-											<tr class="border border-none">
-												<td colspan="1" class="d-flex border border-0 align-content-start flex-wrap">
-													<button type="button" class="btn btn-success " id="add">
-														Add row <i class="ms-2 fa-solid fa-plus"></i>
-													</button>
-												</td>
-												<td>
-													<label class="form-label"> Garnu Weight(KG): </label>
-													<input class="form-control weight-input mweight" type="number" name="garnu_weight" readonly placeholder="Enter Garnu Weight(Kg)" value="<?= $update['garnu_weight'] ?? null ?>" required>
-												</td>
-												<td>
-													<label class="form-label">Garnu Touch (%): </label>
-													<div class="form-group input-icon">
-														<input class="form-control mtouch" type="number" name="touchs" placeholder="Enter Touch (%)" value="<?= $update['touch'] ?? 0 ?>" required>
-														<span class="input-icon-addon"><i class="fa-light fa-percent" aria-hidden="true"></i></span>
-													</div>
-												</td>
-												<td>
-													<label class="form-label">Total Fine: </label>
-													<input class="form-control fine-input total_used_fine" type="number" name="mfine" placeholder="Fine(kg)" value="<?= $update['fine'] ?? null ?>" required readonly>
-												</td>
-											</tr>
-											<!-- <tr>
-											</tr> -->
-										</tfoot>
-									</table>
+												<!-- <tr>
+												</tr> -->
+											</tfoot>
+										</table>
+									</div>
 								</div>
-							</div>
+							<?php endif; ?>
 						</div>
 					</div>
 				</div>

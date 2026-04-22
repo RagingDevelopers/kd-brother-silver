@@ -25,13 +25,13 @@ class Pre_garnu extends CI_Controller
 			case "":
 				checkPrivilege(privilege["garnu_view"]);
 				$page_data['data'] = $this->dbh->getResultArray('pre_garnu');
-				$page_data['metal_type'] = $this->dbh->findAll('metal_type');
+				$page_data['metal_type'] = $this->dbh->findAll('item');
 
 				return view(self::View, $page_data);
 			case "add":
 				checkPrivilege(privilege["garnu_add"]);
 				$page_data['data'] = $this->dbh->getResultArray('pre_garnu');
-				$page_data['metal_type'] = $this->dbh->findAll('metal_type');
+				$page_data['metal_type'] = $this->dbh->findAll('item');
 				$page_data['workers'] = $this->db->where('account_type_id', 2)->get('customer')->result();
 				return view(self::ADD, $page_data);
 
@@ -47,7 +47,7 @@ class Pre_garnu extends CI_Controller
 				$this->db->from('pre_garnu_item');
 				$this->db->where('garnu_id', $id);
 				$page_data['items'] = $this->db->get()->result_array();
-				$page_data['metal_type'] = $this->dbh->findAll('metal_type');
+				$page_data['metal_type'] = $this->dbh->findAll('item');
 				$page_data['workers'] = $this->db->where('account_type_id', 2)->get('customer')->result();
 				$page_data['update'] = $garnu;
 
