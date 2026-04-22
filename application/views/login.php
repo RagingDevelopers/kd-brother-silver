@@ -4,21 +4,14 @@
 <head>
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
-	<title>Silver — Sign In</title>
+	<title>KD Brothers — Sign In</title>
 	<link rel="preconnect" href="https://fonts.googleapis.com">
-	<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 	<style>
-		*,
-		*::before,
-		*::after {
-			box-sizing: border-box;
-			margin: 0;
-			padding: 0;
-		}
+		*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-		html,
-		body {
+		html, body {
 			height: 100%;
 			font-family: 'Nunito', sans-serif;
 		}
@@ -26,233 +19,249 @@
 		body {
 			min-height: 100vh;
 			display: flex;
-			align-items: center;
-			justify-content: center;
-			padding: 2rem;
-			position: relative;
-			overflow: hidden;
-			background: transparent;
+			background: #f5f0e8;
 		}
 
-		/* Background video */
-		.bg-video {
-			position: fixed;
+		/* ── LEFT PANEL (Video) ── */
+		.panel-video {
+			position: relative;
+			flex: 1.1;
+			overflow: hidden;
+			display: none;
+		}
+
+		@media (min-width: 900px) {
+			.panel-video { display: block; }
+		}
+
+		.panel-video video {
+			position: absolute;
 			inset: 0;
 			width: 100%;
 			height: 100%;
 			object-fit: cover;
-			z-index: 0;
 		}
 
-		.bg-video-overlay {
-			position: fixed;
+		.panel-video-overlay {
+			position: absolute;
 			inset: 0;
-			background: rgb(0 0 0 / 15%);
-			z-index: 1;
+			background: linear-gradient(
+				135deg,
+				rgba(0,0,0,0.55) 0%,
+				rgba(10,10,10,0.30) 50%,
+				rgba(0,0,0,0.65) 100%
+			);
 		}
 
-		/* Keep login card above video */
-		.card {
-			position: relative;
-			z-index: 2;
+		.panel-video-content {
+			position: absolute;
+			inset: 0;
+			display: flex;
+			flex-direction: column;
+			justify-content: flex-end;
+			padding: 3rem;
 		}
 
-		.error-message {
-			margin-bottom: 1rem;
-			padding: 12px 14px;
-			border-radius: 14px;
-			background: rgba(255, 77, 77, 0.10);
-			border: 1px solid rgba(255, 77, 77, 0.25);
-			color: #d62828;
-			font-size: 14px;
+		.video-brand {
+			font-family: 'Cormorant Garamond', serif;
+			font-size: 3.6rem;
 			font-weight: 700;
-			text-align: center;
+			color: #fff;
+			line-height: 1;
+			letter-spacing: 2px;
+			text-transform: uppercase;
 		}
 
-		/* ── Big colorful blobs ── */
-		.blob {
-			position: fixed;
-			border-radius: 50%;
-			filter: blur(80px);
-			pointer-events: none;
-			z-index: 0;
+		.video-brand span {
+			display: block;
+			width: 48px;
+			height: 3px;
+			background: linear-gradient(90deg, #c9a84c, #f0d080, #c9a84c);
+			border-radius: 2px;
+			margin-bottom: 1rem;
 		}
 
-		.b1 {
-			width: 520px;
-			height: 520px;
-			background: #ff6fb7;
-			top: -160px;
-			left: -160px;
-			opacity: 0.55;
-			animation: drift1 10s ease-in-out infinite;
+		.video-tagline {
+			margin-top: 0.8rem;
+			font-size: 1rem;
+			color: rgba(255,255,255,0.68);
+			letter-spacing: 1.5px;
+			text-transform: uppercase;
+			font-weight: 500;
 		}
 
-		.b2 {
-			width: 480px;
-			height: 480px;
-			background: #ffe066;
-			top: -100px;
-			right: -120px;
-			opacity: 0.5;
-			animation: drift2 12s ease-in-out infinite;
+		.video-tags {
+			display: flex;
+			gap: 10px;
+			margin-top: 2rem;
+			flex-wrap: wrap;
 		}
 
-		.b3 {
-			width: 440px;
-			height: 440px;
-			background: #43e8d8;
-			bottom: -140px;
-			left: -100px;
-			opacity: 0.5;
-			animation: drift3 14s ease-in-out infinite;
-		}
-
-		.b4 {
-			width: 400px;
-			height: 400px;
-			background: #a78bfa;
-			bottom: -120px;
-			right: -100px;
-			opacity: 0.5;
-			animation: drift1 11s ease-in-out infinite reverse;
-		}
-
-		.b5 {
-			width: 260px;
-			height: 260px;
-			background: #ff9a3c;
-			top: 50%;
-			left: 50%;
-			transform: translate(-50%, -50%);
-			opacity: 0.35;
-			animation: drift2 9s ease-in-out infinite;
-		}
-
-		@keyframes drift1 {
-
-			0%,
-			100% {
-				transform: translate(0, 0) scale(1)
-			}
-
-			50% {
-				transform: translate(30px, 20px) scale(1.06)
-			}
-		}
-
-		@keyframes drift2 {
-
-			0%,
-			100% {
-				transform: translate(0, 0) scale(1)
-			}
-
-			50% {
-				transform: translate(-25px, 30px) scale(1.05)
-			}
-		}
-
-		@keyframes drift3 {
-
-			0%,
-			100% {
-				transform: translate(0, 0) scale(1)
-			}
-
-			50% {
-				transform: translate(20px, -25px) scale(1.07)
-			}
-		}
-
-		/* ── Card ── */
-		.card {
-			position: relative;
-			z-index: 2;
-			width: 100%;
-			max-width: 420px;
-			background: rgb(10 10 10 / 35%);
-			backdrop-filter: blur(6px);
-			-webkit-backdrop-filter: blur(14px);
-			border-radius: 22px;
-			border: 1px solid rgb(255 255 255 / 10%);
-			box-shadow: 0 24px 70px rgb(0 0 0 / 55%);
-			padding: 2.8rem 2.4rem 2.4rem;
-			animation: popIn 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
-		}
-
-		@keyframes popIn {
-			from {
-				opacity: 0;
-				transform: scale(0.92) translateY(30px);
-			}
-
-			to {
-				opacity: 1;
-				transform: scale(1) translateY(0);
-			}
-		}
-
-		/* ── Logo ── */
-		.logo-row {
+		.video-tag {
+			padding: 6px 16px;
+			border-radius: 100px;
+			font-size: 11.5px;
+			font-weight: 700;
+			letter-spacing: 0.8px;
+			text-transform: uppercase;
+			border: 1.5px solid rgba(201,168,76,0.45);
+			color: rgba(255,255,255,0.80);
+			background: rgba(201,168,76,0.10);
 			display: flex;
 			align-items: center;
-			gap: 10px;
-			margin-bottom: 2rem;
+			gap: 6px;
 		}
 
-		.logo-badge {
-			width: 44px;
-			height: 44px;
-			border-radius: 14px;
-			background: rgb(1 137 255 / 85%);
+		.video-tag i { font-size: 11px; color: #c9a84c; }
+
+		/* ── RIGHT PANEL (Form) ── */
+		.panel-form {
+			flex: 0 0 460px;
 			display: flex;
 			align-items: center;
 			justify-content: center;
-			box-shadow: 0 12px 26px rgb(1 137 255 / 22%);
+			padding: 2.5rem 2rem;
+			background: #faf7f2;
+			position: relative;
+			overflow: hidden;
+			box-shadow: -6px 0 40px rgba(0,0,0,0.10);
+		}
+
+		@media (max-width: 900px) {
+			.panel-form {
+				flex: 1;
+				min-height: 100vh;
+			}
+		}
+
+		/* subtle shimmer rings */
+		.panel-form::before {
+			content: '';
+			position: absolute;
+			width: 500px;
+			height: 500px;
+			border-radius: 50%;
+			border: 1px solid rgba(201,168,76,0.14);
+			top: -120px;
+			right: -160px;
+			pointer-events: none;
+		}
+
+		.panel-form::after {
+			content: '';
+			position: absolute;
+			width: 360px;
+			height: 360px;
+			border-radius: 50%;
+			border: 1px solid rgba(201,168,76,0.10);
+			bottom: -80px;
+			left: -80px;
+			pointer-events: none;
+		}
+
+		/* ── Form Card ── */
+		.form-card {
+			position: relative;
+			z-index: 2;
+			width: 100%;
+			max-width: 380px;
+		}
+
+		/* Logo */
+		.logo-row {
+			display: flex;
+			align-items: center;
+			gap: 12px;
+			margin-bottom: 2.6rem;
+		}
+
+		.logo-badge {
+			width: 46px;
+			height: 46px;
+			border-radius: 14px;
+			background: linear-gradient(135deg, #c9a84c, #f0d080);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			box-shadow: 0 8px 24px rgba(201,168,76,0.30);
 		}
 
 		.logo-badge i {
-			color: white;
+			color: #0f0f0f;
 			font-size: 20px;
 		}
 
 		.logo-name {
-			font-size: 24px;
-			font-weight: 900;
-			color: #ffffff;
-			letter-spacing: -0.5px;
+			font-family: 'Cormorant Garamond', serif;
+			font-size: 26px;
+			font-weight: 700;
+			color: #1a1209;
+			letter-spacing: 3px;
+			text-transform: uppercase;
 		}
 
-		/* ── Heading ── */
+		/* Heading */
 		.heading {
-			font-size: 28px;
-			font-weight: 900;
-			color: #ffffff;
+			font-size: 26px;
+			font-weight: 800;
+			color: #1a1209;
 			line-height: 1.2;
 			margin-bottom: 6px;
 		}
 
 		.subheading {
-			font-size: 14px;
-			color: rgb(255 255 255 / 72%);
-			font-weight: 400;
+			font-size: 13.5px;
+			color: rgba(30,20,5,0.48);
+			font-weight: 500;
+			margin-bottom: 2.4rem;
+			letter-spacing: 0.2px;
+		}
+
+		/* Divider */
+		.divider {
+			width: 40px;
+			height: 2px;
+			background: linear-gradient(90deg, #c9a84c, #f0d080);
+			border-radius: 2px;
 			margin-bottom: 2rem;
 		}
 
-		/* ── Fields ── */
+		/* Error */
+		.error-message {
+			margin-bottom: 1.2rem;
+			padding: 12px 16px;
+			border-radius: 12px;
+			background: rgba(220,53,69,0.07);
+			border: 1px solid rgba(220,53,69,0.22);
+			color: #c0392b;
+			font-size: 13.5px;
+			font-weight: 600;
+			display: flex;
+			align-items: center;
+			gap: 8px;
+		}
+
+		.error-message::before {
+			content: '\f071';
+			font-family: 'Font Awesome 6 Free';
+			font-weight: 900;
+			font-size: 13px;
+			flex-shrink: 0;
+		}
+
+		/* Fields */
 		.field {
-			margin-bottom: 1rem;
+			margin-bottom: 1.2rem;
 		}
 
 		.field-label {
 			display: block;
-			font-size: 12px;
+			font-size: 11px;
 			font-weight: 700;
-			letter-spacing: 0.8px;
+			letter-spacing: 1.2px;
 			text-transform: uppercase;
-			color: rgb(255 255 255 / 80%);
-			margin-bottom: 7px;
+			color: rgba(30,20,5,0.52);
+			margin-bottom: 8px;
 		}
 
 		.input-wrap {
@@ -261,27 +270,28 @@
 
 		.field-input {
 			width: 100%;
-			background: rgb(255 255 255 / 10%);
-			border: 1px solid rgb(255 255 255 / 14%);
-			border-radius: 14px;
-			padding: 13px 46px 13px 16px;
-			font-size: 15px;
+			background: #fff;
+			border: 1.5px solid rgba(180,150,80,0.18);
+			border-radius: 12px;
+			padding: 13px 48px 13px 16px;
+			font-size: 14.5px;
 			font-family: 'Nunito', sans-serif;
 			font-weight: 600;
-			color: rgb(255 255 255 / 92%);
+			color: #1a1209;
 			outline: none;
 			transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+			box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 		}
 
 		.field-input::placeholder {
-			color: rgb(255 255 255 / 55%);
+			color: rgba(30,20,5,0.28);
 			font-weight: 400;
 		}
 
 		.field-input:focus {
-			border-color: rgb(1 137 255 / 70%);
-			background: rgb(255 255 255 / 12%);
-			box-shadow: 0 0 0 4px rgb(1 137 255 / 18%);
+			border-color: rgba(201,168,76,0.70);
+			background: #fffef9;
+			box-shadow: 0 0 0 4px rgba(201,168,76,0.12), 0 2px 8px rgba(0,0,0,0.05);
 		}
 
 		.field-icon {
@@ -289,266 +299,211 @@
 			right: 14px;
 			top: 50%;
 			transform: translateY(-50%);
-			color: rgb(255 255 255 / 60%);
-			pointer-events: none;
+			color: rgba(30,20,5,0.28);
 			transition: color 0.2s;
+			display: flex;
+			align-items: center;
+			justify-content: center;
 		}
 
-		.field-icon i {
-			font-size: 16px;
+		.field-icon i { font-size: 15px; }
+
+		.field-input:focus ~ .field-icon { color: rgba(201,168,76,0.80); }
+
+		/* Show/hide password toggle */
+		.toggle-pwd {
+			position: absolute;
+			right: 14px;
+			top: 50%;
+			transform: translateY(-50%);
+			background: none;
+			border: none;
+			cursor: pointer;
+			color: rgba(30,20,5,0.30);
+			padding: 4px;
+			display: flex;
+			align-items: center;
+			transition: color 0.2s;
+			line-height: 1;
 		}
 
-		.field-input:focus~.field-icon {
-			color: rgb(255 255 255 / 80%);
-		}
+		.toggle-pwd:hover { color: #c9a84c; }
+		.toggle-pwd i { font-size: 15px; pointer-events: none; }
 
-		/* ── Button ── */
+		/* Sign In Button */
 		.btn-signin {
 			width: 100%;
-			margin-top: 1.6rem;
-			padding: 15px;
+			margin-top: 1.8rem;
+			padding: 14px;
 			border: none;
-			border-radius: 14px;
-			background: #0189ff;
-			color: #fff;
+			border-radius: 12px;
+			background: linear-gradient(135deg, #c9a84c, #e8c96a, #c9a84c);
+			background-size: 200% auto;
+			color: #0f0f0f;
 			font-family: 'Nunito', sans-serif;
-			font-size: 15px;
+			font-size: 14px;
 			font-weight: 800;
-			letter-spacing: 0.5px;
+			letter-spacing: 1px;
+			text-transform: uppercase;
 			cursor: pointer;
 			display: flex;
 			align-items: center;
 			justify-content: center;
 			gap: 10px;
-			box-shadow: 0 14px 34px rgb(1 137 255 / 25%);
-			transition: transform 0.15s ease, box-shadow 0.2s ease, background 0.2s ease;
+			box-shadow: 0 10px 28px rgba(201,168,76,0.22);
+			transition: background-position 0.4s ease, transform 0.15s ease, box-shadow 0.2s ease;
 		}
 
 		.btn-signin:hover {
+			background-position: right center;
 			transform: translateY(-2px);
-			background: #007df0;
-			box-shadow: 0 16px 42px rgb(1 137 255 / 32%);
+			box-shadow: 0 14px 36px rgba(201,168,76,0.32);
 		}
 
-		.btn-signin:active {
-			transform: scale(0.98);
-		}
+		.btn-signin:active { transform: scale(0.98); }
 
-		.btn-arrow {
-			transition: transform 0.2s;
-		}
+		.btn-arrow { transition: transform 0.2s; }
+		.btn-signin:hover .btn-arrow { transform: translateX(5px); }
 
-		.btn-signin:hover .btn-arrow {
-			transform: translateX(4px);
-		}
-
-		/* ── Decorative chips ── */
-		.chips {
-			display: flex;
-			gap: 8px;
-			flex-wrap: wrap;
-			margin-top: 1.6rem;
-			justify-content: center;
-		}
-
-		.chip {
-			padding: 5px 14px;
-			border-radius: 100px;
-			font-size: 11px;
-			font-weight: 700;
+		/* Footer note */
+		.footer-note {
+			margin-top: 2rem;
+			text-align: center;
+			font-size: 11.5px;
+			color: rgba(30,20,5,0.32);
 			letter-spacing: 0.3px;
-			border: 1.5px solid;
-			display: inline-flex;
+			display: flex;
 			align-items: center;
+			justify-content: center;
 			gap: 6px;
 		}
 
-		.chip i {
-			font-size: 12px;
+		.footer-note i { font-size: 11px; color: rgba(201,168,76,0.60); }
+
+		/* Mobile branding (only visible when video panel is hidden) */
+		.mobile-brand {
+			display: none;
+			font-size: 11px;
+			letter-spacing: 2px;
+			text-transform: uppercase;
+			color: rgba(201,168,76,0.80);
+			font-weight: 700;
+			margin-bottom: 2rem;
 		}
 
-		.chip-pink {
-			color: rgb(255 255 255 / 80%);
-			border-color: rgb(255 255 255 / 18%);
-			background: rgb(255 255 255 / 8%);
-		}
-
-		.chip-purp {
-			color: rgb(255 255 255 / 80%);
-			border-color: rgb(255 255 255 / 18%);
-			background: rgb(255 255 255 / 8%);
-		}
-
-		.chip-cyan {
-			color: rgb(255 255 255 / 80%);
-			border-color: rgb(255 255 255 / 18%);
-			background: rgb(255 255 255 / 8%);
-		}
-
-		/* Old decorative layers not used anymore */
-		.blob,
-		.shape {
-			display: none !important;
-		}
-
-		/* ── Floating shapes (decorative) ── */
-		.shape {
-			position: fixed;
-			border-radius: 50%;
-			z-index: 0;
-			pointer-events: none;
-		}
-
-		.s1 {
-			width: 18px;
-			height: 18px;
-			background: #ff6fb7;
-			top: 18%;
-			left: 12%;
-			opacity: 0.7;
-			animation: float1 5s ease-in-out infinite;
-		}
-
-		.s2 {
-			width: 12px;
-			height: 12px;
-			background: #ffe066;
-			top: 30%;
-			right: 10%;
-			opacity: 0.8;
-			animation: float2 6s ease-in-out infinite;
-		}
-
-		.s3 {
-			width: 22px;
-			height: 22px;
-			background: #43e8d8;
-			bottom: 22%;
-			left: 8%;
-			opacity: 0.6;
-			animation: float1 7s ease-in-out infinite reverse;
-		}
-
-		.s4 {
-			width: 14px;
-			height: 14px;
-			background: #a78bfa;
-			bottom: 30%;
-			right: 9%;
-			opacity: 0.7;
-			animation: float2 5.5s ease-in-out infinite;
-		}
-
-		.s5 {
-			width: 10px;
-			height: 10px;
-			background: #ff9a3c;
-			top: 60%;
-			left: 6%;
-			opacity: 0.65;
-			animation: float1 8s ease-in-out infinite;
-		}
-
-		@keyframes float1 {
-
-			0%,
-			100% {
-				transform: translateY(0)
-			}
-
-			50% {
-				transform: translateY(-14px)
-			}
-		}
-
-		@keyframes float2 {
-
-			0%,
-			100% {
-				transform: translateY(0)
-			}
-
-			50% {
-				transform: translateY(12px)
-			}
+		@media (max-width: 900px) {
+			.mobile-brand { display: block; }
 		}
 	</style>
 </head>
 
 <body>
 
-	<video class="bg-video" autoplay muted loop playsinline>
-		<source src="<?= base_url('assets/video3.mp4') ?>" type="video/mp4">
-	</video>
-	<div class="bg-video-overlay" aria-hidden="true"></div>
-
-	<!-- Card -->
-	<div class="card">
-
-		<div class="logo-row">
-			<div class="logo-badge">
-				<i class="fa-solid fa-star"></i>
+	<!-- LEFT: Video Panel -->
+	<div class="panel-video">
+		<video autoplay muted loop playsinline>
+			<source src="<?= base_url('assets/video3.mp4') ?>" type="video/mp4">
+		</video>
+		<div class="panel-video-overlay"></div>
+		<div class="panel-video-content">
+			<div class="video-brand">
+				<span></span>
+				KD Brothers
 			</div>
-			<span class="logo-name">Silver</span>
+			<p class="video-tagline">Where elegance meets craftsmanship</p>
+			<div class="video-tags">
+				<span class="video-tag"><i class="fa-solid fa-gem"></i> Premium Jewellery</span>
+				<span class="video-tag"><i class="fa-solid fa-shield-halved"></i> Certified Purity</span>
+				<span class="video-tag"><i class="fa-solid fa-truck-fast"></i> Trusted Since Day One</span>
+			</div>
 		</div>
-
-		<h2 class="heading">Welcome back! </h2>
-		<p class="subheading">Sign in to start your session</p>
-
-		<?php echo validation_errors('<div class="error-message">', '</div>'); ?>
-
-		<?php if ($this->session->flashdata('error')): ?>
-			<div class="error-message">
-				<?php echo $this->session->flashdata('error'); ?>
-			</div>
-		<?php endif; ?>
-
-		<form action="<?php echo base_url('login'); ?>" method="post">
-
-			<div class="field">
-				<label class="field-label" for="mobile">Mobile Number</label>
-				<div class="input-wrap">
-					<input class="field-input"
-						type="text"
-						id="mobile"
-						name="mobile"
-						value="<?php echo set_value('mobile'); ?>"
-						placeholder="Enter your mobile number"
-						autocomplete="off" required />
-					<span class="field-icon">
-						<i class="fa-solid fa-mobile-screen-button"></i>
-					</span>
-				</div>
-			</div>
-
-			<div class="field">
-				<label class="field-label" for="password">Password</label>
-				<div class="input-wrap">
-					<input class="field-input"
-						type="password"
-						id="password"
-						name="password"
-						placeholder="Enter your password" required />
-					<span class="field-icon">
-						<i class="fa-solid fa-lock"></i>
-					</span>
-				</div>
-			</div>
-
-			<button type="submit" class="btn-signin">
-				Sign In
-				<i class="fa-solid fa-arrow-right btn-arrow"></i>
-			</button>
-
-		</form>
-
-		<div class="chips">
-			<span class="chip chip-pink"><i class="fa-solid fa-lock"></i> Secure Login</span>
-			<span class="chip chip-purp"><i class="fa-solid fa-bolt"></i> Fast Access</span>
-			<span class="chip chip-cyan"><i class="fa-solid fa-circle-check"></i> Trusted</span>
-		</div>
-
 	</div>
+
+	<!-- RIGHT: Form Panel -->
+	<div class="panel-form">
+		<div class="form-card">
+
+			<p class="mobile-brand"><i class="fa-solid fa-gem"></i> &nbsp;KD Brothers</p>
+
+			<div class="logo-row">
+				<div class="logo-badge">
+					<i class="fa-solid fa-gem"></i>
+				</div>
+				<span class="logo-name">KD Brothers</span>
+			</div>
+
+			<h2 class="heading">Welcome back</h2>
+			<p class="subheading">Sign in to your account to continue</p>
+			<div class="divider"></div>
+
+			<?php echo validation_errors('<div class="error-message">', '</div>'); ?>
+
+			<?php if ($this->session->flashdata('error')): ?>
+				<div class="error-message">
+					<?php echo $this->session->flashdata('error'); ?>
+				</div>
+			<?php endif; ?>
+
+			<form action="<?php echo base_url('login'); ?>" method="post" autocomplete="off">
+
+				<div class="field">
+					<label class="field-label" for="mobile">Mobile Number</label>
+					<div class="input-wrap">
+						<input class="field-input"
+							type="text"
+							id="mobile"
+							name="mobile"
+							value="<?php echo set_value('mobile'); ?>"
+							placeholder="Enter your mobile number"
+							autocomplete="off"
+							required />
+						<span class="field-icon">
+							<i class="fa-solid fa-mobile-screen-button"></i>
+						</span>
+					</div>
+				</div>
+
+				<div class="field">
+					<label class="field-label" for="password">Password</label>
+					<div class="input-wrap">
+						<input class="field-input"
+							type="password"
+							id="password"
+							name="password"
+							placeholder="Enter your password"
+							required />
+						<button type="button" class="toggle-pwd" id="togglePwd" aria-label="Toggle password visibility">
+							<i class="fa-regular fa-eye" id="togglePwdIcon"></i>
+						</button>
+					</div>
+				</div>
+
+				<button type="submit" class="btn-signin">
+					Sign In
+					<i class="fa-solid fa-arrow-right btn-arrow"></i>
+				</button>
+
+			</form>
+
+			<p class="footer-note">
+				<i class="fa-solid fa-lock"></i>
+				Secured &amp; encrypted connection
+			</p>
+
+		</div>
+	</div>
+
+	<script>
+		const toggleBtn = document.getElementById('togglePwd');
+		const pwdInput  = document.getElementById('password');
+		const pwdIcon   = document.getElementById('togglePwdIcon');
+
+		toggleBtn.addEventListener('click', function () {
+			const isPassword = pwdInput.type === 'password';
+			pwdInput.type    = isPassword ? 'text' : 'password';
+			pwdIcon.className = isPassword ? 'fa-regular fa-eye-slash' : 'fa-regular fa-eye';
+		});
+	</script>
 
 </body>
 

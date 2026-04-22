@@ -74,10 +74,10 @@ $active_group = 'default';
 $query_builder = TRUE;
 $db['default'] = array(
 	'dsn'	=> '',
-	'hostname' => 'localhost',
-	'username' => 'root',
-	'password' => '',
-	'database' => 'kd-brother-silver',
+	'hostname' => '195.35.45.66',
+	'username' => 'silver-dev',
+	'password' => 'Itppo1qwuf38zjzDgXpz',
+	'database' => 'silver-dev',
 
 	// 'hostname' => getenv("DB_HOST"),
 	// 'username' => getenv("DB_USERNAME"),
