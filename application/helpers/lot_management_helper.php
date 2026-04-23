@@ -143,18 +143,40 @@ if (!function_exists('lot_management')) {
 				return $db->update('lot_wise_rm');
 
 			default:
+				$type = isset($data['type']) ? strtoupper((string) $data['type']) : 'PURCHASE';
+				$weight = isset($data['weight']) ? (float) $data['weight'] : 0;
+				$quantity = isset($data['quantity']) ? (float) $data['quantity'] : 0;
+				$remWeight = array_key_exists('rem_weight', $data) ? (float) $data['rem_weight'] : $weight;
+				$remQuantity = array_key_exists('rem_quantity', $data) ? (float) $data['rem_quantity'] : $quantity;
+				$givenWeight = isset($data['given_weight']) ? (float) $data['given_weight'] : 0;
+				$givenQuantity = isset($data['given_quantity']) ? (float) $data['given_quantity'] : 0;
+				$receiveWeight = isset($data['receive_weight']) ? (float) $data['receive_weight'] : 0;
+				$receiveQuantity = isset($data['receive_quantity']) ? (float) $data['receive_quantity'] : 0;
+
+				if ($type === 'RECEIVE') {
+					$receiveWeight = array_key_exists('receive_weight', $data) ? $receiveWeight : $weight;
+					$receiveQuantity = array_key_exists('receive_quantity', $data) ? $receiveQuantity : $quantity;
+				} elseif ($type === 'GIVEN') {
+					$givenWeight = array_key_exists('given_weight', $data) ? $givenWeight : $weight;
+					$givenQuantity = array_key_exists('given_quantity', $data) ? $givenQuantity : $quantity;
+				}
+
 				$insert = [
 					'user_id' => isset($data['user_id']) ? (int) $data['user_id'] : 0,
 					'row_material_id' => (int) $data['row_material_id'],
-					'weight' => isset($data['weight']) ? (float) $data['weight'] : 0,
-					'rem_weight' => isset($data['rem_weight']) ? (float) $data['rem_weight'] : 0,
+					'weight' => $weight,
+					'rem_weight' => $remWeight,
 					'touch' => isset($data['touch']) ? (float) $data['touch'] : 0,
-					'quantity' => isset($data['quantity']) ? (float) $data['quantity'] : 0,
-					'rem_quantity' => isset($data['rem_quantity']) ? (float) $data['rem_quantity'] : 0,
+					'quantity' => $quantity,
+					'rem_quantity' => $remQuantity,
+					'given_weight' => $givenWeight,
+					'given_quantity' => $givenQuantity,
+					'receive_weight' => $receiveWeight,
+					'receive_quantity' => $receiveQuantity,
 					'purchase_detail_id' => isset($data['purchase_detail_id']) ? (int) $data['purchase_detail_id'] : 0,
 					'code' => isset($data['code']) ? (string) $data['code'] : '',
 					'creation_date' => isset($data['creation_date']) ? $data['creation_date'] : date('Y-m-d'),
-					'type' => isset($data['type']) ? $data['type'] : 'PURCHASE',
+					'type' => $type,
 				];
 
 				$db->insert('lot_wise_rm', $insert);

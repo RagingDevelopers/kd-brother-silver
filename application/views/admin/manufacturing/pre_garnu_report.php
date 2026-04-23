@@ -19,11 +19,11 @@
 
 				<form id="garnu_receive">
 					<div class="modal modal-blur fade" id="ReceivedModel" tabindex="-1" role="dialog" aria-hidden="true">
-						<div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
+						<div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable" role="document">
 							<div class="modal-content">
 								<div class="modal-header">
 									<div class="col-md-3">
-										<p class="modal-title">Issue Weight </p>
+										<p class="modal-title">Garnu Receive </p>
 									</div>
 									<div class="col-md-4">
 										<p class="modal-title">Garnu Weight:- <span class="garnu_weight"></span></p>
@@ -40,6 +40,7 @@
 									<table class="table card-table table-vcenter text-center text-nowrap ">
 										<thead class="thead-light">
 											<th>Metal Type</th>
+											<th>Lot</th>
 											<th scope="col">Weight(Kg)</th>
 											<th scope="col">Touch (%)</th>
 											<th scope="col">Net Weight</th>
@@ -54,12 +55,16 @@
 													<select class="form-select select2 metal_type_id" name="metal_type_id[]">
 														<option value="">Select Metal</option>
 														<?php
-														$metal_type = $this->db->get('metal_type')->result();
-														foreach ($metal_type as $value) { ?>
+														$item = $this->db->get('item')->result();
+														foreach ($item as $value) { ?>
 															<option value="<?= $value->id; ?>">
 																<?= $value->name; ?>
 															</option>
 														<?php } ?>
+													</select>
+												</td>
+												<td>
+													<select class="form-select select2 lotWiseRm" name="lot[]" data-selected-id="">
 													</select>
 												</td>
 
@@ -82,6 +87,7 @@
 												<td>
 													<h3>Total :</h3>
 												</td>
+												<td></td>
 												<td>
 													<div class="d-flex">
 														<h4><span class='text-end ms-3 total-weight'>0</span></h4>
@@ -123,6 +129,7 @@
 														</select>
 													</div>
 												</td>
+												<td></td>
 												<td></td>
 												<td></td>
 												<input type="hidden" name="jama_baki" value="" class="jama_baki">
@@ -236,6 +243,12 @@
 					dropdownParent: $(modal)
 				});
 			});
+			$('.lotWiseRm').each(function() {
+				$(this).select2({
+					width: '100',
+					dropdownParent: $(modal)
+				});
+			});
 
 			var LastRm = $('.metal_type_id').last();
 			if (LastRm.val() == '' || LastRm.val() == 0 || LastRm.val() == null) {
@@ -327,6 +340,68 @@
 			RmcalculateMain();
 		});
 
+		function loadLotOptions(metal_type_id = null, ref, selected_id = null) {
+			var lotWiseRmEl = ref.parents('tr').find(".lotWiseRm");
+			lotWiseRmEl.html("");
+			if (!metal_type_id) {
+				lotWiseRmEl.html('<option value="">Select</option>').trigger('change');
+				return;
+			}
+
+			$.ajax({
+				type: "POST",
+				showloader: true,
+				dataType: "json",
+				url: `${BaseUrl}manufacturing/main_garnu/getStockTouch`,
+				data: {
+					metal_type_id,
+					lot_wise_rm_id: selected_id,
+				},
+				success: function(response) {
+					if (response.success) {
+						var lotOptions = getLotOptions(response.data, selected_id);
+						if (lotWiseRmEl.data('select2')) {
+							lotWiseRmEl.select2('destroy');
+						}
+						lotWiseRmEl.html(lotOptions);
+						lotWiseRmEl.attr('data-selected-id', selected_id || '').data('selected-id', selected_id || '');
+						lotWiseRmEl.select2({
+							width: '100%',
+							dropdownParent: $('#ReceivedModel')
+						});
+						if (selected_id == null || selected_id === '') {
+							lotWiseRmEl.select2("open");
+						}
+					} else {
+						lotWiseRmEl.html('<option value="">Select</option>');
+						lotWiseRmEl.select2({
+							width: '100%',
+							dropdownParent: $('#ReceivedModel')
+						});
+						SweetAlert('warning', response.message);
+					}
+				},
+			});
+		}
+
+		function getLotOptions(response, selected_id = null) {
+			var options = `<option value="">Select</option>`;
+			$.each(response, function(key, value) {
+				if (!value || value.id === undefined || value.id === null) {
+					return;
+				}
+				var id = value.id ?? '';
+				var touch = value.touch ?? 0;
+				var remWeight = value.rem_weight ?? 0;
+				var remQuantity = value.rem_quantity ?? 0;
+				var code = value.code || "";
+				var option = id + " - " + code + " Weight: " + remWeight + " Touch: " + touch + " Quantity: " + remQuantity;
+				var selected = selected_id != null && String(selected_id) === String(id) ? "selected" : "";
+				options += `<option value="${id}" ${selected} data-touch="${touch}" data-weight="${remWeight}" data-quantity="${remQuantity}">${option}</option>`;
+			});
+			return options;
+		}
+
 		function RmcalculateMain() {
 			var Totaltouch = 0;
 			var Totalweight = 0;
@@ -407,6 +482,7 @@
 								var net_weight = (value.net_weight != 0) ? value.net_weight : value.touch * value.weight / 100;
 								var metal_type_id = (value.metal_type_id) ? value.metal_type_id : "0";
 								var touch = (value.touch) ? value.touch : garnuTouch;
+								var lot = (value.lot) ? value.lot : "";
 
 								var $lastRow;
 								if (index == 0) {
@@ -424,11 +500,13 @@
 								$lastRow.find('.net_weight').val(net_weight).trigger('change');
 								$lastRow.find('.metal_type_id')
 									.val(metal_type_id)
-									.trigger('change')
 									.select2({
 										width: '100%',
 										dropdownParent: $('#ReceivedModel')
-									});
+									})
+									.trigger('change.select2');
+								$lastRow.find('.lotWiseRm').attr('data-selected-id', lot).data('selected-id', lot);
+								loadLotOptions(metal_type_id, $lastRow.find('.metal_type_id'), lot);
 
 								var LastRm = $lastRow.find('.metal_type_id');
 								if (LastRm.val() == " " || LastRm.val() == '0' || LastRm.val() == null) {
@@ -462,12 +540,23 @@
 			$('.garnu_id').val(id);
 			$('.append-here tr').first().find('.sdid,.weight,.net_weight').val(0);
 			$('.append-here tr').first().find('.metal_type_id').val('');
+			$('.append-here tr').first().find('.lotWiseRm').html('<option value="">Select</option>').attr('data-selected-id', '').data('selected-id', '');
 			$('.append-here tr').first().find('.metal_type_id').select2({
+				width: '100',
+				dropdownParent: $('#ReceivedModel')
+			});
+			$('.append-here tr').first().find('.lotWiseRm').select2({
 				width: '100',
 				dropdownParent: $('#ReceivedModel')
 			});
 
 			$('.metal_type_id').each(function() {
+				$(this).select2({
+					width: '100',
+					dropdownParent: $('#ReceivedModel')
+				});
+			});
+			$('.lotWiseRm').each(function() {
 				$(this).select2({
 					width: '100',
 					dropdownParent: $('#ReceivedModel')
@@ -486,12 +575,21 @@
 			if (metal.val() == '') {
 				return metal.select2('open');
 			}
+			var lotWiseRm = $('.lotWiseRm').last();
+			if (lotWiseRm.val() == '') {
+				return lotWiseRm.select2('open');
+			}
 
 			$(".append-here").append(main_row);
 			$('.append-here tr').last().find('.sdid,.weight,.net_weight').val(0);
 			$('.append-here tr').last().find('.touch').val(garnuTouch);
 			$('.append-here tr').last().find('.metal_type_id').val('');
+			$('.append-here tr').last().find('.lotWiseRm').html('<option value="">Select</option>').attr('data-selected-id', '').data('selected-id', '');
 			$('.append-here tr').last().find('.metal_type_id').select2({
+				width: '100',
+				dropdownParent: $('#ReceivedModel')
+			});
+			$('.append-here tr').last().find('.lotWiseRm').select2({
 				width: '100',
 				dropdownParent: $('#ReceivedModel')
 			});
@@ -506,6 +604,22 @@
 
 			var modalBody = $('#ReceivedModel .modal-body');
 			scrollEvent(modalBody, 550);
+			RmcalculateMain();
+		});
+
+		$(document).on('change', '.metal_type_id', function() {
+			var ref = $(this);
+			loadLotOptions(ref.val(), ref);
+		});
+
+		$(document).on('change', '.lotWiseRm', function() {
+			var ref = $(this);
+			var selectedOption = ref.find('option:selected');
+			var touch = parseFloat(selectedOption.data('touch') || garnuTouch || 0);
+			var weight = parseFloat(selectedOption.data('weight') || 0);
+			var row = ref.parents('tr');
+			row.find('.touch').val(touch).trigger('input');
+			row.find('.weight').val(weight).trigger('input');
 			RmcalculateMain();
 		});
 

@@ -377,7 +377,9 @@ class Pre_garnu extends CI_Controller
 			} else {
 				$postData = $this->input->post();
 				$id = $postData['id'];
-				$data = $this->dbh->getWhereResultArray('pre_receive_garnu_dhal', ['garnu_id' => $id]);
+				$hasReceiveLotColumn = $this->db->field_exists('closing_touce', 'pre_receive_garnu_dhal');
+				$this->db->select($hasReceiveLotColumn ? 'pre_receive_garnu_dhal.*, closing_touce AS lot' : 'pre_receive_garnu_dhal.*');
+				$data = $this->db->get_where('pre_receive_garnu_dhal', ['garnu_id' => $id])->result_array();
 				$garnuData = $this->db->select('*')->from('pre_garnu')->where('id', $id)->get()->row_array();
 				if (!empty($data) || !empty($garnuData)) {
 					$response = ['success' => true, 'message' => 'Data Fetched successfully.', 'data' => $data, 'garnuData' => $garnuData];
@@ -397,7 +399,6 @@ class Pre_garnu extends CI_Controller
 		}
 	}
 
-
 	public function receive()
 	{
 		$post = $this->input->post();
@@ -405,6 +406,7 @@ class Pre_garnu extends CI_Controller
 		$updateBatch = [];
 		$existingIds = isset($post['sdid']) ? $post['sdid'] : [];
 		$allids = isset($post['ids']) ? $post['ids'] : [];
+		$hasReceiveLotColumn = $this->db->field_exists('lot', 'pre_receive_garnu_dhal');
 
 		$idsNotExisting = array_diff($allids, $existingIds);
 		if (!empty($idsNotExisting)) {
@@ -419,6 +421,7 @@ class Pre_garnu extends CI_Controller
 					'touch' => isset($post['touch'][$key]) ? $post['touch'][$key] : null,
 					'weight' => isset($post['weight'][$key]) ? $post['weight'][$key] : null,
 					'net_weight' => isset($post['net_weight'][$key]) ? $post['net_weight'][$key] : null,
+					'lot' => isset($post['lot'][$key]) ? $post['lot'][$key] : null,
 				];
 
 				if ($sdid == 0) {

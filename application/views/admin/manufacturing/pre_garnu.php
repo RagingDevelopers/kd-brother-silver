@@ -54,7 +54,7 @@
 									<table class="table card-table table-vcenter text-center text-nowrap ">
 										<thead class="thead-light">
 											<th>Metal Type</th>
-											<th class="col">Closing Touch</th>
+											<th class="col">Lot</th>
 											<th scope="col">Touch (%)</th>
 											<th scope="col">Weight(kg)</th>
 											<th scope="col">Fine</th>
