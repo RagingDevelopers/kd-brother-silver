@@ -54,7 +54,7 @@
 									<table class="table card-table table-vcenter text-center text-nowrap ">
 										<thead class="thead-light">
 											<th>Metal Type</th>
-											<th class="closing_touch_header">Closing Touch</th>
+											<th class="col">Closing Touch</th>
 											<th scope="col">Touch (%)</th>
 											<th scope="col">Weight(kg)</th>
 											<th scope="col">Fine</th>
@@ -88,8 +88,8 @@
 															<?php } ?>
 														</select>
 													</td>
-													<td class="hide_closing_touch">
-														<select class="form-select select2 closingTouch" name="closing_touch[]">
+													<td>
+														<select class="form-select select2 closingTouch" name="closing_touch[]" data-selected-id="<?= $row['closing_touch'] ?? '' ?>">
 														</select>
 													</td>
 													<td>
@@ -99,7 +99,7 @@
 														</div>
 													</td>
 													<td>
-														<input class="form-control weight-input weight" type="number" name="weight[]" placeholder="Enter Weight" value="<?= $row['weight'] ?? null ?>" required>
+														<input class="form-control weight-input weight" type="number" name="weight[]" placeholder="Enter Weight" value="<?= $row['weight'] ?? null ?>" data-original-weight="<?= $row['weight'] ?? 0 ?>" required>
 													</td>
 													<td>
 														<input class="form-control fine fine-input" type="number" name="fine[]" placeholder="Fine" value="<?= $row['fine'] ?? null ?>" required>
@@ -174,6 +174,7 @@
 					console.log(`mainFunction in isInit error : ${error}`);
 				}
 			},
+
 			select2: (el, config = {}) => {
 				Object.assign(config, {
 					placeholder: "-- Select --",
@@ -190,24 +191,24 @@
 				const weight = parseF(row.find('.mweight').val());
 				const fine = parseF(row.find('.fine').val());
 			},
+
 			ready: function() {
 				main.mainRow = $(".main-row")[0].outerHTML;
 				main.submitBtn = null;
 				$(document).ready(function() {
 					$('.metal_type_id').each(function() {
 						main.select2(this);
-						if ($(this).val() == "") {
-							var ref = $(this);
-							ref.parents('tr').find('.hide_closing_touch').hide();
-							$('.closing_touch_header').hide();
-						} else {
-							var ref = $(this);
-							ref.parents('tr').find('.hide_closing_touch').show();
-							$('.closing_touch_header').show();
-						}
 					});
 					$('.closingTouch').each(function() {
 						main.select2(this)
+					});
+					$('.append-here tr').each(function() {
+						var row = $(this);
+						var metalTypeId = row.find('.metal_type_id').val();
+						var selectedClosingTouchId = row.find('.closingTouch').data('selected-id');
+						if (metalTypeId) {
+							main.stockTouch(metalTypeId, row.find('.metal_type_id'), selectedClosingTouchId);
+						}
 					});
 					
 					$(this).on('click', "#add", function() {
@@ -223,15 +224,11 @@
 						const lastTr = $('.append-here tr').last();
 						lastTr.find('.rowid,.touch').val(0);
 						lastTr.find('.weight,.fine').val('');
+						lastTr.find('.weight').attr('data-original-weight', 0).data('original-weight', 0);
+						lastTr.find('.closingTouch').attr('data-selected-id', '').data('selected-id', '');
 						lastTr.find('.metal_type_id').val('');
 						main.select2(lastTr.find('.metal_type_id')).select2('open');
 						main.select2(lastTr.find('.closingTouch'));
-
-						if ($('#type').val() == "update") {
-							var ref = $('#type');
-							lastTr.find('.hide_closing_touch').hide();
-							$('.closing_touch_header').hide();
-						}
 					});
 					
 					$(this).on('click', '.remove-btn', function(e) {
@@ -273,18 +270,16 @@
 
 					$(this).on('change', '.metal_type_id', function() {
 						var ref = $(this);
-						ref.parents('tr').find('.hide_closing_touch').show();
-						$('.closing_touch_header').show();
 						main.stockTouch(ref.val(), ref);
 					});
 
 					$(this).on('change', '.closingTouch', function() {
 						var ref = $(this);
-						var parts = ref.val().split(' - ');
-						var touch = parts[0];
-						var weight = parts[1].split(' ');
+						var selectedOption = ref.find('option:selected');
+						var touch = parseF(selectedOption.data('touch'));
+						var weight = parseF(selectedOption.data('weight'));
 						ref.parents('tr').find('.touch').val(touch);
-						ref.parents('tr').find('.weight').val(weight[0]);
+						ref.parents('tr').find('.weight').val(weight);
 						main.calculateMain(ref);
 						main.calculation(ref);
 					});
@@ -315,10 +310,11 @@
 					method: "POST",
 					data: {
 						metal_type_id,
+						lot_wise_rm_id: selected_id,
 					},
 					success: function(response) {
 						if (response.success) {
-							var getTouch = getOptions(response.data, selected_id);
+							var getTouch = main.getClosingTouchOptions(response.data, selected_id);
 							if (closingTouchEl.data('select2')) {
 								closingTouchEl.select2('destroy');
 							}
@@ -334,6 +330,24 @@
 						}
 					},
 				});
+			},
+
+			getClosingTouchOptions: function(response, selected_id = null) {
+				var options = `<option value="">Select</option>`;
+				$.each(response, function(key, value) {
+					if (!value || value.id === undefined || value.id === null) {
+						return;
+					}
+					var id = value.id ?? '';
+					var touch = value.touch ?? 0;
+					var remWeight = value.rem_weight ?? 0;
+					var remQuantity = value.rem_quantity ?? 0;
+					var code = value.code || "";
+					var option = id + " - " + code + " Weight: " + remWeight + " Touch: " + touch + " Quantity: " + remQuantity;
+					var selected = selected_id != null && String(selected_id) === String(id) ? "selected" : "";
+					options += `<option value="${id}" ${selected} data-touch="${touch}" data-weight="${remWeight}" data-quantity="${remQuantity}">${option}</option>`;
+				});
+				return options;
 			},
 
 			handleInputFocusAndBlur: function(element, eventType) {
@@ -353,10 +367,15 @@
 					touch = parseF(row.find('.touch').val()),
 					fine = parseF(row.find('.fine').val());
 				row.find('.fine').val(formatNumber((weight * touch) / 100));
+				var selectedOption = row.find('.closingTouch option:selected');
+				var closingweight = parseF(selectedOption.data('weight'));
+				var selectedLotId = String(selectedOption.val() || "");
+				var originalLotId = String(row.find('.closingTouch').data('selected-id') || "");
+				var originalWeight = parseF(row.find('.weight').data('original-weight'));
 
-				var parts = row.find('.closingTouch').val().split(' - ');
-				var part2 = parts[1].split(' ');
-				var closingweight = part2[0];
+				if (originalLotId && selectedLotId === originalLotId) {
+					closingweight += originalWeight;
+				}
 
 				if (closingweight < weight) {
 					row.find('.weight').val('0');
@@ -379,6 +398,7 @@
 				$('.mtouch').val(formatNumber(mainTouch));
 
 			},
+			
 			validateSubmit: function(ref) {
 				var preventEnter = false;
 				const metal_type = $('.metal_type_id');

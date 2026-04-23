@@ -15,6 +15,7 @@ class Pre_garnu extends CI_Controller
 		parent::__construct();
 		check_login();
 		library("dbh");
+		$this->load->helper('lot_management');
 		// library("Joinhelper");
 	}
 
@@ -99,6 +100,11 @@ class Pre_garnu extends CI_Controller
 					$garnu_item['garnu_id'] = $garnu_id;
 					$garnu_item['is_bhuko_used'] = 1;
 					$new[] = $garnu_item;
+					$this->updateLotWeight(
+						(int) $post['closing_touch'][$i],
+						(int) $post['metal_type_id'][$i],
+						-1 * (float) $post['weight'][$i]
+					);
 
 					if ($post['metal_type_id'][$i] == 8) {
 						$current_record = $this->db->get('common_bhuko')->row_array();
@@ -131,6 +137,7 @@ class Pre_garnu extends CI_Controller
 					->set_rules('touchs', 'touch', 'required')
 					->set_rules('mfine', 'Total Fine', 'required')
 					->set_rules('metal_type_id[]', 'metal_type_id', 'required')
+					->set_rules('closing_touch[]', 'closing touch', 'required')
 					->set_rules('weight[]', 'weight', 'required')
 					->set_rules('touch[]', 'touch', 'required')
 					->set_rules('fine[]', 'Fine', 'required');
@@ -148,65 +155,85 @@ class Pre_garnu extends CI_Controller
 				$update['touch'] = $post['touchs'];
 				$update['fine'] = $post['mfine'];
 
+				$this->db->trans_begin();
 				$this->db->where('id', $id)->update('pre_garnu', $update);
 
-				$oldIds = $this->db->select('id')->get_where('pre_garnu_item', ['garnu_id' => $id])->result_array();
+				$oldItems = $this->db
+					->select('id, metal_type_id, closing_touch, weight')
+					->where('garnu_id', $id)
+					->get('pre_garnu_item')
+					->result_array();
+				$oldItemsById = [];
+				foreach ($oldItems as $oldItem) {
+					$oldItemsById[(int) $oldItem['id']] = $oldItem;
+				}
+
+				$postedRowIds = isset($post['rowid']) && is_array($post['rowid'])
+					? array_map('intval', $post['rowid'])
+					: [];
+
 				$deleteIds = [];
-				foreach ($oldIds as $row) {
-					if (!in_array($row['id'], $post['rowid'])) {
-						$deleteIds[] = $row['id'];
+				foreach ($oldItemsById as $oldId => $oldItem) {
+					if (!in_array($oldId, $postedRowIds, true)) {
+						$deleteIds[] = $oldId;
+						$this->updateLotWeight(
+							(int) ($oldItem['closing_touch'] ?? 0),
+							(int) ($oldItem['metal_type_id'] ?? 0),
+							(float) ($oldItem['weight'] ?? 0)
+						);
 					}
 				}
 
-				if (count($deleteIds) > 0) {
-					$this->dbh->deleteRow('pre_garnu_item', $deleteIds);
+				if (!empty($deleteIds)) {
+					$this->db->where('garnu_id', $id)->where_in('id', $deleteIds)->delete('pre_garnu_item');
 				}
+
 				$length = count($post['metal_type_id']);
-
-				$rows = $this->db->get_where('pre_garnu_item', ['garnu_id' => $id])->result_array();
-				if (!empty($rows)) {
-					$current_record = $this->db->get('common_bhuko')->row_array();
-
-					$current_touch = $current_record['touch'] ?? 0;
-					$current_weight = $current_record['weight'] ?? 0;
-
-					foreach ($rows as $row) {
-						if ($row['metal_type_id'] == 8) {
-							$current_touch += $row['touch'];
-							$current_weight += $row['weight'];
-						}
-					}
-
-					// $this->db->update('common_bhuko', [
-					// 	// 'touch' => $current_touch,
-					// 	'weight' => $current_weight
-					// ]);
-				}
 
 				for ($i = 0; $i < $length; $i++) {
 					$garnu_item = array();
 					$garnu_item['metal_type_id'] = $post['metal_type_id'][$i];
+					$garnu_item['closing_touch'] = $post['closing_touch'][$i];
 					$garnu_item['weight'] = $post['weight'][$i];
 					$garnu_item['touch'] = $post['touch'][$i];
 					$garnu_item['fine'] = $post['fine'][$i];
-					if ($post['rowid'][$i] > 0) {
-						if ($this->dbh->isDataExists('pre_garnu_item', ['id' => $post['rowid'][$i], 'garnu_id' => $id])) {
-							$this->db->where(['garnu_id' => $id, 'id' => $post['rowid'][$i]])->update('pre_garnu_item', $garnu_item);
+					$rowId = isset($post['rowid'][$i]) ? (int) $post['rowid'][$i] : 0;
+					$newMetalTypeId = (int) $post['metal_type_id'][$i];
+					$newLotId = (int) $post['closing_touch'][$i];
+					$newWeight = (float) $post['weight'][$i];
+
+					if ($rowId > 0) {
+						if (isset($oldItemsById[$rowId])) {
+							$oldItem = $oldItemsById[$rowId];
+							$oldMetalTypeId = (int) ($oldItem['metal_type_id'] ?? 0);
+							$oldLotId = (int) ($oldItem['closing_touch'] ?? 0);
+							$oldWeight = (float) ($oldItem['weight'] ?? 0);
+
+							if ($oldLotId === $newLotId && $oldMetalTypeId === $newMetalTypeId) {
+								$this->updateLotWeight($newLotId, $newMetalTypeId, $oldWeight - $newWeight);
+							} else {
+								$this->updateLotWeight($oldLotId, $oldMetalTypeId, $oldWeight);
+								$this->updateLotWeight($newLotId, $newMetalTypeId, -1 * $newWeight);
+							}
+
+							$this->db->where(['garnu_id' => $id, 'id' => $rowId])->update('pre_garnu_item', $garnu_item);
 						}
-					} else if ($post['rowid'][$i] == 0) {
+					} else if ($rowId === 0) {
 						$garnu_item['garnu_id'] = $id;
+						$garnu_item['user_id'] = session('id');
+						$garnu_item['creation_date'] = date('Y-m-d');
+						$garnu_item['is_bhuko_used'] = 1;
 						$this->db->insert('pre_garnu_item', $garnu_item);
-					}
-
-					if ($post['metal_type_id'][$i] == 8) {
-						$current_record = $this->db->get('common_bhuko')->row_array();
-
-						// $difference_touch = $post['touch'][$i] - $current_record['touch'];
-						// $difference_weight = $post['weight'][$i] - $current_record['weight'];
-
-						// $this->db->update('common_bhuko', ['weight' => $difference_weight]);
+						$this->updateLotWeight($newLotId, $newMetalTypeId, -1 * $newWeight);
 					}
 				}
+
+				if ($this->db->trans_status() === false) {
+					$this->db->trans_rollback();
+					return flash()->withError("Garnu update failed. Please try again.")->back();
+				}
+
+				$this->db->trans_commit();
 				flash()->withSuccess("Garnu Updated Successfully")->to("manufacturing/pre_garnu");
 				break;
 			default:
@@ -462,5 +489,41 @@ class Pre_garnu extends CI_Controller
 	private function validateId($id)
 	{
 		(!is_numeric($id) || empty($id)) && flash()->withError("invalid id please enter valid Id")->to("manufacturing/pre_garnu");
+	}
+
+	private function updateLotWeight($lotId, $rowMaterialId, $remWeightDiff)
+	{
+		$lotId = (int) $lotId;
+		$rowMaterialId = (int) $rowMaterialId;
+		$remWeightDiff = (float) $remWeightDiff;
+
+		if ($lotId <= 0 || $rowMaterialId <= 0 || $remWeightDiff == 0) {
+			return false;
+		}
+
+		$lotData = $this->db
+			->select('id, row_material_id, weight, quantity, touch')
+			->where([
+				'id' => $lotId,
+				'row_material_id' => $rowMaterialId
+			])
+			->get('lot_wise_rm')
+			->row_array();
+
+		if (empty($lotData)) {
+			return false;
+		}
+
+		return lot_management([
+			'id' => (int) $lotData['id'],
+			'row_material_id' => (int) $lotData['row_material_id'],
+			'weight' => (float) $lotData['weight'],
+			'quantity' => (float) $lotData['quantity'],
+			'touch' => (float) $lotData['touch'],
+			'given_weight_diff' => -1 * $remWeightDiff,
+			'rem_weight_diff' => $remWeightDiff,
+			'given_quantity_diff' => 0,
+			'rem_quantity_diff' => 0,
+		]);
 	}
 }

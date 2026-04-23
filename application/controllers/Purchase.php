@@ -13,6 +13,7 @@ class Purchase extends CI_Controller
 		$this->load->model('purchase_model', "purchase");
 		$this->load->model('Sequence_model', 'seq');
 		$this->load->model('payment/Jama_model', 'jama');
+		$this->load->helper('lot_management');
 	}
 
 	public function index()
@@ -315,21 +316,19 @@ class Purchase extends CI_Controller
 			$this->db->insert('purchase_detail', $purchaseDetail);
 			$purchaseDetailId = $this->db->insert_id();
 
-			// if ($data['product_type'] == "rowMaterial") {
-				$lot_wise_rm['user_id'] = session('id');
-				$lot_wise_rm['row_material_id'] = $data['item'][$i];
-				$lot_wise_rm['weight'] = $data['net_weight'][$i];
-				$lot_wise_rm['rem_weight'] = $data['net_weight'][$i];
-				$lot_wise_rm['touch'] = $data['touch'][$i];
-				$lot_wise_rm['quantity'] = $data['piece'][$i];
-				$lot_wise_rm['rem_quantity'] = $data['piece'][$i];
-				$lot_wise_rm['purchase_detail_id'] = $purchaseDetailId;
-				$lot_wise_rm['code'] = "PR_" . session('id') . "_" . $purchaseDetailId;
-				$lot_wise_rm['creation_date'] = date('Y-m-d');
-				$lot_wise_rm['type'] = "PURCHASE";
-
-				$this->db->insert('lot_wise_rm', $lot_wise_rm);
-			// }
+			lot_management([
+				'user_id' => session('id'),
+				'row_material_id' => $data['item'][$i],
+				'weight' => $data['net_weight'][$i],
+				'rem_weight' => $data['net_weight'][$i],
+				'touch' => $data['touch'][$i],
+				'quantity' => $data['piece'][$i],
+				'rem_quantity' => $data['piece'][$i],
+				'purchase_detail_id' => $purchaseDetailId,
+				'code' => "PR_" . session('id') . "_" . $purchaseDetailId,
+				'creation_date' => date('Y-m-d'),
+				'type' => "PURCHASE",
+			]);
 
 			$purchaseMaterialData = [];
 
@@ -506,18 +505,18 @@ class Purchase extends CI_Controller
 			}
 
 			$purchaseDetail['product_type'] = $productType;
-			$purchaseDetail['item_id'] = $lot_wise_rm['row_material_id'] =  $data['item'][$i];
+			$purchaseDetail['item_id'] = $data['item'][$i];
 			$purchaseDetail['stamp_id'] = $data['stamp'][$i];
 			$purchaseDetail['unit_id'] = $data['unit'][$i];
 			$purchaseDetail['remark'] = $data['remark'][$i];
 			$purchaseDetail['gross_weight'] = $data['gross_weight'][$i];
 			$purchaseDetail['less_weight'] = $data['less_weight'][$i];
-			$purchaseDetail['net_weight'] = $lot_wise_rm['rem_weight'] = $lot_wise_rm['weight'] = $data['net_weight'][$i];
-			$purchaseDetail['touch'] = $lot_wise_rm['touch'] = $data['touch'][$i];
+			$purchaseDetail['net_weight'] = $data['net_weight'][$i];
+			$purchaseDetail['touch'] = $data['touch'][$i];
 			$purchaseDetail['pre_touch'] = $data['pre_touch'][$i];
 			$purchaseDetail['wastage'] = $data['wastage'][$i];
 			$purchaseDetail['fine'] = $data['fine'][$i];
-			$purchaseDetail['piece'] = $lot_wise_rm['rem_quantity'] = $lot_wise_rm['quantity'] = $data['piece'][$i];
+			$purchaseDetail['piece'] = $data['piece'][$i];
 			$purchaseDetail['rate'] = $data['rate'][$i];
 			$purchaseDetail['labour_type'] = $data['labour_type'][$i];
 			$purchaseDetail['labour'] = $data['labour'][$i];
@@ -530,33 +529,40 @@ class Purchase extends CI_Controller
 				$purchaseDetail['purchase_id'] = $id;
 				$this->db->insert('purchase_detail', $purchaseDetail);
 				$purchaseDetailId = $this->db->insert_id();
-				// if ($productType == "rowMaterial") {
-					$lot_wise_rm['purchase_detail_id'] = $purchaseDetailId;
-					$lot_wise_rm['code'] = "PR_" . session('id') . "_" . $purchaseDetailId;
-					$lot_wise_rm['creation_date'] = date('Y-m-d');
-					$lot_wise_rm['type'] = "PURCHASE";
-					$this->db->insert('lot_wise_rm', $lot_wise_rm);
-				// }
+				lot_management([
+					'user_id' => session('id'),
+					'row_material_id' => $data['item'][$i],
+					'weight' => $data['net_weight'][$i],
+					'rem_weight' => $data['net_weight'][$i],
+					'touch' => $data['touch'][$i],
+					'quantity' => $data['piece'][$i],
+					'rem_quantity' => $data['piece'][$i],
+					'purchase_detail_id' => $purchaseDetailId,
+					'code' => "PR_" . session('id') . "_" . $purchaseDetailId,
+					'creation_date' => date('Y-m-d'),
+					'type' => "PURCHASE",
+				]);
 			} else {
 				$purchaseData = $this->db->get_where('purchase_detail', ['id' => $purchaseDetailId, 'purchase_id' => $id])->row_array();
-				// if ($productType == "rowMaterial") {
-					$weight = $purchaseDetail['net_weight'] - $purchaseData['net_weight'];
-					$quantity = $purchaseDetail['piece'] - $purchaseData['piece'];
-					if ($data['net_weight'][$i] != $purchaseData['net_weight']) {
-						$this->db->where(array('purchase_detail_id' => $purchaseDetailId, 'type' => 'PURCHASE'))
-							->set('weight', $purchaseDetail['net_weight'])
-							->set('quantity', $purchaseDetail['piece'])
-							->set('rem_weight', 'rem_weight +' . $weight, false);
-						$this->db->update('lot_wise_rm');
-					}
-					if ($data['piece'][$i] != $purchaseData['piece']) {
-						$this->db->where(array('purchase_detail_id' => $purchaseDetailId, 'type' => 'PURCHASE'))
-							->set('weight', $purchaseDetail['net_weight'])
-							->set('quantity', $purchaseDetail['piece'])
-							->set('rem_quantity', 'rem_quantity +' . $quantity, false);
-						$this->db->update('lot_wise_rm');
-					}
-				// }
+				$weight = $purchaseDetail['net_weight'] - $purchaseData['net_weight'];
+				$quantity = $purchaseDetail['piece'] - $purchaseData['piece'];
+				$lotData = $this->db
+					->where(['purchase_detail_id' => $purchaseDetailId, 'type' => 'PURCHASE'])
+					->get('lot_wise_rm')
+					->row_array();
+
+				if (!empty($lotData)) {
+					lot_management([
+						'id' => $lotData['id'],
+						'row_material_id' => $data['item'][$i],
+						'weight' => $purchaseDetail['net_weight'],
+						'quantity' => $purchaseDetail['piece'],
+						'touch' => $purchaseDetail['touch'],
+						'rem_weight_diff' => $weight,
+						'rem_quantity_diff' => $quantity,
+					]);
+				}
+
 				$this->db->where(['id' => $purchaseDetailId, 'purchase_id' => $id])->update('purchase_detail', $purchaseDetail);
 			}
 
