@@ -59,7 +59,7 @@ class Garnu extends CI_Controller
 				// die;
 				$validation = $this->form_validation;
 				$validation->set_rules('name', 'Name', 'required')
-					->set_rules('worker_id', 'Worker', 'required')
+					// ->set_rules('worker_id', 'Worker', 'required')
 					// ->set_rules('garnu_weight', 'garnu_weight', 'required')
 					// ->set_rules('touchs', 'touch', 'required')
 					// ->set_rules('mfine', 'Total Fine', 'required')
@@ -128,15 +128,15 @@ class Garnu extends CI_Controller
 			case "update":
 				checkPrivilege(privilege["garnu_edit"]);
 				$validation = $this->form_validation;
-				$validation->set_rules('name', 'Name', 'required')
-					->set_rules('worker_id', 'Worker', 'required')
-					->set_rules('garnu_weight', 'garnu_weight', 'required')
-					->set_rules('touchs', 'touch', 'required')
-					->set_rules('mfine', 'Total Fine', 'required')
-					->set_rules('metal_type_id[]', 'metal_type_id', 'required')
-					->set_rules('weight[]', 'weight', 'required')
-					->set_rules('touch[]', 'touch', 'required')
-					->set_rules('fine[]', 'Fine', 'required');
+				$validation->set_rules('name', 'Name', 'required');
+					// ->set_rules('worker_id', 'Worker', 'required')
+					// ->set_rules('garnu_weight', 'garnu_weight', 'required')
+					// ->set_rules('touchs', 'touch', 'required')
+					// ->set_rules('mfine', 'Total Fine', 'required')
+					// ->set_rules('metal_type_id[]', 'metal_type_id', 'required')
+					// ->set_rules('weight[]', 'weight', 'required')
+					// ->set_rules('touch[]', 'touch', 'required')
+					// ->set_rules('fine[]', 'Fine', 'required');
 
 
 				if ($validation->run() == false) {
@@ -146,10 +146,10 @@ class Garnu extends CI_Controller
 
 				$update = array();
 				$update['name'] = $post['name'];
-				$update['worker_id'] = $post['worker_id'];
-				$update['garnu_weight'] = $post['garnu_weight'];
-				$update['touch'] = $post['touchs'];
-				$update['fine'] = $post['mfine'];
+				// $update['worker_id'] = $post['worker_id'];
+				// $update['garnu_weight'] = $post['garnu_weight'];
+				// $update['touch'] = $post['touchs'];
+				// $update['fine'] = $post['mfine'];
 
 				$this->db->where('id', $id)->update('garnu', $update);
 
@@ -164,7 +164,7 @@ class Garnu extends CI_Controller
 				if (count($deleteIds) > 0) {
 					$this->dbh->deleteRow('garnu_item', $deleteIds);
 				}
-				$length = count($post['metal_type_id']);
+				// $length = count($post['metal_type_id']);
 
 				$rows = $this->db->get_where('garnu_item', ['garnu_id' => $id])->result_array();
 				if (!empty($rows)) {
@@ -186,30 +186,30 @@ class Garnu extends CI_Controller
 					// ]);
 				}
 
-				for ($i = 0; $i < $length; $i++) {
-					$garnu_item = array();
-					$garnu_item['metal_type_id'] = $post['metal_type_id'][$i];
-					$garnu_item['weight'] = $post['weight'][$i];
-					$garnu_item['touch'] = $post['touch'][$i];
-					$garnu_item['fine'] = $post['fine'][$i];
-					if ($post['rowid'][$i] > 0) {
-						if ($this->dbh->isDataExists('garnu_item', ['id' => $post['rowid'][$i], 'garnu_id' => $id])) {
-							$this->db->where(['garnu_id' => $id, 'id' => $post['rowid'][$i]])->update('garnu_item', $garnu_item);
-						}
-					} else if ($post['rowid'][$i] == 0) {
-						$garnu_item['garnu_id'] = $id;
-						$this->db->insert('garnu_item', $garnu_item);
-					}
+				// for ($i = 0; $i < $length; $i++) {
+				// 	$garnu_item = array();
+				// 	$garnu_item['metal_type_id'] = $post['metal_type_id'][$i];
+				// 	$garnu_item['weight'] = $post['weight'][$i];
+				// 	$garnu_item['touch'] = $post['touch'][$i];
+				// 	$garnu_item['fine'] = $post['fine'][$i];
+				// 	if ($post['rowid'][$i] > 0) {
+				// 		if ($this->dbh->isDataExists('garnu_item', ['id' => $post['rowid'][$i], 'garnu_id' => $id])) {
+				// 			$this->db->where(['garnu_id' => $id, 'id' => $post['rowid'][$i]])->update('garnu_item', $garnu_item);
+				// 		}
+				// 	} else if ($post['rowid'][$i] == 0) {
+				// 		$garnu_item['garnu_id'] = $id;
+				// 		$this->db->insert('garnu_item', $garnu_item);
+				// 	}
 
-					if ($post['metal_type_id'][$i] == 8) {
-						$current_record = $this->db->get('common_bhuko')->row_array();
+				// 	if ($post['metal_type_id'][$i] == 8) {
+				// 		$current_record = $this->db->get('common_bhuko')->row_array();
 
-						// $difference_touch = $post['touch'][$i] - $current_record['touch'];
-						// $difference_weight = $post['weight'][$i] - $current_record['weight'];
+				// 		// $difference_touch = $post['touch'][$i] - $current_record['touch'];
+				// 		// $difference_weight = $post['weight'][$i] - $current_record['weight'];
 
-						// $this->db->update('common_bhuko', ['weight' => $difference_weight]);
-					}
-				}
+				// 		// $this->db->update('common_bhuko', ['weight' => $difference_weight]);
+				// 	}
+				// }
 				flash()->withSuccess("Garnu Updated Successfully")->to("manufacturing/garnu");
 				break;
 			default:
@@ -300,7 +300,6 @@ class Garnu extends CI_Controller
 			$action = '
 			<div class="d-flex gap-1">
 			        <a href="' . base_url('manufacturing/garnu/edit/') . $record->id . '" class="btn btn-action bg-warning text-white me-2" data-bs-toggle="tooltip" data-bs-placement="top"  data-bs-original-title="Edit Proccess"><i class="fas fa-edit"></i></a>
-					<span data-receiveid="' . $record->id . '" class="btn btn-action bg-green text-white me-2 receive-btn" data-bs-toggle="tooltip" data-bs-placement="top"  data-bs-original-title="Receive"><i class="fa-solid fa-receipt"></i></span>
 					<a href="' . base_url('manufacturing/process/manage/') . $record->id . '" class="btn btn-action bg-indigo text-white ' . $dnone . '" data-bs-toggle="tooltip" data-bs-placement="top"  data-bs-original-title="Proccess Manage"><i class="fa-solid fa-code-fork"></i></a>
 					<span data-garnu_id="' . $record->id . '" class="btn btn-action bg-info text-white me-2 is_receive ' . $is_receive . '" data-bs-toggle="tooltip" data-bs-placement="top"  data-bs-original-title="Is Receive"><i class="fa-solid fa-check"></i></span>
 				</div>

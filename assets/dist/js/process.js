@@ -269,6 +269,8 @@ $(document).on("change", ".process", function () {
 
 $(document).on("select2:select", "#material-type", function () {
 	metal_type_id = $(this).val();
+	const closingTouchEl = $(".closingTouch");
+	const selected_id = closingTouchEl.val() || null;
 	$.ajax({
 		type: "POST",
 		showloader: true,
@@ -281,13 +283,22 @@ $(document).on("select2:select", "#material-type", function () {
 		success: function (response) {
 			if (response.success) {
 				var getTouch = getOptions(response.data, selected_id);
+				if (closingTouchEl.data("select2")) {
+					closingTouchEl.select2("destroy");
+				}
 				if (selected_id != null) {
-					$(".closingTouch").html(getTouch);
+					closingTouchEl.html(getTouch);
+					closingTouchEl.select2();
 				} else {
-					$(".closingTouch").html(getTouch).select2("open");
+					closingTouchEl.html(getTouch);
+					closingTouchEl.select2().select2("open");
 				}
 			} else {
-				$(".closingTouch").html("").select2("close");
+				closingTouchEl.html("");
+				if (closingTouchEl.data("select2")) {
+					closingTouchEl.select2("destroy");
+				}
+				closingTouchEl.select2();
 				SweetAlert('warning', response.message);
 			}
 		},

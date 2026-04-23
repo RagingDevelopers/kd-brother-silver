@@ -22,11 +22,13 @@ const { format: formatCurrency } = new Intl.NumberFormat("hi-in", {
 
 const getOptions = function (response, selected_id = null) {
 	var options = "";
-	var selected = "";
-	options += `<option value=""> Select <option>`;
+	options += `<option value="">Select</option>`;
 	$.each(response, function (key, value) {
-		selected =selected_id != null && selected_id == value? "selected": " ";
-			options += `<option value="${value}" ${selected}>${value}</option>`;
+		if (value === null || value === undefined || String(value).trim() === "") {
+			return;
+		}
+		var selected = selected_id != null && selected_id == value ? "selected" : "";
+		options += `<option value="${value}" ${selected}>${value}</option>`;
 	});
 	return options;
 };

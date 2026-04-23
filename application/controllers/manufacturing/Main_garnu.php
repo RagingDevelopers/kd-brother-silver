@@ -548,7 +548,6 @@ class Main_garnu extends CI_Controller
 
 				$openingResult = $this->db->query($openingQuery)->result_array();
 				// pre($openingResult);
-				// pre($openingResult);
 				$metal_closing_stock = [];
 				foreach ($openingResult as $r) {
 					$touch = abs($r['touch']);
@@ -593,6 +592,7 @@ class Main_garnu extends CI_Controller
 					return $entry['touch'] . ' - ' . abs($entry['weight']) . ' KG';
 				}, $metal_closing_stock);
 
+				// pre($data,true);
 				if (!empty($data)) {
 					$response = ['success' => true, 'message' => 'Data Fetched successfully.', 'data' => $data];
 				} else {

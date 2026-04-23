@@ -230,6 +230,7 @@ class Purchase extends CI_Controller
 	// 	}
 	// 	flash()->withSuccess("Insert Successfully.")->to("purchase/index");
 	// }
+
 	public function store()
 	{
 		$validation = $this->form_validation;
@@ -240,6 +241,7 @@ class Purchase extends CI_Controller
 		}
 
 		$data = xss_clean($this->input->post());
+		$productType = 'item';
 
 		$this->db->trans_start();
 
@@ -249,7 +251,7 @@ class Purchase extends CI_Controller
 			'code' => 'P' . $this->generate_unique_code(),
 			'sequence_code' => $this->seq->getNextSequence('purchase'),
 			'user_id' => session('id'),
-			'product_type' => $data['product_type']
+			'product_type' => $productType
 		];
 
 		$this->db->insert('purchase', $insert);
@@ -274,7 +276,7 @@ class Purchase extends CI_Controller
 				->get('customer_item')
 				->num_rows();
 
-			if ($customer == 0 && $data['product_type'] == 'item') {
+			if ($customer == 0) {
 				$customer_details = [
 					'item_id' => $data['item'][$i] ?? "",
 					'extra_touch' => $data['touch'][$i] ?? "",
@@ -290,7 +292,7 @@ class Purchase extends CI_Controller
 
 			$purchaseDetail['purchase_id'] = $id;
 			$purchaseDetail['user_id'] = session('id');
-			$purchaseDetail['product_type'] = $data['product_type'];
+			$purchaseDetail['product_type'] = $productType;
 			$purchaseDetail['item_id'] = $data['item'][$i];
 			$purchaseDetail['stamp_id'] = $data['stamp'][$i];
 			$purchaseDetail['unit_id'] = $data['unit'][$i];
@@ -313,7 +315,7 @@ class Purchase extends CI_Controller
 			$this->db->insert('purchase_detail', $purchaseDetail);
 			$purchaseDetailId = $this->db->insert_id();
 
-			if ($data['product_type'] == "rowMaterial") {
+			// if ($data['product_type'] == "rowMaterial") {
 				$lot_wise_rm['user_id'] = session('id');
 				$lot_wise_rm['row_material_id'] = $data['item'][$i];
 				$lot_wise_rm['weight'] = $data['net_weight'][$i];
@@ -327,7 +329,7 @@ class Purchase extends CI_Controller
 				$lot_wise_rm['type'] = "PURCHASE";
 
 				$this->db->insert('lot_wise_rm', $lot_wise_rm);
-			}
+			// }
 
 			$purchaseMaterialData = [];
 
@@ -413,14 +415,9 @@ class Purchase extends CI_Controller
 			flash()->withError("Data Not Found")->to("purchase/index");
 		}
 
-		$data['purchase_detail'] = $this->db->select('purchase_detail.*, ' .
-			($data['product_type'] === 'item' ? 'item.name' : 'row_material.name') . ' as item_name')
-			->from('purchase_detail');
-		if ($data['product_type'] === 'item') {
-			$this->db->join('item', "purchase_detail.item_id = item.id AND purchase_detail.product_type = 'item'", 'left');
-		} else if ($data['product_type'] === 'rowMaterial') {
-			$this->db->join('row_material', "purchase_detail.item_id = row_material.id AND purchase_detail.product_type = 'rowMaterial'", 'left');
-		}
+		$data['purchase_detail'] = $this->db->select('purchase_detail.*, item.name as item_name')
+			->from('purchase_detail')
+			->join('item', "purchase_detail.item_id = item.id", 'left');
 		$data['purchase_detail'] = $this->db->where('purchase_id', $id)
 			->get()
 			->result_array();
@@ -470,9 +467,10 @@ class Purchase extends CI_Controller
 	public function update($id)
 	{
 		$data = xss_clean($this->input->post());
+		$productType = 'item';
 		$update['date'] = $data['date'];
 		$update['party_id'] = $data['party_id'];
-		$update['product_type'] = $data['product_type'];
+		$update['product_type'] = $productType;
 		$this->db->where('id', $id)->update('purchase', $update);
 
 		$existingIds = isset($data['rowid']) ? $data['rowid'] : [];
@@ -494,7 +492,7 @@ class Purchase extends CI_Controller
 
 			$customer = $this->db->where(['customer_id' => $data['party_id'], 'item_id' => $data['item'][$i]])->get('customer_item')->num_rows();
 			$customer_details = $new = array();
-			if ($customer == 0 && $data['product_type'] == 'item') {
+			if ($customer == 0) {
 				$customer_details['item_id'] = $data['item'][$i] ?? "";
 				$customer_details['extra_touch'] = $data['touch'][$i] ?? "";
 				$customer_details['wastage'] = $data['wastage'][$i] ?? "";
@@ -507,7 +505,7 @@ class Purchase extends CI_Controller
 				$this->db->insert('customer_item', $customer_details);
 			}
 
-			$purchaseDetail['product_type'] = $data['product_type'];
+			$purchaseDetail['product_type'] = $productType;
 			$purchaseDetail['item_id'] = $lot_wise_rm['row_material_id'] =  $data['item'][$i];
 			$purchaseDetail['stamp_id'] = $data['stamp'][$i];
 			$purchaseDetail['unit_id'] = $data['unit'][$i];
@@ -532,16 +530,16 @@ class Purchase extends CI_Controller
 				$purchaseDetail['purchase_id'] = $id;
 				$this->db->insert('purchase_detail', $purchaseDetail);
 				$purchaseDetailId = $this->db->insert_id();
-				if ($data['product_type'] == "rowMaterial") {
+				// if ($productType == "rowMaterial") {
 					$lot_wise_rm['purchase_detail_id'] = $purchaseDetailId;
 					$lot_wise_rm['code'] = "PR_" . session('id') . "_" . $purchaseDetailId;
 					$lot_wise_rm['creation_date'] = date('Y-m-d');
 					$lot_wise_rm['type'] = "PURCHASE";
 					$this->db->insert('lot_wise_rm', $lot_wise_rm);
-				}
+				// }
 			} else {
 				$purchaseData = $this->db->get_where('purchase_detail', ['id' => $purchaseDetailId, 'purchase_id' => $id])->row_array();
-				if ($data['product_type'] == "rowMaterial") {
+				// if ($productType == "rowMaterial") {
 					$weight = $purchaseDetail['net_weight'] - $purchaseData['net_weight'];
 					$quantity = $purchaseDetail['piece'] - $purchaseData['piece'];
 					if ($data['net_weight'][$i] != $purchaseData['net_weight']) {
@@ -558,7 +556,7 @@ class Purchase extends CI_Controller
 							->set('rem_quantity', 'rem_quantity +' . $quantity, false);
 						$this->db->update('lot_wise_rm');
 					}
-				}
+				// }
 				$this->db->where(['id' => $purchaseDetailId, 'purchase_id' => $id])->update('purchase_detail', $purchaseDetail);
 			}
 
@@ -688,27 +686,33 @@ class Purchase extends CI_Controller
 
 	public function productType()
 	{
-		$validation = $this->form_validation;
-		$validation->set_rules('product_type', 'Product Type', 'trim|required|in_list[item,rowMaterial]');
-		if ($this->form_validation->run() == FALSE) {
-			$response = ['success' => false, 'error' => validation_errors()];
-			echo json_encode($response);
-			return;
+		// Validation requirement (kept for reference only):
+		// $validation = $this->form_validation;
+		// $validation->set_rules('product_type', 'Product Type', 'trim|required|in_list[item,rowMaterial]');
+		// if ($this->form_validation->run() == FALSE) {
+		// 	$response = ['success' => false, 'error' => validation_errors()];
+		// 	echo json_encode($response);
+		// 	return;
+		// }
+
+		// Directly return item data.
+		$data = $this->purchase->fetch_item();
+
+		// Product type condition requirement (kept for reference only):
+		// $postData = $this->input->post();
+		// if ($postData['product_type'] == 'item') {
+		// 	$data = $this->purchase->fetch_item();
+		// } else if ($postData['product_type'] == 'rowMaterial') {
+		// 	$data = $this->db->select('id,name')->from('row_material')->where('status', "ACTIVE")->get()->result_array();
+		// }
+
+		// Data availability condition (kept for reference only):
+		if (!empty($data)) {
+			$response = ['success' => true, 'message' => 'Data fetched successfully.', 'data' => $data];
 		} else {
-			$postData = $this->input->post();
-
-			if ($postData['product_type'] == 'item') {
-				$data = $this->purchase->fetch_item();
-			} else if ($postData['product_type'] == 'rowMaterial') {
-				$data = $this->db->select('id,name')->from('row_material')->where('status', "ACTIVE")->get()->result_array();
-			}
-
-			if (!empty($data)) {
-				$response = ['success' => true, 'message' => 'Data fetched successfully.', 'data' => $data];
-			} else {
-				$response = ['success' => false, 'message' => 'Data fetched successfully.', 'data' => []];
-			}
+			$response = ['success' => false, 'message' => 'Data fetched successfully.', 'data' => []];
 		}
+
 		echo json_encode($response);
 		return;
 	}

@@ -37,7 +37,6 @@ var mainFunction = (function () {
 
 			$(document).ready(function () {
 				$("#party_id").select2();
-				$("#product_type").select2();
 				$(".item").each(function () {
 					var { selected, name } = $(this).data();
 					if (selected != 0 || name != "") {
@@ -58,9 +57,6 @@ var mainFunction = (function () {
 				});
 
 				$(this).on("click", "#add", function (e, trigger) {
-					if ($("#product_type").val() == "") {
-						return $("#product_type").select2("open");
-					}
 					if (
 						$(".item").last().val() == "" ||
 						$(".item").last().val() == null
@@ -119,9 +115,6 @@ var mainFunction = (function () {
 						.addField("#party_id", "Please select Party!", (el) =>
 							el.select2("open")
 						)
-						.addField("#product_type", "Please select product type!", (el) =>
-							el.select2("open")
-						)
 						.addField(".item", "Please select item!", (el) =>
 							el.select2("open")
 						);
@@ -150,13 +143,6 @@ var mainFunction = (function () {
 						duration
 					);
 				}
-
-				$(document).on("change", "#product_type", function () {
-					$(".item").each(function () {
-						$(this).html("");
-						main.setItemOption($(this));
-					});
-				});
 
 				$(this).on("click", ".Receivedmaterial", function () {
 					rmBtn = $(this);
@@ -355,10 +341,8 @@ var mainFunction = (function () {
 					dataType: "json",
 					type: "POST",
 					data: function (params) {
-						var productType = $("#product_type").val();
 						return {
 							searchTerm: params.term,
-							product_type: productType,
 						};
 					},
 					processResults: function (response) {

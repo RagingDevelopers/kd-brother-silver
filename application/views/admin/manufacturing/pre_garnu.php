@@ -196,10 +196,14 @@
 				$(document).ready(function() {
 					$('.metal_type_id').each(function() {
 						main.select2(this);
-						if ($(this).val() != "") {
+						if ($(this).val() == "") {
 							var ref = $(this);
 							ref.parents('tr').find('.hide_closing_touch').hide();
 							$('.closing_touch_header').hide();
+						} else {
+							var ref = $(this);
+							ref.parents('tr').find('.hide_closing_touch').show();
+							$('.closing_touch_header').show();
 						}
 					});
 					$('.closingTouch').each(function() {
@@ -269,6 +273,8 @@
 
 					$(this).on('change', '.metal_type_id', function() {
 						var ref = $(this);
+						ref.parents('tr').find('.hide_closing_touch').show();
+						$('.closing_touch_header').show();
 						main.stockTouch(ref.val(), ref);
 					});
 
@@ -299,7 +305,8 @@
 			},
 
 			stockTouch: function(metal_type_id = null, ref, selected_id = null) {
-				ref.parents('tr').find(".closingTouch").html("");
+				const closingTouchEl = ref.parents('tr').find(".closingTouch");
+				closingTouchEl.html("");
 				$.ajax({
 					type: "POST",
 					showloader: true,
@@ -312,10 +319,15 @@
 					success: function(response) {
 						if (response.success) {
 							var getTouch = getOptions(response.data, selected_id);
+							if (closingTouchEl.data('select2')) {
+								closingTouchEl.select2('destroy');
+							}
 							if (selected_id != null) {
-								ref.parents('tr').find(".closingTouch").html(getTouch);
+								closingTouchEl.html(getTouch);
+								main.select2(closingTouchEl);
 							} else {
-								ref.parents('tr').find(".closingTouch").html(getTouch).select2("open");
+								closingTouchEl.html(getTouch);
+								main.select2(closingTouchEl).select2("open");
 							}
 						} else {
 							SweetAlert('warning', response.message);

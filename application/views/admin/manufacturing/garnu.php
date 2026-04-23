@@ -35,19 +35,6 @@
 									<input class="form-control" type="hidden" placeholder="Enter Garnu Name" value="<?= (isset($update)) ? "update" : "insert"; ?>" id="type">
 									<input class="form-control" type="hidden" name="action" id="save_print">
 								</div>
-								<div class="col-sm-3">
-									<label class="form-label" for="prd"> Worker: </label>
-									<select class="form-select select2 worker_id" name="worker_id">
-										<option value="">Select Worker</option>
-										<?php
-										foreach ($workers as $value) {
-										?>
-											<option value="<?= $value->id; ?>" <?php if (isset($update) && $value->id == $update['worker_id']) {
-																					echo 'selected';
-																				} ?>><?= $value->name; ?></option>
-										<?php } ?>
-									</select>
-								</div>
 							</div>
 
 							<?php if(false): ?>
@@ -409,7 +396,4 @@
 		}
 	})();
 	mainFunction.init.call();
-	$(document).ready(function() {
-		$('.worker_id').select2();
-	})
 </script>

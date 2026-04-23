@@ -1172,6 +1172,7 @@
 	$(document).ready(function() {
 		metal_type_id = $("#material-type").val();
 		if (metal_type_id) {
+			const closingTouchEl = $(".closingTouch");
 			$.ajax({
 				type: "POST",
 				showloader: true,
@@ -1186,10 +1187,15 @@
 					if (response.success) {
 						var selected_id = '<?= isset($process_data['closing_touch']) ? $process_data['closing_touch'] : '' ?>';
 						var getTouch = getOptions(response.data, selected_id);
-						if (selected_id != null) {
-							$(".closingTouch").html(getTouch);
+						if (closingTouchEl.data('select2')) {
+							closingTouchEl.select2('destroy');
+						}
+						if (selected_id) {
+							closingTouchEl.html(getTouch);
+							closingTouchEl.select2();
 						} else {
-							$(".closingTouch").html(getTouch).select2("open");
+							closingTouchEl.html(getTouch);
+							closingTouchEl.select2().select2("open");
 						}
 					} else {
 						SweetAlert('warning', response.message);

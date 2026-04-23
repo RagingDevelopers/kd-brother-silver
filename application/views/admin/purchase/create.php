@@ -101,10 +101,10 @@
 								<div class="form-group">
 									<label class="form-label">Date <span class="text-danger">*</span></label>
 									<input type="date" name="date" class="form-control from" id="date" value="<?php if (isset($data['date'])) {
-																																			echo $data['date'];
-																																		} else {
-																																			echo date('Y-m-d');
-																																		} ?>" />
+											echo $data['date'];
+										} else {
+											echo date('Y-m-d');
+										} ?>" />
 								</div>
 							</div>
 							<div class="col-md-2">
@@ -114,8 +114,8 @@
 										<option value="">Select Party</option>
 										<?php foreach ($party as $c) { ?>
 											<option value="<?= $c['id']; ?>" <?php if (isset($data['party_id']) && $data['party_id'] == $c['id']) {
-																							echo "selected";
-																						} ?>>
+													echo "selected";
+												} ?>>
 												<?= $c['name']; ?>
 											</option>
 										<?php } ?>
@@ -123,20 +123,6 @@
 									<h4 class="text-blue pt-1" id="closing-label"></h4>
 								</div>
 							</div>
-							<div class="col-md-2 ">
-								<div class="form-group">
-									<label class="form-label">Product Type<span class="text-danger">*</span></label>
-									<select name="product_type" class="form-select select2" id="product_type">
-										<option value="item" <?php if (isset($data['product_type']) && $data['product_type'] == 'item') {
-																		echo "selected";
-																	} ?>>item</option>
-										<!-- <option value="rowMaterial" <?php if (isset($data['product_type']) && $data['product_type'] == 'rowMaterial') {
-																					echo "selected";
-																				} ?>>Row Material</option> -->
-									</select>
-								</div>
-							</div>
-
 							<div class="card mt-5">
 								<div class="row">
 									<div class="table-responsive">
@@ -235,17 +221,17 @@
 														<td><select name="labour_type[]" class="form-control w65 labour_type">
 																<option value="">Select Labour</option>
 																<option value="net" <?php if ($row['labour_type'] == 'net') {
-																								echo 'selected';
-																							} ?>>Net</option>
+																		echo 'selected';
+																	} ?>>Net</option>
 																<option value="pcs" <?php if ($row['labour_type'] == 'pcs') {
-																								echo 'selected';
-																							} ?>>Pcs</option>
+																		echo 'selected';
+																	} ?>>Pcs</option>
 																<option value="fixed" <?php if ($row['labour_type'] == 'fixed') {
-																									echo 'selected';
-																								} ?>>Fixed</option>
+																		echo 'selected';
+																	} ?>>Fixed</option>
 																<option value="gross" <?php if ($row['labour_type'] == 'gross') {
-																									echo 'selected';
-																								} ?>>Gross</option>
+																		echo 'selected';
+																	} ?>>Gross</option>
 															</select>
 														</td>
 														<td><input type="number" step="any" class="form-control other_amount inputBox" name="other_amount[]" step="any" placeholder="Other Amount" value="<?= $row['other_amount'] ?? 0; ?>" /></td>
