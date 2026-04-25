@@ -269,6 +269,7 @@ $(document).on("change", ".process", function () {
 
 $(document).on("select2:select", "#material-type", function () {
 	metal_type_id = $(this).val();
+	$(".item").val(metal_type_id).trigger("change");
 	const closingTouchEl = $(".closingTouch");
 	const selected_id = closingTouchEl.val() || null;
 	$.ajax({
@@ -282,7 +283,7 @@ $(document).on("select2:select", "#material-type", function () {
 		},
 		success: function (response) {
 			if (response.success) {
-				var getTouch = getOptions(response.data, selected_id);
+				var getTouch = getClosingTouchOptions(response.data, selected_id);
 				if (closingTouchEl.data("select2")) {
 					closingTouchEl.select2("destroy");
 				}
@@ -304,16 +305,37 @@ $(document).on("select2:select", "#material-type", function () {
 		},
 	});
 });
+
+$(document).on("select2:clear", "#material-type", function () {
+	$(".item").val("").trigger("change");
+});
 $(document).on("select2:select", ".closingTouch", function () {
-	let selectedValue = $(this).val();
-	let modifiedValue = selectedValue.replace(/KG|-/g, '').trim();
-	let valuesArray = modifiedValue.split(' ').filter(Boolean).map(item => item.trim());
-	// 	console.log(valuesArray);
-	$(".given_touch").val(valuesArray[0]);
-	$(".given_weight").val(valuesArray[1]);
+	const selectedOption = $(this).find(":selected");
+	const selectedTouch = parseFloat(selectedOption.data("touch")) || 0;
+	const selectedWeight = parseFloat(selectedOption.data("weight")) || 0;
+	$(".given_touch").val(selectedTouch);
+	$(".given_weight").val(selectedWeight);
 
 	autoValueEnter();
 });
+
+function getClosingTouchOptions(response, selected_id = null) {
+	var options = `<option value="">Select</option>`;
+	$.each(response || [], function (key, value) {
+		if (!value || value.id === undefined || value.id === null) {
+			return;
+		}
+		var id = value.id ?? "";
+		var touch = value.touch ?? 0;
+		var remWeight = value.rem_weight ?? 0;
+		var remQuantity = value.rem_quantity ?? 0;
+		var code = value.code || "";
+		var selected = selected_id != null && String(selected_id) === String(id) ? "selected" : "";
+		var optionText = id + " - " + code + " Weight: " + remWeight + " Touch: " + touch + " Quantity: " + remQuantity;
+		options += `<option value="${id}" ${selected} data-touch="${touch}" data-weight="${remWeight}" data-quantity="${remQuantity}">${optionText}</option>`;
+	});
+	return options;
+}
 
 function autoValueEnter() {
 	var totalRmWeight = parseFloat($(".totalRmWeight").val()) || 0;

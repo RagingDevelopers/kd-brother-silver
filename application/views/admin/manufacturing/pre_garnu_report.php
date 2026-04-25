@@ -563,7 +563,6 @@
 				});
 			});
 
-
 			receiveGarnu(id).done(function() {
 				$("#ReceivedModel").modal('show');
 				RmcalculateMain();
@@ -576,9 +575,9 @@
 				return metal.select2('open');
 			}
 			var lotWiseRm = $('.lotWiseRm').last();
-			if (lotWiseRm.val() == '') {
-				return lotWiseRm.select2('open');
-			}
+			// if (lotWiseRm.val() == '') {
+			// 	return lotWiseRm.select2('open');
+			// }
 
 			$(".append-here").append(main_row);
 			$('.append-here tr').last().find('.sdid,.weight,.net_weight').val(0);

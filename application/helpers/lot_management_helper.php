@@ -9,11 +9,19 @@ if (!function_exists('lot_management')) {
 		/** @var CI_DB_query_builder $db */
 		$db = $CI->db;
 
-		if (empty($data['row_material_id'])) {
-			return false;
+		if (!isset($data['id']) && isset($data['lot_id'])) {
+			$data['id'] = $data['lot_id'];
+		}
+		if (empty($data['row_material_id']) && !empty($data['raw_material_id'])) {
+			$data['row_material_id'] = $data['raw_material_id'];
 		}
 
-		$action = (!empty($data['id']) && !empty($data['row_material_id'])) ? 'update' : 'create';
+		$id = isset($data['id']) ? (int) $data['id'] : 0;
+		$action = ($id > 0) ? 'update' : 'create';
+
+		if ($action === 'create' && empty($data['row_material_id'])) {
+			return false;
+		}
 
 		switch ($action) {
 			case 'update':
@@ -30,10 +38,13 @@ if (!function_exists('lot_management')) {
 				$oldWeight = isset($data['old_weight']) ? (float) $data['old_weight'] : 0;
 				$oldQuantity = isset($data['old_quantity']) ? (float) $data['old_quantity'] : 0;
 				$oldLotId = isset($data['old_lot_wise_rm_id']) ? (int) $data['old_lot_wise_rm_id'] : $id;
+				$receiveWeightDiff = array_key_exists('receive_weight_diff', $data) ? (float) $data['receive_weight_diff'] : null;
+				$receiveQuantityDiff = array_key_exists('receive_quantity_diff', $data) ? (float) $data['receive_quantity_diff'] : null;
 				$isNewDetail = !empty($data['is_new_detail']) || (isset($data['rowid']) && (int) $data['rowid'] === 0);
 				$updateLotValues = array_key_exists('update_lot_values', $data)
 					? (bool) $data['update_lot_values']
 					: !in_array($movement, ['given', 'receive'], true);
+				$strictRowMaterialMatch = !empty($data['strict_row_material_match']);
 				$hasUpdate = false;
 
 				if ($movement === 'given') {
@@ -70,6 +81,12 @@ if (!function_exists('lot_management')) {
 					if ($oldLotId > 0 && $oldLotId !== $id) {
 						if ($oldWeight != 0 || $oldQuantity != 0) {
 							$db->where('id', $oldLotId);
+							if ($updateLotValues && $oldWeight != 0) {
+								$db->set('weight', 'weight - (' . $oldWeight . ')', false);
+							}
+							if ($updateLotValues && $oldQuantity != 0) {
+								$db->set('quantity', 'quantity - (' . $oldQuantity . ')', false);
+							}
 							if ($oldWeight != 0) {
 								$db->set('receive_weight', 'receive_weight - (' . $oldWeight . ')', false);
 								$db->set('rem_weight', 'rem_weight - (' . $oldWeight . ')', false);
@@ -81,11 +98,15 @@ if (!function_exists('lot_management')) {
 							$db->update('lot_wise_rm');
 						}
 
-						$receiveWeightDiff = $newWeight;
-						$receiveQuantityDiff = $newQuantity;
+						$receiveWeightDiff = $receiveWeightDiff !== null ? $receiveWeightDiff : $newWeight;
+						$receiveQuantityDiff = $receiveQuantityDiff !== null ? $receiveQuantityDiff : $newQuantity;
 					} else {
-						$receiveWeightDiff = $isNewDetail ? $newWeight : ($newWeight - $oldWeight);
-						$receiveQuantityDiff = $isNewDetail ? $newQuantity : ($newQuantity - $oldQuantity);
+						$receiveWeightDiff = $receiveWeightDiff !== null
+							? $receiveWeightDiff
+							: ($isNewDetail ? $newWeight : ($newWeight - $oldWeight));
+						$receiveQuantityDiff = $receiveQuantityDiff !== null
+							? $receiveQuantityDiff
+							: ($isNewDetail ? $newQuantity : ($newQuantity - $oldQuantity));
 					}
 
 					$remWeightDiff = $receiveWeightDiff;
@@ -93,6 +114,9 @@ if (!function_exists('lot_management')) {
 				}
 
 				$db->where('id', $id);
+				if ($strictRowMaterialMatch && $rowMaterialId > 0) {
+					$db->where('row_material_id', $rowMaterialId);
+				}
 
 				if ($updateLotValues && !empty($data['row_material_id'])) {
 					$db->set('row_material_id', $rowMaterialId);

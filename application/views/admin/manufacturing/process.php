@@ -170,7 +170,7 @@
 										<option value="">Select Worker:</option>
 									</select>
 								</div>
-								<div class="col-md-4 col-md-3">
+								<div class="col-md-4 col-md-3 d-none">
 									<label class="form-label" for="item">Item: </label>
 									<select class="form-select select2 item" name="item_id">
 										<option value=''>Select Item</option>
@@ -1186,7 +1186,7 @@
 
 					if (response.success) {
 						var selected_id = '<?= isset($process_data['closing_touch']) ? $process_data['closing_touch'] : '' ?>';
-						var getTouch = getOptions(response.data, selected_id);
+						var getTouch = getClosingTouchOptions(response.data, selected_id);
 						if (closingTouchEl.data('select2')) {
 							closingTouchEl.select2('destroy');
 						}
