@@ -214,6 +214,13 @@ class Process extends CI_Controller
 		}
 
 		$data                        = array();
+		$givenQtyInput               = isset($post['given_qty']) ? (float) $post['given_qty'] : 0;
+		$rmQtyTotal                  = 0;
+		if (isset($post['rmQuantity']) && is_array($post['rmQuantity'])) {
+			foreach ($post['rmQuantity'] as $qty) {
+				$rmQtyTotal += (float) $qty;
+			}
+		}
 		$data['user_id']             = session('id');
 		$data['garnu_id']            = $post['garnu_id'];
 		$data['process_id']          = $post['process'];
@@ -222,7 +229,7 @@ class Process extends CI_Controller
 		$data['worker_id']           = $post['workers'];
 		$data['item_id']             = $post['item_id'] ?? 0;
 		$data['remarks']             = $post['remarks'];
-		$data['given_qty']           = $post['given_qty'];
+		$data['given_qty']           = ($givenQtyInput != 0) ? $givenQtyInput : $rmQtyTotal;
 		$data['given_weight']        = $post['given_weight'];
 		$data['given_touch']         = $post['given_touch'];
 		$data['row_material_weight'] = $post['total-rm_weight'];
@@ -252,8 +259,14 @@ class Process extends CI_Controller
 		// }
 
 		$batchData = [];
+		$fallbackGivenQty = isset($post['given_qty']) ? (float) $post['given_qty'] : 0;
+		$rmRowCount = (isset($post['rowid']) && is_array($post['rowid'])) ? count($post['rowid']) : 0;
 		foreach ($post['rowid'] as $key => $rowid) {
 			if (!empty($post['row_material'][$key]) && !empty($post['rmTouch'][$key]) || !empty($post['rmWeight'][$key]) || !empty($post['rmQuantity'][$key])) {
+				$rmQuantity = isset($post['rmQuantity'][$key]) && $post['rmQuantity'][$key] !== '' ? (float) $post['rmQuantity'][$key] : 0;
+				if ($rmQuantity == 0 && $rmRowCount === 1 && $fallbackGivenQty != 0) {
+					$rmQuantity = $fallbackGivenQty;
+				}
 				$rmData = [
 					'user_id'         => session('id'),
 					'given_id'        => $given_id,
@@ -261,16 +274,16 @@ class Process extends CI_Controller
 					'row_material_id' => isset($post['row_material'][$key]) ? $post['row_material'][$key] : null,
 					'lot_wise_rm_id'  => isset($post['lot_wise_rm_id'][$key]) ? $post['lot_wise_rm_id'][$key] : 0,
 					'touch'           => isset($post['rmTouch'][$key]) ? $post['rmTouch'][$key] : null,
-					'weight'          => isset($post['rmWeight'][$key]) ? $post['rmWeight'][$key] : null,
-					'quantity'        => isset($post['rmQuantity'][$key]) ? $post['rmQuantity'][$key] : null,
+					'weight'          => isset($post['rmWeight'][$key]) ? (float) $post['rmWeight'][$key] : 0,
+					'quantity'        => $rmQuantity,
 					'creation_date'   => date('Y-m-d'),
 				];
 				if (!empty($post['lot_wise_rm_id'][$key])) {
 					$this->db->where('id', $post['lot_wise_rm_id'][$key])
 						->set('given_weight', 'given_weight + ' . $rmData['weight'], false)
 						->set('given_quantity', 'given_quantity + ' . $rmData['quantity'], false)
-						->set('rem_weight', 'rem_weight - ' . $rmData['weight'], false)
-						->set('rem_quantity', 'rem_quantity - ' . $rmData['quantity'], false);
+						->set('rem_weight', 'rem_weight + ' . $rmData['weight'], false)
+						->set('rem_quantity', 'rem_quantity + ' . $rmData['quantity'], false);
 					$this->db->update('lot_wise_rm');
 					$weight = $this->db->select('rem_weight')->get_where('lot_wise_rm', array('id' => $post['lot_wise_rm_id'][$key]))->row_array();
 					if ($weight['rem_weight'] == 0) {
@@ -349,13 +362,20 @@ class Process extends CI_Controller
 		}
 
 		$data                        = array();
+		$givenQtyInput               = isset($post['given_qty']) ? (float) $post['given_qty'] : 0;
+		$rmQtyTotal                  = 0;
+		if (isset($post['rmQuantity']) && is_array($post['rmQuantity'])) {
+			foreach ($post['rmQuantity'] as $qty) {
+				$rmQtyTotal += (float) $qty;
+			}
+		}
 		$data['garnu_id']            = $post['garnu_id'];
 		$data['process_id']          = $post['process'];
 		$data['material_type_id']    = $post['material_type_id'];
 		$data['closing_touch']        = $post['closing_touch'] ?? "";
 		$data['worker_id']           = $post['workers'];
 		$data['remarks']             = $post['remarks'];
-		$data['given_qty']           = $post['given_qty'];
+		$data['given_qty']           = ($givenQtyInput != 0) ? $givenQtyInput : $rmQtyTotal;
 		$data['item_id']             = $post['item_id'];
 		$data['given_weight']        = $post['given_weight'];
 		$data['given_touch']         = $post['given_touch'];
@@ -392,14 +412,20 @@ class Process extends CI_Controller
 		}
 
 		$rmData = [];
+		$fallbackGivenQty = isset($post['given_qty']) ? (float) $post['given_qty'] : 0;
+		$rmRowCount = (isset($post['rowid']) && is_array($post['rowid'])) ? count($post['rowid']) : 0;
 		foreach ($post['rowid'] as $key => $rowid) {
 
 			if (!empty($post['row_material'][$key]) && !empty($post['rmTouch'][$key]) || !empty($post['rmWeight'][$key]) || !empty($post['rmQuantity'][$key])) {
+				$rmQuantity = isset($post['rmQuantity'][$key]) && $post['rmQuantity'][$key] !== '' ? (float) $post['rmQuantity'][$key] : 0;
+				if ($rmQuantity == 0 && $rmRowCount === 1 && $fallbackGivenQty != 0) {
+					$rmQuantity = $fallbackGivenQty;
+				}
 				$rmData = [
 					'row_material_id' => isset($post['row_material'][$key]) ? $post['row_material'][$key] : null,
 					'touch'           => isset($post['rmTouch'][$key]) ? $post['rmTouch'][$key] : null,
-					'weight'          => isset($post['rmWeight'][$key]) ? $post['rmWeight'][$key] : null,
-					'quantity'        => isset($post['rmQuantity'][$key]) ? $post['rmQuantity'][$key] : null,
+					'weight'          => isset($post['rmWeight'][$key]) ? (float) $post['rmWeight'][$key] : 0,
+					'quantity'        => $rmQuantity,
 				];
 			}
 
@@ -417,8 +443,8 @@ class Process extends CI_Controller
 						$this->db->where('id', $post['lot_wise_rm_id'][$key])
 							->set('given_weight', 'given_weight + ' . $rmData['weight'], false)
 							->set('given_quantity', 'given_quantity + ' . $rmData['quantity'], false)
-							->set('rem_weight', 'rem_weight - ' . $rmData['weight'], false)
-							->set('rem_quantity', 'rem_quantity - ' . $rmData['quantity'], false);
+							->set('rem_weight', 'rem_weight + ' . $rmData['weight'], false)
+							->set('rem_quantity', 'rem_quantity + ' . $rmData['quantity'], false);
 						$this->db->update('lot_wise_rm');
 						$weight = $this->db->select('rem_weight')->get_where('lot_wise_rm', array('id' => $post['lot_wise_rm_id'][$key]))->row_array();
 						if ($weight['rem_weight'] == 0) {
@@ -445,13 +471,13 @@ class Process extends CI_Controller
 						if ($givenRMData['weight'] != $rmData['weight']) {
 							$this->db->where('id', $post['lot_wise_rm_id'][$key])
 								->set('given_weight', 'given_weight + ' . $lwrmweight, false)
-								->set('rem_weight', 'rem_weight - ' . $lwrmweight, false);
+								->set('rem_weight', 'rem_weight + ' . $lwrmweight, false);
 							$this->db->update('lot_wise_rm');
 						}
 						if ($givenRMData['quantity'] != $rmData['quantity']) {
 							$this->db->where('id', $post['lot_wise_rm_id'][$key])
 								->set('given_quantity', 'given_quantity + ' . $lwrmquantity, false)
-								->set('rem_quantity', 'rem_quantity - ' . $lwrmquantity, false);
+								->set('rem_quantity', 'rem_quantity + ' . $lwrmquantity, false);
 							$this->db->update('lot_wise_rm');
 						}
 
@@ -614,8 +640,13 @@ class Process extends CI_Controller
 						$rmDelete = $this->db->select('id')->where('received_id', $receive_id)->get('receive_row_material')->result();
 						foreach ($rm_data as $rcD) {
 							$rm = explode(',', $rcD);
+							$rmWeight = isset($rm[3]) ? (float) $rm[3] : 0;
+							$rmQuantity = isset($rm[4]) ? (float) $rm[4] : 0;
+							if ($rmQuantity == 0 && isset($post['pcs'][$key]) && (float) $post['pcs'][$key] != 0) {
+								$rmQuantity = (float) $post['pcs'][$key];
+							}
 							$updateArray['rcdid'][] = $rm[8];
-							if (!empty($rm[0]) || !empty($rm[2]) || !empty($rm[3])) {
+							if (!empty($rm[0]) || !empty($rm[2]) || !empty($rm[3]) || !empty($rm[4])) {
 								$lot_wise_rm_id = $rm[1];
 								if ($rm[8] == 0) {
 									if (!empty($rm[1]) && is_numeric($rm[1])) {
@@ -623,35 +654,32 @@ class Process extends CI_Controller
 										$oldlotdata = $this->db->where('id', $rm[1])->get('lot_wise_rm')->row_array();
 
 										$this->db->where('id', $rm[1])
-											->set('receive_weight', 'receive_weight + ' . $rm[3], false)
-											->set('receive_quantity', 'receive_quantity + ' . $rm[4], false)
-											->set('rem_weight', 'rem_weight + ' . $rm[3], false)
-											->set('rem_quantity', 'rem_quantity + ' . $rm[4], false);
+											->set('receive_weight', 'receive_weight + ' . $rmWeight, false)
+											->set('receive_quantity', 'receive_quantity + ' . $rmQuantity, false)
+											->set('rem_weight', 'rem_weight + ' . $rmWeight, false)
+											->set('rem_quantity', 'rem_quantity + ' . $rmQuantity, false);
 										$this->db->update('lot_wise_rm');
 										$lot_wise_rm_id = $rm[1];
 									} else if (!empty($rm[1]) && !is_numeric($rm[1])) {
-										$this->db->insert('lot_wise_rm', array('user_id' => $user_id, 'code' => $rm[1], 'type' => 'RECEIVE', 'touch' => $rm[2], 'row_material_id' => $rm[0], 'weight' => $rm[3], 'quantity' => $rm[4], 'receive_weight' => $rm[3], 'receive_quantity' => $rm[4], 'rem_weight' => $rm[3], 'rem_quantity' => $rm[4], 'creation_date' => date('Y-m-d')));
+										$this->db->insert('lot_wise_rm', array('user_id' => $user_id, 'code' => $rm[1], 'type' => 'RECEIVE', 'touch' => $rm[2], 'row_material_id' => $rm[0], 'weight' => $rmWeight, 'quantity' => $rmQuantity, 'receive_weight' => $rmWeight, 'receive_quantity' => $rmQuantity, 'rem_weight' => $rmWeight, 'rem_quantity' => $rmQuantity, 'creation_date' => date('Y-m-d')));
 										$lot_wise_rm_id = $this->db->insert_id();
 									}else if(empty($rm[1])){
 									    $rowM = $this->db->get_where('row_material',['id'=>$rm[0]])->row_array();
 									    $code = explode(' ', $rowM['name'])[0].'_'.$rm[2];
-									    $this->db->insert('lot_wise_rm', array('user_id' => $user_id, 'code' => $code, 'type' => 'RECEIVE', 'touch' => $rm[2], 'row_material_id' => $rm[0], 'weight' => $rm[3], 'quantity' => $rm[4], 'receive_weight' => $rm[3], 'receive_quantity' => $rm[4], 'rem_weight' => $rm[3], 'rem_quantity' => $rm[4], 'creation_date' => date('Y-m-d')));
+									    $this->db->insert('lot_wise_rm', array('user_id' => $user_id, 'code' => $code, 'type' => 'RECEIVE', 'touch' => $rm[2], 'row_material_id' => $rm[0], 'weight' => $rmWeight, 'quantity' => $rmQuantity, 'receive_weight' => $rmWeight, 'receive_quantity' => $rmQuantity, 'rem_weight' => $rmWeight, 'rem_quantity' => $rmQuantity, 'creation_date' => date('Y-m-d')));
 										$lot_wise_rm_id = $this->db->insert_id();
 									}
 								} else {
-									$rmData       = $this->db->get_where('receive_row_material', array('id' => $rm[8]))->row_array();
-									$lwrmweight   = $rm['3'] - $rmData['weight'];
-									$lwrmquantity = $rm['4'] - $rmData['quantity'];
-									if ($rmData['weight'] != $rm['3']) {
+									if ($rmWeight != 0) {
 										$this->db->where('id', $rm[1])
-											->set('receive_weight', 'receive_weight + ' . $lwrmweight, false)
-											->set('rem_weight', 'rem_weight + ' . $lwrmweight, false);
+											->set('receive_weight', 'receive_weight + ' . $rmWeight, false)
+											->set('rem_weight', 'rem_weight + ' . $rmWeight, false);
 										$this->db->update('lot_wise_rm');
 									}
-									if ($rmData['quantity'] != $rm['4']) {
+									if ($rmQuantity != 0) {
 										$this->db->where('id', $rm[1])
-											->set('receive_quantity', 'receive_quantity + ' . $lwrmquantity, false)
-											->set('rem_quantity', 'rem_quantity + ' . $lwrmquantity, false);
+											->set('receive_quantity', 'receive_quantity + ' . $rmQuantity, false)
+											->set('rem_quantity', 'rem_quantity + ' . $rmQuantity, false);
 										$this->db->update('lot_wise_rm');
 									}
 								}
@@ -661,8 +689,8 @@ class Process extends CI_Controller
 									'row_material_id' => $rm[0],
 									'lot_wise_rm_id'  => $lot_wise_rm_id ?? 0,
 									'touch'           => $rm[2] ?? 0,
-									'weight'          => $rm[3] ?? 0,
-									'quantity'        => $rm[4] ?? 0,
+									'weight'          => $rmWeight,
+									'quantity'        => $rmQuantity,
 									'labour_type'     => $rm[5] ?? null,
 									'labour'          => $rm[6] ?? 0,
 									'total_labour'    => $rm[7] ?? 0,

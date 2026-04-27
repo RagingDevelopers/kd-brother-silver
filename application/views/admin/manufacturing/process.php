@@ -270,15 +270,15 @@
 															<td>
 																<input type="hidden" class="rowid" name="rowid[]" value="<?= $row['id'] ?? "0"; ?>" />
 																<select class="form-select select2 row_material rowMateralWiseLot" data-lot_wise_rm_id="<?php if (isset($row) && $row['lot_wise_rm_id']) {
-																																							echo $row['lot_wise_rm_id'];
-																																						} ?>" name="row_material[]">
+																		echo $row['lot_wise_rm_id'];
+																	} ?>" name="row_material[]">
 																	<option value="">Select RM</option>
 																	<?php
 																	if (!empty($row_material)) {
 																		for ($i = 0; $i < count($row_material); $i++) { ?>
 																			<option value="<?= $row_material[$i]['id']; ?>" <?php if (isset($row) && $row_material[$i]['id'] == $row['row_material_id']) {
-																																echo 'selected';
-																															} ?>><?= $row_material[$i]['name']; ?>
+																				echo 'selected';
+																			} ?>><?= $row_material[$i]['name']; ?>
 																			</option>
 																	<?php }
 																	} ?>
@@ -433,15 +433,15 @@
 														<td>
 															<input type="hidden" class="received_detail_id" />
 															<select class="form-select select2 row_material2 rowMateralWiseLot2" data-given_id="<?= $process_data['id'] ?? null ?>" data-garnu_id="<?= $data['id'] ?? null ?>" data-lot_wise_rm_id="<?php if (isset($row) && $row['lot_wise_rm_id']) {
-																																																														echo $row['lot_wise_rm_id'];
-																																																													} ?>">
+																	echo $row['lot_wise_rm_id'];
+																} ?>">
 																<option value="">Select RM</option>
 																<?php
 																if (!empty($row_material)) {
 																	foreach ($row_material as $rm) { ?>
 																		<option value="<?= $rm['id']; ?>" <?php if (isset($row) && $rm['id'] == $row['row_material_id']) {
-																												echo 'selected';
-																											} ?>><?= $rm['name']; ?>
+																			echo 'selected';
+																		} ?>><?= $rm['name']; ?>
 																		</option>
 																<?php }
 																} ?>
@@ -572,8 +572,8 @@
 																if (!empty($row_material)) {
 																	foreach ($row_material as $mt) { ?>
 																		<option value="<?= $mt['id']; ?>" <?php if (isset($row) && $mt['id'] == $row['metal_type_id']) {
-																												echo 'selected';
-																											} ?>><?= $mt['name']; ?>
+																			echo 'selected';
+																		} ?>><?= $mt['name']; ?>
 																		</option>
 																<?php }
 																} ?>
@@ -793,8 +793,8 @@
 													</a>
 													<a target="_blank" class="bg-danger btn btn-action text-warning-fg me-2 printButton" href="<?= base_url('manufacturing/process/printThermal/') . $id . '/' . $result->id; ?>"><i class="fa fa-print"></i></a>
 													<input class="form-check-input mt-2 is_completed" disabled <?php if (isset($result->is_completed) && $result->is_completed == "YES") {
-																													echo 'checked';
-																												} ?> type="checkbox" style="transform: scale(1.2);">
+														echo 'checked';
+													} ?> type="checkbox" style="transform: scale(1.2);">
 													<?php
 													$metalData = $this->dbh->getWhereResultArray('process_metal_type', ['given_id' => $result->id]);
 													$rm_string_array = [];

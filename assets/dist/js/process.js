@@ -392,11 +392,6 @@ $("button[data-target='#exampleModal'], button[data-bs-target='#modal-report']")
 					lotSelect.select2({
 						dropdownParent: $("#modal-report"),
 					});
-					if (ref.is(":focus") || ref.val()) {
-						setTimeout(function () {
-							lotSelect.select2("open");
-						}, 0);
-					}
 				} else {
 					ref.parents('td').next().find(".lot_wise_rm_id ").html("");
 				}
