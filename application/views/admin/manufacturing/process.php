@@ -122,8 +122,8 @@
 										foreach ($receiveCode as $value) {
 										?>
 											<option value="<?= $value['code'] ?? null ?>" <?php if (isset($process_data) && ($value['code'] == $process_data['receive_code'])) {
-																								echo 'selected';
-																							} ?>>
+													echo 'selected';
+												} ?>>
 												<?= $value['code']; ?>
 											</option>
 										<?php } ?>
@@ -139,8 +139,8 @@
 										foreach ($process as $value) {
 										?>
 											<option value="<?= $value->id ?? null ?>" data-autofilltouch="<?= $value->autofill_given_touch; ?>" data-workerId="<?= $process_data['worker_id'] ?? 0 ?>" <?php if (isset($process_data) && ($value->id == $process_data['process_id'])) {
-																																																			echo 'selected';
-																																																		} ?>>
+													echo 'selected';
+												} ?>>
 												<?= $value->name; ?>
 											</option>
 										<?php } ?>
@@ -154,8 +154,8 @@
 										if (!empty($row_material)) {
 											foreach ($row_material as $row) { ?>
 												<option value="<?= $row['id']; ?>" <?php if (isset($process_data) && ($row['id'] == $process_data['material_type_id'])) {
-																						echo 'selected';
-																					} ?>> <?= $row['name']; ?> </option>
+													echo 'selected';
+												} ?>> <?= $row['name']; ?> </option>
 										<?php }
 										} ?>
 									</select>
@@ -178,8 +178,8 @@
 										foreach ($item as $val) {
 										?>
 											<option value="<?= $val['id'] ?? 0 ?>" <?php if (isset($process_data) && ($val['id'] == $process_data['item_id'])) {
-																						echo 'selected';
-																					} ?>>
+													echo 'selected';
+												} ?>>
 												<?= $val['name']; ?>
 											</option>
 										<?php } ?>
@@ -220,7 +220,7 @@
 								</div>
 								<div class="col-md-1 col-md-1">
 									<label class="form-label" for="">&nbsp </label>
-									<button class="btn btn-primary" data-toggle="modal" data-target="#exampleModal"><i class="fa fa-usb" aria-hidden="true"></i></button>
+									<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal" data-bs-toggle="modal" data-bs-target="#modal-report"><i class="fa fa-usb" aria-hidden="true"></i></button>
 								</div>
 							</div>
 						</div>
