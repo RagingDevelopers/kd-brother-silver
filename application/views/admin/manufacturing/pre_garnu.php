@@ -43,8 +43,8 @@
 										foreach ($workers as $value) {
 										?>
 											<option value="<?= $value->id; ?>" <?php if (isset($update) && $value->id == $update['worker_id']) {
-																					echo 'selected';
-																				} ?>><?= $value->name; ?></option>
+												echo 'selected';
+											} ?>><?= $value->name; ?></option>
 										<?php } ?>
 									</select>
 								</div>

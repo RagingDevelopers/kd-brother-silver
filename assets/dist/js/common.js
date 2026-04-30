@@ -68,7 +68,7 @@ const setLotWiseRmOptions = function (response, selected_id = null) {
 	var options = `<option value=""> Select RM<option>`;
 	$.each(response, function (key, value) {
 		selected = selected_id != null && selected_id == value.id ? "selected" : " ";
-		options += `<option value="${value.id}" ${selected} data-weight="${value.rem_weight}" data-touchData="${value.touch}" data-quantity="${value.rem_quantity}" data-oldWeight="${value.weight || 0}" data-oldQuantity="${value.quantity || 0}" >${value.id} - ${value.code} &nbsp; Weight: ${value.rem_weight} Quantity :  ${value.rem_quantity}</option>`;
+		options += `<option value="${value.id}" ${selected} data-weight="${value.rem_weight}" data-touchData="${value.touch}" data-quantity="${value.rem_quantity}" data-oldWeight="${value.old_weight ?? value.weight ?? 0}" data-oldQuantity="${value.old_quantity ?? value.quantity ?? 0}" >${value.id} - ${value.code} &nbsp; Weight: ${value.rem_weight} Quantity :  ${value.rem_quantity}</option>`;
 	});
 	return options;
 };

@@ -372,6 +372,7 @@ $("button[data-target='#exampleModal'], button[data-bs-target='#modal-report']")
 		var row_material_id = $(this).val();
 		var currentLotSelect = ref.parents('td').next().find(".lot_wise_rm_id");
 		var lot_wise_rm_id = currentLotSelect.val() || $(this).attr('data-lot_wise_rm_id');
+		var detail_id = ref.parents("tr").find(".rowid").val() || 0;
 		ref.attr("data-lot_wise_rm_id", lot_wise_rm_id || "");
 		$.ajax({
 			type: "POST",
@@ -382,6 +383,8 @@ $("button[data-target='#exampleModal'], button[data-bs-target='#modal-report']")
 			data: {
 				row_material_id,
 				lot_wise_rm_id,
+				detail_id,
+				detail_type: "given",
 			},
 			success: function (response) {
 				if (response.success) {
@@ -996,6 +999,7 @@ $(document).on("click", ".Receivedmaterial", async function () {
 			row.find(".rowMateralWiseLot2 ").attr('data-garnu_id', $('#garnu_id').val());
 			row.find(".row_material2").prop("disabled", false);
 			row.find(".row_material2").val(row_material2);
+			row.find(".received_detail_id").val(received_detail_id);
 			if (!isNaN(lot_wise_rm_id2) && Number.isInteger(parseFloat(lot_wise_rm_id2))) {
 				row.find(".lot_wise_rm_id2").val(lot_wise_rm_id2);
 				row.find(".row_material2").trigger("change");
@@ -1015,7 +1019,6 @@ $(document).on("click", ".Receivedmaterial", async function () {
 			row.find(".labour_type").val(labour_type);
 			row.find(".labour").val(labour);
 			row.find(".total_labour").val(total_labour);
-			row.find(".received_detail_id").val(received_detail_id);
 
 			RmcalculateMain(row);
 		}
@@ -1885,6 +1888,7 @@ $(document).on("change", ".rowMateralWiseLot", function () {
 	var modal = $("#modal-report");
 	var row_material_id = $(this).val();
 	var lot_wise_rm_id = ref.parents('td').next().find(".lot_wise_rm_id").val() || $(this).attr('data-lot_wise_rm_id');
+	var detail_id = ref.parents("tr").find(".rowid").val() || 0;
 	ref.attr("data-lot_wise_rm_id", lot_wise_rm_id || "");
 	// 	var lot_wise_rm_id = null;
 	$.ajax({
@@ -1896,6 +1900,8 @@ $(document).on("change", ".rowMateralWiseLot", function () {
 		data: {
 			row_material_id,
 			lot_wise_rm_id,
+			detail_id,
+			detail_type: "given",
 		},
 		success: function (response) {
 			if (response.success) {
@@ -1921,6 +1927,7 @@ $(document).on("change", ".rowMateralWiseLot2", function () {
 	var row_material_id = $(this).val();
 	var given_id = $(this).attr('data-given_id');
 	var garnu_id = $(this).attr('data-garnu_id');
+	var detail_id = ref.parents("tr").find(".received_detail_id").val() || 0;
 
 	if (row_material_id) {
 		var lot_wise_rm_id = $(this).attr('data-lot_wise_rm_id');
@@ -1935,7 +1942,9 @@ $(document).on("change", ".rowMateralWiseLot2", function () {
 				row_material_id,
 				lot_wise_rm_id,
 				given_id,
-				garnu_id
+				garnu_id,
+				detail_id,
+				detail_type: "receive"
 			},
 			success: function (response) {
 				if (response.success) {
