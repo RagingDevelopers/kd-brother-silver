@@ -25,8 +25,8 @@
 					if (!empty($customer)) {
 						foreach ($customer as $row) { ?>
 							<option value="<?= $row['id']; ?>" <?php if (isset($givenData) && $row['id'] == $givenData['worker_id']) {
-																	echo 'selected';
-																} ?>><?= $row['name']; ?></option>
+								echo 'selected';
+							} ?>><?= $row['name']; ?></option>
 					<?php }
 					} ?>
 				</select>
@@ -35,9 +35,9 @@
 			</div>
 			<div>
 				<label class="form-check">
-					<input class="form-check-input" id="is_completed" name="is_completed" <?php if (isset($givenData['is_completed']) && $givenData['is_completed'] == "YES") {
-																								echo 'checked';
-																							} ?> type="checkbox">
+				<input class="form-check-input" id="is_completed" name="is_completed" <?php if (isset($givenData['is_completed']) && $givenData['is_completed'] == "YES") {
+						echo 'checked';
+					} ?> type="checkbox">
 					<h4 class="form-check-label is_completed">Is Complated</h4>
 				</label>
 			</div>
@@ -104,6 +104,7 @@
 					foreach ($metalData as $rm) {
 						$rm_string_array[] = implode(',', [
 							$rm['metal_type_id'],
+							$rm['lot'] ?? 0,
 							$rm['touch'],
 							$rm['weight'],
 							$rm['quantity'],
@@ -124,6 +125,7 @@
 				<tr>
 					<th>Lot</th>
 					<th>Receive item</th>
+					<th>Lot Select</th>
 					<th>Receive Pcs</th>
 					<th>Receive Weight</th>
 					<th>Labour Type</th>
@@ -187,25 +189,36 @@
 						<td>
 							<label class="form-check">
 								<input class="form-check-input lot_creation" name="lot_creation[]" type="checkbox" value="YES" <?php if (isset($row['lot_creation']) && $row['lot_creation'] == "YES") {
-																																	echo 'checked';
-																																} ?>>
+									echo 'checked';
+								} ?>>
 								<input type="hidden" name="lot_creation_value[]" value="NO">
 							</label>
 						</td>
-						<td>
-							<select class="form-select select2 item" name="item_id[]">
+					<td>
+						<select class="form-select select2 item" name="item_id[]">
 								<option value=''>Select Item</option>
 								<?php
 								foreach ($item as $val) {
 								?>
 									<option value="<?= $val['id'] ?? 0 ?>" <?php if (isset($row) && ($val['id'] == $row['item_id'])) {
-																				echo 'selected';
-																			} ?>>
+											echo 'selected';
+										} ?>>
 										<?= $val['name']; ?>
 									</option>
 								<?php } ?>
-							</select>
-						</td>
+						</select>
+					</td>
+					<td>
+						<?php
+						$selectedReceiveLotId = (int) ($row['received_lot_id'] ?? $row['lot_wise_rm_id'] ?? $row['lot'] ?? 0);
+						?>
+						<select class="form-select select2 received_lot_id" name="received_lot_id[]" data-selected-lot-id="<?= $selectedReceiveLotId > 0 ? $selectedReceiveLotId : ''; ?>">
+							<option value="">Select Lot</option>
+							<?php if ($selectedReceiveLotId > 0) { ?>
+								<option value="<?= $selectedReceiveLotId; ?>" selected>Loading...</option>
+							<?php } ?>
+						</select>
+					</td>
 						<td class="text-muted">
 							<input type="number" name="pcs[]" class="form-control Pcs" value="<?= $row['pcs'] ?? "0"; ?>" placeholder="Enter Pcs" autocomplete="off">
 						</td>
@@ -218,13 +231,13 @@
 						</td>
 						<td class="text-muted">
 							<select class="form-select select2 receiveLabour_type" name="labour_type[]">
-								<option value="">Select Labour</option>
+							<option value="">Select Labour</option>
 								<option value="PCS" <?php if (isset($row) && ('PCS' == $row['labour_type'])) {
-														echo 'selected';
-													} ?>>PCS</option>
+									echo 'selected';
+								} ?>>PCS</option>
 								<option value="WEIGHT" <?php if (isset($row) && ('WEIGHT' == $row['labour_type'])) {
-															echo 'selected';
-														} ?>>WEIGHT</option>
+									echo 'selected';
+								} ?>>WEIGHT</option>
 							</select>
 						</td>
 						<td class="text-muted">
@@ -260,18 +273,16 @@
 			</tbody>
 			<tfoot>
 				<tr>
-					<td>
-					</td>
-					<td>
-					</td>
+					<td></td>
+					<td></td>
+					<td></td>
 					<td>
 						<h4><span class='text-end ms-3' id="totalPcs"></span></h4>
 					</td>
 					<td>
 						<h4><span class='text-end ms-3' id="TotalWeight"></span></h4>
 					</td>
-					<td>
-					</td>
+					<td></td>
 					<td>
 						<h4><span class='text-end ms-3' id="labour"></span></h4>
 					</td>

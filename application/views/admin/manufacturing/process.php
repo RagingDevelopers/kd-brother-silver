@@ -538,67 +538,95 @@
 									<h5 class="modal-title">Received Metal Type</h5>
 									<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 								</div>
+
 								<div class="modal-body">
 									<div class="table-responsive">
 										<table class="table table-vcenter card-table table-striped">
 											<thead>
 												<tr>
 													<th>Metal Type</th>
+													<th>Lot</th>
 													<th>Touch %</th>
 													<th>Weight</th>
 													<th>Quantity</th>
 													<th></th>
 												</tr>
 											</thead>
+
 											<tbody id="MetalBody">
 												<?php
 												if (empty($metalData)) {
 													$metalData[] = [
 														'metal_type_id' => 0,
-														'rmWeight'        => 0,
-														'rmTouch'         => 0,
-														'rmQuantity'      => 0,
-														'id'              => 0
+														'lot' => 0,
+														'touch' => 0,
+														'weight' => 0,
+														'quantity' => 0,
+														'id' => 0
 													];
 												}
+
 												foreach ($metalData as $row) { ?>
-													<!-- <input type="hidden" class="ids" value="0" /> -->
 													<tr class="metalRow">
 														<td>
-															<input type="hidden" class="process_metal_type" value="0" />
+															<input type="hidden" class="process_metal_type" value="<?= $row['id'] ?? 0; ?>" />
+
 															<select class="form-select select2 metal_type">
 																<option value="">Select Metal Type</option>
 																<?php
 																if (!empty($row_material)) {
 																	foreach ($row_material as $mt) { ?>
-																		<option value="<?= $mt['id']; ?>" <?php if (isset($row) && $mt['id'] == $row['metal_type_id']) {
+																		<option value="<?= $mt['id']; ?>" <?php if (isset($row) && (int) $mt['id'] === (int) ($row['metal_type_id'] ?? 0)) {
 																			echo 'selected';
-																		} ?>><?= $mt['name']; ?>
+																		} ?>>
+																			<?= $mt['name']; ?>
 																		</option>
 																<?php }
 																} ?>
 															</select>
 														</td>
-														<td class="text-muted">
-															<input type="number" class="form-control metalTouch" step="any" value="0" placeholder="Enter Touch" autocomplete="off">
+
+														<td>
+															<select class="form-select select2 lot">
+																<option value="">Select Lot</option>
+																<?php
+																if (!empty($lot_wise_rm)) {
+																	foreach ($lot_wise_rm as $lot) { ?>
+																		<option value="<?= $lot['id']; ?>" <?php if (isset($row) && (int) $lot['id'] === (int) ($row['lot'] ?? 0)) {
+																			echo 'selected';
+																		} ?>>
+																			<?= $lot['id']; ?> - <?= $lot['code']; ?> Weight: <?= $lot['rem_weight']; ?> Quantity: <?= $lot['rem_quantity']; ?>
+																		</option>
+																<?php }
+																} ?>
+															</select>
 														</td>
+
 														<td class="text-muted">
-															<input type="number" class="form-control metalWeight" value="0" placeholder="Enter Weight" autocomplete="off">
+															<input type="number" class="form-control metalTouch" step="any" value="<?= $row['touch'] ?? 0; ?>" placeholder="Enter Touch" autocomplete="off">
 														</td>
+
 														<td class="text-muted">
-															<input type="number" class="form-control metalQuantity" value="0" placeholder="Enter Quantity" autocomplete="off">
+															<input type="number" class="form-control metalWeight" step="any" value="<?= $row['weight'] ?? 0; ?>" placeholder="Enter Weight" autocomplete="off">
 														</td>
+
+														<td class="text-muted">
+															<input type="number" class="form-control metalQuantity" step="any" value="<?= $row['quantity'] ?? 0; ?>" placeholder="Enter Quantity" autocomplete="off">
+														</td>
+
 														<td>
 															<button type="button" class="btn btn-danger metalDeleteRow">X</button>
 														</td>
 													</tr>
 												<?php } ?>
 											</tbody>
+
 											<tfoot>
 												<tr>
 													<td>
 														<h3>Total :</h3>
 													</td>
+													<td></td>
 													<td>
 														<div class="d-flex">
 															<h4><span class='text-end ms-3 metal-total-touch'>0</span></h4>
@@ -619,10 +647,12 @@
 											</tfoot>
 										</table>
 									</div>
+
 									<div class="modal-footer justify-content-between">
 										<button type="button" class="btn btn-success btn-success metalAddButton">
 											<span class="mx-1">Add </span><i class="fa-solid fa-plus"></i>
 										</button>
+
 										<div>
 											<button type="button" class="btn btn-danger btn-danger" data-bs-dismiss="modal">Close</button>
 											<button type="button" class="btn btn-primary btn-primary saveMetalData">Save Changes</button>
@@ -801,6 +831,7 @@
 													foreach ($metalData as $rm) {
 														$rm_string_array[] = implode(',', [
 															$rm['metal_type_id'],
+															$rm['lot'] ?? 0,
 															$rm['touch'],
 															$rm['weight'],
 															$rm['quantity'],

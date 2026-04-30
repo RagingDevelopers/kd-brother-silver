@@ -73,6 +73,19 @@ if (!function_exists('lot_management')) {
 					? (bool) $data['update_lot_values']
 					: !in_array($movement, ['given', 'receive'], true);
 
+				/*
+				 * add_lot_values_by_diff is for RECEIVE stock entry.
+				 *
+				 * It updates these base columns by difference:
+				 * weight, quantity
+				 *
+				 * And also updates:
+				 * receive_weight, receive_quantity, rem_weight, rem_quantity
+				 */
+				$addLotValuesByDiff = !empty($data['add_lot_values_by_diff']);
+				$baseWeightDiff = 0;
+				$baseQuantityDiff = 0;
+
 				$strictRowMaterialMatch = !empty($data['strict_row_material_match']);
 				$hasUpdate = false;
 
@@ -153,11 +166,11 @@ if (!function_exists('lot_management')) {
 								$db->where('row_material_id', $oldRowMaterialId);
 							}
 
-							if ($updateLotValues && $oldWeight != 0) {
+							if (($updateLotValues || $addLotValuesByDiff) && $oldWeight != 0) {
 								$db->set('weight', 'COALESCE(weight, 0) - (' . $oldWeight . ')', false);
 							}
 
-							if ($updateLotValues && $oldQuantity != 0) {
+							if (($updateLotValues || $addLotValuesByDiff) && $oldQuantity != 0) {
 								$db->set('quantity', 'COALESCE(quantity, 0) - (' . $oldQuantity . ')', false);
 							}
 
@@ -190,6 +203,11 @@ if (!function_exists('lot_management')) {
 
 					$remWeightDiff = $receiveWeightDiff;
 					$remQuantityDiff = $receiveQuantityDiff;
+
+					if ($addLotValuesByDiff) {
+						$baseWeightDiff = $receiveWeightDiff;
+						$baseQuantityDiff = $receiveQuantityDiff;
+					}
 				}
 
 				$db->where('id', $id);
@@ -203,14 +221,26 @@ if (!function_exists('lot_management')) {
 					$hasUpdate = true;
 				}
 
-				if ($updateLotValues && $weight !== null) {
-					$db->set('weight', $weight);
-					$hasUpdate = true;
-				}
+				if ($addLotValuesByDiff) {
+					if ($baseWeightDiff != 0) {
+						$db->set('weight', 'COALESCE(weight, 0) + (' . $baseWeightDiff . ')', false);
+						$hasUpdate = true;
+					}
 
-				if ($updateLotValues && $quantity !== null) {
-					$db->set('quantity', $quantity);
-					$hasUpdate = true;
+					if ($baseQuantityDiff != 0) {
+						$db->set('quantity', 'COALESCE(quantity, 0) + (' . $baseQuantityDiff . ')', false);
+						$hasUpdate = true;
+					}
+				} else {
+					if ($updateLotValues && $weight !== null) {
+						$db->set('weight', $weight);
+						$hasUpdate = true;
+					}
+
+					if ($updateLotValues && $quantity !== null) {
+						$db->set('quantity', $quantity);
+						$hasUpdate = true;
+					}
 				}
 
 				if ($updateLotValues && $touch !== null) {
@@ -249,6 +279,8 @@ if (!function_exists('lot_management')) {
 				}
 
 				if (!$hasUpdate) {
+					// Prevent leftover WHERE clauses from leaking into next query.
+					$db->reset_query();
 					return true;
 				}
 

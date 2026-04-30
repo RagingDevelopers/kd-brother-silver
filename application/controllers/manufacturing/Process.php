@@ -738,8 +738,10 @@ class Process extends CI_Controller
 	public function receiveGarnuAdd()
 	{
 		$post = $this->input->post();
+
 		$postedReceiveIds = isset($post['rcid']) && is_array($post['rcid']) ? $post['rcid'] : [];
 		$existingIds = [];
+
 		foreach ($postedReceiveIds as $receiveId) {
 			if ((int) $receiveId > 0) {
 				$existingIds[] = (int) $receiveId;
@@ -754,25 +756,40 @@ class Process extends CI_Controller
 				}
 			}
 		}
+
 		$idsNotExisting = array_diff($allids, $existingIds);
-		$given_id = $post['given_id'];
-		$garnu_id = $post['garnu_id'];
+
+		$given_id = isset($post['given_id']) ? (int) $post['given_id'] : 0;
+		$garnu_id = isset($post['garnu_id']) ? (int) $post['garnu_id'] : 0;
 		$user_id = session('id');
 
 		$is_completed = isset($post['is_completed']) && $post['is_completed'] == 'on' ? "YES" : "NO";
-		$is_kasar     = isset($post['is_kasar']) && $post['is_kasar'] == 'on' ? "YES" : "NO";
+		$is_kasar = isset($post['is_kasar']) && $post['is_kasar'] == 'on' ? "YES" : "NO";
 
-		$transfer_account = NULL;
-
+		$transfer_account = null;
 		if ($is_kasar == "YES") {
-			$transfer_account = ($post['transfer_account'] ?? NULL);
+			$transfer_account = ($post['transfer_account'] ?? null);
 		}
 
 		$this->db->trans_begin();
 
-		$this->db->where('id', $given_id)->update('given', ['vadharo_dhatado' => $post['jama_baki'], 'is_completed' => $is_completed, 'is_kasar' => $is_kasar, "transfer_account" => $transfer_account]);
+		$this->db
+			->where('id', $given_id)
+			->update('given', [
+				'vadharo_dhatado' => $post['jama_baki'] ?? 0,
+				'is_completed' => $is_completed,
+				'is_kasar' => $is_kasar,
+				'transfer_account' => $transfer_account,
+			]);
 
-
+		/*
+		* Deleted receive rows:
+		* remove their receive_row_material effect from lot_wise_rm.
+		*
+		* For Received Row Material modal:
+		* weight / quantity MINUS from:
+		* weight, quantity, receive_weight, receive_quantity, rem_weight, rem_quantity
+		*/
 		if (!empty($idsNotExisting)) {
 			$deletedReceiveRows = $this->db
 				->where_in('received_id', $idsNotExisting)
@@ -784,17 +801,23 @@ class Process extends CI_Controller
 					$lotUpdated = lot_management([
 						'id' => (int) $deletedReceiveRow['lot_wise_rm_id'],
 						'row_material_id' => (int) $deletedReceiveRow['row_material_id'],
+						'old_row_material_id' => (int) $deletedReceiveRow['row_material_id'],
 						'weight' => 0,
 						'quantity' => 0,
 						'old_weight' => (float) $deletedReceiveRow['weight'],
 						'old_quantity' => (float) $deletedReceiveRow['quantity'],
 						'movement' => 'receive',
 						'update_lot_values' => false,
+						'add_lot_values_by_diff' => true,
+						'strict_row_material_match' => true,
 					]);
 
 					if (!$lotUpdated) {
 						$this->db->trans_rollback();
-						echo json_encode(['success' => false, 'message' => 'Lot update failed while deleting receive row material.']);
+						echo json_encode([
+							'success' => false,
+							'message' => 'Lot update failed while deleting receive row material.'
+						]);
 						return;
 					}
 				}
@@ -806,7 +829,9 @@ class Process extends CI_Controller
 
 		foreach ($postedReceiveIds as $key => $rcid) {
 			$rcid = (int) $rcid;
+
 			$rawMaterialData = $post['raw-material-data'][$key] ?? '';
+
 			$hasReceiveData = $rcid > 0
 				|| $rawMaterialData !== ''
 				|| (float) ($post['pcs'][$key] ?? 0) != 0
@@ -820,30 +845,33 @@ class Process extends CI_Controller
 			}
 
 			$lot_creation = isset($post['lot_creation_value'][$key]) && $post['lot_creation_value'][$key] == 'YES' ? "YES" : "NO";
+
 			$receivedData = [
-				'item_id'             => isset($post['item_id'][$key]) ? $post['item_id'][$key] : 0,
-				'pcs'                 => isset($post['pcs'][$key]) ? $post['pcs'][$key] : 0,
-				'weight'              => isset($post['weight'][$key]) ? $post['weight'][$key] : 0,
-				'labour_type'         => isset($post['labour_type'][$key]) ? $post['labour_type'][$key] : null,
-				'labour'              => isset($post['labour'][$key]) ? $post['labour'][$key] : 0,
-				'total_labour'        => isset($post['totalLabour'][$key]) ? $post['totalLabour'][$key] : 0,
-				'final_labour'        => isset($post['finalLabour'][$key]) ? $post['finalLabour'][$key] : 0,
+				'item_id' => isset($post['item_id'][$key]) ? $post['item_id'][$key] : 0,
+				'pcs' => isset($post['pcs'][$key]) ? $post['pcs'][$key] : 0,
+				'weight' => isset($post['weight'][$key]) ? $post['weight'][$key] : 0,
+				'labour_type' => isset($post['labour_type'][$key]) ? $post['labour_type'][$key] : null,
+				'labour' => isset($post['labour'][$key]) ? $post['labour'][$key] : 0,
+				'total_labour' => isset($post['totalLabour'][$key]) ? $post['totalLabour'][$key] : 0,
+				'final_labour' => isset($post['finalLabour'][$key]) ? $post['finalLabour'][$key] : 0,
 				'row_material_weight' => isset($post['rm_weight'][$key]) ? $post['rm_weight'][$key] : 0,
-				'total_weight'        => isset($post['total_weight'][$key]) ? $post['total_weight'][$key] : 0,
-				'touch'               => isset($post['touch'][$key]) ? $post['touch'][$key] : 0,
-				'fine'                => isset($post['fine'][$key]) ? $post['fine'][$key] : 0,
-				'remark'              => isset($post['remark'][$key]) ? $post['remark'][$key] : null,
-				'lot_creation'        => $lot_creation,
+				'total_weight' => isset($post['total_weight'][$key]) ? $post['total_weight'][$key] : 0,
+				'touch' => isset($post['touch'][$key]) ? $post['touch'][$key] : 0,
+				'fine' => isset($post['fine'][$key]) ? $post['fine'][$key] : 0,
+				'remark' => isset($post['remark'][$key]) ? $post['remark'][$key] : null,
+				'lot_creation' => $lot_creation,
 			];
 
 			if ($rcid === 0) {
-				$receivedData['given_id']      = $given_id;
-				$receivedData['garnu_id']      = $garnu_id;
-				$receivedData['user_id']       = $user_id;
+				$receivedData['given_id'] = $given_id;
+				$receivedData['garnu_id'] = $garnu_id;
+				$receivedData['user_id'] = $user_id;
 				$receivedData['creation_date'] = date('Y-m-d');
+
 				$this->db->insert('receive', $receivedData);
 				$receive_id = $this->db->insert_id();
-				$code       = date('M') . "_R$receive_id" . "_G$given_id";
+
+				$code = date('M') . "_R$receive_id" . "_G$given_id";
 				$this->db->where('id', $receive_id)->update('receive', ['code' => $code]);
 			} else {
 				$receive_id = $rcid;
@@ -858,10 +886,12 @@ class Process extends CI_Controller
 					'delete' => [],
 				],
 			];
+
 			$oldReceiveRows = $this->db
 				->where('received_id', $receive_id)
 				->get('receive_row_material')
 				->result_array();
+
 			$oldReceiveRowsById = [];
 			foreach ($oldReceiveRows as $oldReceiveRow) {
 				$oldReceiveRowsById[(int) $oldReceiveRow['id']] = $oldReceiveRow;
@@ -869,16 +899,20 @@ class Process extends CI_Controller
 
 			if ($rawMaterialData !== '' && $rawMaterialData !== null) {
 				$rm_data = explode('|', $rawMaterialData);
+
 				foreach ($rm_data as $rcD) {
 					$rm = array_pad(explode(',', $rcD), 9, '');
+
 					$rowMaterialId = (int) $rm[0];
 					$lotInput = trim((string) $rm[1]);
 					$touch = ($rm[2] === '' || $rm[2] === null) ? 0 : (float) $rm[2];
 					$rmWeight = ($rm[3] === '' || $rm[3] === null) ? 0 : (float) $rm[3];
 					$rmQuantity = ($rm[4] === '' || $rm[4] === null) ? 0 : (float) $rm[4];
+
 					if ($rmQuantity == 0 && isset($post['pcs'][$key]) && (float) $post['pcs'][$key] != 0) {
 						$rmQuantity = (float) $post['pcs'][$key];
 					}
+
 					$detailId = (int) $rm[8];
 
 					if (empty($rowMaterialId) && $rmWeight == 0 && $rmQuantity == 0) {
@@ -889,18 +923,32 @@ class Process extends CI_Controller
 						$updateArray['rcdid'][] = $detailId;
 					}
 
-					$oldRow = $detailId > 0 && isset($oldReceiveRowsById[$detailId]) ? $oldReceiveRowsById[$detailId] : null;
+					$oldRow = $detailId > 0 && isset($oldReceiveRowsById[$detailId])
+						? $oldReceiveRowsById[$detailId]
+						: null;
 
 					if ($lotInput !== '' && is_numeric($lotInput) && (int) $lotInput > 0) {
 						$lot_wise_rm_id = (int) $lotInput;
+
 						$oldLotId = $lot_wise_rm_id;
 						if (!empty($oldRow['lot_wise_rm_id'])) {
 							$oldLotId = (int) $oldRow['lot_wise_rm_id'];
 						}
 
+						$oldRowMaterialId = $rowMaterialId;
+						if (!empty($oldRow['row_material_id'])) {
+							$oldRowMaterialId = (int) $oldRow['row_material_id'];
+						}
+
+						/*
+						* Existing lot receive:
+						* PLUS diff into:
+						* weight, quantity, receive_weight, receive_quantity, rem_weight, rem_quantity
+						*/
 						$lotUpdated = lot_management([
 							'id' => $lot_wise_rm_id,
 							'row_material_id' => $rowMaterialId,
+							'old_row_material_id' => $oldRowMaterialId,
 							'weight' => $rmWeight,
 							'quantity' => $rmQuantity,
 							'old_weight' => (float) ($oldRow['weight'] ?? 0),
@@ -908,12 +956,17 @@ class Process extends CI_Controller
 							'old_lot_wise_rm_id' => $oldLotId,
 							'movement' => 'receive',
 							'update_lot_values' => false,
+							'add_lot_values_by_diff' => true,
 							'is_new_detail' => empty($oldRow),
+							'strict_row_material_match' => true,
 						]);
 
 						if (!$lotUpdated) {
 							$this->db->trans_rollback();
-							echo json_encode(['success' => false, 'message' => 'Lot update failed for receive row material.']);
+							echo json_encode([
+								'success' => false,
+								'message' => 'Lot update failed for receive row material.'
+							]);
 							return;
 						}
 					} else {
@@ -921,17 +974,23 @@ class Process extends CI_Controller
 							$lotUpdated = lot_management([
 								'id' => (int) $oldRow['lot_wise_rm_id'],
 								'row_material_id' => (int) $oldRow['row_material_id'],
+								'old_row_material_id' => (int) $oldRow['row_material_id'],
 								'weight' => 0,
 								'quantity' => 0,
 								'old_weight' => (float) $oldRow['weight'],
 								'old_quantity' => (float) $oldRow['quantity'],
 								'movement' => 'receive',
 								'update_lot_values' => false,
+								'add_lot_values_by_diff' => true,
+								'strict_row_material_match' => true,
 							]);
 
 							if (!$lotUpdated) {
 								$this->db->trans_rollback();
-								echo json_encode(['success' => false, 'message' => 'Lot update failed while moving receive row material.']);
+								echo json_encode([
+									'success' => false,
+									'message' => 'Lot update failed while moving receive row material.'
+								]);
 								return;
 							}
 						}
@@ -961,22 +1020,25 @@ class Process extends CI_Controller
 
 						if (!$lot_wise_rm_id) {
 							$this->db->trans_rollback();
-							echo json_encode(['success' => false, 'message' => 'Receive lot creation failed.']);
+							echo json_encode([
+								'success' => false,
+								'message' => 'Receive lot creation failed.'
+							]);
 							return;
 						}
 					}
 
 					$updateData = [
-						'received_id'     => $receive_id,
-						'garnu_id'        => $garnu_id,
+						'received_id' => $receive_id,
+						'garnu_id' => $garnu_id,
 						'row_material_id' => $rowMaterialId,
-						'lot_wise_rm_id'  => $lot_wise_rm_id,
-						'touch'           => $touch,
-						'weight'          => $rmWeight,
-						'quantity'        => $rmQuantity,
-						'labour_type'     => $rm[5] !== '' ? $rm[5] : null,
-						'labour'          => $rm[6] !== '' ? $rm[6] : 0,
-						'total_labour'    => $rm[7] !== '' ? $rm[7] : 0,
+						'lot_wise_rm_id' => $lot_wise_rm_id,
+						'touch' => $touch,
+						'weight' => $rmWeight,
+						'quantity' => $rmQuantity,
+						'labour_type' => $rm[5] !== '' ? $rm[5] : null,
+						'labour' => $rm[6] !== '' ? $rm[6] : 0,
+						'total_labour' => $rm[7] !== '' ? $rm[7] : 0,
 					];
 
 					if ($detailId > 0 && $oldRow !== null) {
@@ -996,20 +1058,27 @@ class Process extends CI_Controller
 						$lotUpdated = lot_management([
 							'id' => (int) $oldReceiveRow['lot_wise_rm_id'],
 							'row_material_id' => (int) $oldReceiveRow['row_material_id'],
+							'old_row_material_id' => (int) $oldReceiveRow['row_material_id'],
 							'weight' => 0,
 							'quantity' => 0,
 							'old_weight' => (float) $oldReceiveRow['weight'],
 							'old_quantity' => (float) $oldReceiveRow['quantity'],
 							'movement' => 'receive',
 							'update_lot_values' => false,
+							'add_lot_values_by_diff' => true,
+							'strict_row_material_match' => true,
 						]);
 
 						if (!$lotUpdated) {
 							$this->db->trans_rollback();
-							echo json_encode(['success' => false, 'message' => 'Lot update failed while deleting receive row material.']);
+							echo json_encode([
+								'success' => false,
+								'message' => 'Lot update failed while deleting receive row material.'
+							]);
 							return;
 						}
 					}
+
 					$updateArray['rm']['delete'][] = $oldDetailId;
 				}
 			}
@@ -1017,63 +1086,196 @@ class Process extends CI_Controller
 			if (!empty($updateArray['rm']['insert'])) {
 				$this->db->insert_batch('receive_row_material', $updateArray['rm']['insert']);
 			}
+
 			if (!empty($updateArray['rm']['update'])) {
 				$this->db->update_batch('receive_row_material', $updateArray['rm']['update'], 'id');
 			}
+
 			if (!empty($updateArray['rm']['delete'])) {
 				$this->db->where_in('id', $updateArray['rm']['delete'])->delete('receive_row_material');
 			}
 		}
 
+		/*
+		* Received Metal Type modal.
+		*
+		* String format:
+		* metal_type_id,lot,touch,weight,quantity,id
+		*
+		* Here column name is process_metal_type.lot, not lot_id.
+		*
+		* For selected lot:
+		* PLUS diff into:
+		* lot_wise_rm.weight
+		* lot_wise_rm.quantity
+		* lot_wise_rm.receive_weight
+		* lot_wise_rm.receive_quantity
+		* lot_wise_rm.rem_weight
+		* lot_wise_rm.rem_quantity
+		*/
 		$metalType = $post['metalType-data'] ?? '';
-		if (!empty($metalType) && $metalType !== NULL) {
-			$rm_data                     = explode('|', $metalType);
-			$rmDelete                    = $this->db->select('id')->where('given_id', $given_id)->get('process_metal_type')->result();
-			$updateArray['pmtid']        = [];
-			$updateArray['mt']['insert'] = [];
-			$updateArray['mt']['update'] = [];
-			$updateArray['mt']['delete'] = [];
-			foreach ($rm_data as $rcD) {
-				$rm = array_pad(explode(',', $rcD), 5, '');
 
-				if (!empty($rm[0]) || !empty($rm[1]) || !empty($rm[2]) || !empty($rm[3])) {
-					$processMetalTypeId = (int) $rm[4];
-					if ($processMetalTypeId > 0) {
-						$updateArray['pmtid'][] = $processMetalTypeId;
-					}
-					$updateData = [
-						'given_id'      => $given_id,
-						'metal_type_id' => $rm[0],
-						'touch'         => $rm[1] ?? 0,
-						'weight'        => $rm[2] ?? 0,
-						'quantity'      => $rm[3] ?? 0,
-					];
-					if ($processMetalTypeId > 0) {
-						$updateData['id']              = $processMetalTypeId;
-						$updateArray['mt']['update'][] = $updateData;
-					} else {
-						$updateData['user_id']         = session('id');
-						$updateData['creation_date']   = date('Y-m-d');
-						$updateArray['mt']['insert'][] = $updateData;
-					}
+		$oldMetalRows = $this->db
+			->where('given_id', $given_id)
+			->get('process_metal_type')
+			->result_array();
+
+		$oldMetalRowsById = [];
+		foreach ($oldMetalRows as $oldMetalRow) {
+			$oldMetalRowsById[(int) $oldMetalRow['id']] = $oldMetalRow;
+		}
+
+		$metalUpdateArray = [
+			'pmtid' => [],
+			'insert' => [],
+			'update' => [],
+			'delete' => [],
+		];
+
+		$metalRows = [];
+		if ($metalType !== '' && $metalType !== null) {
+			$metalRows = explode('|', $metalType);
+		}
+
+		foreach ($metalRows as $rcD) {
+			$rm = array_pad(explode(',', $rcD), 6, '');
+
+			$metalTypeId = (int) $rm[0];
+			$lot = (int) $rm[1];
+			$touch = ($rm[2] === '' || $rm[2] === null) ? 0 : (float) $rm[2];
+			$weight = ($rm[3] === '' || $rm[3] === null) ? 0 : (float) $rm[3];
+			$quantity = ($rm[4] === '' || $rm[4] === null) ? 0 : (float) $rm[4];
+			$processMetalTypeId = (int) $rm[5];
+
+			if ($metalTypeId <= 0 && $lot <= 0 && $weight == 0 && $quantity == 0) {
+				continue;
+			}
+
+			if ($metalTypeId <= 0) {
+				$this->db->trans_rollback();
+				echo json_encode([
+					'success' => false,
+					'message' => 'Please select metal type.'
+				]);
+				return;
+			}
+
+			if (($weight != 0 || $quantity != 0) && $lot <= 0) {
+				$this->db->trans_rollback();
+				echo json_encode([
+					'success' => false,
+					'message' => 'Please select lot for received metal type.'
+				]);
+				return;
+			}
+
+			if ($processMetalTypeId > 0) {
+				$metalUpdateArray['pmtid'][] = $processMetalTypeId;
+			}
+
+			$oldMetalRow = $processMetalTypeId > 0 && isset($oldMetalRowsById[$processMetalTypeId])
+				? $oldMetalRowsById[$processMetalTypeId]
+				: null;
+
+			if ($lot > 0 || !empty($oldMetalRow['lot'])) {
+				$currentLot = $lot > 0 ? $lot : (int) ($oldMetalRow['lot'] ?? 0);
+
+				$oldLot = $currentLot;
+				if (!empty($oldMetalRow['lot'])) {
+					$oldLot = (int) $oldMetalRow['lot'];
+				}
+
+				$oldMetalTypeId = $metalTypeId;
+				if (!empty($oldMetalRow['metal_type_id'])) {
+					$oldMetalTypeId = (int) $oldMetalRow['metal_type_id'];
+				}
+
+				$lotUpdated = lot_management([
+					'id' => $currentLot,
+					'row_material_id' => $metalTypeId,
+					'old_row_material_id' => $oldMetalTypeId,
+					'weight' => $lot > 0 ? $weight : 0,
+					'quantity' => $lot > 0 ? $quantity : 0,
+					'old_weight' => (float) ($oldMetalRow['weight'] ?? 0),
+					'old_quantity' => (float) ($oldMetalRow['quantity'] ?? 0),
+					'old_lot_wise_rm_id' => $oldLot,
+					'movement' => 'receive',
+					'update_lot_values' => false,
+					'add_lot_values_by_diff' => true,
+					'is_new_detail' => empty($oldMetalRow),
+					'strict_row_material_match' => true,
+				]);
+
+				if (!$lotUpdated) {
+					$this->db->trans_rollback();
+					echo json_encode([
+						'success' => false,
+						'message' => 'Lot update failed for received metal type.'
+					]);
+					return;
 				}
 			}
 
-			if (!empty($updateArray['mt']['insert'])) {
-				$this->db->insert_batch('process_metal_type', $updateArray['mt']['insert']);
-			}
-			if (!empty($updateArray['mt']['update'])) {
-				$this->db->update_batch('process_metal_type', $updateArray['mt']['update'], 'id');
-			}
+			$updateData = [
+				'given_id' => $given_id,
+				'metal_type_id' => $metalTypeId,
+				'lot' => $lot,
+				'touch' => $touch,
+				'weight' => $weight,
+				'quantity' => $quantity,
+			];
 
-			if ($rmDelete) {
-				array_walk($rmDelete, function ($rmD) use (&$updateArray) {
-					if (!in_array($rmD->id, $updateArray['pmtid'])) {
-						$updateArray['mt']['delete'][] = $rmD->id;
-					}
-				});
-				(!empty($updateArray['mt']['delete']) && $this->db->where_in('id', $updateArray['mt']['delete'])->delete('process_metal_type'));
+			if ($processMetalTypeId > 0 && $oldMetalRow !== null) {
+				$updateData['id'] = $processMetalTypeId;
+				$metalUpdateArray['update'][] = $updateData;
+			} else {
+				$updateData['user_id'] = session('id');
+				$updateData['creation_date'] = date('Y-m-d');
+				$metalUpdateArray['insert'][] = $updateData;
 			}
+		}
+
+		foreach ($oldMetalRowsById as $oldMetalId => $oldMetalRow) {
+			if (!in_array($oldMetalId, $metalUpdateArray['pmtid'], true)) {
+				if (!empty($oldMetalRow['lot'])) {
+					$lotUpdated = lot_management([
+						'id' => (int) $oldMetalRow['lot'],
+						'row_material_id' => (int) $oldMetalRow['metal_type_id'],
+						'old_row_material_id' => (int) $oldMetalRow['metal_type_id'],
+						'weight' => 0,
+						'quantity' => 0,
+						'old_weight' => (float) $oldMetalRow['weight'],
+						'old_quantity' => (float) $oldMetalRow['quantity'],
+						'movement' => 'receive',
+						'update_lot_values' => false,
+						'add_lot_values_by_diff' => true,
+						'strict_row_material_match' => true,
+					]);
+
+					if (!$lotUpdated) {
+						$this->db->trans_rollback();
+						echo json_encode([
+							'success' => false,
+							'message' => 'Lot update failed while deleting received metal type.'
+						]);
+						return;
+					}
+				}
+
+				$metalUpdateArray['delete'][] = $oldMetalId;
+			}
+		}
+
+		if (!empty($metalUpdateArray['insert'])) {
+			$this->db->insert_batch('process_metal_type', $metalUpdateArray['insert']);
+		}
+
+		if (!empty($metalUpdateArray['update'])) {
+			$this->db->update_batch('process_metal_type', $metalUpdateArray['update'], 'id');
+		}
+
+		if (!empty($metalUpdateArray['delete'])) {
+			$this->db->where_in('id', $metalUpdateArray['delete'])->delete('process_metal_type');
 		}
 
 		if ($this->db->trans_status() === false) {

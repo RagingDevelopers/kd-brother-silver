@@ -69,18 +69,22 @@ if (!function_exists('get_item_data')) {
             $touch = abs((float) $record['touch']);
             $weight = abs((float) $record['weight']);
             $type = $record['type'];
+            $touch_key = rtrim(rtrim(sprintf('%.10F', $touch), '0'), '.');
+            if ($touch_key === '') {
+                $touch_key = '0';
+            }
 
-            if (!isset($metal_closing_stock_map[$touch])) {
-                $metal_closing_stock_map[$touch] = [
+            if (!isset($metal_closing_stock_map[$touch_key])) {
+                $metal_closing_stock_map[$touch_key] = [
                     'touch' => $touch,
                     'weight' => 0,
                 ];
             }
 
             if (in_array($type, $positive_types, true)) {
-                $metal_closing_stock_map[$touch]['weight'] += $weight;
+                $metal_closing_stock_map[$touch_key]['weight'] += $weight;
             } elseif (in_array($type, $negative_types, true)) {
-                $metal_closing_stock_map[$touch]['weight'] -= $weight;
+                $metal_closing_stock_map[$touch_key]['weight'] -= $weight;
             }
         }
 

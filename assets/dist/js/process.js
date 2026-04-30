@@ -337,6 +337,106 @@ function getClosingTouchOptions(response, selected_id = null) {
 	return options;
 }
 
+function loadTypeWiseLotOptions(typeId, lotSelectEl, selected_id = null, dropdownParent = null, shouldOpen = false) {
+	if (!lotSelectEl || !lotSelectEl.length) return;
+	var requestKey = String(Date.now()) + "_" + String(Math.random());
+	lotSelectEl.data("lotRequestKey", requestKey);
+
+	var previousRequest = lotSelectEl.data("lotXhr");
+	if (previousRequest && previousRequest.readyState !== 4) {
+		previousRequest.abort();
+	}
+
+	if (!typeId || typeId == 0) {
+		if (lotSelectEl.data("select2")) {
+			lotSelectEl.select2("destroy");
+		}
+		lotSelectEl.html('<option value="">Select Lot</option>');
+		lotSelectEl.select2({
+			width: "250",
+			dropdownParent: dropdownParent || undefined,
+		});
+		return;
+	}
+
+	var currentRequest = $.ajax({
+		type: "POST",
+		showloader: true,
+		dataType: "json",
+		url: `${BaseUrl}manufacturing/main_garnu/getStockTouch`,
+		method: "POST",
+		data: {
+			metal_type_id: typeId,
+		},
+		success: function (response) {
+			if (lotSelectEl.data("lotRequestKey") !== requestKey) {
+				return;
+			}
+			if (response.success) {
+				var getLotOptions = getClosingTouchOptions(response.data, selected_id);
+				if (lotSelectEl.data("select2")) {
+					lotSelectEl.select2("destroy");
+				}
+				lotSelectEl.html(getLotOptions);
+				lotSelectEl.select2({
+					width: "250",
+					dropdownParent: dropdownParent || undefined,
+				});
+				if (shouldOpen && (selected_id == null || selected_id === "")) {
+					setTimeout(function () {
+						if (lotSelectEl.data("lotRequestKey") === requestKey) {
+							lotSelectEl.select2("open");
+						}
+					}, 30);
+				}
+			} else {
+				if (lotSelectEl.data("select2")) {
+					lotSelectEl.select2("destroy");
+				}
+				lotSelectEl.html('<option value="">Select Lot</option>');
+				lotSelectEl.select2({
+					width: "250",
+					dropdownParent: dropdownParent || undefined,
+				});
+				SweetAlert("warning", response.message || "Lot data not found.");
+			}
+		},
+		error: function () {
+			if (lotSelectEl.data("lotRequestKey") !== requestKey) {
+				return;
+			}
+			if (lotSelectEl.data("select2")) {
+				lotSelectEl.select2("destroy");
+			}
+			lotSelectEl.html('<option value="">Select Lot</option>');
+			lotSelectEl.select2({
+				width: "250",
+				dropdownParent: dropdownParent || undefined,
+			});
+			SweetAlert("warning", "Unable to load lot data. Please try again.");
+		},
+	});
+	lotSelectEl.data("lotXhr", currentRequest);
+}
+
+function getSelectedReceiveLotId(row) {
+	if (!row || !row.length) return "";
+
+	var lotSelect = row.find(".received_lot_id");
+	var directValue = lotSelect.val() || lotSelect.data("selectedLotId") || "";
+	if (directValue) return directValue;
+
+	// Fallback: read first lot_wise_rm_id from rmdata payload.
+	// Format: row_material_id,lot_wise_rm_id,touch,weight,quantity,...
+	var rmData = row.find(".rmdata").val() || "";
+	if (!rmData) return "";
+
+	var firstChunk = String(rmData).split("|")[0] || "";
+	var parts = firstChunk.split(",");
+	var lotId = (parts[1] || "").trim();
+	return lotId || "";
+}
+
 function autoValueEnter() {
 	var totalRmWeight = parseFloat($(".totalRmWeight").val()) || 0;
 	var given_weight = parseFloat($(".given_weight").val()) || 0;
@@ -628,6 +728,21 @@ $("#received1-report").on("shown.bs.modal", function (e) {
 			dropdownParent: $(modal),
 		});
 	});
+	$(".received_lot_id").each(function () {
+		$(this).select2({
+			width: "200",
+			dropdownParent: $(modal),
+		});
+	});
+	$("#ReceivedBody tr").each(function () {
+		var row = $(this);
+		var typeId = row.find(".item").val() || "";
+		var lotSelect = row.find(".received_lot_id");
+		var selectedLotId = getSelectedReceiveLotId(row);
+		if (typeId) {
+			loadTypeWiseLotOptions(typeId, lotSelect, selectedLotId, $(modal));
+		}
+	});
 
 	$('.given_id').val($('#given_id').val());
 	$('.garnu_id').val($('#garnu_id').val());
@@ -685,11 +800,16 @@ $(document).on("click", ".receivedAddButton2", function () {
 		.val(0);
 	lastTr
 		.find(
-			".receivedRemark,.rmdata,.item"
+			".receivedRemark,.rmdata,.item,.received_lot_id"
 		)
 		.val("");
+	lastTr.find(".received_lot_id").attr("data-selected-lot-id", "");
 	lastTr.find(".item").select2({
 		width: "300",
+		dropdownParent: $("#received1-report"),
+	});
+	lastTr.find(".received_lot_id").select2({
+		width: "200",
 		dropdownParent: $("#received1-report"),
 	});
 
@@ -1380,30 +1500,46 @@ function ProcessMetalType() {
 	});
 
 	var modal = $("#metalType-report");
-	var mainSection = modal.find(".metalRow");
 	modal.find("tbody").html("");
+
 	var string = $(".ProcessMetalType").parent().find(".metaldata").val();
-	var data = string?.split("|");
-	mainSectionLength = data?.length ?? 0;
+	var data = string ? string.split("|") : [];
+	var mainSectionLength = data.length;
+
 	if (mainSectionLength > 0) {
 		for (var i = 0; i < mainSectionLength; i++) {
 			modal.find("tbody").append(metalRow);
-			var row = modal.find(".metalRow").eq(i),
-				splitByHash = data[i]?.split(","),
-				metal_type = splitByHash[0] ?? 0,
-				touch = splitByHash[1] ?? garnuTouch,
-				weight = splitByHash[2] ?? 0;
-			quantity = splitByHash[3] ?? 0;
-			process_metal_type = splitByHash[4] ?? 0;
-			row.find(".metal_type ").val(metal_type).trigger("change");
+
+			var row = modal.find(".metalRow").eq(i);
+			var splitByHash = data[i] ? data[i].split(",") : [];
+
+			var metal_type = splitByHash[0] ?? 0;
+			var lot = splitByHash[1] ?? "";
+			var touch = splitByHash[2] ?? garnuTouch;
+			var weight = splitByHash[3] ?? 0;
+			var quantity = splitByHash[4] ?? 0;
+			var process_metal_type = splitByHash[5] ?? 0;
+
+			row.find(".metal_type").attr("data-lot", lot);
+			row.find(".metal_type").val(metal_type).trigger("change");
+
 			row.find(".metalTouch").val(touch);
 			row.find(".metalWeight").val(weight);
 			row.find(".metalQuantity").val(quantity);
 			row.find(".process_metal_type").val(process_metal_type);
+
 			Metalcalculate();
 		}
 	} else {
 		modal.find("tbody").append(metalRow);
+
+		var row = modal.find(".metalRow").last();
+		row.find(".process_metal_type").val(0);
+		row.find(".metal_type").val("");
+		row.find(".lot").val("");
+		row.find(".metalTouch").val(garnuTouch || 0);
+		row.find(".metalWeight").val(0);
+		row.find(".metalQuantity").val(0);
 	}
 }
 
@@ -1415,8 +1551,17 @@ $(document).on("click", ".ProcessMetalType", function () {
 
 $("#metalType-report").on("shown.bs.modal", function () {
 	Metalcalculate();
+
 	var modal = this;
+
 	$(".metal_type").each(function () {
+		$(this).select2({
+			width: "250",
+			dropdownParent: $(modal),
+		});
+	});
+
+	$(".lot").each(function () {
 		$(this).select2({
 			width: "250",
 			dropdownParent: $(modal),
@@ -1450,27 +1595,53 @@ function Metalcalculate() {
 
 $(document).on("click", ".metalAddButton", function () {
 	var LastRm = $(".metal_type").last();
+
 	if (LastRm.val() == "") {
 		return LastRm.select2("open");
 	}
+
 	$("#MetalBody").append(metalRow);
+
 	const lastTr = $("#MetalBody tr").last();
-	lastTr.find(".metalTouch").val(garnuTouch);
+
+	lastTr.find(".process_metal_type").val(0);
+	lastTr.find(".metal_type").val("").attr("data-lot", "");
+	lastTr.find(".lot").val("");
+	lastTr.find(".metalTouch").val(garnuTouch || 0);
 	lastTr.find(".metalWeight,.metalQuantity").val(0);
+
 	lastTr.find(".metal_type").select2({
 		width: "250",
 		dropdownParent: $("#metalType-report"),
 	});
+
+	lastTr.find(".lot").select2({
+		width: "250",
+		dropdownParent: $("#metalType-report"),
+	});
+
 	lastTr.find(".metal_type").last().select2("open");
+
 	var modalBody = $("#metalType-report .modal-body");
 	scrollEvent(modalBody, 550);
+
 	Metalcalculate();
 });
 
 $(document).on("click", ".metalDeleteRow", function () {
 	if ($(".metalDeleteRow").length > 1) {
 		$(this).parents("tr").remove();
+	} else {
+		var row = $(this).closest("tr");
+
+		row.find(".process_metal_type").val(0);
+		row.find(".metal_type").val("").attr("data-lot", "").trigger("change");
+		row.find(".lot").val("").trigger("change");
+		row.find(".metalTouch").val(0);
+		row.find(".metalWeight").val(0);
+		row.find(".metalQuantity").val(0);
 	}
+
 	Metalcalculate();
 });
 
@@ -1480,54 +1651,112 @@ $(document).on("input", ".metalWeight,.metalTouch,.metalQuantity", function () {
 
 $(document).on("click", ".saveMetalData", function () {
 	var count = 0;
+
 	$(".metal_type").each(function () {
 		var metal_type = $(this).val();
+
 		if (metal_type == 0 || metal_type == "") {
 			count += 1;
-			SweetAlert("warning", "Please Enter Metal Type and Touch.");
+			SweetAlert("warning", "Please Enter Metal Type.");
 		}
 	});
 
-	$(".metalTouch").each(function () {
-		var metalTouch = $(this).val();
-		if (metalTouch == 0 || metalTouch == "") {
+	$(".lot").each(function () {
+		var row = $(this).closest("tr");
+		var lot = $(this).val();
+		var weight = parseFloat(row.find(".metalWeight").val()) || 0;
+		var quantity = parseFloat(row.find(".metalQuantity").val()) || 0;
+
+		if ((weight != 0 || quantity != 0) && (lot == 0 || lot == "")) {
 			count += 1;
-			SweetAlert("warning", "Please Enter Metal Type and Touch.");
+			SweetAlert("warning", "Please Select Lot.");
 		}
 	});
-	count == 0 ? $("#metalType-report").modal("hide") : null;
+
+	if (count > 0) {
+		return;
+	}
+
+	$("#metalType-report").modal("hide");
 
 	var modal = $("#metalType-report");
 	var container = $(".ProcessMetalType").parent();
 	var mainSection = modal.find(".metalRow");
 	var mainSectionLength = modal.find("tbody tr").length;
+
 	let FilterVar = (el) => {
-		if (el == "" || el == undefined || el == NaN) {
+		if (el == "" || el == undefined || Number.isNaN(el)) {
 			return 0;
 		}
 		return el;
 	};
+
 	var string = "";
-	var totalRmWeight = 0;
+
 	for (var i = 0; i < mainSectionLength; i++) {
 		var row = mainSection.eq(i);
-		var mt = row.find(".metal_type  option:selected").val();
+
+		var mt = row.find(".metal_type option:selected").val();
+		var lot = row.find(".lot option:selected").val();
 		var metalTouch = FilterVar(row.find(".metalTouch").val());
 		var metalWeight = FilterVar(row.find(".metalWeight").val());
 		var metalQuantity = FilterVar(row.find(".metalQuantity").val());
 		var process_metal_type = FilterVar(row.find(".process_metal_type").val());
+
 		string += [
 			mt,
+			lot,
 			metalTouch,
 			metalWeight,
 			metalQuantity,
 			process_metal_type,
 		].join(",");
-		if (mainSectionLength > i + 1) string += "|";
+
+		if (mainSectionLength > i + 1) {
+			string += "|";
+		}
 	}
+
 	container.find(".metaldata").val(string);
-	$(".totalMetalWeight").val($(".metal-total-weight").text()); //
+	$(".totalMetalWeight").val($(".metal-total-weight").text());
+
 	TotalCalculation();
+});
+
+$(document).on("change", ".metal_type", function () {
+	var ref = $(this);
+	var row_material_id = ref.val();
+
+	var lot = ref.attr("data-lot") || ref.parents("td").next().find(".lot").val() || "";
+	var lotSelect = ref.parents("td").next().find(".lot");
+
+	loadTypeWiseLotOptions(
+		row_material_id,
+		lotSelect,
+		lot,
+		$("#metalType-report"),
+		!lot
+	);
+});
+
+$(document).on("select2:select", ".item", function () {
+	var ref = $(this);
+	var typeId = ref.val();
+	var lotSelect = ref.closest("tr").find(".received_lot_id");
+	var selectedLotId = lotSelect.val() || "";
+	loadTypeWiseLotOptions(
+		typeId,
+		lotSelect,
+		selectedLotId,
+		$("#received1-report"),
+		!selectedLotId
+	);
+});
+
+$(document).on("select2:clear", ".item", function () {
+	var ref = $(this);
+	var lotSelect = ref.closest("tr").find(".received_lot_id");
+	loadTypeWiseLotOptions("", lotSelect, null, $("#received1-report"));
 });
 
 // given row material
@@ -1721,33 +1950,43 @@ $(document).on("click", ".total-metal-type", function () {
 	$(".saveMetalData").hide();
 
 	var modal = $("#metalType-report");
-	var mainSection = modal.find(".metalRow");
 	modal.find("tbody").html("");
+
 	var string = $(this).parent().find(".rowMetalData").val();
-	var data = string?.split("|");
-	mainSectionLength = data?.length ?? 0;
+	var data = string ? string.split("|") : [];
+	var mainSectionLength = data.length;
+
 	if (mainSectionLength > 0) {
 		for (var i = 0; i < mainSectionLength; i++) {
 			modal.find("tbody").append(metalRow);
-			var row = modal.find(".metalRow").eq(i),
-				splitByHash = data[i]?.split(","),
-				metal_type = splitByHash[0] ?? 0,
-				touch = splitByHash[1] ?? 0,
-				weight = splitByHash[2] ?? 0;
-			quantity = splitByHash[3] ?? 0;
-			process_metal_type = splitByHash[4] ?? 0;
-			row.find(".metal_type ").val(metal_type).trigger("change");
-			row.find(".metal_type ").prop("disabled", true);
-			row.find(".metalTouch").val(touch);
-			row.find(".metalWeight").val(weight);
-			row.find(".metalQuantity").val(quantity);
+
+			var row = modal.find(".metalRow").eq(i);
+			var splitByHash = data[i] ? data[i].split(",") : [];
+
+			var metal_type = splitByHash[0] ?? 0;
+			var lot = splitByHash[1] ?? "";
+			var touch = splitByHash[2] ?? 0;
+			var weight = splitByHash[3] ?? 0;
+			var quantity = splitByHash[4] ?? 0;
+			var process_metal_type = splitByHash[5] ?? 0;
+
+			row.find(".metal_type").attr("data-lot", lot);
+			row.find(".metal_type").val(metal_type).trigger("change");
+			row.find(".metal_type").prop("disabled", true);
+
+			row.find(".lot").prop("disabled", true);
+			row.find(".metalTouch").val(touch).prop("readonly", true);
+			row.find(".metalWeight").val(weight).prop("readonly", true);
+			row.find(".metalQuantity").val(quantity).prop("readonly", true);
 			row.find(".process_metal_type").val(process_metal_type);
 			row.find(".metalDeleteRow").hide();
 		}
+
 		Metalcalculate();
 	} else {
 		modal.find("tbody").append(metalRow);
 	}
+
 	modal.modal("show");
 });
 
