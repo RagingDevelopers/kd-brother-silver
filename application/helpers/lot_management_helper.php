@@ -7,7 +7,6 @@ if (!function_exists('lot_management')) {
 	{
 		$CI = &get_instance();
 
-		/** @var CI_DB_query_builder $db */
 		$db = $CI->db;
 
 		if (!isset($data['id']) && isset($data['lot_id'])) {
@@ -83,6 +82,7 @@ if (!function_exists('lot_management')) {
 				 * receive_weight, receive_quantity, rem_weight, rem_quantity
 				 */
 				$addLotValuesByDiff = !empty($data['add_lot_values_by_diff']);
+				$onlyFourColumns = !empty($data['only_four_columns']);
 				$baseWeightDiff = 0;
 				$baseQuantityDiff = 0;
 
@@ -175,12 +175,18 @@ if (!function_exists('lot_management')) {
 							}
 
 							if ($oldWeight != 0) {
-								$db->set('receive_weight', 'COALESCE(receive_weight, 0) - (' . $oldWeight . ')', false);
+								if (!$onlyFourColumns) {
+									$db->set('receive_weight', 'COALESCE(receive_weight, 0) - (' . $oldWeight . ')', false);
+								}
+
 								$db->set('rem_weight', 'COALESCE(rem_weight, 0) - (' . $oldWeight . ')', false);
 							}
 
 							if ($oldQuantity != 0) {
-								$db->set('receive_quantity', 'COALESCE(receive_quantity, 0) - (' . $oldQuantity . ')', false);
+								if (!$onlyFourColumns) {
+									$db->set('receive_quantity', 'COALESCE(receive_quantity, 0) - (' . $oldQuantity . ')', false);
+								}
+
 								$db->set('rem_quantity', 'COALESCE(rem_quantity, 0) - (' . $oldQuantity . ')', false);
 							}
 
@@ -258,12 +264,12 @@ if (!function_exists('lot_management')) {
 					$hasUpdate = true;
 				}
 
-				if (isset($receiveWeightDiff) && $receiveWeightDiff != 0) {
+				if (!$onlyFourColumns && isset($receiveWeightDiff) && $receiveWeightDiff != 0) {
 					$db->set('receive_weight', 'COALESCE(receive_weight, 0) + (' . $receiveWeightDiff . ')', false);
 					$hasUpdate = true;
 				}
 
-				if (isset($receiveQuantityDiff) && $receiveQuantityDiff != 0) {
+				if (!$onlyFourColumns && isset($receiveQuantityDiff) && $receiveQuantityDiff != 0) {
 					$db->set('receive_quantity', 'COALESCE(receive_quantity, 0) + (' . $receiveQuantityDiff . ')', false);
 					$hasUpdate = true;
 				}

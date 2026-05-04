@@ -367,6 +367,7 @@ function loadTypeWiseLotOptions(typeId, lotSelectEl, selected_id = null, dropdow
 		method: "POST",
 		data: {
 			metal_type_id: typeId,
+			lot_wise_rm_id: selected_id || "",
 		},
 		success: function (response) {
 			if (lotSelectEl.data("lotRequestKey") !== requestKey) {
@@ -956,6 +957,10 @@ $(document).on("click", ".saveRmData", function () {
 	var RMtotalLabour = 0;
 	for (var i = 0; i < mainSectionLength; i++) {
 		var row = mainSection.eq(i);
+		if (mainSectionLength === 1) {
+			row.find(".weight2").val(container.find(".receivedWeight").val() || 0);
+			row.find(".quantity2").val(container.find(".Pcs").val() || 0);
+		}
 		var rm = row.find(".row_material2 option:selected").val();
 		var lwrm = row.find(".lot_wise_rm_id2 option:selected").val();
 		var touch = FilterVar(row.find(".touch2").val());

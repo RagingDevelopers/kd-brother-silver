@@ -246,7 +246,7 @@ class Process extends CI_Controller
 		$data['garnu_id']            = $post['garnu_id'];
 		$data['process_id']          = $post['process'];
 		$data['material_type_id']    = $post['material_type_id'];
-		$data['closing_touch']        = $post['closing_touch'] ?? "";
+		$data['closing_touch']       = $post['closing_touch'] ?? "";
 		$data['worker_id']           = $post['workers'];
 		$data['item_id']             = $post['item_id'] ?? 0;
 		$data['remarks']             = $post['remarks'];
@@ -257,7 +257,6 @@ class Process extends CI_Controller
 		$data['total_weight']  		 = $post['total_weight'];
 		$data['receive_code']  		 = isset($post['receive_code']) ? $post['receive_code'] : '';
 		$data['creation_date'] 		 = date('Y-m-d');
-		$data['is_full']       = isset($post['is_full']) ? $post['is_full'] : 'NO';
 
 		$this->db->trans_begin();
 
@@ -809,6 +808,7 @@ class Process extends CI_Controller
 						'movement' => 'receive',
 						'update_lot_values' => false,
 						'add_lot_values_by_diff' => true,
+						'only_four_columns' => true,
 						'strict_row_material_match' => true,
 					]);
 
@@ -831,6 +831,10 @@ class Process extends CI_Controller
 			$rcid = (int) $rcid;
 
 			$rawMaterialData = $post['raw-material-data'][$key] ?? '';
+			$receiveLotId = isset($post['received_lot_id'][$key]) ? (int) $post['received_lot_id'][$key] : 0;
+			$usePopupRowMaterial = $rawMaterialData !== ''
+				&& $rawMaterialData !== null
+				&& strpos($rawMaterialData, '|') !== false;
 
 			$hasReceiveData = $rcid > 0
 				|| $rawMaterialData !== ''
@@ -876,6 +880,144 @@ class Process extends CI_Controller
 			} else {
 				$receive_id = $rcid;
 				$this->dbh->updateRow('receive', $rcid, $receivedData);
+			}
+
+			// Empty or single row-material data uses the main receive row.
+			if (!$usePopupRowMaterial) {
+				$itemId = (int) $receivedData['item_id'];
+				$weight = (float) $receivedData['weight'];
+				$quantity = (float) $receivedData['pcs'];
+				$touch = (float) $receivedData['touch'];
+
+				$oldRow = $this->db
+					->where('received_id', $receive_id)
+					->order_by('id', 'ASC')
+					->get('receive_row_material')
+					->row_array();
+
+				$oldLotId = !empty($oldRow['lot_wise_rm_id']) ? (int) $oldRow['lot_wise_rm_id'] : 0;
+				$oldWeight = isset($oldRow['weight']) ? (float) $oldRow['weight'] : 0;
+				$oldQuantity = isset($oldRow['quantity']) ? (float) $oldRow['quantity'] : 0;
+				$newLotCreated = false;
+
+				if ($itemId > 0 && $receiveLotId <= 0 && ($weight != 0 || $quantity != 0)) {
+					$itemRow = $this->db
+						->select('name')
+						->where('id', $itemId)
+						->get('item')
+						->row_array();
+
+					$itemName = !empty($itemRow['name']) ? trim($itemRow['name']) : 'receive_item';
+					$itemName = preg_replace('/\s+/', '_', $itemName);
+
+					$receiveLotId = lot_management([
+						'user_id' => $user_id,
+						'code' => $itemName . '_' . $touch,
+						'type' => 'RECEIVE',
+						'row_material_id' => $itemId,
+						'touch' => $touch,
+						'weight' => $weight,
+						'quantity' => $quantity,
+						'rem_weight' => $weight,
+						'rem_quantity' => $quantity,
+						'receive_weight' => 0,
+						'receive_quantity' => 0,
+						'creation_date' => date('Y-m-d'),
+					]);
+
+					if (!$receiveLotId) {
+						$this->db->trans_rollback();
+						echo json_encode([
+							'success' => false,
+							'message' => 'Receive lot creation failed.'
+						]);
+						return;
+					}
+
+					$newLotCreated = true;
+				}
+
+				if ($oldLotId > 0 && $oldLotId !== $receiveLotId) {
+					$oldLotUpdated = lot_management([
+						'id' => $oldLotId,
+						'row_material_id' => (int) ($oldRow['row_material_id'] ?? $itemId),
+						'old_row_material_id' => (int) ($oldRow['row_material_id'] ?? $itemId),
+						'weight' => 0,
+						'quantity' => 0,
+						'old_weight' => $oldWeight,
+						'old_quantity' => $oldQuantity,
+						'movement' => 'receive',
+						'update_lot_values' => false,
+						'add_lot_values_by_diff' => true,
+						'only_four_columns' => true,
+						'strict_row_material_match' => true,
+					]);
+
+					if (!$oldLotUpdated) {
+						$this->db->trans_rollback();
+						echo json_encode([
+							'success' => false,
+							'message' => 'Receive old lot update failed.'
+						]);
+						return;
+					}
+
+					$oldWeight = 0;
+					$oldQuantity = 0;
+				}
+
+				if ($itemId > 0 && $receiveLotId > 0 && !$newLotCreated) {
+					$lotUpdated = lot_management([
+						'id' => $receiveLotId,
+						'row_material_id' => $itemId,
+						'old_row_material_id' => (int) ($oldRow['row_material_id'] ?? $itemId),
+						'weight' => $weight,
+						'quantity' => $quantity,
+						'old_weight' => $oldWeight,
+						'old_quantity' => $oldQuantity,
+						'old_lot_wise_rm_id' => $receiveLotId,
+						'movement' => 'receive',
+						'update_lot_values' => false,
+						'add_lot_values_by_diff' => true,
+						'only_four_columns' => true,
+						'is_new_detail' => empty($oldRow),
+						'strict_row_material_match' => true,
+					]);
+
+					if (!$lotUpdated) {
+						$this->db->trans_rollback();
+						echo json_encode([
+							'success' => false,
+							'message' => 'Receive lot update failed.'
+						]);
+						return;
+					}
+				}
+
+				$receiveRowMaterial = [
+					'garnu_id' => $garnu_id,
+					'received_id' => $receive_id,
+					'row_material_id' => $itemId,
+					'lot_wise_rm_id' => $receiveLotId,
+					'touch' => $touch,
+					'weight' => $weight,
+					'quantity' => $quantity,
+					'labour_type' => $receivedData['labour_type'],
+					'labour' => $receivedData['labour'],
+					'total_labour' => $receivedData['total_labour'],
+				];
+
+				if (!empty($oldRow['id'])) {
+					$this->db
+						->where('id', (int) $oldRow['id'])
+						->update('receive_row_material', $receiveRowMaterial);
+				} else {
+					$receiveRowMaterial['user_id'] = $user_id;
+					$receiveRowMaterial['creation_date'] = date('Y-m-d');
+					$this->db->insert('receive_row_material', $receiveRowMaterial);
+				}
+
+				continue;
 			}
 
 			$updateArray = [
