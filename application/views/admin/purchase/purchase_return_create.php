@@ -122,10 +122,10 @@
 								<div class="form-group">
 									<label class="form-label">Date <span class="text-danger">*</span></label>
 									<input type="date" name="date" class="form-control from" id="date" value="<?php if (isset($data['date'])) {
-																																			echo $data['date'];
-																																		} else {
-																																			echo date('Y-m-d');
-																																		} ?>" />
+										echo $data['date'];
+									} else {
+										echo date('Y-m-d');
+									} ?>" />
 								</div>
 							</div>
 							<div class="col-md-2">
@@ -135,24 +135,11 @@
 										<option value="">Select Party</option>
 										<?php foreach ($party as $c) { ?>
 											<option value="<?= $c['id']; ?>" <?php if (isset($data['party_id']) && $data['party_id'] == $c['id']) {
-																							echo "selected";
-																						} ?>>
+													echo "selected";
+												} ?>>
 												<?= $c['name']; ?>
 											</option>
 										<?php } ?>
-									</select>
-								</div>
-							</div>
-							<div class="col-md-2 ">
-								<div class="form-group">
-									<label class="form-label">Product Type<span class="text-danger">*</span></label>
-									<select name="product_type" class="form-select select2" id="product_type">
-										<option value="item" <?php if (isset($data['product_type']) && $data['product_type'] == 'item') {
-																		echo "selected";
-																	} ?>>item</option>
-										<option value="rowMaterial" <?php if (isset($data['product_type']) && $data['product_type'] == 'rowMaterial') {
-																					echo "selected";
-																				} ?>>Row Material</option>
 									</select>
 								</div>
 							</div>
@@ -219,16 +206,16 @@
 																<option value="">Select Stamp</option>
 																<?php foreach ($stamp as $s) { ?>
 																	<option value="<?= $s['id']; ?>" <?php if (isset($row['stamp_id']) && $s['id'] == $row['stamp_id']) {
-																													echo 'selected';
-																												} ?>> <?= $s['name']; ?> </option>
+																		echo 'selected';
+																	} ?>> <?= $s['name']; ?> </option>
 																<?php } ?>
 															</select></td>
 														<td><select name="unit[]" id="" class="form-control w65 unit">
 
 																<?php foreach ($unit as $u) { ?>
 																	<option value="<?= $u['id']; ?>" <?php if (isset($row['unit_id']) && $u['id'] == $row['unit_id']) {
-																													echo 'selected';
-																												} ?>><?= $u['name']; ?></option>
+																		echo 'selected';
+																	} ?>><?= $u['name']; ?></option>
 																<?php } ?>
 															</select></td>
 														<td><input type="text" class="form-control remark inputBox" name="remark[]" placeholder="Remark" value="<?= $row['remark'] ?? null ?>"></td>
@@ -255,17 +242,17 @@
 														<td><select name="labour_type[]" class="form-control w65 labour_type">
 																<option value="">Select Labour</option>
 																<option value="net" <?php if ($row['labour_type'] == 'net') {
-																								echo 'selected';
-																							} ?>>Net</option>
+																	echo 'selected';
+																} ?>>Net</option>
 																<option value="pcs" <?php if ($row['labour_type'] == 'pcs') {
-																								echo 'selected';
-																							} ?>>Pcs</option>
+																	echo 'selected';
+																} ?>>Pcs</option>
 																<option value="fixed" <?php if ($row['labour_type'] == 'fixed') {
-																									echo 'selected';
-																								} ?>>Fixed</option>
+																	echo 'selected';
+																} ?>>Fixed</option>
 																<option value="gross" <?php if ($row['labour_type'] == 'gross') {
-																									echo 'selected';
-																								} ?>>Gross</option>
+																	echo 'selected';
+																} ?>>Gross</option>
 															</select>
 														</td>
 														<td><input type="number" step="any" class="form-control other_amount inputBox" name="other_amount[]" step="any" placeholder="Other Amount" value="<?= $row['other_amount'] ?? 0; ?>" /></td>
@@ -388,15 +375,15 @@
 									<tr>
 										<td style="color:red;">Closing Amount</td>
 										<td class="fineClosing"><?php if (isset($data['closing_fine'])) {
-																			echo $data['closing_fine'];
-																		} else {
-																			echo 0;
-																		} ?></td>
+											echo $data['closing_fine'];
+										} else {
+											echo 0;
+										} ?></td>
 										<td class="amountClosing"><?php if (isset($data['closing_amount'])) {
-																				echo $data['closing_amount'];
-																			} else {
-																				echo 0;
-																			} ?></td>
+											echo $data['closing_amount'];
+										} else {
+											echo 0;
+										} ?></td>
 									</tr>
 								</tbody>
 							</table>
@@ -439,15 +426,15 @@
 					<td style="border:none;"></td>
 					<td style="border:none;"></td>
 					<td class="finalFine"><?php if (isset($data['total_fine'])) {
-														echo $data['total_fine'];
-													} else {
-														echo 0;
-													} ?></td>
+						echo $data['total_fine'];
+					} else {
+						echo 0;
+					} ?></td>
 					<td class="finalAmount"><?php if (isset($data['total_amount'])) {
-														echo $data['total_amount'];
-													} else {
-														echo 0;
-													} ?></td>
+						echo $data['total_amount'];
+					} else {
+						echo 0;
+					} ?></td>
 					<td style="border:none;"></td>
 				</tr>
 			</tfoot>
@@ -491,11 +478,11 @@
 									<select class="form-select select2 row_material">
 										<option value="">Select RM</option>
 										<?php
-										if (!empty($row_material)) {
-											foreach ($row_material as $rm) { ?>
-												<option value="<?= $rm['id']; ?>" <?php if (isset($row) && $rm['id'] == $row['row_material_id']) {
-																									echo 'selected';
-																								} ?>><?= $rm['name']; ?></option>
+										if (!empty($items)) {
+											foreach ($items as $item) { ?>
+												<option value="<?= $item['id']; ?>" <?php if (isset($row) && $item['id'] == $row['row_material_id']) {
+													echo 'selected';
+												} ?>><?= $item['name']; ?></option>
 										<?php }
 										} ?>
 									</select>

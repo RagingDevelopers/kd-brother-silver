@@ -29,7 +29,7 @@ class Purchase extends CI_Controller
 	{
 		checkPrivilege(privilege['purchase_add']);
 		$page_data['page_title'] = 'Purchase';
-		$page_data['row_material'] = $this->db->select('id,name')->from('row_material')->where('status', "ACTIVE")->get()->result_array();
+		$page_data['items'] = $this->db->select('id,name')->from('item')->get()->result_array();
 		$page_data['party'] = $this->purchase->fetch_party();
 		$page_data['item'] = $this->purchase->fetch_item();
 		$page_data['stamp'] = $this->purchase->fetch_stamp();

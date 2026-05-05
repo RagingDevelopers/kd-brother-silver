@@ -59,8 +59,8 @@
 								<select class="form-select select2" id="rm">
 									<option value="">Select Row Material</option>
 									<?php
-									if (!empty($rm)) {
-										foreach ($rm as $row) { ?>
+									if (!empty($items)) {
+										foreach ($items as $row) { ?>
 											<option value="<?= $row['id']; ?>"><?= $row['name']; ?></option>
 									<?php }
 									} ?>
@@ -161,8 +161,8 @@
 						<select class="form-select select2" id="rmId">
 							<option value="">Select Row Material</option>
 							<?php
-							if (!empty($rm)) {
-								foreach ($rm as $row) { ?>
+							if (!empty($items)) {
+								foreach ($items as $row) { ?>
 									<option value="<?= $row['id']; ?>"><?= $row['name']; ?></option>
 							<?php }
 							} ?>

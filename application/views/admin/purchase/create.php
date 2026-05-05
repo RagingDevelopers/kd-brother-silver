@@ -457,11 +457,11 @@
 									<select class="form-select select2 row_material">
 										<option value="">Select RM</option>
 										<?php
-										if (!empty($row_material)) {
-											foreach ($row_material as $rm) { ?>
-												<option value="<?= $rm['id']; ?>" <?php if (isset($row) && $rm['id'] == $row['row_material_id']) {
-																									echo 'selected';
-																								} ?>><?= $rm['name']; ?></option>
+										if (!empty($items)) {
+											foreach ($items as $item) { ?>
+												<option value="<?= $item['id']; ?>" <?php if (isset($row) && $item['id'] == $row['row_material_id']) {
+													echo 'selected';
+												} ?>><?= $item['name']; ?></option>
 										<?php }
 										} ?>
 									</select>

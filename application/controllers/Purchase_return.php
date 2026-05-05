@@ -28,7 +28,7 @@ class Purchase_return extends CI_Controller
 	{
 		checkPrivilege(privilege['purchase_return_add']);
 		$page_data['page_title'] = 'Purchase Return';
-		$page_data['row_material'] = $this->db->select('id,name')->from('row_material')->where('status', "ACTIVE")->get()->result_array();
+		$page_data['items'] = $this->db->select('id,name')->from('item')->get()->result_array();
 		$page_data['party'] = $this->purchase->fetch_party();
 		$page_data['item'] = $this->purchase->fetch_item();
 		$page_data['stamp'] = $this->purchase->fetch_stamp();
@@ -56,7 +56,7 @@ class Purchase_return extends CI_Controller
 		$insert['code'] = 'PR' . $this->generate_unique_code();
 		$insert['sequence_code'] = $this->seq->getNextSequence('purchase_return');
 		$insert['party_id'] = $data['party_id'];
-		$insert['product_type'] = $data['product_type'];
+		$insert['product_type'] = 'item';
 		$batchData[] = $insert;
 		$this->db->insert_batch('purchase_return', $batchData);
 		$id = $this->db->insert_id();
@@ -67,7 +67,7 @@ class Purchase_return extends CI_Controller
 		for ($i = 0; $i < count($data['item']); $i++) {
 			$purchaseDetail['purchase_id'] = $id;
 			$purchaseDetail['user_id'] = session('id');
-			$purchaseDetail['product_type'] = $data['product_type'];
+			$purchaseDetail['product_type'] = 'item';
 			$purchaseDetail['item_id'] = $data['item'][$i];
 			$purchaseDetail['stamp_id'] = $data['stamp'][$i];
 			$purchaseDetail['unit_id'] = $data['unit'][$i];
@@ -213,7 +213,7 @@ class Purchase_return extends CI_Controller
 		$data = xss_clean($this->input->post());
 		$update['date'] = $data['date'];
 		$update['party_id'] = $data['party_id'];
-		$update['product_type'] = $data['product_type'];
+		$update['product_type'] = 'item';
 		$this->db->where('id', $id)->update('purchase_return', $update);
 
 		$existingIds = isset($data['rowid']) ? $data['rowid'] : [];
@@ -229,7 +229,7 @@ class Purchase_return extends CI_Controller
 		}
 
 		for ($i = 0; $i < count($data['item']); $i++) {
-			$purchaseDetail['product_type'] = $data['product_type'];
+			$purchaseDetail['product_type'] = 'item';
 			$purchaseDetail['item_id'] = $data['item'][$i];
 			$purchaseDetail['stamp_id'] = $data['stamp'][$i];
 			$purchaseDetail['unit_id'] = $data['unit'][$i];
@@ -382,27 +382,33 @@ class Purchase_return extends CI_Controller
 
 	public function productType()
 	{
-		$validation = $this->form_validation;
-		$validation->set_rules('product_type', 'Product Type', 'trim|required|in_list[item,rowMaterial]');
-		if ($this->form_validation->run() == FALSE) {
-			$response = ['success' => false, 'error' => validation_errors()];
-			echo json_encode($response);
-			return;
+		// Validation requirement (kept for reference only):
+		// $validation = $this->form_validation;
+		// $validation->set_rules('product_type', 'Product Type', 'trim|required|in_list[item,rowMaterial]');
+		// if ($this->form_validation->run() == FALSE) {
+		// 	$response = ['success' => false, 'error' => validation_errors()];
+		// 	echo json_encode($response);
+		// 	return;
+		// }
+
+		// Directly return item data.
+		$data = $this->purchase->fetch_item();
+
+		// Product type condition requirement (kept for reference only):
+		// $postData = $this->input->post();
+		// if ($postData['product_type'] == 'item') {
+		// 	$data = $this->purchase->fetch_item();
+		// } else if ($postData['product_type'] == 'rowMaterial') {
+		// 	$data = $this->db->select('id,name')->from('row_material')->where('status', "ACTIVE")->get()->result_array();
+		// }
+
+		// Data availability condition (kept for reference only):
+		if (!empty($data)) {
+			$response = ['success' => true, 'message' => 'Data fetched successfully.', 'data' => $data];
 		} else {
-			$postData = $this->input->post();
-
-			if ($postData['product_type'] == 'item') {
-				$data = $this->purchase->fetch_item();
-			} else if ($postData['product_type'] == 'rowMaterial') {
-				$data = $this->db->select('id,name')->from('row_material')->where('status', "ACTIVE")->get()->result_array();
-			}
-
-			if (!empty($data)) {
-				$response = ['success' => true, 'message' => 'Data fetched successfully.', 'data' => $data];
-			} else {
-				$response = ['success' => false, 'message' => 'Data fetched successfully.', 'data' => []];
-			}
+			$response = ['success' => false, 'message' => 'Data fetched successfully.', 'data' => []];
 		}
+
 		echo json_encode($response);
 		return;
 	}

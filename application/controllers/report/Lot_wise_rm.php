@@ -20,10 +20,9 @@ class Lot_wise_rm extends CI_Controller
 	{
 		checkPrivilege(privilege["lot_wise_rm_report"]);
 		$page_data['page_title'] = 'Lot Wise Row Material Report';
-		$page_data['rm'] = $this->db->select('id,name')->get('row_material')->result_array();
+		$page_data['items'] = $this->db->select('id,name')->get('item')->result_array();
 		return view(self::View, $page_data);
 	}
-
 
 	public function getlist()
 	{
