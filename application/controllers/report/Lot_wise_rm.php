@@ -29,13 +29,13 @@ class Lot_wise_rm extends CI_Controller
 		$postData = $this->security->xss_clean($this->input->post());
 		$draw = $postData['draw'];
 		$start = $postData['start'];
-		$rowperpage = $postData['length'];
-		// serching coding
+		$rowPerPage = $postData['length'];
+		// searching coding
 		$columnIndex = $postData['order'][0]['column']; // Column index
 		$searchValue = $postData['search']['value']; // Search value
-		$todate = $postData['todate'];
-		$fromdate = $postData['fromdate'];
-		$isComplated = $postData['isComplated'];
+		$toDate = $postData['todate'];
+		$fromDate = $postData['fromdate'];
+		$isCompleted = $postData['isComplated'];
 		$type = $postData['type'];
 		$rm = $postData['row_material'];
 
@@ -58,11 +58,11 @@ class Lot_wise_rm extends CI_Controller
 			->join('row_material', 'lot_wise_rm.row_material_id = row_material.id', 'left');
 		if ($searchQuery != '')
 			$this->db->where($searchQuery);
-		if (!empty($fromdate)) {
-			$this->db->where('lot_wise_rm.creation_date >=', $fromdate);
+		if (!empty($fromDate)) {
+			$this->db->where('lot_wise_rm.creation_date >=', $fromDate);
 		}
-		if (!empty($todate)) {
-			$this->db->where('lot_wise_rm.creation_date <=', $todate);
+		if (!empty($toDate)) {
+			$this->db->where('lot_wise_rm.creation_date <=', $toDate);
 		}
 		if (!empty($type)) {
 			$this->db->where('lot_wise_rm.type', $type);
@@ -70,12 +70,12 @@ class Lot_wise_rm extends CI_Controller
 		if (!empty($rm)) {
 			$this->db->where('lot_wise_rm.row_material_id', $rm);
 		}
-		if (!empty($isComplated)) {
-			$this->db->where('lot_wise_rm.is_complated', $isComplated);
+		if (!empty($isCompleted)) {
+			$this->db->where('lot_wise_rm.is_complated', $isCompleted);
 		}
 		$this->db->group_by('id');
-		$totalRecordwithFilter = $this->db->get()->num_rows();
-		// $totalRecordwithFilter = $records->num_rows();
+		$totalRecordWithFilter = $this->db->get()->num_rows();
+		// $totalRecordWithFilter = $records->num_rows();
 
 		## Fetch records
 		$this->db->select('lot_wise_rm.*,row_material.name as rm_name')
@@ -83,11 +83,11 @@ class Lot_wise_rm extends CI_Controller
 			->join('row_material', 'lot_wise_rm.row_material_id = row_material.id', 'left');
 		if ($searchQuery != '')
 			$this->db->where($searchQuery);
-		if (!empty($fromdate)) {
-			$this->db->where('lot_wise_rm.creation_date >=', $fromdate);
+		if (!empty($fromDate)) {
+			$this->db->where('lot_wise_rm.creation_date >=', $fromDate);
 		}
-		if (!empty($todate)) {
-			$this->db->where('lot_wise_rm.creation_date <=', $todate);
+		if (!empty($toDate)) {
+			$this->db->where('lot_wise_rm.creation_date <=', $toDate);
 		}
 		if (!empty($type)) {
 			$this->db->where('lot_wise_rm.type', $type);
@@ -95,10 +95,10 @@ class Lot_wise_rm extends CI_Controller
 		if (!empty($rm)) {
 			$this->db->where('lot_wise_rm.row_material_id', $rm);
 		}
-		if (!empty($isComplated)) {
-			$this->db->where('lot_wise_rm.is_complated', $isComplated);
+		if (!empty($isCompleted)) {
+			$this->db->where('lot_wise_rm.is_complated', $isCompleted);
 		}
-		$this->db->limit($rowperpage, $start);
+		$this->db->limit($rowPerPage, $start);
 		$this->db->group_by('lot_wise_rm.id');
 		$this->db->order_by('lot_wise_rm.creation_date', "desc");
 		$records = $this->db->get()->result_array();
@@ -141,7 +141,7 @@ class Lot_wise_rm extends CI_Controller
 		$response = array(
 			"draw" => intval($draw),
 			"iTotalRecords" => $totalRecords,
-			"iTotalDisplayRecords" => $totalRecordwithFilter,
+			"iTotalDisplayRecords" => $totalRecordWithFilter,
 			"aaData" => $data,
 			"givenPcs" => $FinalGivenPcs,
 			"givenWeight" => $FinalGivenWeight,
@@ -205,9 +205,9 @@ class Lot_wise_rm extends CI_Controller
 	public function getrmCode()
 	{
 		$this->db->query("SET SESSION sql_mode=''");
-		$datas = $this->db->select('id,code')->where('is_complated', 'No')->group_by('code')->get('lot_wise_rm')->result();
+		$data = $this->db->select('id,code')->where('is_complated', 'No')->group_by('code')->get('lot_wise_rm')->result();
 		$output = '<option value="">Select Code</option>';
-		foreach ($datas as $row) {
+		foreach ($data as $row) {
 			$output .= '<option value="' . $row->id . '">' . $row->code . '</option>';
 		}
 		echo $output;

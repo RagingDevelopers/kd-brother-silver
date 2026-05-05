@@ -70,8 +70,8 @@
 								<label>Status :</label> <br>
 								<select class="form-select select2" id="status">
 									<option value="">Select</option>
-									<option value="YES">Complated</option>
-									<option value="NO">Not Complated</option>
+									<option value="YES">Completed</option>
+									<option value="NO">Not Completed</option>
 								</select>
 							</div>
 						</div>
@@ -95,7 +95,7 @@
 												<th scope="col">Receive Quantity</th>
 												<th scope="col">Used Weight</th>
 												<th scope="col">Used Quantity</th>
-												<th scope="col">Is Complated</th>
+												<th scope="col">Is Completed</th>
 												<th scope="col">Created At</th>
 											</tr>
 										</thead>
@@ -304,7 +304,7 @@
 					data.fromdate = $('#fromdate').val();
 					data.row_material = $('#rm').val();
 					data.type = $('#type').val();
-					data.isComplated = $('#status').val();
+					data.isCompleted = $('#status').val();
 				}
 			},
 			"columns": [{
@@ -461,8 +461,8 @@
 		});
 
 		$(document).on('change', '.rmCode', function() {
-			var refrence = $(this).parents("tr");
-			var id = refrence.find(".rmCode option:selected").val();
+			var reference = $(this).parents("tr");
+			var id = reference.find(".rmCode option:selected").val();
 
 			$.ajax({
 				showLoader: true,
@@ -475,17 +475,17 @@
 				processData: true,
 				success: function(response) {
 					response = JSON.parse(response);
-					refrence.find(".id").val(response.id);
-					refrence.find(".touch").val(response.rem_weight);
-					refrence.find(".weight").val(response.weight);
-					refrence.find(".quantity").val(response.quantity);
-					refrence.find(".given_weight").val(response.given_weight);
-					refrence.find(".given_quantity").val(response.given_quantity);
-					refrence.find(".receive_weight").val(response.receive_weight);
-					refrence.find(".receive_quantity").val(response.receive_quantity);
-					refrence.find(".rem_weight").val(response.rem_weight);
-					refrence.find(".rem_quantity").val(response.rem_quantity);
-					refrence.find(".fine").val((response.rem_weight * response.rem_weight) / 100);
+					reference.find(".id").val(response.id);
+					reference.find(".touch").val(response.rem_weight);
+					reference.find(".weight").val(response.weight);
+					reference.find(".quantity").val(response.quantity);
+					reference.find(".given_weight").val(response.given_weight);
+					reference.find(".given_quantity").val(response.given_quantity);
+					reference.find(".receive_weight").val(response.receive_weight);
+					reference.find(".receive_quantity").val(response.receive_quantity);
+					reference.find(".rem_weight").val(response.rem_weight);
+					reference.find(".rem_quantity").val(response.rem_quantity);
+					reference.find(".fine").val((response.rem_weight * response.rem_weight) / 100);
 					Metalcalculate();
 				}
 			});
