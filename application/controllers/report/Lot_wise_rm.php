@@ -35,7 +35,7 @@ class Lot_wise_rm extends CI_Controller
 		$searchValue = $postData['search']['value']; // Search value
 		$toDate = $postData['todate'];
 		$fromDate = $postData['fromdate'];
-		$isCompleted = $postData['isComplated'];
+		$isCompleted = $postData['isCompleted'];
 		$type = $postData['type'];
 		$rm = $postData['row_material'];
 
