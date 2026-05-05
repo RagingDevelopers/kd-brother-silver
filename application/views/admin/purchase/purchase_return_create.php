@@ -151,6 +151,7 @@
 											<thead>
 												<tr>
 													<th>Item</th>
+													<th>Lot</th>
 													<th>Stamp</th>
 													<th>Unit</th>
 													<th>Remarks</th>
@@ -175,6 +176,7 @@
 												if (empty($data['purchase_detail'])) {
 													$data['purchase_detail'][] = [
 														'item_id'            => 0,
+														'lot'                => '',
 														'stamp'              => 0,
 														'unit'               => 0,
 														'remark'             => '',
@@ -200,6 +202,11 @@
 														<td>
 															<select class="form-select select2 item" data-selected="<?= $row['item_id'] ?? 0; ?>" data-name="<?= $row['item_name'] ?? ""; ?>" required name="item[]">
 																<option value="">Select an item</option>
+															</select>
+														</td>
+														<td>
+															<select class="form-select select2 lot" name="lot[]" data-selected-id="<?= $row['lot'] ?? ''; ?>" required>
+																<option value="">Select Lot</option>
 															</select>
 														</td>
 														<td><select name="stamp[]" id="" class="form-control w65 select2 stamp">
@@ -268,6 +275,7 @@
 													<td>
 														<h3>Total :</h3>
 													</td>
+													<td></td>
 													<td></td>
 													<td></td>
 													<td></td>

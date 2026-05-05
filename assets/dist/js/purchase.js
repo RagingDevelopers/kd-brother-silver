@@ -19,11 +19,11 @@ var mainFunction = (function () {
 			}
 		},
 		select2: (el, config = {}) => {
-			Object.assign(config, {
+			config = Object.assign({
 				placeholder: "-- Select --",
 				allowClear: true,
 				width: "500px",
-			});
+			}, config);
 			if (!$(el).data("select2")) {
 				$(el).select2(config);
 			}
@@ -44,9 +44,13 @@ var mainFunction = (function () {
 						main.setItemOption($(this), selected);
 					}
 					main.setItemOption($(this), selected);
+					main.setLotOption($(this), selected, $(this).parents("tr").find(".lot").data("selected-id"));
+				});
+				$(".lot").each(function () {
+					main.select2(this, { width: "250px" });
 				});
 				$(".stamp").each(function () {
-					main.select2(this);
+					main.select2(this, { placeholder: "Stamp", allowClear: false, width: "80px" });
 				});
 				$(".unit").each(function () {
 					// main.select2(this);
@@ -82,8 +86,10 @@ var mainFunction = (function () {
 							// "input"
 						)
 						.val(0);
-					lastTr.find(".remark,.stamp,.unit,.labour_type,.rmdata").val("");
-					main.select2(lastTr.find(".stamp"));
+					lastTr.find(".remark,.stamp,.unit,.labour_type,.rmdata,.lot").val("");
+					lastTr.find(".lot").html('<option value="">Select Lot</option>').attr("data-selected-id", "").data("selected-id", "");
+					main.select2(lastTr.find(".stamp"), { placeholder: "Stamp", allowClear: false, width: "80px" });
+					main.select2(lastTr.find(".lot"), { width: "250px" });
 					// main.select2(lastTr.find(".unit"));
 					// main.select2(lastTr.find(".labour_type"));
 					main.setItemOption(lastTr.find(".item"));
@@ -116,6 +122,9 @@ var mainFunction = (function () {
 							el.select2("open")
 						)
 						.addField(".item", "Please select item!", (el) =>
+							el.select2("open")
+						)
+						.addField(".lot", "Please select lot!", (el) =>
 							el.select2("open")
 						);
 					if (!validator.validate()) return;
@@ -324,6 +333,10 @@ var mainFunction = (function () {
 					main.RmcalculateMain($(this));
 				});
 
+				$(this).on("change", ".item", function () {
+					main.setLotOption($(this), $(this).val());
+				});
+
 				$(this).on("change",".labour, .gross_weight, .piece, .other_amount,.labour_type",
 					function () {
 						main.calculateLabour($(this));
@@ -361,6 +374,62 @@ var mainFunction = (function () {
 					},
 				},
 			});
+		},
+
+		setLotOption: function (ref, item_id = null, selected_id = null) {
+			const lotEl = ref.parents("tr").find(".lot");
+			lotEl.html('<option value="">Select Lot</option>');
+			if (!item_id || item_id == 0) {
+				if (lotEl.data("select2")) {
+					lotEl.select2("destroy");
+				}
+				main.select2(lotEl, { width: "250px" });
+				return;
+			}
+
+			$.ajax({
+				type: "POST",
+				showloader: true,
+				dataType: "json",
+				url: `${BaseUrl}purchase_return/getItemLots`,
+				data: {
+					item_id,
+					lot_wise_rm_id: selected_id,
+				},
+				success: function (response) {
+					if (lotEl.data("select2")) {
+						lotEl.select2("destroy");
+					}
+					if (response.success) {
+						lotEl.html(main.getLotOptions(response.data, selected_id));
+						main.select2(lotEl, { width: "250px" });
+						if (!selected_id) {
+							lotEl.select2("open");
+						}
+					} else {
+						lotEl.html('<option value="">Select Lot</option>');
+						main.select2(lotEl, { width: "250px" });
+					}
+				},
+			});
+		},
+
+		getLotOptions: function (response, selected_id = null) {
+			var options = '<option value="">Select Lot</option>';
+			$.each(response, function (key, value) {
+				if (!value || value.id === undefined || value.id === null) {
+					return;
+				}
+				var id = value.id ?? "";
+				var touch = value.touch ?? 0;
+				var remWeight = value.rem_weight ?? 0;
+				var remQuantity = value.rem_quantity ?? 0;
+				var code = value.code || "";
+				var selected = selected_id != null && String(selected_id) === String(id) ? "selected" : "";
+				var option = id + " - " + code + " Weight: " + remWeight + " Touch: " + touch + " Quantity: " + remQuantity;
+				options += `<option value="${id}" ${selected} data-touch="${touch}" data-weight="${remWeight}" data-quantity="${remQuantity}">${option}</option>`;
+			});
+			return options;
 		},
 
 		calculateMain: function (ref) {

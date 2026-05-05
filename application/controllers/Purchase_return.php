@@ -69,6 +69,7 @@ class Purchase_return extends CI_Controller
 			$purchaseDetail['user_id'] = session('id');
 			$purchaseDetail['product_type'] = 'item';
 			$purchaseDetail['item_id'] = $data['item'][$i];
+			$purchaseDetail['lot'] = $data['lot'][$i] ?? '';
 			$purchaseDetail['stamp_id'] = $data['stamp'][$i];
 			$purchaseDetail['unit_id'] = $data['unit'][$i];
 			$purchaseDetail['remark'] = $data['remark'][$i];
@@ -231,6 +232,7 @@ class Purchase_return extends CI_Controller
 		for ($i = 0; $i < count($data['item']); $i++) {
 			$purchaseDetail['product_type'] = 'item';
 			$purchaseDetail['item_id'] = $data['item'][$i];
+			$purchaseDetail['lot'] = $data['lot'][$i] ?? '';
 			$purchaseDetail['stamp_id'] = $data['stamp'][$i];
 			$purchaseDetail['unit_id'] = $data['unit'][$i];
 			$purchaseDetail['remark'] = $data['remark'][$i];
@@ -410,6 +412,31 @@ class Purchase_return extends CI_Controller
 		}
 
 		echo json_encode($response);
+		return;
+	}
+
+	public function getItemLots()
+	{
+		$this->form_validation->set_rules('item_id', 'Item', 'trim|required|numeric');
+		if ($this->form_validation->run() == FALSE) {
+			echo json_encode(['success' => false, 'message' => validation_errors(), 'data' => []]);
+			return;
+		}
+
+		$postData = xss_clean($this->input->post());
+		$itemId = (int) ($postData['item_id'] ?? 0);
+		$lotWiseRmId = (int) ($postData['lot_wise_rm_id'] ?? 0);
+		$data = lot_data([
+			'row_material_id' => $itemId,
+			'lot_wise_rm_id' => $lotWiseRmId,
+		]);
+
+		if (!empty($data)) {
+			echo json_encode(['success' => true, 'message' => 'Data fetched successfully.', 'data' => $data]);
+			return;
+		}
+
+		echo json_encode(['success' => false, 'message' => 'Data not found.', 'data' => []]);
 		return;
 	}
 
