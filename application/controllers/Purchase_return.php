@@ -13,6 +13,7 @@ class Purchase_return extends CI_Controller
 		$this->load->model('Purchase_return_model', "purchase");
 		$this->load->model('Sequence_model', 'seq');
 		$this->load->model('payment/Jama_model', 'jama');
+		$this->load->helper('lot_management');
 	}
 
 	public function index()
@@ -47,21 +48,27 @@ class Purchase_return extends CI_Controller
 			return flash()->withError(validation_errors())->back();
 		}
 
-		$batchData = [];
 		$data = xss_clean($this->input->post());
 		// echo "<pre>";
 		// print_r($data);exit;
-		$insert['date'] = $data['date'];
-		$insert['user_id'] = session('id');
-		$insert['code'] = 'PR' . $this->generate_unique_code();
-		$insert['sequence_code'] = $this->seq->getNextSequence('purchase_return');
-		$insert['party_id'] = $data['party_id'];
-		$insert['product_type'] = 'item';
-		$batchData[] = $insert;
-		$this->db->insert_batch('purchase_return', $batchData);
+
+		$this->db->trans_begin();
+
+		$insert = [
+			'date' => $data['date'],
+			'user_id' => session('id'),
+			'code' => 'PR' . $this->generate_unique_code(),
+			'sequence_code' => $this->seq->getNextSequence('purchase_return'),
+			'party_id' => $data['party_id'],
+			'product_type' => 'item',
+		];
+
+		$this->db->insert('purchase_return', $insert);
 		$id = $this->db->insert_id();
 		if (!$id) {
+			$this->db->trans_rollback();
 			flash()->withError("Failed to insert purchase Return record.")->to("purchase_return/index");
+			return;
 		}
 
 		for ($i = 0; $i < count($data['item']); $i++) {
@@ -89,19 +96,35 @@ class Purchase_return extends CI_Controller
 			$purchaseDetail['raw_material_data'] = $data['raw-material-data'][$i];
 			$this->db->insert('purchase_return_detail', $purchaseDetail);
 			$purchaseDetailId = $this->db->insert_id();
+
+			$lotUpdated = $this->applyPurchaseReturnLotMovement([
+				'lot_id' => $purchaseDetail['lot'],
+				'row_material_id' => $purchaseDetail['item_id'],
+				'weight' => $purchaseDetail['net_weight'],
+				'quantity' => $purchaseDetail['piece'],
+				'is_new_detail' => true,
+			]);
+
+			if (!$lotUpdated) {
+				$this->db->trans_rollback();
+				flash()->withError("Failed to update selected lot for purchase return.")->to("purchase_return/index");
+				return;
+			}
+
+			$purchaseMaterialData = [];
 			if (!empty($data['raw-material-data'][$i])) {
 				$array = explode("|", $data['raw-material-data'][$i]);
 				for ($a = 0; $a < count($array); $a++) {
-					$purchaseMaterialData = [];
 					$array1 = explode(",", $array[$a]);
-					if (!empty($array1[0]) || !empty($array[1]) || !empty($array[2]) || !empty($array[3])) {
-						$purchaseMaterial['user_id'] = session('id');
-						$purchaseMaterial['purchase_detail_id'] = $purchaseDetailId;
-						$purchaseMaterial['row_material_id'] = $array1[0];
-						$purchaseMaterial['quantity'] = $array1[1];
-						$purchaseMaterial['rate'] = $array1[2];
-						$purchaseMaterial['sub_total'] = $array1[3];
-						$purchaseMaterialData[] = $purchaseMaterial;
+					if (!empty($array1[0]) || !empty($array1[1]) || !empty($array1[2]) || !empty($array1[3])) {
+						$purchaseMaterialData[] = [
+							'user_id' => session('id'),
+							'purchase_detail_id' => $purchaseDetailId,
+							'row_material_id' => $array1[0] ?? 0,
+							'quantity' => $array1[1] ?? 0,
+							'rate' => $array1[2] ?? 0,
+							'sub_total' => $array1[3] ?? 0,
+						];
 					}
 				}
 			}
@@ -115,32 +138,41 @@ class Purchase_return extends CI_Controller
 		$jama = 'JAMA_' . $jama_code;
 		$this->db->where('id', 1);
 		$this->db->update('setting', array('jama_code' => $jama_code + 1));
-		for ($a = 0; $a < count($payment); $a++) {
-			$sequence_code = $this->seq->getNextSequence('jama');
-			if (isset($payment[$a]->type)) {
-				$insert = $this->db->insert('jama', array(
-					'sale_id' => 'purchase-return-' . $id,
-					'date' => $data['date'],
-					'customer_id' => $data['party_id'],
-					'type' => $payment[$a]->type,
-					'mode' => $payment[$a]->mode,
-					'gross' => $payment[$a]->gross,
-					'purity' => $payment[$a]->purity,
-					'wb' => $payment[$a]->wb,
-					'fine' => $payment[$a]->fine,
-					'rate' => $payment[$a]->rate,
-					'amount' => $payment[$a]->amount,
-					'remark' => $payment[$a]->remark,
-					'jama_code' => '',
-					'metal_type_id' => $payment[$a]->metal_type_id,
-					'creation_date' => date('Y-m-d'),
-					'payment_type' => $payment[$a]->payment,
-					'jama_code' => $jama,
-					'bank_id' => $payment[$a]->bank,
-					'sequence_code' => $sequence_code
-				));
+		if (!empty($payment)) {
+			for ($a = 0; $a < count($payment); $a++) {
+				$sequence_code = $this->seq->getNextSequence('jama');
+				if (isset($payment[$a]->type)) {
+					$this->db->insert('jama', array(
+						'sale_id' => 'purchase-return-' . $id,
+						'date' => $data['date'],
+						'customer_id' => $data['party_id'],
+						'type' => $payment[$a]->type,
+						'mode' => $payment[$a]->mode,
+						'gross' => $payment[$a]->gross,
+						'purity' => $payment[$a]->purity,
+						'wb' => $payment[$a]->wb,
+						'fine' => $payment[$a]->fine,
+						'rate' => $payment[$a]->rate,
+						'amount' => $payment[$a]->amount,
+						'remark' => $payment[$a]->remark,
+						'jama_code' => $jama,
+						'metal_type_id' => $payment[$a]->metal_type_id,
+						'creation_date' => date('Y-m-d'),
+						'payment_type' => $payment[$a]->payment,
+						'bank_id' => $payment[$a]->bank,
+						'sequence_code' => $sequence_code
+					));
+				}
 			}
 		}
+
+		if ($this->db->trans_status() === FALSE) {
+			$this->db->trans_rollback();
+			flash()->withError("Something went wrong while saving purchase return.")->to("purchase_return/index");
+			return;
+		}
+
+		$this->db->trans_commit();
 
 		flash()->withSuccess("Insert Successfully.")->to("purchase_return/index");
 	}
@@ -197,7 +229,7 @@ class Purchase_return extends CI_Controller
 
 		$page_data['payment'] = $query->result();
 		$page_data['page_title'] = 'Purchase Return';
-		$page_data['row_material'] = $this->db->select('id,name')->from('row_material')->where('status', "ACTIVE")->get()->result_array();
+		$page_data['items'] = $this->db->select('id,name')->from('item')->get()->result_array();
 		$page_data['party'] = $this->purchase->fetch_party();
 		$page_data['item'] = $this->purchase->fetch_item();
 		$page_data['stamp'] = $this->purchase->fetch_stamp();
@@ -215,6 +247,9 @@ class Purchase_return extends CI_Controller
 		$update['date'] = $data['date'];
 		$update['party_id'] = $data['party_id'];
 		$update['product_type'] = 'item';
+
+		$this->db->trans_begin();
+
 		$this->db->where('id', $id)->update('purchase_return', $update);
 
 		$existingIds = isset($data['rowid']) ? $data['rowid'] : [];
@@ -222,6 +257,29 @@ class Purchase_return extends CI_Controller
 		$idsNotExisting = array_diff($allids, $existingIds);
 
 		if (!empty($idsNotExisting)) {
+			$deletedRows = $this->db
+				->select('id, item_id, lot, net_weight, piece')
+				->from('purchase_return_detail')
+				->where('purchase_id', $id)
+				->where_in('id', $idsNotExisting)
+				->get()
+				->result_array();
+
+			foreach ($deletedRows as $deletedRow) {
+				$lotUpdated = $this->reversePurchaseReturnLotMovement([
+					'lot_id' => $deletedRow['lot'],
+					'row_material_id' => $deletedRow['item_id'],
+					'weight' => $deletedRow['net_weight'],
+					'quantity' => $deletedRow['piece'],
+				]);
+
+				if (!$lotUpdated) {
+					$this->db->trans_rollback();
+					flash()->withError("Failed to restore lot data for deleted purchase return row.")->to("purchase_return/index");
+					return;
+				}
+			}
+
 			$this->db->where_in('id', $idsNotExisting);
 			$this->db->delete('purchase_return_detail');
 
@@ -255,22 +313,75 @@ class Purchase_return extends CI_Controller
 				$purchaseDetail['purchase_id'] = $id;
 				$this->db->insert('purchase_return_detail', $purchaseDetail);
 				$purchaseDetailId = $this->db->insert_id();
+
+				$lotUpdated = $this->applyPurchaseReturnLotMovement([
+					'lot_id' => $purchaseDetail['lot'],
+					'row_material_id' => $purchaseDetail['item_id'],
+					'weight' => $purchaseDetail['net_weight'],
+					'quantity' => $purchaseDetail['piece'],
+					'is_new_detail' => true,
+				]);
+
+				if (!$lotUpdated) {
+					$this->db->trans_rollback();
+					flash()->withError("Failed to update selected lot for new purchase return row.")->to("purchase_return/index");
+					return;
+				}
 			} else {
+				$oldDetail = $this->db
+					->select('id, item_id, lot, net_weight, piece')
+					->from('purchase_return_detail')
+					->where(['id' => $data['rowid'][$i], 'purchase_id' => $id])
+					->get()
+					->row_array();
+
+				if (!empty($oldDetail)) {
+					$lotUpdated = $this->reversePurchaseReturnLotMovement([
+						'lot_id' => $oldDetail['lot'],
+						'row_material_id' => $oldDetail['item_id'],
+						'weight' => $oldDetail['net_weight'],
+						'quantity' => $oldDetail['piece'],
+					]);
+
+					if (!$lotUpdated) {
+						$this->db->trans_rollback();
+						flash()->withError("Failed to reverse old lot data for purchase return row.")->to("purchase_return/index");
+						return;
+					}
+
+					$lotUpdated = $this->applyPurchaseReturnLotMovement([
+						'lot_id' => $purchaseDetail['lot'],
+						'row_material_id' => $purchaseDetail['item_id'],
+						'weight' => $purchaseDetail['net_weight'],
+						'quantity' => $purchaseDetail['piece'],
+					]);
+
+					if (!$lotUpdated) {
+						$this->db->trans_rollback();
+						flash()->withError("Failed to apply new lot data for purchase return row.")->to("purchase_return/index");
+						return;
+					}
+				}
+
 				$this->db->where(['id' => $data['rowid'][$i], 'purchase_id' => $id])->update('purchase_return_detail', $purchaseDetail);
 			}
 			if (!empty($data['raw-material-data'][$i])) {
 				$array = explode("|", $data['raw-material-data'][$i]);
 				for ($a = 0; $a < count($array); $a++) {
 					$array1 = explode(",", $array[$a]);
-					$purchaseMaterial['row_material_id'] = $array1[0];
-					$purchaseMaterial['quantity'] = $array1[1];
-					$purchaseMaterial['rate'] = $array1[2];
-					$purchaseMaterial['sub_total'] = $array1[3];
-					if ($array1[4] == 0) {
+					$purchaseMaterial = [
+						'row_material_id' => $array1[0] ?? 0,
+						'quantity' => $array1[1] ?? 0,
+						'rate' => $array1[2] ?? 0,
+						'sub_total' => $array1[3] ?? 0,
+					];
+					$purchaseMaterialId = (int) ($array1[4] ?? 0);
+					if ($purchaseMaterialId === 0) {
+						$purchaseMaterial['user_id'] = session('id');
 						$purchaseMaterial['purchase_detail_id'] = $purchaseDetailId ?? $data['rowid'][$i];
-						$this->db->insert('purchase_material', $purchaseMaterial);
+						$this->db->insert('purchase_return_material', $purchaseMaterial);
 					} else {
-						$this->db->where(['purchase_detail_id' => $data['rowid'][$i], 'id' => $array1[4]])->update('purchase_return_material', $purchaseMaterial);
+						$this->db->where(['purchase_detail_id' => $data['rowid'][$i], 'id' => $purchaseMaterialId])->update('purchase_return_material', $purchaseMaterial);
 					}
 				}
 			}
@@ -285,9 +396,11 @@ class Purchase_return extends CI_Controller
 			$this->db->update('setting', array('jama_code' => $jama_code + 1));
 		}
 		$saleId = [];
-		for ($b = 0; $b < count($payment); $b++) {
-			if (isset($payment[$b]->saleid)) {
-				$saleId[] = $payment[$b]->saleid;
+		if (!empty($payment)) {
+			for ($b = 0; $b < count($payment); $b++) {
+				if (isset($payment[$b]->saleid)) {
+					$saleId[] = $payment[$b]->saleid;
+				}
 			}
 		}
 		// Deletion logic
@@ -298,53 +411,63 @@ class Purchase_return extends CI_Controller
 				$this->db->where('id', $deleteR['id'])->delete('jama');
 			}
 		}
-		for ($a = 0; $a < count($payment); $a++) {
-			if (isset($payment[$a]->type)) {
-				$sequence_code = $this->seq->getNextSequence('jama');
-				if ($payment[$a]->saleid == '') {
-					$insert = $this->db->insert('jama', array(
-						'sale_id' => 'purchase-return-' . $id,
-						'date' => $data['date'],
-						'customer_id' => $data['party_id'],
-						'type' => $payment[$a]->type,
-						'mode' => $payment[$a]->mode,
-						'gross' => $payment[$a]->gross,
-						'purity' => $payment[$a]->purity,
-						'wb' => $payment[$a]->wb,
-						'fine' => $payment[$a]->fine,
-						'rate' => $payment[$a]->rate,
-						'amount' => $payment[$a]->amount,
-						'remark' => $payment[$a]->remark,
-						'jama_code' => '',
-						'metal_type_id' => $payment[$a]->metal_type_id,
-						'creation_date' => date('Y-m-d'),
-						'payment_type' => $payment[$a]->payment,
-						'jama_code' => $jama,
-						'bank_id' => $payment[$a]->bank,
-						'sequence_code' => $sequence_code
-					));
-				} else {
-					$saleId[] = $payment[$a]->saleid;
-					$this->db->where(['id' => $payment[$a]->saleid, 'sale_id' => 'purchase-return-' . $id]);
-					$this->db->update('jama', array(
-						'date' => $data['date'],
-						'customer_id' => $data['party_id'],
-						'type' => $payment[$a]->type,
-						'mode' => $payment[$a]->mode,
-						'gross' => $payment[$a]->gross,
-						'purity' => $payment[$a]->purity,
-						'wb' => $payment[$a]->wb,
-						'fine' => $payment[$a]->fine,
-						'rate' => $payment[$a]->rate,
-						'amount' => $payment[$a]->amount,
-						'remark' => $payment[$a]->remark,
-						'metal_type_id' => $payment[$a]->metal_type_id,
-						'payment_type' => $payment[$a]->payment,
-						'bank_id' => $payment[$a]->bank
-					));
+		if (!empty($payment)) {
+			for ($a = 0; $a < count($payment); $a++) {
+				if (isset($payment[$a]->type)) {
+					$sequence_code = $this->seq->getNextSequence('jama');
+					$paymentSaleId = $payment[$a]->saleid ?? '';
+					if ($paymentSaleId == '') {
+						$this->db->insert('jama', array(
+							'sale_id' => 'purchase-return-' . $id,
+							'date' => $data['date'],
+							'customer_id' => $data['party_id'],
+							'type' => $payment[$a]->type,
+							'mode' => $payment[$a]->mode,
+							'gross' => $payment[$a]->gross,
+							'purity' => $payment[$a]->purity,
+							'wb' => $payment[$a]->wb,
+							'fine' => $payment[$a]->fine,
+							'rate' => $payment[$a]->rate,
+							'amount' => $payment[$a]->amount,
+							'remark' => $payment[$a]->remark,
+							'jama_code' => $jama,
+							'metal_type_id' => $payment[$a]->metal_type_id,
+							'creation_date' => date('Y-m-d'),
+							'payment_type' => $payment[$a]->payment,
+							'bank_id' => $payment[$a]->bank,
+							'sequence_code' => $sequence_code
+						));
+					} else {
+						$saleId[] = $paymentSaleId;
+						$this->db->where(['id' => $paymentSaleId, 'sale_id' => 'purchase-return-' . $id]);
+						$this->db->update('jama', array(
+							'date' => $data['date'],
+							'customer_id' => $data['party_id'],
+							'type' => $payment[$a]->type,
+							'mode' => $payment[$a]->mode,
+							'gross' => $payment[$a]->gross,
+							'purity' => $payment[$a]->purity,
+							'wb' => $payment[$a]->wb,
+							'fine' => $payment[$a]->fine,
+							'rate' => $payment[$a]->rate,
+							'amount' => $payment[$a]->amount,
+							'remark' => $payment[$a]->remark,
+							'metal_type_id' => $payment[$a]->metal_type_id,
+							'payment_type' => $payment[$a]->payment,
+							'bank_id' => $payment[$a]->bank
+						));
+					}
 				}
 			}
 		}
+
+		if ($this->db->trans_status() === FALSE) {
+			$this->db->trans_rollback();
+			flash()->withError("Something went wrong while updating purchase return.")->to("purchase_return/index");
+			return;
+		}
+
+		$this->db->trans_commit();
 
 		flash()->withSuccess("Update Successfully.")->to("purchase_return/index");
 	}
@@ -539,5 +662,41 @@ class Purchase_return extends CI_Controller
 		$page_data['bill_data'] = $res;
 		$page_data['customer'] = $customer;
 		$this->load->view('common', $page_data);
+	}
+
+	private function applyPurchaseReturnLotMovement(array $data)
+	{
+		return $this->updatePurchaseReturnLotColumns($data, 1);
+	}
+
+	private function reversePurchaseReturnLotMovement(array $data)
+	{
+		return $this->updatePurchaseReturnLotColumns($data, -1);
+	}
+
+	private function updatePurchaseReturnLotColumns(array $data, $direction)
+	{
+		$lotId = isset($data['lot_id']) ? (int) $data['lot_id'] : 0;
+		$rowMaterialId = isset($data['row_material_id']) ? (int) $data['row_material_id'] : 0;
+		$weight = isset($data['weight']) ? (float) $data['weight'] : 0;
+		$quantity = isset($data['quantity']) ? (float) $data['quantity'] : 0;
+
+		if ($lotId <= 0 || $rowMaterialId <= 0) {
+			return false;
+		}
+
+		$direction = ((float) $direction >= 0) ? 1 : -1;
+
+		return lot_management([
+			'id' => $lotId,
+			'row_material_id' => $rowMaterialId,
+			'given_weight_diff' => $direction * $weight,
+			'given_quantity_diff' => $direction * $quantity,
+			'rem_weight_diff' => -1 * $direction * $weight,
+			'rem_quantity_diff' => -1 * $direction * $quantity,
+			'update_lot_values' => false,
+			'only_four_columns' => true,
+			'strict_row_material_match' => true,
+		]);
 	}
 }

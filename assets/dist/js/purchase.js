@@ -86,6 +86,7 @@ var mainFunction = (function () {
 							// "input"
 						)
 						.val(0);
+					lastTr.find(".ids").val(0);
 					lastTr.find(".remark,.stamp,.unit,.labour_type,.rmdata,.lot").val("");
 					lastTr.find(".lot").html('<option value="">Select Lot</option>').attr("data-selected-id", "").data("selected-id", "");
 					main.select2(lastTr.find(".stamp"), { placeholder: "Stamp", allowClear: false, width: "80px" });
